@@ -15,13 +15,14 @@
   <mp:PhoneIdentity PhoneProductId="c4f5a7b1-db02-4855-b1bd-304559dec527" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Monster Siren Records Uwp</DisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Baka632</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.15063.0" MaxVersionTested="10.0.22621.0" />
+    <TargetDeviceFamily Name="Windows.Mobile" MinVersion="10.0.15063.0" MaxVersionTested="10.0.15063.0" />
   </Dependencies>
 
   <Resources>
@@ -33,10 +34,10 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="MonsterSiren.Uwp.App">
       <uap:VisualElements
-        DisplayName="Monster Siren Records (UWP)"
+        DisplayName="ms-resource:AppDisplayName"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="Monster Siren Records (MSR), one of the world&apos;s largest music publishers in the eleventh century in Terra."
+        Description="ms-resource:AppDescription"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />

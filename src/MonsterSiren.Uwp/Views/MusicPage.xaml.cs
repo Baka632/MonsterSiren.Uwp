@@ -13,18 +13,21 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-namespace MonsterSiren.Uwp
+namespace MonsterSiren.Uwp.Views
 {
     /// <summary>
-    /// 可用于自身或导航至 Frame 内部的空白页。
+    /// 音乐展示页
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MusicPage : Page
     {
-        public MainPage()
+        public MusicViewModel ViewModel { get; } = new MusicViewModel();
+
+        public MusicPage()
         {
             this.InitializeComponent();
+            ViewModel.Initialize();
         }
     }
 }
