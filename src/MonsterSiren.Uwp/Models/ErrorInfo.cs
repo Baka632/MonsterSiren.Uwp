@@ -3,7 +3,7 @@
 /// <summary>
 /// 表示应用内错误信息的结构
 /// </summary>
-internal record class ErrorInfo
+public record class ErrorInfo
 {
     /// <summary>
     /// 错误标题

@@ -3,9 +3,9 @@
 namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为确定当前设备类型提供帮助方法的类
+/// 为确定当前设备环境提供帮助方法的类
 /// </summary>
-public static class DeviceFamilyHelper
+public static class EnvironmentHelper
 {
     /// <summary>
     /// 确定设备是否为 Windows 10 Mobile
@@ -14,5 +14,10 @@ public static class DeviceFamilyHelper
     public static bool IsWindowsMobile()
     {
         return AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile";
+    }
+
+    public static bool IsWindows11()
+    {
+        return Environment.OSVersion.Version.Build >= 22000;
     }
 }

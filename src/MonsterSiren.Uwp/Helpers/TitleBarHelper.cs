@@ -2,6 +2,7 @@
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI;
+using Windows.UI.Xaml.Controls;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -10,6 +11,8 @@ namespace MonsterSiren.Uwp.Helpers;
 /// </summary>
 public static class TitleBarHelper
 {
+    private static Frame currentFrame;
+
     /// <summary>
     /// 当系统默认的后退按钮可视性发生改变时引发
     /// </summary>
@@ -24,12 +27,11 @@ public static class TitleBarHelper
     public static SystemNavigationManager NavigationManager { get; } = SystemNavigationManager.GetForCurrentView();
 
     /// <summary>
-    /// 使用指定的 <see cref="Frame"/> 初始化此类
+    /// 设置标题栏的默认外观
     /// </summary>
-    /// <param name="frame">一个 <see cref="Frame"/> </param>
-    public static void Initialize(Frame frame)
+    public static void SetTitleBarAppearance()
     {
-        if (DeviceFamilyHelper.IsWindowsMobile() != true && frame is not null)
+        if (EnvironmentHelper.IsWindowsMobile() != true)
         {
             CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             coreTitleBar.ExtendViewIntoTitleBar = true;
@@ -44,8 +46,36 @@ public static class TitleBarHelper
                 _ => Colors.White,
             };
             presentationTitleBar.ButtonForegroundColor = ForegroundColor;
+        }
+    }
 
+    /// <summary>
+    /// 侦听指定 <see cref="Frame"/> 的导航事件，以确定标题栏后退按钮的可见性
+    /// </summary>
+    /// <param name="frame">一个 <see cref="Frame"/> </param>
+    public static void Hook(Frame frame)
+    {
+        if (EnvironmentHelper.IsWindowsMobile() != true)
+        {
+            if (frame is null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
+            Dehook();
             frame.Navigated += OnCurrentFrameNavigated;
+            currentFrame = frame;
+        }
+    }
+
+    /// <summary>
+    /// 不再侦听来自 <see cref="Frame"/> 的导航事件
+    /// </summary>
+    public static void Dehook()
+    {
+        if (currentFrame is not null)
+        {
+            currentFrame.Navigated -= OnCurrentFrameNavigated;
         }
     }
 

@@ -1,0 +1,102 @@
+﻿<Page
+    x:Class="MonsterSiren.Uwp.Views.AlbumDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
+    xmlns:local="using:MonsterSiren.Uwp.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:song="using:MonsterSiren.Api.Models.Song"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
+    mc:Ignorable="d">
+
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Image
+            x:Name="AlbumCover"
+            Grid.Column="0"
+            Width="300"
+            Height="300"
+            Margin="0,0,20,0"
+            Source="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}"
+            Stretch="UniformToFill" />
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                x:Name="AlbumName"
+                Grid.Row="0"
+                FontSize="20"
+                FontWeight="SemiBold"
+                Text="{x:Bind ViewModel.CurrentAlbumInfo.Name, Mode=OneWay}" />
+            <TextBlock
+                x:Name="AlbumArtists"
+                Grid.Row="1"
+                Text="{x:Bind x:String.Join(' / ', ViewModel.CurrentAlbumInfo.Artistes), Mode=OneWay}" />
+            <StackPanel
+                x:Name="SeparatorStackPanel"
+                Grid.Row="2"
+                Margin="0,10,0,10"
+                BorderBrush="Gray"
+                BorderThickness="0.6" />
+            <ScrollViewer
+                x:Name="DetailScrollViewer"
+                Grid.Row="3"
+                Width="300"
+                Height="190"
+                VerticalAlignment="Top">
+                <Grid>
+                    <TextBlock
+                        x:Name="AlbumDetailTextBlock"
+                        IsTextSelectionEnabled="True"
+                        Text="{x:Bind ViewModel.CurrentAlbumDetail.Intro, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}" />
+
+                    <!--#region Loading & Error-->
+                    <ProgressRing
+                        x:Name="LoadingProgressRing"
+                        Width="50"
+                        Height="50"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+                    <StackPanel
+                        x:Name="ErrorMessageStackPanel"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
+                        <FontIcon Glyph="&#xEA39;" />
+                        <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
+                    </StackPanel>
+                    <!--#endregion-->
+                </Grid>
+            </ScrollViewer>
+
+            <Button
+                x:Name="PlayAlbumButton"
+                Grid.Row="4"
+                Margin="0,10,0,0"
+                VerticalAlignment="Bottom">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Margin="0,0,5,0" Symbol="Play" />
+                    <TextBlock Text="Play" />
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Grid>
+</Page>

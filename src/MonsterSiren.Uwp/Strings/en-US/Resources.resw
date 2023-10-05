@@ -75,4 +75,10 @@
   <data name="InternetErrorMessage" xml:space="preserve">
     <value>Seems that there is an error on your Internet, please check your Internet connection.</value>
   </data>
+  <data name="PivotItemAlbumIntro.Header" xml:space="preserve">
+    <value>Intro</value>
+  </data>
+  <data name="PivotItemAlbumSongs.Header" xml:space="preserve">
+    <value>Songs</value>
+  </data>
 </root>

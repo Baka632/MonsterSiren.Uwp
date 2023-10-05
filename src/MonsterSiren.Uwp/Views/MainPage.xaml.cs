@@ -1,4 +1,5 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
+using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 
@@ -18,22 +19,49 @@ public sealed partial class MainPage : Page
     {
         this.InitializeComponent();
 
-        TitleBarHelper.Initialize(ContentFrame);
-        NavigationHelper.Initialize(ContentFrame);
-        AcrylicHelper.TrySetAcrylicBrush(this);
+        SetMainPageBackground();
+        ConfigureTitleBar();
 
-        if (DeviceFamilyHelper.IsWindowsMobile())
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested += BackRequested;
+        ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
+        ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
+        ChangeSelectedItemOfNavigationView();
+    }
+
+    private void ConfigureTitleBar()
+    {
+        if (EnvironmentHelper.IsWindowsMobile())
         {
             TitleBarTextBlock.Visibility = Visibility.Collapsed;
         }
         else
         {
+            TitleBarHelper.Hook(ContentFrame);
             TitleBarHelper.BackButtonVisibilityChangedEvent += OnBackButtonVisibilityChanged;
             TitleBarHelper.TitleBarVisibilityChangedEvent += OnTitleBarVisibilityChanged;
         }
+    }
 
-        NavigationHelper.Navigate(typeof(MusicPage));
-        ChangeSelectedItemOfNavigationView();
+    private void SetMainPageBackground()
+    {
+        if (MicaHelper.IsSupported())
+        {
+            MicaHelper.TrySetMica(this);
+        }
+        else if (AcrylicHelper.IsSupported())
+        {
+            AcrylicHelper.TrySetAcrylicBrush(this);
+        }
+        else
+        {
+            Background = Resources["ApplicationPageBackgroundThemeBrush"] as Brush;
+        }
+    }
+
+    private void BackRequested(object sender, BackRequestedEventArgs e)
+    {
+        ContentFrameNavigationHelper.GoBack(e);
     }
 
     private void OnTitleBarVisibilityChanged(CoreApplicationViewTitleBar bar)
@@ -101,21 +129,21 @@ public sealed partial class MainPage : Page
         string str = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
-            NavigationHelper.Navigate(typeof(SettingsPage));
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage));
         }
         else
         {
             if (str == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
             {
-                NavigationHelper.Navigate(typeof(MusicPage));
+                ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
             }
             else if (str == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
             {
-                NavigationHelper.Navigate(typeof(NowPlayingPage));
+                ContentFrameNavigationHelper.Navigate(typeof(NowPlayingPage));
             }
             else if (str == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
             {
-                NavigationHelper.Navigate(typeof(NewsPage));
+                ContentFrameNavigationHelper.Navigate(typeof(NewsPage));
             }
         }
     }
@@ -149,5 +177,10 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
+    }
+
+    private void OnMainPageLoaded(object sender, RoutedEventArgs e)
+    {
+        MainPageNavigationHelper = new NavigationHelper(Frame);
     }
 }

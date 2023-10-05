@@ -2,6 +2,7 @@
 global using System.Collections.Generic;
 global using System.IO;
 global using System.Linq;
+global using System.Threading.Tasks;
 global using System.Runtime.InteropServices.WindowsRuntime;
 global using Windows.ApplicationModel;
 global using Windows.ApplicationModel.Activation;
@@ -28,3 +29,4 @@ global using MonsterSiren.Uwp.Views;
 global using MonsterSiren.Uwp.Models;
 global using MonsterSiren.Uwp.Helpers;
 global using MonsterSiren.Uwp.ViewModels;
+global using static MonsterSiren.Uwp.Helpers.DefaultNavigationHelpers;

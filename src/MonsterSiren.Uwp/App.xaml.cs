@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.UI.Xaml.Controls;
+using Windows.UI.Notifications;
 
 namespace MonsterSiren.Uwp;
 
@@ -19,7 +21,44 @@ sealed partial class App : Application
     public App()
     {
         this.InitializeComponent();
+
+        UnhandledException += App_UnhandledException;
         this.Suspending += OnSuspending;
+    }
+
+    private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        var toastContent = new ToastContent()
+        {
+            Visual = new ToastVisual()
+            {
+                BindingGeneric = new ToastBindingGeneric()
+                {
+                    Children =
+            {
+                new AdaptiveText()
+                {
+                    Text = e.Exception.GetType().Name
+                },
+                new AdaptiveText()
+                {
+                    Text = e.Exception.Message
+                },
+                        new AdaptiveText()
+                {
+                    Text = e.Exception.StackTrace
+                }
+            }
+                }
+            }
+        };
+
+        // Create the toast notification
+        var toastNotif = new ToastNotification(toastContent.GetXml());
+
+        // And send the notification
+        ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
+        e.Handled = true;
     }
 
     /// <summary>
@@ -44,6 +83,8 @@ sealed partial class App : Application
 
             // 将框架放在当前窗口中
             Window.Current.Content = rootFrame;
+
+            TitleBarHelper.SetTitleBarAppearance();
             LoadMuxcResources();
         }
 
@@ -87,7 +128,7 @@ sealed partial class App : Application
     {
         XamlControlsResources muxcStyle = new()
         {
-            ControlsResourcesVersion = DeviceFamilyHelper.IsWindowsMobile()
+            ControlsResourcesVersion = EnvironmentHelper.IsWindowsMobile()
                 ? ControlsResourcesVersion.Version1
                 : ControlsResourcesVersion.Version2
         };

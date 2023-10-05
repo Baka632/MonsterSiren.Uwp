@@ -1,13 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Net.Http;
+using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="MusicPage"/> 提供视图模型
+/// 为 <see cref="AlbumDetailPage"/> 提供视图模型
 /// </summary>
-public sealed partial class MusicViewModel : ObservableObject
+public partial class AlbumDetailViewModel : ObservableObject
 {
     [ObservableProperty]
     private bool isLoading = false;
@@ -16,26 +15,29 @@ public sealed partial class MusicViewModel : ObservableObject
     [ObservableProperty]
     private ErrorInfo errorInfo;
     [ObservableProperty]
-    private ObservableCollection<AlbumInfo> albums;
+    private AlbumInfo _currentAlbumInfo;
+    [ObservableProperty]
+    private AlbumDetail _currentAlbumDetail;
 
-    public async Task Initialize()
+    public async Task Initialize(AlbumInfo albumInfo)
     {
         IsLoading = true;
+        CurrentAlbumInfo = albumInfo;
+        AlbumDetail albumDetail;
+
         try
         {
-            if (CacheHelper<ObservableCollection<AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out ObservableCollection<AlbumInfo> infos))
+            if (CacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
             {
-                Albums = infos;
+                albumDetail = detail;
             }
             else
             {
-                IEnumerable<AlbumInfo> albums = await AlbumService.GetAllAlbums();
-                Albums = new ObservableCollection<AlbumInfo>(albums);
-
-                CacheHelper<ObservableCollection<AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
+                albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
+                CacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
             }
 
-
+            CurrentAlbumDetail = albumDetail;
             ErrorVisibility = Visibility.Collapsed;
         }
         catch (HttpRequestException ex)

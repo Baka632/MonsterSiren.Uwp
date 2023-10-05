@@ -75,4 +75,10 @@
   <data name="InternetErrorMessage" xml:space="preserve">
     <value>似乎网络出现了错误，请检查你的网络。</value>
   </data>
+  <data name="PivotItemAlbumIntro.Header" xml:space="preserve">
+    <value>介绍</value>
+  </data>
+  <data name="PivotItemAlbumSongs.Header" xml:space="preserve">
+    <value>歌曲</value>
+  </data>
 </root>

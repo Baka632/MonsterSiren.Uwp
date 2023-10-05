@@ -1,33 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+using Windows.UI.Xaml.Media.Animation;
 
-namespace MonsterSiren.Uwp.Views
+namespace MonsterSiren.Uwp.Views;
+
+/// <summary>
+/// 音乐展示页
+/// </summary>
+public sealed partial class MusicPage : Page
 {
-    /// <summary>
-    /// 音乐展示页
-    /// </summary>
-    public sealed partial class MusicPage : Page
-    {
-        public MusicViewModel ViewModel { get; } = new MusicViewModel();
+    private object _storedGridViewItem;
 
-        public MusicPage()
+    public MusicViewModel ViewModel { get; } = new MusicViewModel();
+
+    public MusicPage()
+    {
+        this.InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Enabled;
+    }
+
+    private void OnContentGridViewItemClicked(object sender, ItemClickEventArgs e)
+    {
+        _storedGridViewItem = e.ClickedItem;
+        ContentGridView.PrepareConnectedAnimation(CommonValues.AlbumInfoForwardConnectedAnimationKeyForMusicPage, e.ClickedItem, "AlbumImage");
+        ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), e.ClickedItem, new SuppressNavigationTransitionInfo());
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (_storedGridViewItem is not null && e.NavigationMode == NavigationMode.Back)
         {
-            this.InitializeComponent();
-            ViewModel.Initialize();
+            ContentGridView.ScrollIntoView(_storedGridViewItem);
+            ContentGridView.UpdateLayout();
+
+            ConnectedAnimation animation =
+                ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage);
+            if (animation != null)
+            {
+                await ContentGridView.TryStartConnectedAnimationAsync(animation, _storedGridViewItem, "AlbumImage");
+            }
+
+            ContentGridView.Focus(FocusState.Programmatic);
         }
+    }
+
+    private async void OnMusicPageLoaded(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.Initialize().ConfigureAwait(false);
     }
 }

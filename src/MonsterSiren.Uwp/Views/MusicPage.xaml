@@ -4,10 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:albumModels="using:MonsterSiren.Api.Models.Album"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MusicViewModel}"
+    Loaded="OnMusicPageLoaded"
     mc:Ignorable="d">
 
     <Grid>
@@ -19,7 +21,8 @@
         <StackPanel
             Grid.Row="0"
             Margin="0,0,0,5"
-            Orientation="Horizontal">
+            Orientation="Horizontal"
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
             <FontIcon
                 Margin="0,0,10,0"
                 HorizontalAlignment="Center"
@@ -32,10 +35,13 @@
         </StackPanel>
 
         <GridView
+            x:Name="ContentGridView"
             Grid.Row="1"
             IsItemClickEnabled="True"
+            ItemClick="OnContentGridViewItemClicked"
             ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
-            SelectionMode="None">
+            SelectionMode="None"
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
                     <Grid Padding="5">
@@ -46,11 +52,11 @@
                         </Grid.RowDefinitions>
 
                         <Image
+                            x:Name="AlbumImage"
                             Grid.Row="0"
                             Width="170"
                             Height="170"
                             Margin="0,0,0,5"
-                            CacheMode="BitmapCache"
                             Source="{x:Bind CoverUrl}"
                             Stretch="UniformToFill" />
                         <TextBlock
@@ -62,15 +68,15 @@
                             Grid.Row="2"
                             Margin="0,0,0,5"
                             HorizontalAlignment="Left"
-                            FontWeight="Normal"
                             Foreground="#8f8f8f"
-                            Text="{x:Bind x:String.Join(' · ', Artistes)}"
+                            Text="{x:Bind x:String.Join(' / ', Artistes)}"
                             TextTrimming="CharacterEllipsis" />
                     </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
 
+        <!--#region Loading & Error-->
         <ProgressRing
             Grid.Row="1"
             Width="50"
@@ -78,5 +84,16 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+        <StackPanel
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
+            <FontIcon HorizontalAlignment="Left" Glyph="&#xEA39;" />
+            <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
+        </StackPanel>
+        <!--#endregion-->
     </Grid>
 </Page>

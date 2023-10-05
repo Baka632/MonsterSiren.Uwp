@@ -8,7 +8,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="OnMainPageLoaded"
     mc:Ignorable="d">
     <Page.Resources>
         <!--#region TitleBarStoryboard-->

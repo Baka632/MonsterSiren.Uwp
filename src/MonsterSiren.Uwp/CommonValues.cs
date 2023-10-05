@@ -7,4 +7,6 @@ internal static class CommonValues
 {
     public const string ApplicationErrorMessageToken = "ApplicationError_MessageToken";
     public const string AlbumInfoCacheKey = "AlbumInfo_CacheKey";
+    public const string AlbumInfoForwardConnectedAnimationKeyForMusicPage = "MusicPage_AlbumInfo_ForwardConnectedAnimation";
+    public const string AlbumInfoBackConnectedAnimationKeyForMusicPage = "MusicPage_AlbumInfo_BackConnectedAnimation";
 }
