@@ -27,8 +27,11 @@ public struct ResponsePackage<T>
     /// <summary>
     /// 以默认参数构造 <see cref="ResponsePackage{T}"/> 的新实例
     /// </summary>
-    public ResponsePackage()
+    public ResponsePackage(int code, string message, T? data)
     {
+        Code = code;
+        Message = message;
+        Data = data;
     }
 
     /// <summary>

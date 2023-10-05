@@ -39,10 +39,17 @@ public struct AlbumDetail : IEquatable<AlbumDetail>
     public IEnumerable<SongInfo> Songs { get; set; } = Enumerable.Empty<SongInfo>();
 
     /// <summary>
-    /// 以默认参数构造 <see cref="AlbumDetail"/> 的新实例
+    /// 使用指定参数构造 <see cref="AlbumDetail"/> 的新实例
     /// </summary>
-    public AlbumDetail()
+    public AlbumDetail(string cid, string name, string intro, string belong, string coverUrl, string coverDeUrl, IEnumerable<SongInfo> songs)
     {
+        Cid = cid;
+        Name = name;
+        Intro = intro;
+        Belong = belong;
+        CoverUrl = coverUrl;
+        CoverDeUrl = coverDeUrl;
+        Songs = songs;
     }
 
     /// <inheritdoc/>

@@ -26,8 +26,11 @@ public struct ListPackage<T>
     /// <summary>
     /// 以默认参数构造 <see cref="ListPackage{T}"/> 的新实例
     /// </summary>
-    public ListPackage()
+    public ListPackage(IEnumerable<T> list, bool? isEnd, bool? isAutoplay)
     {
+        List = list;
+        IsEnd = isEnd;
+        IsAutoplay = isAutoplay;
     }
 
     /// <summary>

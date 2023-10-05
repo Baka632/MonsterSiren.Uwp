@@ -224,12 +224,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonsterSiren.Api\MonsterSiren.Api.csproj">
-      <Project>{fdf8e4f6-6fc4-4405-814d-b77aec2e1212}</Project>
-      <Name>MonsterSiren.Api</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +231,12 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Strings\en-US\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonsterSiren.Api\MonsterSiren.Api.csproj">
+      <Project>{fdf8e4f6-6fc4-4405-814d-b77aec2e1212}</Project>
+      <Name>MonsterSiren.Api</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

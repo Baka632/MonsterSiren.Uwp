@@ -44,8 +44,16 @@ public struct SongDetail : IEquatable<SongDetail>
     /// <summary>
     /// 以默认参数构造 <see cref="SongDetail"/> 的新实例
     /// </summary>
-    public SongDetail()
+    public SongDetail(string cid, string name, string albumCid, string sourceUrl, string lyricUrl, string mvUrl, string mvCoverUrl, IEnumerable<string> artists)
     {
+        Cid = cid;
+        Name = name;
+        AlbumCid = albumCid;
+        SourceUrl = sourceUrl;
+        LyricUrl = lyricUrl;
+        MvUrl = mvUrl;
+        MvCoverUrl = mvCoverUrl;
+        Artists = artists;
     }
 
     /// <inheritdoc/>

@@ -16,4 +16,13 @@ public struct SearchAlbumAndNewsResult
     /// 新闻信息列表
     /// </summary>
     public ListPackage<NewsInfo> News { get; set; }
+
+    /// <summary>
+    /// 使用指定的参数构造 <see cref="SearchAlbumAndNewsResult"/> 的新实例
+    /// </summary>
+    public SearchAlbumAndNewsResult(ListPackage<AlbumInfo> albums, ListPackage<NewsInfo> news)
+    {
+        Albums = albums;
+        News = news;
+    }
 }

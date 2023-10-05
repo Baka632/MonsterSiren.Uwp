@@ -36,8 +36,14 @@ public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
     /// <summary>
     /// 以默认参数构造 <see cref="RecommendedNewsInfo"/> 的新实例
     /// </summary>
-    public RecommendedNewsInfo()
+    public RecommendedNewsInfo(string title, string coverUrl, RecommendedNewsCoverInfo cover, string description, int type, string data)
     {
+        Title = title;
+        CoverUrl = coverUrl;
+        Cover = cover;
+        Description = description;
+        Type = type;
+        Data = data;
     }
 
     /// <inheritdoc/>
@@ -103,10 +109,12 @@ public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
 public struct RecommendedNewsCoverInfo : IEquatable<RecommendedNewsCoverInfo>
 {
     /// <summary>
-    /// 以默认参数构造 <see cref="RecommendedNewsCoverInfo"/> 的新实例
+    /// 使用指定参数构造 <see cref="RecommendedNewsCoverInfo"/> 的新实例
     /// </summary>
-    public RecommendedNewsCoverInfo()
+    public RecommendedNewsCoverInfo(bool isPrivate, string path)
     {
+        IsPrivate = isPrivate;
+        Path = path;
     }
 
     /// <summary>

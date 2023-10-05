@@ -35,10 +35,16 @@ public struct NewsDetail : IEquatable<NewsDetail>
     public DateTimeOffset Date { get; set; }
 
     /// <summary>
-    /// 以默认参数构造 <see cref="NewsDetail"/> 的新实例
+    /// 使用指定的参数构造 <see cref="NewsDetail"/> 的新实例
     /// </summary>
-    public NewsDetail()
+    public NewsDetail(string cid, string title, int category, string author, string content, DateTimeOffset date)
     {
+        Cid = cid;
+        Title = title;
+        Category = category;
+        Author = author;
+        Content = content;
+        Date = date;
     }
 
     /// <inheritdoc/>

@@ -29,8 +29,12 @@ public struct NewsInfo : IEquatable<NewsInfo>
     /// <summary>
     /// 以默认参数构造 <see cref="NewsInfo"/> 的新实例
     /// </summary>
-    public NewsInfo()
+    public NewsInfo(string cid, string title, int category, DateTimeOffset date)
     {
+        Cid = cid;
+        Title = title;
+        Category = category;
+        Date = date;
     }
 
     /// <inheritdoc/>
