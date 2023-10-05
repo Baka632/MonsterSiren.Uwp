@@ -11,92 +11,176 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
     mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-
-        <Image
-            x:Name="AlbumCover"
-            Grid.Column="0"
-            Width="300"
-            Height="300"
-            Margin="0,0,20,0"
-            Source="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}"
-            Stretch="UniformToFill" />
-
-        <Grid Grid.Column="1">
+    <ScrollViewer>
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <TextBlock
-                x:Name="AlbumName"
-                Grid.Row="0"
-                FontSize="20"
-                FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.CurrentAlbumInfo.Name, Mode=OneWay}" />
-            <TextBlock
-                x:Name="AlbumArtists"
-                Grid.Row="1"
-                Text="{x:Bind x:String.Join(' / ', ViewModel.CurrentAlbumInfo.Artistes), Mode=OneWay}" />
-            <StackPanel
-                x:Name="SeparatorStackPanel"
-                Grid.Row="2"
-                Margin="0,10,0,10"
-                BorderBrush="Gray"
-                BorderThickness="0.6" />
-            <ScrollViewer
-                x:Name="DetailScrollViewer"
-                Grid.Row="3"
-                Width="300"
-                Height="190"
-                VerticalAlignment="Top">
-                <Grid>
-                    <TextBlock
-                        x:Name="AlbumDetailTextBlock"
-                        IsTextSelectionEnabled="True"
-                        Text="{x:Bind ViewModel.CurrentAlbumDetail.Intro, Mode=OneWay}"
-                        TextWrapping="Wrap"
-                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}" />
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
 
-                    <!--#region Loading & Error-->
-                    <ProgressRing
-                        x:Name="LoadingProgressRing"
-                        Width="50"
-                        Height="50"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+                <Image
+                    x:Name="AlbumCover"
+                    VerticalAlignment="Top"
+                    Source="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}"
+                    Stretch="UniformToFill" />
+
+                <Grid x:Name="AlbumInfoGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        x:Name="AlbumName"
+                        Grid.Row="0"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="{x:Bind ViewModel.CurrentAlbumInfo.Name, Mode=OneWay}" />
+                    <TextBlock
+                        x:Name="AlbumArtists"
+                        Grid.Row="1"
+                        Text="{x:Bind x:String.Join(' / ', ViewModel.CurrentAlbumInfo.Artistes), Mode=OneWay}" />
+                    <StackPanel
+                        x:Name="SeparatorStackPanel"
+                        Grid.Row="2"
+                        Margin="0,10,10,10"
+                        BorderBrush="Gray"
+                        BorderThickness="0.6" />
+                    <ScrollViewer
+                        x:Name="DetailScrollViewer"
+                        Grid.Row="3"
+                        MaxHeight="130"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top">
+                        <Grid>
+                            <TextBlock
+                                x:Name="AlbumDetailTextBlock"
+                                IsTextSelectionEnabled="True"
+                                Text="{x:Bind ViewModel.CurrentAlbumDetail.Intro, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}" />
+
+                            <!--#region Loading & Error-->
+                            <ProgressRing
+                                x:Name="LoadingProgressRing"
+                                Width="50"
+                                Height="50"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+                            <StackPanel
+                                x:Name="ErrorMessageStackPanel"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
+                                <FontIcon Glyph="&#xEA39;" />
+                                <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
+                                <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
+                            </StackPanel>
+                            <!--#endregion-->
+                        </Grid>
+                    </ScrollViewer>
 
                     <StackPanel
-                        x:Name="ErrorMessageStackPanel"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
-                        <FontIcon Glyph="&#xEA39;" />
-                        <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
-                        <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
+                        x:Name="ControlBarStackPanel"
+                        Grid.Row="4"
+                        Margin="0,10,0,0"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal">
+                        <Button x:Name="PlayAlbumButton" Background="Transparent">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Margin="0,0,5,0" Symbol="Play" />
+                                <TextBlock Text="Play" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
-                    <!--#endregion-->
                 </Grid>
-            </ScrollViewer>
+            </Grid>
 
-            <Button
-                x:Name="PlayAlbumButton"
-                Grid.Row="4"
-                Margin="0,10,0,0"
-                VerticalAlignment="Bottom">
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Margin="0,0,5,0" Symbol="Play" />
-                    <TextBlock Text="Play" />
-                </StackPanel>
-            </Button>
+            <ListView
+                x:Name="SongList"
+                Grid.Row="1"
+                ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="song:SongInfo">
+                        <TextBlock Text="{x:Bind Name}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
-    </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AlbumCover.Height" Value="200" />
+                        <Setter Target="AlbumCover.Width" Value="200" />
+                        <Setter Target="AlbumCover.Margin" Value="0,6,0,0" />
+
+                        <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Center" />
+
+                        <Setter Target="AlbumDetailTextBlock.HorizontalAlignment" Value="Center" />
+                        <Setter Target="DetailScrollViewer.Margin" Value="25,0,25,0" />
+
+                        <Setter Target="SongList.Margin" Value="25,20,25,0" />
+
+                        <Setter Target="SeparatorStackPanel.Margin" Value="25,10,25,10" />
+
+                        <Setter Target="AlbumName.HorizontalAlignment" Value="Center" />
+                        <Setter Target="AlbumArtists.HorizontalAlignment" Value="Center" />
+
+                        <Setter Target="AlbumInfoGrid.(Grid.Row)" Value="1" />
+                        <Setter Target="AlbumInfoGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="AlbumCover.(Grid.Row)" Value="0" />
+                        <Setter Target="AlbumCover.(Grid.Column)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AlbumCover.Height" Value="250" />
+                        <Setter Target="AlbumCover.Width" Value="250" />
+                        <Setter Target="AlbumCover.Margin" Value="0,6,20,0" />
+
+                        <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="SongList.Margin" Value="0,20,11,0" />
+
+                        <Setter Target="AlbumDetailTextBlock.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="DetailScrollViewer.Margin" Value="0,0,10,0" />
+
+                        <Setter Target="SeparatorStackPanel.Margin" Value="0,10,10,10" />
+
+                        <Setter Target="AlbumName.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="AlbumArtists.HorizontalAlignment" Value="Stretch" />
+
+                        <Setter Target="AlbumInfoGrid.(Grid.Row)" Value="1" />
+                        <Setter Target="AlbumInfoGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="AlbumCover.(Grid.Row)" Value="1" />
+                        <Setter Target="AlbumCover.(Grid.Column)" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </ScrollViewer>
 </Page>
