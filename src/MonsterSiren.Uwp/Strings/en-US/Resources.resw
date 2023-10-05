@@ -81,4 +81,7 @@
   <data name="PivotItemAlbumSongs.Header" xml:space="preserve">
     <value>Songs</value>
   </data>
+  <data name="PlayMusicTextBlock.Text" xml:space="preserve">
+    <value>Play</value>
+  </data>
 </root>

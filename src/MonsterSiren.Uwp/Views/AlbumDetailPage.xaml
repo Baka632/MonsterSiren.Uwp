@@ -104,8 +104,14 @@
                         Orientation="Horizontal">
                         <Button x:Name="PlayAlbumButton" Background="Transparent">
                             <StackPanel Orientation="Horizontal">
-                                <SymbolIcon Margin="0,0,5,0" Symbol="Play" />
-                                <TextBlock Text="Play" />
+                                <SymbolIcon
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Center"
+                                    Symbol="Play" />
+                                <TextBlock
+                                    x:Uid="PlayMusicTextBlock"
+                                    HorizontalAlignment="Center"
+                                    FontSize="17" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
