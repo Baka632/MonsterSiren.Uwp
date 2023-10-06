@@ -21,14 +21,13 @@ public static class XamlHelper
             false => Visibility.Visible,
         };
     }
-    
-    public static Visibility ToVisibility(bool? value)
+
+    public static Visibility ToVisibility(bool value)
     {
         return value switch
         {
-            true => Visibility.Collapsed,
-            false => Visibility.Visible,
-            null => Visibility.Collapsed
+            true => Visibility.Visible,
+            false => Visibility.Collapsed,
         };
     }
     
@@ -36,9 +35,18 @@ public static class XamlHelper
     {
         return value switch
         {
-            true => Visibility.Collapsed,
-            false => Visibility.Visible,
+            true => Visibility.Visible,
+            false => Visibility.Collapsed,
             null => defaultVisibilityForNull
+        };
+    }
+
+    public static Visibility ToVisibility(bool? value)
+    {
+        return value switch
+        {
+            true => Visibility.Visible,
+            _ => Visibility.Collapsed
         };
     }
 

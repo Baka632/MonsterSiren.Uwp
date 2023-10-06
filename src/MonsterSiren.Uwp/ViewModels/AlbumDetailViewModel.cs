@@ -1,5 +1,5 @@
 ﻿using System.Net.Http;
-using Windows.System;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -54,5 +54,46 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    public async Task PlayForCurrentAlbumDetail()
+    {
+        List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
+
+        try
+        {
+            foreach (SongInfo item in CurrentAlbumDetail.Songs)
+            {
+                SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);
+                items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            }
+
+            foreach (MediaPlaybackItem item in items)
+            {
+                MusicService.AddMusic(item);
+            }
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        finally
+        {
+            items.Clear();
+        }
+    }
+
+    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
+    {
+        ContentDialog contentDialog = new()
+        {
+            Title = title,
+            Content = message,
+            PrimaryButtonText = primaryButtonText,
+            CloseButtonText = closeButtonText
+        };
+
+        await contentDialog.ShowAsync();
     }
 }

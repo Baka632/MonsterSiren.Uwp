@@ -18,6 +18,7 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         this.InitializeComponent();
+        MainThreadHelper.Initialize(Dispatcher);
 
         SetMainPageBackground();
         ConfigureTitleBar();
