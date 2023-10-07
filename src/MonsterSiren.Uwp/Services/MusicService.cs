@@ -1,6 +1,4 @@
-﻿using Windows.Media;
-using Windows.Media.Playback;
-using Windows.Storage.Streams;
+﻿using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Services;
 
@@ -41,6 +39,10 @@ public static class MusicService
     /// 当播放器的播放位置发生改变时引发
     /// </summary>
     public static event Action<TimeSpan> PlayerPositionChanged;
+    /// <summary>
+    /// 当播放器播放结束时引发
+    /// </summary>
+    public static event Action PlayerMediaEnded;
     /// <summary>
     /// 当音乐的时长发生改变时引发
     /// </summary>
@@ -92,21 +94,6 @@ public static class MusicService
     public static bool IsPlayerPlaylistHasMusic
     {
         get => mediaPlaybackList.Items.Count != 0;
-    }
-
-    public static bool IsPlayerPlayComplete
-    {
-        get
-        {
-            if (mediaPlaybackList.ShuffleEnabled)
-            {
-                return mediaPlaybackList.ShuffledItems.LastOrDefault() == mediaPlaybackList.CurrentItem;
-            }
-            else
-            {
-                return mediaPlaybackList.Items.LastOrDefault() == mediaPlaybackList.CurrentItem;
-            }
-        }
     }
 
     /// <summary>
@@ -228,6 +215,13 @@ public static class MusicService
             await UIThreadHelper.RunOnUIThread(() =>
             {
                 PlayerMediaFailed?.Invoke(args);
+            });
+        };
+        mediaPlayer.MediaEnded += async (sender, args) =>
+        {
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerMediaEnded?.Invoke();
             });
         };
 

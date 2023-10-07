@@ -21,6 +21,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string playIconGlyph = "\uE102";
     [ObservableProperty]
+    private string repeatIconGlyph = "\uE8EE";
+    [ObservableProperty]
     private TimeSpan musicDuration;
     [ObservableProperty]
     private TimeSpan musicPosition;
@@ -49,6 +51,39 @@ public partial class MainViewModel : ObservableObject
         set => MusicService.IsPlayerMuted = value.Value;
     }
 
+    public bool? IsRepeat
+    {
+        get
+        {
+            return MusicService.PlayerRepeatingState switch
+            {
+                PlayerRepeatingState.RepeatSingle => null,
+                PlayerRepeatingState.RepeatAll => true,
+                _ => false,
+            };
+        }
+        set
+        {
+            MusicService.PlayerRepeatingState = value switch
+            {
+                true => PlayerRepeatingState.RepeatAll,
+                false => PlayerRepeatingState.None,
+                null => PlayerRepeatingState.RepeatSingle,
+            };
+            OnPropertyChanged(nameof(IsRepeat));
+        }
+    }
+
+    public bool? IsShuffle
+    {
+        get => MusicService.IsPlayerShuffleEnabled;
+        set
+        {
+            MusicService.IsPlayerShuffleEnabled = value.Value;
+            OnPropertyChanged(nameof(IsShuffle));
+        }
+    }
+
     public bool HasMedia => CurrentMusicProperties != null;
 
     public MainViewModel()
@@ -62,6 +97,29 @@ public partial class MainViewModel : ObservableObject
         MusicService.PlayerPlaybackStateChanged += OnPlayerPlaybackStateChanged;
         MusicService.MusicDurationChanged += OnEventMusicDurationChanged;
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
+        MusicService.PlayerMediaEnded += OnPlayerMediaEnded;
+        MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
+        MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
+    }
+
+    private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
+    {
+        OnPropertyChanged(nameof(IsRepeat));
+        RepeatIconGlyph = state switch
+        {
+            PlayerRepeatingState.RepeatSingle => "\uE8ED",
+            _ => "\uE8EE",
+        };
+    }
+
+    private void OnPlayerShuffleStateChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsShuffle));
+    }
+
+    private void OnPlayerMediaEnded()
+    {
+        MusicPosition = TimeSpan.Zero;
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
@@ -188,7 +246,17 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void NextMusic() => MusicService.NextMusic();
     [RelayCommand]
-    private void PreviousMusic() => MusicService.PreviousMusic();
+    private void PreviousMusic()
+    {
+        if (MusicService.PlayerPosition.TotalSeconds > 5)
+        {
+            MusicService.PlayerPosition = TimeSpan.Zero;
+        }
+        else
+        {
+            MusicService.PreviousMusic();
+        }
+    }
 
     #region InfoBar
     [ObservableProperty]
