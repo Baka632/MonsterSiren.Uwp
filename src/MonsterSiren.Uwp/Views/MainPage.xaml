@@ -234,7 +234,7 @@
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
-                        Glyph="&#xE103;" />
+                        Glyph="{x:Bind ViewModel.PlayIconGlyph, Mode=OneWay}" />
                 </Button>
                 <Button Command="{x:Bind ViewModel.NextMusicCommand}" IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
@@ -246,7 +246,8 @@
                 MaxWidth="420"
                 Margin="15,0,15,0"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Center">
+                VerticalAlignment="Center"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsMusicBufferingOrOpening), Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
@@ -259,23 +260,36 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="White"
-                    Text="TBD" />
+                    Text="{x:Bind ViewModel.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.HasMedia), Mode=OneWay}" />
                 <Slider
-                    x:Name="processSlider"
+                    x:Name="MusicProcessSlider"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
+                    IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
-                    Maximum="100"
-                    Value="0" />
+                    Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
+                    ValueChanged="OnPositionSliderValueChanged"
+                    Value="{x:Bind ViewModel.MusicPosition.TotalSeconds, Mode=OneWay}" />
                 <TextBlock
                     Grid.Column="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="White"
-                    Text="TBD" />
+                    Text="{x:Bind ViewModel.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.HasMedia), Mode=OneWay}" />
             </Grid>
+            <muxc:ProgressBar
+                Grid.Row="1"
+                Grid.Column="1"
+                MaxWidth="420"
+                Margin="15,0,15,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                IsIndeterminate="True"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMusicBufferingOrOpening), Mode=OneWay}" />
 
             <StackPanel
                 Grid.Row="0"
@@ -296,14 +310,16 @@
                         Margin="0,0,5,0"
                         Padding="0"
                         HorizontalAlignment="Center"
-                        Background="Transparent">
-                        <FontIcon FontSize="16" Glyph="&#xE198;" />
+                        Background="Transparent"
+                        IsChecked="{x:Bind ViewModel.IsMute, Mode=TwoWay}"
+                        IsThreeState="False">
+                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.VolumeIconGlyph, Mode=OneWay}" />
                     </ToggleButton>
                     <Slider
                         Width="100"
                         HorizontalAlignment="Center"
-                        Maximum="1"
-                        Value="0" />
+                        Maximum="100"
+                        Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
                     x:Name="enterCompactOverlayModeButton"

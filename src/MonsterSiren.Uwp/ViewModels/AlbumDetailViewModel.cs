@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
+using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -63,6 +65,11 @@ public partial class AlbumDetailViewModel : ObservableObject
 
         try
         {
+            if (MusicService.IsPlayerPlaylistHasMusic)
+            {
+                MusicService.StopMusic();
+            }
+
             foreach (SongInfo item in CurrentAlbumDetail.Songs)
             {
                 SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);

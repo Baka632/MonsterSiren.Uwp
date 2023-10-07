@@ -3,9 +3,9 @@
 namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为应用程序访问主线程提供方法的类
+/// 为应用程序访问 UI 线程提供方法的类
 /// </summary>
-public static class MainThreadHelper
+public static class UIThreadHelper
 {
     private static CoreDispatcher _dispatcher;
 
@@ -20,11 +20,11 @@ public static class MainThreadHelper
     }
 
     /// <summary>
-    /// 使用正常优先级在主线程上调用指定的方法
+    /// 使用正常优先级在 UI 线程上调用指定的方法
     /// </summary>
     /// <param name="dispatchedHandler">要执行的方法</param>
     /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize(CoreDispatcher)"/> 方法</exception>
-    public static async Task RunOnMainThread(DispatchedHandler dispatchedHandler)
+    public static async Task RunOnUIThread(DispatchedHandler dispatchedHandler)
     {
         if (_dispatcher == null)
         {

@@ -47,6 +47,14 @@ public static class MusicService
     public static event Action<TimeSpan> MusicDurationChanged;
 
     /// <summary>
+    /// 获取播放器的播放状态
+    /// </summary>
+    public static MediaPlaybackState PlayerPlayBackState
+    {
+        get => mediaPlayer.PlaybackSession.PlaybackState;
+    }
+
+    /// <summary>
     /// 获取或设置播放器的音量
     /// </summary>
     public static double PlayerVolume
@@ -56,14 +64,55 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取播放器的播放状态
+    /// 获取或设置播放器的播放位置
     /// </summary>
-    public static MediaPlaybackState PlayerPlayBackState => mediaPlayer.PlaybackSession.PlaybackState;
+    public static TimeSpan PlayerPosition
+    {
+        get => mediaPlayer.PlaybackSession.Position;
+        set
+        {
+            if (value > mediaPlayer.PlaybackSession.NaturalDuration)
+            {
+                mediaPlayer.PlaybackSession.Position = mediaPlayer.PlaybackSession.NaturalDuration;
+            }
+            else if (value < TimeSpan.Zero)
+            {
+                mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+            }
+            else
+            {
+                mediaPlayer.PlaybackSession.Position = value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 确定播放器的播放列表是否有曲目
+    /// </summary>
+    public static bool IsPlayerPlaylistHasMusic
+    {
+        get => mediaPlaybackList.Items.Count != 0;
+    }
+
+    public static bool IsPlayerPlayComplete
+    {
+        get
+        {
+            if (mediaPlaybackList.ShuffleEnabled)
+            {
+                return mediaPlaybackList.ShuffledItems.LastOrDefault() == mediaPlaybackList.CurrentItem;
+            }
+            else
+            {
+                return mediaPlaybackList.Items.LastOrDefault() == mediaPlaybackList.CurrentItem;
+            }
+        }
+    }
 
     /// <summary>
     /// 获取或设置播放器的静音状态
     /// </summary>
-    public static bool PlayerMuteState
+    public static bool IsPlayerMuted
     {
         get => mediaPlayer.IsMuted;
         set => mediaPlayer.IsMuted = value;
@@ -72,7 +121,7 @@ public static class MusicService
     /// <summary>
     /// 获取或设置播放器的随机播放状态
     /// </summary>
-    public static bool PlayerShuffleState
+    public static bool IsPlayerShuffleEnabled
     {
         get => mediaPlaybackList.ShuffleEnabled;
         set
@@ -133,39 +182,61 @@ public static class MusicService
     {
         mediaPlayer.Source = mediaPlaybackList;
 
-        mediaPlayer.VolumeChanged += (sender, arg) =>
+        //下面的事件处理器在 UI 线程引发事件，这样可以让与 UI 相关的代码在处理这些事件时不会出错
+        mediaPlayer.VolumeChanged += async (sender, arg) =>
         {
             double volume = sender.Volume;
-            PlayerVolumeChanged?.Invoke(volume);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerVolumeChanged?.Invoke(volume);
+            });
         };
-        mediaPlayer.IsMutedChanged += (sender, arg) =>
+        mediaPlayer.IsMutedChanged += async (sender, arg) =>
         {
             bool mute = sender.IsMuted;
-            PlayerMuteStateChanged?.Invoke(mute);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerMuteStateChanged?.Invoke(mute);
+            });
         };
-        mediaPlayer.PlaybackSession.PositionChanged += (session, arg) =>
+        mediaPlayer.PlaybackSession.PositionChanged += async (session, arg) =>
         {
             TimeSpan position = session.Position;
-            PlayerPositionChanged?.Invoke(position);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerPositionChanged?.Invoke(position);
+            });
         };
-        mediaPlayer.PlaybackSession.PlaybackStateChanged += (session, obj) =>
+        mediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
         {
             MediaPlaybackState state = session.PlaybackState;
-            PlayerPlaybackStateChanged?.Invoke(state);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerPlaybackStateChanged?.Invoke(state);
+            });
         };
-        mediaPlayer.PlaybackSession.NaturalDurationChanged += (session, obj) =>
+        mediaPlayer.PlaybackSession.NaturalDurationChanged += async (session, obj) =>
         {
             TimeSpan naturalDuration = session.NaturalDuration;
-            MusicDurationChanged?.Invoke(naturalDuration);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                MusicDurationChanged?.Invoke(naturalDuration);
+            });
         };
-        mediaPlayer.MediaFailed += (sender, args) =>
+        mediaPlayer.MediaFailed += async (sender, args) =>
         {
-            PlayerMediaFailed?.Invoke(args);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerMediaFailed?.Invoke(args);
+            });
         };
 
-        mediaPlaybackList.CurrentItemChanged += (sender, args) =>
+        mediaPlaybackList.CurrentItemChanged += async (sender, args) =>
         {
-            PlayerPlayItemChanged?.Invoke(args);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlayerPlayItemChanged?.Invoke(args);
+            });
         };
     }
 
@@ -176,6 +247,7 @@ public static class MusicService
     public static void AddMusic(MediaPlaybackItem media)
     {
         mediaPlaybackList.Items.Add(media);
+        PlayMusic();
     }
 
     /// <summary>

@@ -18,7 +18,7 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         this.InitializeComponent();
-        MainThreadHelper.Initialize(Dispatcher);
+        UIThreadHelper.Initialize(Dispatcher);
 
         SetMainPageBackground();
         ConfigureTitleBar();
@@ -28,6 +28,10 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
+
+        //当在这里添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
+        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
+        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
     }
 
     private void ConfigureTitleBar()
@@ -183,5 +187,24 @@ public sealed partial class MainPage : Page
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)
     {
         MainPageNavigationHelper = new NavigationHelper(Frame);
+    }
+
+    private void OnPositionSliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+    {
+        if (ViewModel.IsModifyingMusicPositionBySlider)
+        {
+            ViewModel.MusicPosition = TimeSpan.FromSeconds(e.NewValue);
+        }
+    }
+
+    private void OnPositionSliderPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        ViewModel.IsModifyingMusicPositionBySlider = false;
+        ViewModel.UpdateMusicPosition(TimeSpan.FromSeconds(MusicProcessSlider.Value));
+    }
+
+    private void OnPositionSliderPointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        ViewModel.IsModifyingMusicPositionBySlider = true;
     }
 }
