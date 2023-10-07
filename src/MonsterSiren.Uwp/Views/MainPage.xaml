@@ -222,7 +222,7 @@
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
                     </Style>
-                    <Style TargetType="ToggleButton">
+                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="ToggleButton">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
                         <Setter Property="Background" Value="Transparent" />
