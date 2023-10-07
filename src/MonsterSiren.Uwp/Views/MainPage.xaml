@@ -146,12 +146,13 @@
 
         <Grid
             Grid.Row="2"
+            HorizontalAlignment="Stretch"
             Background="{ThemeResource SystemAccentColor}"
             RequestedTheme="Dark">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MaxWidth="282" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
@@ -167,6 +168,7 @@
                 Width="Auto"
                 MaxWidth="250"
                 Padding="0"
+                HorizontalAlignment="Left"
                 VerticalAlignment="Stretch"
                 Background="Transparent"
                 BorderThickness="0"
@@ -213,7 +215,6 @@
                 VerticalAlignment="Top"
                 Orientation="Horizontal">
                 <StackPanel.Resources>
-                    <SolidColorBrush x:Key="ToggleButtonUncheckedCheckedIndeterminateBackground" Color="Red" />
                     <Style TargetType="Button">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
@@ -325,14 +326,10 @@
                 Grid.Column="2"
                 Width="Auto"
                 Margin="0,6,11,0"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Orientation="Horizontal">
-                <StackPanel
-                    Margin="0,0,5,0"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                     <ToggleButton
                         Width="35"
                         Height="35"
@@ -356,7 +353,7 @@
                     Height="35"
                     Margin="5,0,5,0"
                     Padding="0"
-                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
                     Background="Transparent"
                     Content="&#xE158;"
                     FontFamily="Segoe MDL2 Assets"
