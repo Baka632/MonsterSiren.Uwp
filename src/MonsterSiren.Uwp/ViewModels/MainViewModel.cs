@@ -164,6 +164,7 @@ public partial class MainViewModel : ObservableObject
         {
             ChangeVolumeIconByVolume(MusicService.PlayerVolume);
         }
+        OnPropertyChanged(nameof(IsMute));
     }
 
     private void OnPlayerVolumeChanged(double volume)

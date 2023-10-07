@@ -147,7 +147,7 @@
         <Grid
             Grid.Row="2"
             HorizontalAlignment="Stretch"
-            Background="{ThemeResource SystemAccentColor}"
+            Background="{ThemeResource SystemAccentColorDark2}"
             RequestedTheme="Dark">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -166,7 +166,7 @@
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
                 Width="Auto"
-                MaxWidth="250"
+                MaxWidth="300"
                 Padding="0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Stretch"
