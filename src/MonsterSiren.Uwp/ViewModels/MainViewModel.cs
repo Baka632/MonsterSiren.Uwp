@@ -9,10 +9,12 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// <summary>
 /// 为 <see cref="MainPage"/> 提供视图模型
 /// </summary>
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableRecipient
 {
+    private MusicDisplayProperties formerMusicDisplayProperties;
+
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasMedia))]
+    [NotifyPropertyChangedFor(nameof(EnableMediaControl))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
     private BitmapImage currentMediaCover = new();
@@ -30,6 +32,10 @@ public partial class MainViewModel : ObservableObject
     private bool isModifyingMusicPositionBySlider;
     [ObservableProperty]
     private bool isMusicBufferingOrOpening;
+    [ObservableProperty]
+    private bool isLoadingMedia;
+    [ObservableProperty]
+    private bool isMediaInfoVisible;
 
     public double Volume
     {
@@ -84,7 +90,24 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    public bool HasMedia => CurrentMusicProperties != null;
+    public bool EnableMediaControl
+    {
+        get
+        {
+            bool isEnable = CurrentMusicProperties != null;
+
+            if (IsLoadingMedia)
+            {
+                IsMediaInfoVisible = true;
+            }
+            else
+            {
+                IsMediaInfoVisible = false;
+            }
+
+            return isEnable;
+        }
+    }
 
     public MainViewModel()
     {
@@ -100,6 +123,14 @@ public partial class MainViewModel : ObservableObject
         MusicService.PlayerMediaEnded += OnPlayerMediaEnded;
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
+        MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
+
+        IsActive = true;
+    }
+
+    private void OnPlayerMediaReplacing()
+    {
+        IsLoadingMedia = true;
     }
 
     private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
@@ -200,6 +231,8 @@ public partial class MainViewModel : ObservableObject
     {
         if (args.NewItem is not null)
         {
+            IsLoadingMedia = true;
+
             MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
@@ -214,9 +247,20 @@ public partial class MainViewModel : ObservableObject
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
                 await CurrentMediaCover.SetSourceAsync(stream);
             }
+
+            IsLoadingMedia = false;
         }
         else
         {
+            CurrentMusicProperties = null;
+        }
+    }
+
+    partial void OnIsLoadingMediaChanging(bool isMediaChanging)
+    {
+        if (isMediaChanging)
+        {
+            formerMusicDisplayProperties = CurrentMusicProperties;
             CurrentMusicProperties = null;
         }
     }
@@ -264,6 +308,30 @@ public partial class MainViewModel : ObservableObject
         {
             MusicService.PreviousMusic();
         }
+    }
+
+    protected override void OnActivated()
+    {
+        base.OnActivated();
+        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyWillUpdateMediaMessageToken, OnWillUpdateMedia);
+        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyUpdateMediaFailMessageToken, OnUpdateMediaFail);
+    }
+
+    private async void OnUpdateMediaFail(object recipient, string message)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            IsLoadingMedia = false;
+            CurrentMusicProperties = formerMusicDisplayProperties;
+        });
+    }
+
+    private async void OnWillUpdateMedia(object recipient, string message)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            IsLoadingMedia = true;
+        });
     }
 
     #region InfoBar

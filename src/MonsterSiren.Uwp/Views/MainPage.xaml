@@ -160,6 +160,14 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
+            <muxc:ProgressRing
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="0"
+                Margin="30,0,10,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoadingMedia, Mode=OneWay}" />
             <Button
                 Grid.Row="0"
                 Grid.RowSpan="2"
@@ -173,7 +181,7 @@
                 Background="Transparent"
                 BorderThickness="0"
                 Style="{x:Null}"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.HasMedia), Mode=OneWay}">
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMediaInfoVisible), Mode=OneWay}">
                 <Grid Margin="0,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -183,11 +191,13 @@
                     <Image
                         Grid.Column="0"
                         Margin="0,0,10,0"
-                        Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}" />
+                        Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}"
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}" />
                     <Grid
                         Grid.Column="1"
                         HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
@@ -242,7 +252,7 @@
                 <Button
                     Win17763:CornerRadius="4"
                     Command="{x:Bind ViewModel.PreviousMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
@@ -251,7 +261,7 @@
                     Win17763:CornerRadius="4"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.PlayOrPauseMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
@@ -260,7 +270,7 @@
                 <Button
                     Win17763:CornerRadius="4"
                     Command="{x:Bind ViewModel.NextMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <ToggleButton
@@ -291,13 +301,13 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.HasMedia), Mode=OneWay}" />
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.EnableMediaControl), Mode=OneWay}" />
                 <Slider
                     x:Name="MusicProcessSlider"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
-                    IsEnabled="{x:Bind ViewModel.HasMedia, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
                     Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
                     ValueChanged="OnPositionSliderValueChanged"
@@ -309,7 +319,7 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.HasMedia), Mode=OneWay}" />
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.EnableMediaControl), Mode=OneWay}" />
             </Grid>
             <muxc:ProgressBar
                 Grid.Row="1"

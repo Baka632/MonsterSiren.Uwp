@@ -1,8 +1,5 @@
 ﻿using System.Net.Http;
-using MonsterSiren.Api.Models.Song;
-using Windows.Media.Core;
 using Windows.Media.Playback;
-using Windows.Storage;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -21,6 +18,8 @@ public partial class AlbumDetailViewModel : ObservableObject
     private AlbumInfo _currentAlbumInfo;
     [ObservableProperty]
     private AlbumDetail _currentAlbumDetail;
+    [ObservableProperty]
+    private bool isPreparingMedia;
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -90,19 +89,21 @@ public partial class AlbumDetailViewModel : ObservableObject
     {
         try
         {
-            if (MusicService.IsPlayerPlaylistHasMusic)
-            {
-                MusicService.StopMusic();
-            }
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+            List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
 
             foreach (SongInfo item in CurrentAlbumDetail.Songs)
             {
-                SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);
-                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             }
+
+            MusicService.ReplaceMusic(items);
         }
         catch (HttpRequestException)
         {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
@@ -114,13 +115,58 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             foreach (SongInfo item in CurrentAlbumDetail.Songs)
             {
-                SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);
+                SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             }
         }
         catch (HttpRequestException)
         {
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    public async Task PlayForSongInfo(SongInfo songInfo)
+    {
+        try
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+            SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+            MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+        }
+        catch (HttpRequestException)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+    
+    [RelayCommand]
+    public async Task AddToPlaylistForSongInfo(SongInfo songInfo)
+    {
+        try
+        {
+            SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+            MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
+    {
+        if (CacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        {
+            return detail;
+        }
+        else
+        {
+            SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
+            CacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+
+            return songDetail;
         }
     }
 

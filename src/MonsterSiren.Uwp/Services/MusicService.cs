@@ -36,6 +36,10 @@ public static class MusicService
     /// </summary>
     public static event Action<MediaPlaybackState> PlayerPlaybackStateChanged;
     /// <summary>
+    /// 当播放器的媒体开始被替换时引发
+    /// </summary>
+    public static event Action PlayerMediaReplacing;
+    /// <summary>
     /// 当播放器的播放位置发生改变时引发
     /// </summary>
     public static event Action<TimeSpan> PlayerPositionChanged;
@@ -238,6 +242,41 @@ public static class MusicService
     public static void AddMusic(MediaPlaybackItem media)
     {
         mediaPlaybackList.Items.Add(media);
+        PlayMusic();
+    }
+
+    /// <summary>
+    /// 将当前的音乐替换为指定的音乐
+    /// </summary>
+    /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/></param>
+    public static async void ReplaceMusic(MediaPlaybackItem media)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            PlayerMediaReplacing?.Invoke();
+        });
+
+        StopMusic();
+        mediaPlaybackList.Items.Add(media);
+        PlayMusic();
+    }
+
+    /// <summary>
+    /// 将当前的音乐列表替换为指定的音乐列表
+    /// </summary>
+    /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
+    public static async void ReplaceMusic(IEnumerable<MediaPlaybackItem> medias)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            PlayerMediaReplacing?.Invoke();
+        });
+
+        StopMusic();
+        foreach (MediaPlaybackItem media in medias)
+        {
+            mediaPlaybackList.Items.Add(media);
+        }
         PlayMusic();
     }
 

@@ -90,4 +90,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
+  <data name="PlayCommandButton.Label" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+    <value>Add to playlist</value>
+  </data>
 </root>

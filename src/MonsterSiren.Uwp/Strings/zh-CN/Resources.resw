@@ -90,4 +90,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
+  <data name="PlayCommandButton.Label" xml:space="preserve">
+    <value>播放</value>
+  </data>
+  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+    <value>添加到播放列表</value>
+  </data>
 </root>
