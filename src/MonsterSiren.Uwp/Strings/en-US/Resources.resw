@@ -84,4 +84,7 @@
   <data name="PlayMusicTextBlock.Text" xml:space="preserve">
     <value>Play</value>
   </data>
+  <data name="MSR" xml:space="preserve">
+    <value>Monster Siren Records</value>
+  </data>
 </root>

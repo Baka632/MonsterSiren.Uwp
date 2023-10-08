@@ -36,6 +36,24 @@ public partial class AlbumDetailViewModel : ObservableObject
             else
             {
                 albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
+
+                bool isModified = false;
+                List<SongInfo> songs = albumDetail.Songs.ToList();
+                for (int i = 0; i < songs.Count; i++)
+                {
+                    SongInfo songInfo = songs[i];
+                    if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                    {
+                        songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                    }
+                    isModified = true;
+                }
+
+                if (isModified)
+                {
+                    albumDetail = albumDetail with { Songs = songs };
+                }
+
                 CacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
             }
 

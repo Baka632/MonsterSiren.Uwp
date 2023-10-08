@@ -24,9 +24,9 @@ internal static class SongDetailExtensions
         MediaPlaybackItem playbackItem = new(MediaSource.CreateFromUri(musicUri));
         MediaItemDisplayProperties displayProps = playbackItem.GetDisplayProperties();
         displayProps.Type = MediaPlaybackType.Music;
-        displayProps.MusicProperties.Artist = string.Join('/', item.Artists);
+        displayProps.MusicProperties.Artist = item.Artists.Any() ? string.Join('/', item.Artists) : "MSR".GetLocalized();
         displayProps.MusicProperties.Title = item.Name;
-        displayProps.MusicProperties.AlbumArtist = item.Artists.FirstOrDefault() ?? string.Empty;
+        displayProps.MusicProperties.AlbumArtist = item.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)albumDetail.Songs.Count();
         displayProps.Thumbnail = RandomAccessStreamReference.CreateFromUri(coverUri);
 
