@@ -162,7 +162,7 @@ public static class MusicService
     };
     private static readonly MediaPlaybackList mediaPlaybackList = new()
     {
-        MaxPlayedItemsToKeepOpen = 5
+        MaxPlayedItemsToKeepOpen = 1
     };
 
     static MusicService()

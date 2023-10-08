@@ -15,7 +15,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasMedia))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
-    private BitmapSource currentMediaCover = new BitmapImage();
+    private BitmapImage currentMediaCover = new();
     [ObservableProperty]
     private string volumeIconGlyph = "\uE995";
     [ObservableProperty]
@@ -202,7 +202,13 @@ public partial class MainViewModel : ObservableObject
             MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
-            if (props.Thumbnail is not null)
+
+            if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
+            {
+                AlbumDetail albumDetail = details.First();
+                CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            }
+            else if (props.Thumbnail is not null)
             {
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
                 await CurrentMediaCover.SetSourceAsync(stream);

@@ -57,8 +57,15 @@
                             Width="170"
                             Height="170"
                             Margin="0,0,0,5"
-                            Source="{x:Bind CoverUrl}"
-                            Stretch="UniformToFill" />
+                            Stretch="UniformToFill">
+                            <Image.Source>
+                                <BitmapImage
+                                    DecodePixelHeight="170"
+                                    DecodePixelType="Logical"
+                                    DecodePixelWidth="170"
+                                    UriSource="{x:Bind CoverUrl}" />
+                            </Image.Source>
+                        </Image>
                         <TextBlock
                             Grid.Row="1"
                             HorizontalAlignment="Left"

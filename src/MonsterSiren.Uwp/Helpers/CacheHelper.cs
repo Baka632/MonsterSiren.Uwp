@@ -5,7 +5,7 @@
 /// </summary>
 internal class CacheHelper<T>
 {
-    private readonly Dictionary<string, T> _cache = new(20);
+    private readonly Dictionary<string, T> _cache = new(200);
 
     public static CacheHelper<T> Default { get; } = new CacheHelper<T>();
 
@@ -39,5 +39,32 @@ internal class CacheHelper<T>
     public bool TryGetData(string key, out T value)
     {
         return _cache.TryGetValue(key, out value);
+    }
+
+    /// <summary>
+    /// 尝试使用指定的 <see cref="Func{T, TResult}"/> 查询缓存数据
+    /// </summary>
+    /// <param name="predicate">用于选择缓存数据的 <see cref="Func{T, TResult}"/></param>
+    /// <param name="value">缓存数据；若能够使用查询到缓存数据，则返回实际数据，否则返回 <see langword="null"/></param>
+    /// <returns>指示过程是否成功的值</returns>
+    /// <exception cref="System.ArgumentNullException"><paramref name="predicate"/> 为空</exception>
+    public bool TryQueryData(Func<T, bool> predicate, out IEnumerable<T> value)
+    {
+        if (predicate is null)
+        {
+            throw new ArgumentNullException(nameof(predicate));
+        }
+
+        IEnumerable<T> target = _cache.Values.Where(predicate);
+        if (target.Any())
+        {
+            value = target;
+            return true;
+        }
+        else
+        {
+            value = null;
+            return false;
+        }
     }
 }

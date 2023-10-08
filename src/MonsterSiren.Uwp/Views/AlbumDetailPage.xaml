@@ -31,8 +31,15 @@
                 <Image
                     x:Name="AlbumCover"
                     VerticalAlignment="Top"
-                    Source="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}"
-                    Stretch="UniformToFill" />
+                    Stretch="UniformToFill">
+                    <Image.Source>
+                        <BitmapImage
+                            DecodePixelHeight="250"
+                            DecodePixelType="Logical"
+                            DecodePixelWidth="250"
+                            UriSource="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}" />
+                    </Image.Source>
+                </Image>
 
                 <Grid x:Name="AlbumInfoGrid">
                     <Grid.RowDefinitions>
