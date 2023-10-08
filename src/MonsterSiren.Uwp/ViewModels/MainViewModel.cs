@@ -120,6 +120,7 @@ public partial class MainViewModel : ObservableObject
     private void OnPlayerMediaEnded()
     {
         MusicPosition = TimeSpan.Zero;
+        MusicService.NextMusic();
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
