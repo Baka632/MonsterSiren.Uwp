@@ -160,10 +160,7 @@ public static class MusicService
         AutoPlay = true,
         AudioCategory = MediaPlayerAudioCategory.Media
     };
-    private static readonly MediaPlaybackList mediaPlaybackList = new()
-    {
-        MaxPlayedItemsToKeepOpen = 1
-    };
+    private static readonly MediaPlaybackList mediaPlaybackList = new();
 
     static MusicService()
     {

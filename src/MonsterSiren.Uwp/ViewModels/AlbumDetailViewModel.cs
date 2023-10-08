@@ -88,8 +88,6 @@ public partial class AlbumDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task PlayForCurrentAlbumDetail()
     {
-        List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
-
         try
         {
             if (MusicService.IsPlayerPlaylistHasMusic)
@@ -100,21 +98,29 @@ public partial class AlbumDetailViewModel : ObservableObject
             foreach (SongInfo item in CurrentAlbumDetail.Songs)
             {
                 SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);
-                items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
-            }
-
-            foreach (MediaPlaybackItem item in items)
-            {
-                MusicService.AddMusic(item);
+                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             }
         }
         catch (HttpRequestException)
         {
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
-        finally
+    }
+
+    [RelayCommand]
+    public async Task AddToPlaylistForCurrentAlbumDetail()
+    {
+        try
         {
-            items.Clear();
+            foreach (SongInfo item in CurrentAlbumDetail.Songs)
+            {
+                SongDetail songDetail = await SongService.GetSongDetailedInfo(item.Cid);
+                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            }
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 

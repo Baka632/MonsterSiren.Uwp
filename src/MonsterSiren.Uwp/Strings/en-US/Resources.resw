@@ -87,4 +87,7 @@
   <data name="MSR" xml:space="preserve">
     <value>Monster Siren Records</value>
   </data>
+  <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
+    <value>Add to playlist</value>
+  </data>
 </root>

@@ -111,6 +111,7 @@
                         Orientation="Horizontal">
                         <Button
                             x:Name="PlayAlbumButton"
+                            Margin="0,0,5,0"
                             Background="Transparent"
                             Command="{x:Bind ViewModel.PlayForCurrentAlbumDetailCommand}">
                             <StackPanel Orientation="Horizontal">
@@ -118,10 +119,20 @@
                                     Margin="0,0,5,0"
                                     HorizontalAlignment="Center"
                                     Symbol="Play" />
-                                <TextBlock
-                                    x:Uid="PlayMusicTextBlock"
+                                <TextBlock x:Uid="PlayMusicTextBlock" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button
+                            x:Name="AddToPlayListButton"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.AddToPlaylistForCurrentAlbumDetailCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon
+                                    Margin="0,0,5,0"
                                     HorizontalAlignment="Center"
-                                    FontSize="17" />
+                                    Symbol="Add" />
+                                <TextBlock x:Uid="AddToPlaylistTextBlock" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

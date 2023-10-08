@@ -28,7 +28,7 @@ public sealed partial class AlbumDetailPage : Page
                 AlbumArtists,
                 SeparatorStackPanel,
                 DetailScrollViewer,
-                PlayAlbumButton
+                ControlBarStackPanel
         });
 
         if (e.Parameter is AlbumInfo albumInfo)
