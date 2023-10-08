@@ -148,7 +148,7 @@ public partial class MainViewModel : ObservableObject
                 IsMusicBufferingOrOpening = false;
                 break;
             case MediaPlaybackState.Opening or MediaPlaybackState.Buffering:
-                PlayIconGlyph = "\uEBD3";
+                PlayIconGlyph = "\uE118";
                 IsMusicBufferingOrOpening = true;
                 break;
         }

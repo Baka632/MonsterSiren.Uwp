@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using MonsterSiren.Api.Models.Song;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
@@ -37,20 +38,28 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
 
-                bool isModified = false;
-                List<SongInfo> songs = albumDetail.Songs.ToList();
-                for (int i = 0; i < songs.Count; i++)
+                bool shouldUpdate = false;
+                foreach (SongInfo item in albumDetail.Songs)
                 {
-                    SongInfo songInfo = songs[i];
-                    if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                    if (item.Artists is null || item.Artists.Any() != true)
                     {
-                        songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                        shouldUpdate = true;
+                        break;
                     }
-                    isModified = true;
                 }
 
-                if (isModified)
+                if (shouldUpdate)
                 {
+                    List<SongInfo> songs = albumDetail.Songs.ToList();
+                    for (int i = 0; i < songs.Count; i++)
+                    {
+                        SongInfo songInfo = songs[i];
+                        if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                        {
+                            songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                        }
+                    }
+
                     albumDetail = albumDetail with { Songs = songs };
                 }
 
