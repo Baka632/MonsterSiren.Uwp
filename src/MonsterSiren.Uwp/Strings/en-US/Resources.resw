@@ -96,4 +96,19 @@
   <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
+  <data name="RepeatOffText" xml:space="preserve">
+    <value>Repeat: Off</value>
+  </data>
+  <data name="RepeatSingleText" xml:space="preserve">
+    <value>Repeat: Single</value>
+  </data>
+  <data name="RepeatAllText" xml:space="preserve">
+    <value>Repeat: All</value>
+  </data>
+  <data name="ShuffleOffText" xml:space="preserve">
+    <value>Shuffle: On</value>
+  </data>
+  <data name="ShuffleOnText" xml:space="preserve">
+    <value>Shuffle: Off</value>
+  </data>
 </root>

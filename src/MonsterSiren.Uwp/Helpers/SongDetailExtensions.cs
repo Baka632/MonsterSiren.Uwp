@@ -1,6 +1,7 @@
 ﻿using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MonsterSiren.Uwp.Helpers;
@@ -21,7 +22,8 @@ internal static class SongDetailExtensions
         Uri musicUri = new(item.SourceUrl, UriKind.Absolute);
         Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
 
-        MediaPlaybackItem playbackItem = new(MediaSource.CreateFromUri(musicUri));
+        MediaSource source = MediaSource.CreateFromUri(musicUri);
+        MediaPlaybackItem playbackItem = new(source);
         MediaItemDisplayProperties displayProps = playbackItem.GetDisplayProperties();
         displayProps.Type = MediaPlaybackType.Music;
         displayProps.MusicProperties.Artist = item.Artists.Any() ? string.Join('/', item.Artists) : "MSR".GetLocalized();

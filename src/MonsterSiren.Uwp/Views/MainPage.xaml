@@ -169,15 +169,15 @@
                 VerticalAlignment="Center"
                 IsActive="{x:Bind ViewModel.IsLoadingMedia, Mode=OneWay}" />
             <Button
+                x:Name="MediaInfoButton"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
                 Width="Auto"
                 MaxWidth="300"
                 Padding="0"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Top"
                 Background="Transparent"
                 BorderThickness="0"
                 Style="{x:Null}"
@@ -188,11 +188,13 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Image
-                        Grid.Column="0"
-                        Margin="0,0,10,0"
-                        Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}"
-                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}" />
+                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}">
+                        <Image
+                            x:Name="MediaCoverImage"
+                            Grid.Column="0"
+                            Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}" />
+                    </Grid>
+
                     <Grid
                         Grid.Column="1"
                         HorizontalAlignment="Center"
@@ -218,6 +220,7 @@
             </Button>
 
             <StackPanel
+                x:Name="MediaControlsStackPanel"
                 Grid.Row="0"
                 Grid.Column="1"
                 Margin="0,10,0,0"
@@ -244,6 +247,7 @@
                 </StackPanel.Resources>
 
                 <ToggleButton
+                    x:Name="IsShuffleToggleButton"
                     Win17763:CornerRadius="4"
                     IsChecked="{x:Bind ViewModel.IsShuffle, Mode=TwoWay}"
                     IsThreeState="False">
@@ -274,13 +278,72 @@
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <ToggleButton
+                    x:Name="IsRepeatToggleButton"
                     Win17763:CornerRadius="4"
                     IsChecked="{x:Bind ViewModel.IsRepeat, Mode=TwoWay}"
                     IsThreeState="True">
                     <FontIcon Glyph="{x:Bind ViewModel.RepeatIconGlyph, Mode=OneWay}" />
                 </ToggleButton>
+
+                <Button
+                    x:Name="NarrowMediaAdditionalControlButton"
+                    Width="35"
+                    Height="35"
+                    Padding="0">
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel>
+                                <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
+                                    <ToggleButton
+                                        Width="35"
+                                        Height="35"
+                                        Margin="0,0,5,0"
+                                        Padding="0"
+                                        HorizontalAlignment="Center"
+                                        Background="Transparent"
+                                        IsChecked="{x:Bind ViewModel.IsMute, Mode=TwoWay}"
+                                        IsThreeState="False">
+                                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.VolumeIconGlyph, Mode=OneWay}" />
+                                    </ToggleButton>
+                                    <Slider
+                                        Width="100"
+                                        HorizontalAlignment="Center"
+                                        Maximum="100"
+                                        Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
+                                </StackPanel>
+                                <ToggleButton
+                                    Margin="0,5,0,5"
+                                    HorizontalAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    IsChecked="{x:Bind ViewModel.IsShuffle, Mode=TwoWay}"
+                                    IsThreeState="False"
+                                    Style="{StaticResource MediaControlToggleButton}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon Margin="0,0,5,0" Glyph="&#xE14B;" />
+                                        <TextBlock Text="TBD" />
+                                    </StackPanel>
+                                </ToggleButton>
+                                <ToggleButton
+                                    HorizontalAlignment="Stretch"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    IsChecked="{x:Bind ViewModel.IsRepeat, Mode=TwoWay}"
+                                    IsThreeState="True"
+                                    Style="{StaticResource MediaControlToggleButton}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.RepeatIconGlyph, Mode=OneWay}" />
+                                        <TextBlock Text="TBD" />
+                                    </StackPanel>
+                                </ToggleButton>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                    <SymbolIcon Symbol="More" />
+                </Button>
             </StackPanel>
             <Grid
+                x:Name="MusicProcessGrid"
                 Grid.Row="1"
                 Grid.Column="1"
                 MaxWidth="420"
@@ -322,6 +385,7 @@
                     Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.EnableMediaControl), Mode=OneWay}" />
             </Grid>
             <muxc:ProgressBar
+                x:Name="MusicStatusProgressBar"
                 Grid.Row="1"
                 Grid.Column="1"
                 MaxWidth="420"
@@ -332,6 +396,7 @@
                 Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMusicBufferingOrOpening), Mode=OneWay}" />
 
             <StackPanel
+                x:Name="MediaAdditionalControlStackPanel"
                 Grid.Row="0"
                 Grid.Column="2"
                 Width="Auto"
@@ -339,7 +404,10 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Orientation="Horizontal">
-                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <StackPanel
+                    x:Name="VolumeStackPanel"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
                     <ToggleButton
                         Width="35"
                         Height="35"
@@ -358,7 +426,6 @@
                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
-                    x:Name="enterCompactOverlayModeButton"
                     Width="35"
                     Height="35"
                     Margin="5,0,5,0"
@@ -367,8 +434,7 @@
                     Background="Transparent"
                     Content="&#xE158;"
                     FontFamily="Segoe MDL2 Assets"
-                    FontSize="16"
-                    ToolTipService.ToolTip="进入最小模式" />
+                    FontSize="16" />
             </StackPanel>
         </Grid>
 
@@ -380,15 +446,62 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ContentFrame.Margin" Value="-10,20,0,0" />
+
+                        <Setter Target="MediaInfoButton.Padding" Value="5" />
+                        <Setter Target="MediaCoverImage.Visibility" Value="Collapsed" />
+                        <Setter Target="VolumeStackPanel.Visibility" Value="Collapsed" />
+                        <Setter Target="IsShuffleToggleButton.Visibility" Value="Collapsed" />
+                        <Setter Target="IsRepeatToggleButton.Visibility" Value="Collapsed" />
+                        <Setter Target="MediaAdditionalControlStackPanel.Visibility" Value="Collapsed" />
+                        <Setter Target="NarrowMediaAdditionalControlButton.Visibility" Value="Visible" />
+                        <Setter Target="MusicProcessGrid.MaxWidth" Value="Infinity" />
+                        <Setter Target="MusicStatusProgressBar.MaxWidth" Value="Infinity" />
+                        <Setter Target="MediaControlsStackPanel.HorizontalAlignment" Value="Right" />
+                        <Setter Target="MediaControlsStackPanel.Margin" Value="0,10,15,0" />
+
+                        <Setter Target="MusicStatusProgressBar.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="MusicProcessGrid.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="MediaControlsStackPanel.(Grid.ColumnSpan)" Value="2" />
+
+                        <Setter Target="MusicProcessGrid.(Grid.Column)" Value="0" />
+                        <Setter Target="MusicStatusProgressBar.(Grid.Column)" Value="0" />
+                        <Setter Target="MediaInfoButton.(Grid.RowSpan)" Value="0" />
                     </VisualState.Setters>
                 </VisualState>
 
-                <VisualState x:Name="Wide">
+                <VisualState x:Name="MainPageWide">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="{x:Bind NavigationView.CompactModeThresholdWidth, Mode=OneWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ContentFrame.Margin" Value="0,0,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="MusicControlsWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="750" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MediaInfoButton.Padding" Value="0" />
+                        <Setter Target="MediaCoverImage.Visibility" Value="Visible" />
+                        <Setter Target="VolumeStackPanel.Visibility" Value="Visible" />
+                        <Setter Target="IsShuffleToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="IsRepeatToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="MediaAdditionalControlStackPanel.Visibility" Value="Visible" />
+                        <Setter Target="NarrowMediaAdditionalControlButton.Visibility" Value="Collapsed" />
+                        <Setter Target="MusicProcessGrid.MaxWidth" Value="420" />
+                        <Setter Target="MusicStatusProgressBar.MaxWidth" Value="420" />
+                        <Setter Target="MediaControlsStackPanel.HorizontalAlignment" Value="Center" />
+                        <Setter Target="MediaControlsStackPanel.Margin" Value="0,10,0,0" />
+
+                        <Setter Target="MusicProcessGrid.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="MusicStatusProgressBar.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="MediaControlsStackPanel.(Grid.ColumnSpan)" Value="1" />
+
+                        <Setter Target="MusicProcessGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="MusicStatusProgressBar.(Grid.Column)" Value="1" />
+                        <Setter Target="MediaInfoButton.(Grid.RowSpan)" Value="2" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

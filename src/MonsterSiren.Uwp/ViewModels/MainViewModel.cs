@@ -48,13 +48,18 @@ public partial class MainViewModel : ObservableRecipient
             }
 
             MusicService.PlayerVolume = value / 100;
+            OnPropertyChanged();
         }
     }
 
     public bool? IsMute
     {
         get => MusicService.IsPlayerMuted;
-        set => MusicService.IsPlayerMuted = value.Value;
+        set
+        {
+            MusicService.IsPlayerMuted = value.Value;
+            OnPropertyChanged();
+        }
     }
 
     public bool? IsRepeat
@@ -76,7 +81,7 @@ public partial class MainViewModel : ObservableRecipient
                 false => PlayerRepeatingState.None,
                 null => PlayerRepeatingState.RepeatSingle,
             };
-            OnPropertyChanged(nameof(IsRepeat));
+            OnPropertyChanged();
         }
     }
 
@@ -86,7 +91,7 @@ public partial class MainViewModel : ObservableRecipient
         set
         {
             MusicService.IsPlayerShuffleEnabled = value.Value;
-            OnPropertyChanged(nameof(IsShuffle));
+            OnPropertyChanged();
         }
     }
 
@@ -237,12 +242,20 @@ public partial class MainViewModel : ObservableRecipient
 
             CurrentMusicProperties = props.MusicProperties;
 
-            if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
-            {
-                AlbumDetail albumDetail = details.First();
-                CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
-            }
-            else if (props.Thumbnail is not null)
+            //HACK: Remove savings code
+
+            //if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
+            //{
+            //    AlbumDetail albumDetail = details.First();
+            //    CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            //}
+            //else if (props.Thumbnail is not null)
+            //{
+            //    IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
+            //    await CurrentMediaCover.SetSourceAsync(stream);
+            //}
+
+            if (props.Thumbnail is not null)
             {
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
                 await CurrentMediaCover.SetSourceAsync(stream);
