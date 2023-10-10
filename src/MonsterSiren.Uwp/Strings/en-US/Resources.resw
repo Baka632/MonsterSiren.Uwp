@@ -106,9 +106,9 @@
     <value>Repeat: All</value>
   </data>
   <data name="ShuffleOffText" xml:space="preserve">
-    <value>Shuffle: On</value>
+    <value>Shuffle: Off</value>
   </data>
   <data name="ShuffleOnText" xml:space="preserve">
-    <value>Shuffle: Off</value>
+    <value>Shuffle: On</value>
   </data>
 </root>

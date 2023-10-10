@@ -106,9 +106,9 @@
     <value>重复播放：全部循环</value>
   </data>
   <data name="ShuffleOnText" xml:space="preserve">
-    <value>随机播放：关闭</value>
+    <value>随机播放：启用</value>
   </data>
   <data name="ShuffleOffText" xml:space="preserve">
-    <value>随机播放：启用</value>
+    <value>随机播放：关闭</value>
   </data>
 </root>

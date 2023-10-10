@@ -36,6 +36,10 @@ public partial class MainViewModel : ObservableRecipient
     private bool isLoadingMedia;
     [ObservableProperty]
     private bool isMediaInfoVisible;
+    [ObservableProperty]
+    private string repeatStateDescription = "RepeatOffText".GetLocalized();
+    [ObservableProperty]
+    private string shuffleStateDescription = "ShuffleOffText".GetLocalized();
 
     public double Volume
     {
@@ -146,11 +150,23 @@ public partial class MainViewModel : ObservableRecipient
             PlayerRepeatingState.RepeatSingle => "\uE8ED",
             _ => "\uE8EE",
         };
+
+        RepeatStateDescription = state switch
+        {
+            PlayerRepeatingState.RepeatAll => "RepeatAllText".GetLocalized(),
+            PlayerRepeatingState.RepeatSingle => "RepeatSingleText".GetLocalized(),
+            _ => "RepeatOffText".GetLocalized(),
+        };
     }
 
     private void OnPlayerShuffleStateChanged(bool value)
     {
         OnPropertyChanged(nameof(IsShuffle));
+        ShuffleStateDescription = value switch
+        {
+            true => "ShuffleOnText".GetLocalized(),
+            false => "ShuffleOffText".GetLocalized()
+        };
     }
 
     private void OnPlayerMediaEnded()
