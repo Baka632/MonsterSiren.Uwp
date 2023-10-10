@@ -180,6 +180,7 @@
                 VerticalAlignment="Top"
                 Background="Transparent"
                 BorderThickness="0"
+                Click="OnMediaInfoButtonClick"
                 Style="{x:Null}"
                 Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMediaInfoVisible), Mode=OneWay}">
                 <Grid Margin="0,0,10,0">

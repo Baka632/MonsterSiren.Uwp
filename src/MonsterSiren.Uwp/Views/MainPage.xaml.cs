@@ -12,12 +12,15 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
+    private bool IsNavigatedToNowPlayingPage = false;
 
     public MainViewModel ViewModel { get; } = new();
 
     public MainPage()
     {
         this.InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Enabled;
+
         UIThreadHelper.Initialize(Dispatcher);
 
         SetMainPageBackground();
@@ -66,7 +69,22 @@ public sealed partial class MainPage : Page
 
     private void BackRequested(object sender, BackRequestedEventArgs e)
     {
-        ContentFrameNavigationHelper.GoBack(e);
+        if (IsNavigatedToNowPlayingPage)
+        {
+            AppViewBackButtonVisibility backButtonVisibility = ContentFrame.CanGoBack
+                ? AppViewBackButtonVisibility.Visible
+                : AppViewBackButtonVisibility.Collapsed;
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = backButtonVisibility;
+            StartTitleTextBlockAnimation(backButtonVisibility);
+
+            MainPageNavigationHelper.GoBack(e);
+            IsNavigatedToNowPlayingPage = false;
+            ChangeSelectedItemOfNavigationView();
+        }
+        else
+        {
+            ContentFrameNavigationHelper.GoBack(e);
+        }
     }
 
     private void OnTitleBarVisibilityChanged(CoreApplicationViewTitleBar bar)
@@ -144,13 +162,20 @@ public sealed partial class MainPage : Page
             }
             else if (str == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
             {
-                ContentFrameNavigationHelper.Navigate(typeof(NowPlayingPage));
+                NavigateToNowPlayingPage();
             }
             else if (str == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
             {
                 ContentFrameNavigationHelper.Navigate(typeof(NewsPage));
             }
         }
+    }
+
+    private void NavigateToNowPlayingPage()
+    {
+        IsNavigatedToNowPlayingPage = true;
+        StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage));
     }
 
     private void OnContentFrameNavigated(object sender, NavigationEventArgs e)
@@ -206,5 +231,10 @@ public sealed partial class MainPage : Page
     private void OnPositionSliderPointerPressed(object sender, PointerRoutedEventArgs e)
     {
         ViewModel.IsModifyingMusicPositionBySlider = true;
+    }
+
+    private void OnMediaInfoButtonClick(object sender, RoutedEventArgs e)
+    {
+        NavigateToNowPlayingPage();
     }
 }
