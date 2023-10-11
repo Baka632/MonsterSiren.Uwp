@@ -184,7 +184,7 @@ public sealed partial class MusicViewModel : ObservableObject
     }
 }
 
-internal class AlbumInfoSource : IIncrementalSource<AlbumInfo>
+public class AlbumInfoSource : IIncrementalSource<AlbumInfo>
 {
     private readonly List<AlbumInfo> albumInfos;
 
