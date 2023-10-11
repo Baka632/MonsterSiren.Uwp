@@ -42,7 +42,8 @@ public sealed partial class MusicViewModel : ObservableObject
                     }
                 }
 
-                Albums = new(new AlbumInfoSource(albums));
+                int loadCount = EnvironmentHelper.IsWindowsMobile() ? 5 : 10;
+                Albums = new(new AlbumInfoSource(albums), loadCount);
 
                 CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
             }
