@@ -1,5 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Threading;
+using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Uwp;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -16,14 +19,14 @@ public sealed partial class MusicViewModel : ObservableObject
     [ObservableProperty]
     private ErrorInfo errorInfo;
     [ObservableProperty]
-    private ObservableCollection<AlbumInfo> albums;
+    private IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums;
 
     public async Task Initialize()
     {
         IsLoading = true;
         try
         {
-            if (CacheHelper<ObservableCollection<AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out ObservableCollection<AlbumInfo> infos))
+            if (CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
             {
                 Albums = infos;
             }
@@ -39,9 +42,9 @@ public sealed partial class MusicViewModel : ObservableObject
                     }
                 }
 
-                Albums = new ObservableCollection<AlbumInfo>(albums);
+                Albums = new(new AlbumInfoSource(albums));
 
-                CacheHelper<ObservableCollection<AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
+                CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
             }
 
 
@@ -178,5 +181,20 @@ public sealed partial class MusicViewModel : ObservableObject
 
             await contentDialog.ShowAsync();
         });
+    }
+}
+
+internal class AlbumInfoSource : IIncrementalSource<AlbumInfo>
+{
+    private readonly List<AlbumInfo> albumInfos;
+
+    public AlbumInfoSource(IEnumerable<AlbumInfo> infos)
+    {
+        albumInfos = new List<AlbumInfo>(infos);
+    }
+
+    public async Task<IEnumerable<AlbumInfo>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await Task.Run(() => albumInfos.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
     }
 }
