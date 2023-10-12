@@ -196,6 +196,9 @@ public class AlbumInfoSource : IIncrementalSource<AlbumInfo>
 
     public async Task<IEnumerable<AlbumInfo>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await Task.Run(() => albumInfos.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
+        return await Task.Run(() =>
+        {
+            return albumInfos.Skip(pageIndex * pageSize).Take(pageSize);
+        }, cancellationToken);
     }
 }

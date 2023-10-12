@@ -17,7 +17,12 @@ public partial class MainViewModel : ObservableRecipient
     [NotifyPropertyChangedFor(nameof(EnableMediaControl))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
-    private BitmapImage currentMediaCover = new();
+    private BitmapImage currentMediaCover = new()
+    {
+        DecodePixelHeight = 250,
+        DecodePixelWidth = 250,
+        DecodePixelType = DecodePixelType.Logical,
+    };
     [ObservableProperty]
     private string volumeIconGlyph = "\uE995";
     [ObservableProperty]
@@ -258,20 +263,12 @@ public partial class MainViewModel : ObservableRecipient
 
             CurrentMusicProperties = props.MusicProperties;
 
-            //HACK: Remove savings code
-
-            //if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
-            //{
-            //    AlbumDetail albumDetail = details.First();
-            //    CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
-            //}
-            //else if (props.Thumbnail is not null)
-            //{
-            //    IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
-            //    await CurrentMediaCover.SetSourceAsync(stream);
-            //}
-
-            if (props.Thumbnail is not null)
+            if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
+            {
+                AlbumDetail albumDetail = details.First();
+                CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            }
+            else if (props.Thumbnail is not null)
             {
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
                 await CurrentMediaCover.SetSourceAsync(stream);

@@ -42,8 +42,7 @@
             IsItemClickEnabled="True"
             ItemClick="OnContentGridViewItemClicked"
             ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
-            SelectionMode="None"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
+            SelectionMode="None">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
                     <Grid Padding="5">
@@ -78,9 +77,9 @@
                             Stretch="UniformToFill">
                             <Image.Source>
                                 <BitmapImage
-                                    DecodePixelHeight="170"
+                                    DecodePixelHeight="250"
                                     DecodePixelType="Logical"
-                                    DecodePixelWidth="170"
+                                    DecodePixelWidth="250"
                                     UriSource="{x:Bind CoverUrl}" />
                             </Image.Source>
                         </Image>
