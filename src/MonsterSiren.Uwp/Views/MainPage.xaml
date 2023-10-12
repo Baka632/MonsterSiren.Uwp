@@ -2,6 +2,8 @@
     x:Class="MonsterSiren.Uwp.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:NotWin16299="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract, 5)"
+    xmlns:Win16299="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
     xmlns:Win17763="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 7)"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
@@ -147,8 +149,18 @@
         <Grid
             Grid.Row="2"
             HorizontalAlignment="Stretch"
-            Background="{ThemeResource SystemAccentColorDark2}"
             RequestedTheme="Dark">
+            <Win16299:Grid.Background>
+                <Win16299:AcrylicBrush
+                    AlwaysUseFallback="False"
+                    BackgroundSource="Backdrop"
+                    TintColor="{x:Bind ViewModel.MusicThemeColor, Mode=OneWay}"
+                    TintOpacity="0.5" />
+            </Win16299:Grid.Background>
+            <NotWin16299:Grid.Background>
+                <NotWin16299:SolidColorBrush Color="{x:Bind ViewModel.MusicThemeColor, Mode=OneWay}" />
+            </NotWin16299:Grid.Background>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />

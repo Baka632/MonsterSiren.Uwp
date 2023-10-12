@@ -135,6 +135,7 @@
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
     <Compile Include="Helpers\DeviceFamilyHelper.cs" />
+    <Compile Include="Helpers\ImageColorHelper.cs" />
     <Compile Include="Helpers\LocalizationHelper.cs" />
     <Compile Include="Helpers\UIThreadHelper.cs" />
     <Compile Include="Helpers\MicaHelper.cs" />
@@ -234,6 +235,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.7.3</Version>
+    </PackageReference>
+    <PackageReference Include="Win2D.uwp">
+      <Version>1.27.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

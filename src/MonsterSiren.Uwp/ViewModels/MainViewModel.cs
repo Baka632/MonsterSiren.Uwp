@@ -1,7 +1,9 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using System.IO;
+using Microsoft.UI.Xaml.Controls;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
+using Windows.UI;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -45,6 +47,8 @@ public partial class MainViewModel : ObservableRecipient
     private string repeatStateDescription = "RepeatOffText".GetLocalized();
     [ObservableProperty]
     private string shuffleStateDescription = "ShuffleOffText".GetLocalized();
+    [ObservableProperty]
+    private Color musicThemeColor;
 
     public double Volume
     {
@@ -139,6 +143,7 @@ public partial class MainViewModel : ObservableRecipient
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
 
+        MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColorDark2"];
         IsActive = true;
     }
 
@@ -266,12 +271,18 @@ public partial class MainViewModel : ObservableRecipient
             if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
             {
                 AlbumDetail albumDetail = details.First();
-                CurrentMediaCover.UriSource = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+
+                Uri uri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                CurrentMediaCover = new BitmapImage(uri);
+
+                MusicThemeColor = await ImageColorHelper.GetPaletteColor(uri);
             }
             else if (props.Thumbnail is not null)
             {
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
                 await CurrentMediaCover.SetSourceAsync(stream);
+
+                MusicThemeColor = await ImageColorHelper.GetPaletteColor(stream);
             }
 
             IsLoadingMedia = false;

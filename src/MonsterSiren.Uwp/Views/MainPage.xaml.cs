@@ -19,6 +19,7 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         this.InitializeComponent();
+
         NavigationCacheMode = NavigationCacheMode.Enabled;
 
         UIThreadHelper.Initialize(Dispatcher);
