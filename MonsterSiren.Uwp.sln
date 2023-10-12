@@ -5,9 +5,17 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterSiren.Uwp", "src\MonsterSiren.Uwp\MonsterSiren.Uwp.csproj", "{587DF05F-FF6F-4E2E-BFDC-810CBBABF057}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterSiren.Api", "src\MonsterSiren.Api\MonsterSiren.Api.csproj", "{FDF8E4F6-6FC4-4405-814D-B77AEC2E1212}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterSiren.Api", "src\MonsterSiren.Api\MonsterSiren.Api.csproj", "{FDF8E4F6-6FC4-4405-814D-B77AEC2E1212}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterSiren.Api.Test", "src\MonsterSiren.Api.Test\MonsterSiren.Api.Test.csproj", "{BD0ED1C3-2888-4B06-A4CB-E8283C28CF90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterSiren.Api.Test", "src\MonsterSiren.Api.Test\MonsterSiren.Api.Test.csproj", "{BD0ED1C3-2888-4B06-A4CB-E8283C28CF90}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{96821F60-A7A0-41DD-A73E-5E549B5A3C3E}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
