@@ -356,6 +356,7 @@ public partial class MainViewModel : ObservableRecipient
 
     private async void OnUpdateMediaFail(object recipient, string message)
     {
+        MusicService.PlayMusic();
         await UIThreadHelper.RunOnUIThread(() =>
         {
             IsLoadingMedia = false;
@@ -365,6 +366,7 @@ public partial class MainViewModel : ObservableRecipient
 
     private async void OnWillUpdateMedia(object recipient, string message)
     {
+        MusicService.PauseMusic();
         await UIThreadHelper.RunOnUIThread(() =>
         {
             IsLoadingMedia = true;
