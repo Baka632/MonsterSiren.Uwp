@@ -11,7 +11,7 @@ public sealed partial class NowPlayingCompactPage : Page
 {
     private bool IsContentHide;
     private bool IsActive = false;
-    private DispatcherTimer _timer = new()
+    private readonly DispatcherTimer _timer = new()
     {
         Interval = TimeSpan.FromSeconds(5d)
     };
@@ -45,7 +45,7 @@ public sealed partial class NowPlayingCompactPage : Page
 
     private void OnTimerTick(object sender, object e)
     {
-        if (IsActive != true && ViewModel.IsDisplayContent)
+        if (IsActive != true && ViewModel.MusicInfo.CurrentMusicPropertiesExists)
         {
             HideContentStoryBoard.Begin();
             IsContentHide = true;

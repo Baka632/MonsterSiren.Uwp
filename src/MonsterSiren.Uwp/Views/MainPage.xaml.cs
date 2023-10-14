@@ -20,8 +20,6 @@ public sealed partial class MainPage : Page
     {
         this.InitializeComponent();
 
-        //HACK: Modify it by settings
-        MusicService.PlayerVolume = 1d;
         NavigationCacheMode = NavigationCacheMode.Enabled;
 
         UIThreadHelper.Initialize(Dispatcher);
@@ -221,21 +219,21 @@ public sealed partial class MainPage : Page
 
     private void OnPositionSliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
-        if (ViewModel.IsModifyingMusicPositionBySlider)
+        if (ViewModel.MusicInfo.IsModifyingMusicPositionBySlider)
         {
-            ViewModel.MusicPosition = TimeSpan.FromSeconds(e.NewValue);
+            ViewModel.MusicInfo.MusicPosition = TimeSpan.FromSeconds(e.NewValue);
         }
     }
 
     private void OnPositionSliderPointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        ViewModel.IsModifyingMusicPositionBySlider = false;
+        ViewModel.MusicInfo.IsModifyingMusicPositionBySlider = false;
         ViewModel.UpdateMusicPosition(TimeSpan.FromSeconds(MusicProcessSlider.Value));
     }
 
     private void OnPositionSliderPointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        ViewModel.IsModifyingMusicPositionBySlider = true;
+        ViewModel.MusicInfo.IsModifyingMusicPositionBySlider = true;
     }
 
     private void OnMediaInfoButtonClick(object sender, RoutedEventArgs e)

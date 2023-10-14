@@ -9,8 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingCompactViewModel}"
-    PointerMoved="OnPagePointerMoved"
     KeyDown="OnPageKeyDown"
+    PointerMoved="OnPagePointerMoved"
     RequestedTheme="Dark"
     mc:Ignorable="d">
     <Page.Resources>
@@ -45,14 +45,14 @@
             x:Uid="NoMusicTextBlock"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsDisplayContent), Mode=OneWay}" />
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
 
         <Image
             x:Name="CoverImage"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Opacity="0.1"
-            Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}"
+            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
             Stretch="UniformToFill" />
 
         <Grid
@@ -74,8 +74,8 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}">
-                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.PreviousMusicCommand}">
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
@@ -83,13 +83,13 @@
                     Height="51"
                     Win17763:CornerRadius="4"
                     BorderThickness="2"
-                    Command="{x:Bind ViewModel.PlayOrPauseMusicCommand}">
+                    Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
-                        Glyph="{x:Bind ViewModel.PlayIconGlyph, Mode=OneWay}" />
+                        Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
                 </Button>
-                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.NextMusicCommand}">
+                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
             </StackPanel>
@@ -103,7 +103,7 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="18"
-                    Text="{x:Bind ViewModel.CurrentMusicProperties.Title, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}"
                     TextTrimming="WordEllipsis" />
                 <TextBlock
                     Margin="0,0,0,5"
@@ -111,7 +111,7 @@
                     VerticalAlignment="Center"
                     FontSize="16"
                     FontWeight="Bold"
-                    Text="{x:Bind ViewModel.CurrentMusicProperties.AlbumArtist, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}"
                     TextTrimming="WordEllipsis" />
             </StackPanel>
 
@@ -131,16 +131,17 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Foreground="White"
-                Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}"
-                Value="{x:Bind ViewModel.MusicPosition.TotalSeconds, Mode=OneWay}" />
+                IsIndeterminate="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
+                Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}"
+                Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
         </Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
+                        <AdaptiveTrigger MinWindowHeight="0" />
                     </VisualState.StateTriggers>
                     <Storyboard>
                         <DoubleAnimation
@@ -153,7 +154,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="270" />
+                        <AdaptiveTrigger MinWindowHeight="270" />
                     </VisualState.StateTriggers>
                     <Storyboard>
                         <DoubleAnimation

@@ -146,6 +146,7 @@
     <Compile Include="Helpers\XamlHelper.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
+    <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

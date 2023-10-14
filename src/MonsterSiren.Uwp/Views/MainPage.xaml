@@ -160,11 +160,11 @@
                 <Win16299:AcrylicBrush
                     AlwaysUseFallback="False"
                     BackgroundSource="Backdrop"
-                    TintColor="{x:Bind ViewModel.MusicThemeColor, Mode=OneWay}"
+                    TintColor="{x:Bind ViewModel.MusicInfo.MusicThemeColor, Mode=OneWay}"
                     TintOpacity="0.5" />
             </Win16299:Grid.Background>
             <NotWin16299:Grid.Background>
-                <NotWin16299:SolidColorBrush Color="{x:Bind ViewModel.MusicThemeColor, Mode=OneWay}" />
+                <NotWin16299:SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColor, Mode=OneWay}" />
             </NotWin16299:Grid.Background>
 
             <Grid.ColumnDefinitions>
@@ -184,7 +184,7 @@
                 Margin="30,0,10,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoadingMedia, Mode=OneWay}" />
+                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}" />
             <Button
                 x:Name="MediaInfoButton"
                 Grid.Row="0"
@@ -206,18 +206,18 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}">
+                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
                         <Image
                             x:Name="MediaCoverImage"
                             Grid.Column="0"
-                            Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}" />
+                            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
                     </Grid>
 
                     <Grid
                         Grid.Column="1"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoadingMedia), Mode=OneWay}">
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
@@ -226,13 +226,13 @@
                         <TextBlock
                             Grid.Row="0"
                             FontSize="18"
-                            Text="{x:Bind ViewModel.CurrentMusicProperties.Title, Mode=OneWay}" />
+                            Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}" />
                         <TextBlock
                             Grid.Row="1"
                             Margin="0,0,0,5"
                             FontSize="16"
                             FontWeight="Bold"
-                            Text="{x:Bind ViewModel.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
+                            Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
                     </Grid>
                 </Grid>
             </Button>
@@ -267,15 +267,15 @@
                 <ToggleButton
                     x:Name="IsShuffleToggleButton"
                     Win17763:CornerRadius="4"
-                    IsChecked="{x:Bind ViewModel.IsShuffle, Mode=TwoWay}"
+                    IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                     IsThreeState="False"
-                    ToolTipService.ToolTip="{x:Bind ViewModel.ShuffleStateDescription, Mode=OneWay}">
+                    ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}">
                     <FontIcon Glyph="&#xE14B;" />
                 </ToggleButton>
                 <Button
                     Win17763:CornerRadius="4"
-                    Command="{x:Bind ViewModel.PreviousMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
@@ -283,26 +283,26 @@
                     Height="51"
                     Win17763:CornerRadius="4"
                     BorderThickness="2"
-                    Command="{x:Bind ViewModel.PlayOrPauseMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                    Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
-                        Glyph="{x:Bind ViewModel.PlayIconGlyph, Mode=OneWay}" />
+                        Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
                 </Button>
                 <Button
                     Win17763:CornerRadius="4"
-                    Command="{x:Bind ViewModel.NextMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <ToggleButton
                     x:Name="IsRepeatToggleButton"
                     Win17763:CornerRadius="4"
-                    IsChecked="{x:Bind ViewModel.IsRepeat, Mode=TwoWay}"
+                    IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                     IsThreeState="True"
-                    ToolTipService.ToolTip="{x:Bind ViewModel.RepeatStateDescription, Mode=OneWay}">
-                    <FontIcon Glyph="{x:Bind ViewModel.RepeatIconGlyph, Mode=OneWay}" />
+                    ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
+                    <FontIcon Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
                 </ToggleButton>
 
                 <Button
@@ -323,15 +323,15 @@
                                         Padding="0"
                                         HorizontalAlignment="Left"
                                         Background="Transparent"
-                                        IsChecked="{x:Bind ViewModel.IsMute, Mode=TwoWay}"
+                                        IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                                         IsThreeState="False">
-                                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.VolumeIconGlyph, Mode=OneWay}" />
+                                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                                     </ToggleButton>
                                     <Slider
                                         Width="100"
                                         HorizontalAlignment="Stretch"
                                         Maximum="100"
-                                        Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
+                                        Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                                 </StackPanel>
                                 <ToggleButton
                                     Margin="0,5,0,0"
@@ -339,12 +339,12 @@
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    IsChecked="{x:Bind ViewModel.IsShuffle, Mode=TwoWay}"
+                                    IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                                     IsThreeState="False"
                                     Style="{StaticResource MediaControlToggleButton}">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon Margin="0,0,5,0" Glyph="&#xE14B;" />
-                                        <TextBlock Text="{x:Bind ViewModel.ShuffleStateDescription, Mode=OneWay}" />
+                                        <TextBlock Text="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </ToggleButton>
                                 <ToggleButton
@@ -353,12 +353,12 @@
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    IsChecked="{x:Bind ViewModel.IsRepeat, Mode=TwoWay}"
+                                    IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                                     IsThreeState="True"
                                     Style="{StaticResource MediaControlToggleButton}">
                                     <StackPanel Orientation="Horizontal">
-                                        <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.RepeatIconGlyph, Mode=OneWay}" />
-                                        <TextBlock Text="{x:Bind ViewModel.RepeatStateDescription, Mode=OneWay}" />
+                                        <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
+                                        <TextBlock Text="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </ToggleButton>
                                 <Button
@@ -382,8 +382,8 @@
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    Command="{x:Bind ViewModel.StopMusicCommand}"
-                                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                                    Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
                                         <TextBlock x:Uid="ClearPlaybackList" />
@@ -403,7 +403,7 @@
                 Margin="15,0,15,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsMusicBufferingOrOpening), Mode=OneWay}">
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
@@ -416,26 +416,26 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="White"
-                    Text="{x:Bind ViewModel.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.EnableMediaControl), Mode=OneWay}" />
+                    Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
                 <Slider
                     x:Name="MusicProcessSlider"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
-                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
-                    Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
+                    Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                     ValueChanged="OnPositionSliderValueChanged"
-                    Value="{x:Bind ViewModel.MusicPosition.TotalSeconds, Mode=OneWay}" />
+                    Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
                 <TextBlock
                     Grid.Column="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="White"
-                    Text="{x:Bind ViewModel.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.EnableMediaControl), Mode=OneWay}" />
+                    Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
             </Grid>
             <muxc:ProgressBar
                 x:Name="MusicStatusProgressBar"
@@ -446,7 +446,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 IsIndeterminate="True"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMusicBufferingOrOpening), Mode=OneWay}" />
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}" />
 
             <StackPanel
                 x:Name="MediaAdditionalControlStackPanel"
@@ -469,15 +469,15 @@
                         Padding="0"
                         HorizontalAlignment="Center"
                         Background="Transparent"
-                        IsChecked="{x:Bind ViewModel.IsMute, Mode=TwoWay}"
+                        IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                         IsThreeState="False">
-                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.VolumeIconGlyph, Mode=OneWay}" />
+                        <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                     </ToggleButton>
                     <Slider
                         Width="100"
                         HorizontalAlignment="Center"
                         Maximum="100"
-                        Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
+                        Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
                     Width="35"
@@ -510,8 +510,8 @@
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    Command="{x:Bind ViewModel.StopMusicCommand}"
-                                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                                    Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
                                         <TextBlock x:Uid="ClearPlaybackList" />
