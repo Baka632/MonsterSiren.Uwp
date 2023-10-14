@@ -122,7 +122,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="300" />
+                        <AdaptiveTrigger MinWindowWidth="270" />
                     </VisualState.StateTriggers>
                     <Storyboard>
                         <DoubleAnimation
