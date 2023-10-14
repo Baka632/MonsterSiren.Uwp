@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -17,6 +16,8 @@ public partial class MainViewModel : ObservableRecipient
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EnableMediaControl))]
+    [NotifyPropertyChangedFor(nameof(MusicDuration))]
+    [NotifyPropertyChangedFor(nameof(MusicPosition))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
     private BitmapImage currentMediaCover = new()
@@ -332,8 +333,10 @@ public partial class MainViewModel : ObservableRecipient
 
     [RelayCommand]
     private void StopMusic() => MusicService.StopMusic();
+
     [RelayCommand]
     private void NextMusic() => MusicService.NextMusic();
+
     [RelayCommand]
     private void PreviousMusic()
     {

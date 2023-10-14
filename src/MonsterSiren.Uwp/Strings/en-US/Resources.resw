@@ -111,4 +111,7 @@
   <data name="ShuffleOnText" xml:space="preserve">
     <value>Shuffle: On</value>
   </data>
+  <data name="ClearPlaybackList.Text" xml:space="preserve">
+    <value>Clear "Now playing" list</value>
+  </data>
 </root>

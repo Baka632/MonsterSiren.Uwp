@@ -111,4 +111,7 @@
   <data name="ShuffleOffText" xml:space="preserve">
     <value>随机播放：关闭</value>
   </data>
+  <data name="ClearPlaybackList.Text" xml:space="preserve">
+    <value>清空“正在播放”列表</value>
+  </data>
 </root>

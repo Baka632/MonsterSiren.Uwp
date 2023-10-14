@@ -166,7 +166,6 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -310,13 +309,13 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel>
-                                <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <ToggleButton
                                         Width="35"
                                         Height="35"
                                         Margin="0,0,5,0"
                                         Padding="0"
-                                        HorizontalAlignment="Center"
+                                        HorizontalAlignment="Left"
                                         Background="Transparent"
                                         IsChecked="{x:Bind ViewModel.IsMute, Mode=TwoWay}"
                                         IsThreeState="False">
@@ -324,12 +323,12 @@
                                     </ToggleButton>
                                     <Slider
                                         Width="100"
-                                        HorizontalAlignment="Center"
+                                        HorizontalAlignment="Stretch"
                                         Maximum="100"
                                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
                                 </StackPanel>
                                 <ToggleButton
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
@@ -343,6 +342,7 @@
                                     </StackPanel>
                                 </ToggleButton>
                                 <ToggleButton
+                                    Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
@@ -355,6 +355,18 @@
                                         <TextBlock Text="{x:Bind ViewModel.RepeatStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </ToggleButton>
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    Win17763:CornerRadius="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.StopMusicCommand}"
+                                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
+                                        <TextBlock x:Uid="ClearPlaybackList" />
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>
@@ -425,6 +437,7 @@
                 Orientation="Horizontal">
                 <StackPanel
                     x:Name="VolumeStackPanel"
+                    Margin="0,0,5,0"
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
                     <ToggleButton
@@ -454,6 +467,36 @@
                     Content="&#xE158;"
                     FontFamily="Segoe MDL2 Assets"
                     FontSize="16" />
+                <Button
+                    Width="35"
+                    Height="35"
+                    Margin="5,0,5,0"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    Background="Transparent"
+                    Content="&#xE10C;"
+                    FontFamily="Segoe MDL2 Assets"
+                    FontSize="16">
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel>
+                                <Button
+                                    Margin="0,5,0,5"
+                                    HorizontalAlignment="Stretch"
+                                    Win17763:CornerRadius="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.StopMusicCommand}"
+                                    IsEnabled="{x:Bind ViewModel.EnableMediaControl, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
+                                        <TextBlock x:Uid="ClearPlaybackList" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
             </StackPanel>
         </Grid>
 
