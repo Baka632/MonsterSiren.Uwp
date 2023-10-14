@@ -9,8 +9,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingCompactViewModel}"
+    PointerMoved="OnPagePointerMoved"
+    KeyDown="OnPageKeyDown"
     RequestedTheme="Dark"
     mc:Ignorable="d">
+    <Page.Resources>
+        <Storyboard x:Name="HideContentStoryBoard">
+            <DoubleAnimation
+                Storyboard.TargetName="ContentGrid"
+                Storyboard.TargetProperty="Opacity"
+                To="0"
+                Duration="0:0:0.2" />
+            <DoubleAnimation
+                Storyboard.TargetName="CoverImage"
+                Storyboard.TargetProperty="Opacity"
+                To="1"
+                Duration="0:0:0.2" />
+        </Storyboard>
+        <Storyboard x:Name="ShowContentStoryBoard">
+            <DoubleAnimation
+                Storyboard.TargetName="ContentGrid"
+                Storyboard.TargetProperty="Opacity"
+                To="1"
+                Duration="0:0:0.1" />
+            <DoubleAnimation
+                Storyboard.TargetName="CoverImage"
+                Storyboard.TargetProperty="Opacity"
+                To="0.1"
+                Duration="0:0:0.1" />
+        </Storyboard>
+    </Page.Resources>
 
     <Grid>
         <TextBlock
@@ -19,7 +47,18 @@
             VerticalAlignment="Center"
             Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsDisplayContent), Mode=OneWay}" />
 
-        <Grid>
+        <Image
+            x:Name="CoverImage"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Opacity="0.1"
+            Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}"
+            Stretch="UniformToFill" />
+
+        <Grid
+            x:Name="ContentGrid"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
             <Grid.Resources>
                 <Style TargetType="Button">
                     <Setter Property="Height" Value="35" />
@@ -31,79 +70,71 @@
                 </Style>
             </Grid.Resources>
 
-            <Image
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Opacity="0.1"
-                Source="{x:Bind ViewModel.CurrentMediaCover, Mode=OneWay}"
-                Stretch="UniformToFill" />
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}">
+                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.PreviousMusicCommand}">
+                    <FontIcon Glyph="&#xE100;" />
+                </Button>
+                <Button
+                    Width="51"
+                    Height="51"
+                    Win17763:CornerRadius="4"
+                    BorderThickness="2"
+                    Command="{x:Bind ViewModel.PlayOrPauseMusicCommand}">
+                    <FontIcon
+                        FontFamily="Segoe MDL2 Assets"
+                        FontSize="25"
+                        Glyph="{x:Bind ViewModel.PlayIconGlyph, Mode=OneWay}" />
+                </Button>
+                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.NextMusicCommand}">
+                    <FontIcon Glyph="&#xE101;" />
+                </Button>
+            </StackPanel>
+
+            <StackPanel
+                x:Name="MusicInfoStackPanel"
+                Margin="10,0,10,50"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom">
+                <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}">
-                    <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.PreviousMusicCommand}">
-                        <FontIcon Glyph="&#xE100;" />
-                    </Button>
-                    <Button
-                        Width="51"
-                        Height="51"
-                        Win17763:CornerRadius="4"
-                        BorderThickness="2"
-                        Command="{x:Bind ViewModel.PlayOrPauseMusicCommand}">
-                        <FontIcon
-                            FontFamily="Segoe MDL2 Assets"
-                            FontSize="25"
-                            Glyph="{x:Bind ViewModel.PlayIconGlyph, Mode=OneWay}" />
-                    </Button>
-                    <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.NextMusicCommand}">
-                        <FontIcon Glyph="&#xE101;" />
-                    </Button>
-                </StackPanel>
-
-                <StackPanel
-                    x:Name="MusicInfoStackPanel"
-                    Margin="0,0,0,50"
+                    FontSize="18"
+                    Text="{x:Bind ViewModel.CurrentMusicProperties.Title, Mode=OneWay}"
+                    TextTrimming="WordEllipsis" />
+                <TextBlock
+                    Margin="0,0,0,5"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Bottom">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontSize="18"
-                        Text="{x:Bind ViewModel.CurrentMusicProperties.Title, Mode=OneWay}"
-                        TextTrimming="WordEllipsis" />
-                    <TextBlock
-                        Margin="0,0,0,5"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontSize="16"
-                        FontWeight="Bold"
-                        Text="{x:Bind ViewModel.CurrentMusicProperties.AlbumArtist, Mode=OneWay}"
-                        TextTrimming="WordEllipsis" />
-                </StackPanel>
-            </Grid>
-        </Grid>
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Text="{x:Bind ViewModel.CurrentMusicProperties.AlbumArtist, Mode=OneWay}"
+                    TextTrimming="WordEllipsis" />
+            </StackPanel>
 
-        <Button
-            Width="35"
-            Height="35"
-            Margin="0,0,5,10"
-            Padding="0"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Bottom"
-            Background="Transparent"
-            Command="{x:Bind ViewModel.BackCommand}"
-            Content="&#xE158;"
-            FontFamily="Segoe MDL2 Assets"
-            FontSize="16" />
-        <ProgressBar
-            Foreground="White"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
-            Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
-            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}"
-            Value="{x:Bind ViewModel.MusicPosition.TotalSeconds, Mode=OneWay}" />
+            <Button
+                Width="35"
+                Height="35"
+                Margin="0,0,5,10"
+                Padding="0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Background="Transparent"
+                Command="{x:Bind ViewModel.BackCommand}"
+                Content="&#xE158;"
+                FontFamily="Segoe MDL2 Assets"
+                FontSize="16" />
+            <ProgressBar
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Foreground="White"
+                Maximum="{x:Bind ViewModel.MusicDuration.TotalSeconds, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDisplayContent), Mode=OneWay}"
+                Value="{x:Bind ViewModel.MusicPosition.TotalSeconds, Mode=OneWay}" />
+        </Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>

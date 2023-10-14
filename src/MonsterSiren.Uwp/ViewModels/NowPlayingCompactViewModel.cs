@@ -66,7 +66,6 @@ public partial class NowPlayingCompactViewModel : ObservableObject
         MusicService.PlayerPlaybackStateChanged += OnPlayerPlaybackStateChanged;
         MusicService.MusicDurationChanged += OnEventMusicDurationChanged;
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
-        //MusicService.PlayerMediaEnded += OnPlayerMediaEnded;
 
         async void SetCoverByThumbnail(MediaItemDisplayProperties props)
         {

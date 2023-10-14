@@ -12,7 +12,7 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
-    private bool IsNavigatedToNowPlayingPage = false;
+    private static bool IsNavigatedToNowPlayingPage = false;
 
     public MainViewModel ViewModel { get; } = new();
 
@@ -29,8 +29,6 @@ public sealed partial class MainPage : Page
         SetMainPageBackground();
         ConfigureTitleBar();
 
-        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
-        navigationManager.BackRequested += BackRequested;
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
@@ -70,7 +68,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void BackRequested(object sender, BackRequestedEventArgs e)
+    internal static void BackRequested(object sender, BackRequestedEventArgs e)
     {
         if (IsNavigatedToNowPlayingPage)
         {
@@ -243,5 +241,12 @@ public sealed partial class MainPage : Page
     private void OnMediaInfoButtonClick(object sender, RoutedEventArgs e)
     {
         NavigateToNowPlayingPage();
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested += BackRequested;
     }
 }
