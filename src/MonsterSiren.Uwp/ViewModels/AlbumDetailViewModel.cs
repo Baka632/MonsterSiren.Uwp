@@ -91,15 +91,18 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
-            List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
-
-            foreach (SongInfo item in CurrentAlbumDetail.Songs)
+            await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
-                items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
-            }
+                List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
 
-            MusicService.ReplaceMusic(items);
+                foreach (SongInfo item in CurrentAlbumDetail.Songs)
+                {
+                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                }
+
+                MusicService.ReplaceMusic(items);
+            });
         }
         catch (HttpRequestException)
         {
@@ -113,11 +116,14 @@ public partial class AlbumDetailViewModel : ObservableObject
     {
         try
         {
-            foreach (SongInfo item in CurrentAlbumDetail.Songs)
+            await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
-                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
-            }
+                foreach (SongInfo item in CurrentAlbumDetail.Songs)
+                {
+                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                }
+            });
         }
         catch (HttpRequestException)
         {
@@ -131,8 +137,12 @@ public partial class AlbumDetailViewModel : ObservableObject
         try
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-            SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-            MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            });
         }
         catch (HttpRequestException)
         {
@@ -146,8 +156,11 @@ public partial class AlbumDetailViewModel : ObservableObject
     {
         try
         {
-            SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-            MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            });
         }
         catch (HttpRequestException)
         {

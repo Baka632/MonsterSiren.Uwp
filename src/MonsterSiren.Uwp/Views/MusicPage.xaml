@@ -42,7 +42,8 @@
             IsItemClickEnabled="True"
             ItemClick="OnContentGridViewItemClicked"
             ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
-            SelectionMode="None">
+            SelectionMode="None"
+            ShowsScrollingPlaceholders="False">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
                     <Grid Padding="5">

@@ -48,6 +48,6 @@ public sealed partial class MusicPage : Page
 
     private async void OnMusicPageLoaded(object sender, RoutedEventArgs e)
     {
-        await ViewModel.Initialize().ConfigureAwait(false);
+        await ViewModel.Initialize();
     }
 }
