@@ -35,32 +35,35 @@ public partial class AlbumDetailViewModel : ObservableObject
             }
             else
             {
-                albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
-
-                bool shouldUpdate = false;
-                foreach (SongInfo item in albumDetail.Songs)
+                await Task.Run(async () =>
                 {
-                    if (item.Artists is null || item.Artists.Any() != true)
-                    {
-                        shouldUpdate = true;
-                        break;
-                    }
-                }
+                    albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
 
-                if (shouldUpdate)
-                {
-                    List<SongInfo> songs = albumDetail.Songs.ToList();
-                    for (int i = 0; i < songs.Count; i++)
+                    bool shouldUpdate = false;
+                    foreach (SongInfo item in albumDetail.Songs)
                     {
-                        SongInfo songInfo = songs[i];
-                        if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                        if (item.Artists is null || item.Artists.Any() != true)
                         {
-                            songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                            shouldUpdate = true;
+                            break;
                         }
                     }
 
-                    albumDetail = albumDetail with { Songs = songs };
-                }
+                    if (shouldUpdate)
+                    {
+                        List<SongInfo> songs = albumDetail.Songs.ToList();
+                        for (int i = 0; i < songs.Count; i++)
+                        {
+                            SongInfo songInfo = songs[i];
+                            if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                            {
+                                songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                            }
+                        }
+
+                        albumDetail = albumDetail with { Songs = songs };
+                    }
+                });
 
                 CacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
             }
