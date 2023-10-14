@@ -114,4 +114,13 @@
   <data name="ClearPlaybackList.Text" xml:space="preserve">
     <value>Clear "Now playing" list</value>
   </data>
+  <data name="EnterCompactMode.Text" xml:space="preserve">
+    <value>Enter "Compact" mode</value>
+  </data>
+  <data name="ExitCompactMode.Text" xml:space="preserve">
+    <value>Exit "Compact" mode</value>
+  </data>
+  <data name="NoMusicTextBlock.Text" xml:space="preserve">
+    <value>Currently, there is no music that is playing</value>
+  </data>
 </root>

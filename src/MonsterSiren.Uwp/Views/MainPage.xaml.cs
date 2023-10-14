@@ -20,6 +20,8 @@ public sealed partial class MainPage : Page
     {
         this.InitializeComponent();
 
+        //HACK: Modify it by settings
+        MusicService.PlayerVolume = 1d;
         NavigationCacheMode = NavigationCacheMode.Enabled;
 
         UIThreadHelper.Initialize(Dispatcher);
@@ -72,15 +74,8 @@ public sealed partial class MainPage : Page
     {
         if (IsNavigatedToNowPlayingPage)
         {
-            AppViewBackButtonVisibility backButtonVisibility = ContentFrame.CanGoBack
-                ? AppViewBackButtonVisibility.Visible
-                : AppViewBackButtonVisibility.Collapsed;
-            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = backButtonVisibility;
-            StartTitleTextBlockAnimation(backButtonVisibility);
-
             MainPageNavigationHelper.GoBack(e);
             IsNavigatedToNowPlayingPage = false;
-            ChangeSelectedItemOfNavigationView();
         }
         else
         {
@@ -213,6 +208,17 @@ public sealed partial class MainPage : Page
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)
     {
         MainPageNavigationHelper = new NavigationHelper(Frame);
+        MainPageNavigationHelper.GoBackComplete += OnMainPageGoBackComplete;
+    }
+
+    private void OnMainPageGoBackComplete()
+    {
+        AppViewBackButtonVisibility backButtonVisibility = ContentFrame.CanGoBack
+                ? AppViewBackButtonVisibility.Visible
+                : AppViewBackButtonVisibility.Collapsed;
+        SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = backButtonVisibility;
+        StartTitleTextBlockAnimation(backButtonVisibility);
+        ChangeSelectedItemOfNavigationView();
     }
 
     private void OnPositionSliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)

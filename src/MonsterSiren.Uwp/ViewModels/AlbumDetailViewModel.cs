@@ -18,8 +18,6 @@ public partial class AlbumDetailViewModel : ObservableObject
     private AlbumInfo _currentAlbumInfo;
     [ObservableProperty]
     private AlbumDetail _currentAlbumDetail;
-    [ObservableProperty]
-    private bool isPreparingMedia;
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -90,6 +88,11 @@ public partial class AlbumDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task PlayForCurrentAlbumDetail()
     {
+        if (CurrentAlbumDetail.Songs is null)
+        {
+            return;
+        }
+
         try
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
@@ -117,6 +120,11 @@ public partial class AlbumDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task AddToPlaylistForCurrentAlbumDetail()
     {
+        if (CurrentAlbumDetail.Songs is null)
+        {
+            return;
+        }
+
         try
         {
             await Task.Run(async () =>
@@ -153,7 +161,7 @@ public partial class AlbumDetailViewModel : ObservableObject
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
-    
+
     [RelayCommand]
     public async Task AddToPlaylistForSongInfo(SongInfo songInfo)
     {

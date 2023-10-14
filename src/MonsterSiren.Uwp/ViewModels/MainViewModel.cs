@@ -3,6 +3,9 @@ using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -130,16 +133,12 @@ public partial class MainViewModel : ObservableRecipient
 
     public MainViewModel()
     {
-        //HACK: Modify it by settings
-        MusicService.PlayerVolume = 1d;
-
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
         MusicService.PlayerVolumeChanged += OnPlayerVolumeChanged;
         MusicService.PlayerMuteStateChanged += OnPlayerMuteStateChanged;
         MusicService.PlayerPlaybackStateChanged += OnPlayerPlaybackStateChanged;
         MusicService.MusicDurationChanged += OnEventMusicDurationChanged;
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
-        MusicService.PlayerMediaEnded += OnPlayerMediaEnded;
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
@@ -178,12 +177,6 @@ public partial class MainViewModel : ObservableRecipient
             true => "ShuffleOnText".GetLocalized(),
             false => "ShuffleOffText".GetLocalized()
         };
-    }
-
-    private void OnPlayerMediaEnded()
-    {
-        MusicPosition = TimeSpan.Zero;
-        MusicService.NextMusic();
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
@@ -348,6 +341,18 @@ public partial class MainViewModel : ObservableRecipient
         {
             MusicService.PreviousMusic();
         }
+    }
+
+    [RelayCommand]
+    private async Task ToCompactNowPlayingPage()
+    {
+        SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
+        
+        ViewModePreferences preferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+        preferences.CustomSize = new Size(300, 300);
+        await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, preferences);
+
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingCompactPage), null, new SuppressNavigationTransitionInfo());
     }
 
     protected override void OnActivated()

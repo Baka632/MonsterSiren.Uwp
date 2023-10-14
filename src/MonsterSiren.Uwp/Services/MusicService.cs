@@ -93,11 +93,27 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 获取当前播放项的长度
+    /// </summary>
+    public static TimeSpan MusicDuration
+    {
+        get => mediaPlayer.PlaybackSession.NaturalDuration;
+    }
+
+    /// <summary>
     /// 确定播放器的播放列表是否有曲目
     /// </summary>
     public static bool IsPlayerPlaylistHasMusic
     {
         get => mediaPlaybackList.Items.Count != 0;
+    }
+
+    /// <summary>
+    /// 获取播放器当前的 <see cref="MediaPlaybackItem"/>
+    /// </summary>
+    public static MediaPlaybackItem CurrentMediaPlaybackItem
+    {
+        get => mediaPlaybackList.CurrentItem;
     }
 
     /// <summary>
@@ -220,6 +236,8 @@ public static class MusicService
         };
         mediaPlayer.MediaEnded += async (sender, args) =>
         {
+            PlayerPosition = TimeSpan.Zero;
+            NextMusic();
             await UIThreadHelper.RunOnUIThread(() =>
             {
                 PlayerMediaEnded?.Invoke();

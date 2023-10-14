@@ -118,7 +118,6 @@ public partial class NowPlayingViewModel : ObservableObject
         MusicService.PlayerPlaybackStateChanged += OnPlayerPlaybackStateChanged;
         MusicService.MusicDurationChanged += OnEventMusicDurationChanged;
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
-        MusicService.PlayerMediaEnded += OnPlayerMediaEnded;
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
 
@@ -150,12 +149,6 @@ public partial class NowPlayingViewModel : ObservableObject
             true => "ShuffleOnText".GetLocalized(),
             false => "ShuffleOffText".GetLocalized()
         };
-    }
-
-    private void OnPlayerMediaEnded()
-    {
-        MusicPosition = TimeSpan.Zero;
-        MusicService.NextMusic();
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)

@@ -23,6 +23,7 @@ public sealed partial class MusicViewModel : ObservableObject
     public async Task Initialize()
     {
         IsLoading = true;
+        ErrorVisibility = Visibility.Collapsed;
         try
         {
             if (CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))

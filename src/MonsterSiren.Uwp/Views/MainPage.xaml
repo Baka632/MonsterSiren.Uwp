@@ -362,6 +362,22 @@
                                     </StackPanel>
                                 </ToggleButton>
                                 <Button
+                                    Margin="0,5,0,5"
+                                    BorderThickness="0"
+                                    HorizontalAlignment="Stretch"
+                                    Background="Transparent"
+                                    Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
+                                    Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            FontSize="16"
+                                            Glyph="&#xE158;" />
+                                        <TextBlock x:Uid="EnterCompactMode" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
                                     HorizontalAlignment="Stretch"
                                     Win17763:CornerRadius="4"
                                     Background="Transparent"
@@ -464,13 +480,13 @@
                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
-                    x:Name="CompactModeButton"
                     Width="35"
                     Height="35"
                     Margin="5,0,5,0"
                     Padding="0"
                     HorizontalAlignment="Center"
                     Background="Transparent"
+                    Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
                     Content="&#xE158;"
                     FontFamily="Segoe MDL2 Assets"
                     FontSize="16"

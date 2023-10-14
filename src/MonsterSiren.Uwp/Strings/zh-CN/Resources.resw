@@ -114,4 +114,13 @@
   <data name="ClearPlaybackList.Text" xml:space="preserve">
     <value>清空“正在播放”列表</value>
   </data>
+  <data name="EnterCompactMode.Text" xml:space="preserve">
+    <value>进入“最小模式”</value>
+  </data>
+  <data name="ExitCompactMode.Text" xml:space="preserve">
+    <value>退出“最小模式”</value>
+  </data>
+  <data name="NoMusicTextBlock.Text" xml:space="preserve">
+    <value>目前没有正在播放的歌曲</value>
+  </data>
 </root>
