@@ -128,7 +128,7 @@ sealed partial class App : Application
     {
         XamlControlsResources muxcStyle = new()
         {
-            ControlsResourcesVersion = EnvironmentHelper.IsWindowsMobile()
+            ControlsResourcesVersion = EnvironmentHelper.IsWindowsMobile
                 ? ControlsResourcesVersion.Version1
                 : ControlsResourcesVersion.Version2
         };

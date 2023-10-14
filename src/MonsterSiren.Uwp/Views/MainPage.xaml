@@ -10,6 +10,7 @@
     xmlns:local="using:MonsterSiren.Uwp"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:triggers="using:WindowsStateTriggers"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Loaded="OnMainPageLoaded"
@@ -85,6 +86,11 @@
             IsBackButtonVisible="Collapsed"
             IsBackEnabled="False"
             ItemInvoked="OnNavigationViewItemInvoked">
+            <muxc:NavigationView.Resources>
+                <Thickness x:Key="NavigationViewItemInnerHeaderMargin">0,0,0,0</Thickness>
+                <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,0,0,0</Thickness>
+                <Thickness x:Key="NavigationViewHeaderMargin">0,0,0,0</Thickness>
+            </muxc:NavigationView.Resources>
             <muxc:NavigationView.AutoSuggestBox>
                 <AutoSuggestBox
                     x:Name="SearchBox"
@@ -458,6 +464,7 @@
                         Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
+                    x:Name="CompactModeButton"
                     Width="35"
                     Height="35"
                     Margin="5,0,5,0"
@@ -466,7 +473,8 @@
                     Background="Transparent"
                     Content="&#xE158;"
                     FontFamily="Segoe MDL2 Assets"
-                    FontSize="16" />
+                    FontSize="16"
+                    Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}" />
                 <Button
                     Width="35"
                     Height="35"
@@ -507,7 +515,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentFrame.Margin" Value="-10,20,0,0" />
+                        <Win16299:Setter Target="ContentFrame.Margin" Value="-10,20,0,0" />
 
                         <Setter Target="MediaInfoButton.Padding" Value="5" />
                         <Setter Target="MediaCoverImage.Visibility" Value="Collapsed" />
@@ -533,7 +541,7 @@
 
                 <VisualState x:Name="MainPageWide">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{x:Bind NavigationView.CompactModeThresholdWidth, Mode=OneWay}" />
+                        <AdaptiveTrigger MinWindowWidth="641" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ContentFrame.Margin" Value="0,0,0,0" />

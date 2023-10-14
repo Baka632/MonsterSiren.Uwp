@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
@@ -47,7 +46,7 @@ public sealed partial class MusicViewModel : ObservableObject
                     return albumList;
                 });
 
-                int loadCount = EnvironmentHelper.IsWindowsMobile() ? 5 : 10;
+                int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
                 Albums = new(new AlbumInfoSource(albums), loadCount);
 
                 CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);

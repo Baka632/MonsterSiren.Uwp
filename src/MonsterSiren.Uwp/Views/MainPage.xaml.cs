@@ -40,7 +40,7 @@ public sealed partial class MainPage : Page
 
     private void ConfigureTitleBar()
     {
-        if (EnvironmentHelper.IsWindowsMobile())
+        if (EnvironmentHelper.IsWindowsMobile)
         {
             TitleBarTextBlock.Visibility = Visibility.Collapsed;
         }

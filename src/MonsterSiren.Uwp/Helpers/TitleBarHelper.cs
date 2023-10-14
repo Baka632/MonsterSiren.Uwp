@@ -31,7 +31,7 @@ public static class TitleBarHelper
     /// </summary>
     public static void SetTitleBarAppearance()
     {
-        if (EnvironmentHelper.IsWindowsMobile() != true)
+        if (EnvironmentHelper.IsWindowsMobile != true)
         {
             CoreApplicationViewTitleBar coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             coreTitleBar.ExtendViewIntoTitleBar = true;
@@ -55,7 +55,7 @@ public static class TitleBarHelper
     /// <param name="frame">一个 <see cref="Frame"/> </param>
     public static void Hook(Frame frame)
     {
-        if (EnvironmentHelper.IsWindowsMobile() != true)
+        if (EnvironmentHelper.IsWindowsMobile != true)
         {
             if (frame is null)
             {

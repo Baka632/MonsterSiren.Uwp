@@ -32,6 +32,6 @@ public static class MicaHelper
     /// <returns>若支持 Mica，则返回 <see langword="true"/>，否则返回 <see langword="false"/></returns>
     public static bool IsSupported()
     {
-        return EnvironmentHelper.IsWindows11();
+        return EnvironmentHelper.IsWindows11;
     }
 }

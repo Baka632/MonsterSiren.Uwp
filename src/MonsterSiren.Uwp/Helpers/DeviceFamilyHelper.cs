@@ -11,13 +11,11 @@ public static class EnvironmentHelper
     /// 确定设备是否为 Windows 10 Mobile
     /// </summary>
     /// <returns>若是 Windows 10 Mobile，则返回 <see langword="true"/>，否则返回 <see langword="false"/></returns>
-    public static bool IsWindowsMobile()
-    {
-        return AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile";
-    }
+    public static bool IsWindowsMobile => AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Mobile";
 
-    public static bool IsWindows11()
-    {
-        return Environment.OSVersion.Version.Build >= 22000;
-    }
+    /// <summary>
+    /// 确定设备的 Windows 版本是否为 Windows 11
+    /// </summary>
+    /// <returns>若是 Windows 11，则返回 <see langword="true"/>，否则返回 <see langword="false"/></returns>
+    public static bool IsWindows11 => Environment.OSVersion.Version.Build >= 22000;
 }

@@ -155,6 +155,7 @@
 
                             <TextBlock
                                 Grid.Column="0"
+                                HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Text="{x:Bind Name}" />
 
@@ -180,6 +181,11 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
             </ListView>
         </Grid>
 
