@@ -11,6 +11,7 @@ namespace MonsterSiren.Uwp.Helpers;
 public static class ImageColorHelper
 {
     private static readonly CanvasDevice device = new();
+    private static readonly Color defaultColor = (Color)Application.Current.Resources["SystemAccentColorDark2"];
 
     /// <summary>
     /// 通过一个 <see cref="Uri"/> 获取主题色
@@ -19,10 +20,18 @@ public static class ImageColorHelper
     /// <returns>表示为 <see cref="Color"/> 的主题色</returns>
     public static async Task<Color> GetPaletteColor(Uri uri)
     {
-        using CanvasBitmap bimap = await CanvasBitmap.LoadAsync(device, uri);
-        Color[] colors = bimap.GetPixelColors();
-        Color color = GetThemeColor(colors);
-        return color;
+        try
+        {
+            using CanvasBitmap bimap = await CanvasBitmap.LoadAsync(device, uri);
+            Color[] colors = bimap.GetPixelColors();
+            Color color = GetThemeColor(colors);
+
+            return color;
+        }
+        catch (FileNotFoundException)
+        {
+            return defaultColor;
+        }
     }
 
     /// <summary>
@@ -32,10 +41,17 @@ public static class ImageColorHelper
     /// <returns>表示为 <see cref="Color"/> 的主题色</returns>
     public static async Task<Color> GetPaletteColor(IRandomAccessStream stream)
     {
-        using CanvasBitmap bimap = await CanvasBitmap.LoadAsync(device, stream);
-        Color[] colors = bimap.GetPixelColors();
-        Color color = GetThemeColor(colors);
-        return color;
+        try
+        {
+            using CanvasBitmap bimap = await CanvasBitmap.LoadAsync(device, stream);
+            Color[] colors = bimap.GetPixelColors();
+            Color color = GetThemeColor(colors);
+            return color;
+        }
+        catch (FileNotFoundException)
+        {
+            return defaultColor;
+        }
     }
 
     private static Color GetThemeColor(Color[] colors)

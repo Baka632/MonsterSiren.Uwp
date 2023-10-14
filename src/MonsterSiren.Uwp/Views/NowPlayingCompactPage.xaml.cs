@@ -41,6 +41,9 @@ public sealed partial class NowPlayingCompactPage : Page
         {
             _timer.Start();
         }
+
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested -= MainPage.BackRequested;
     }
 
     private void OnTimerTick(object sender, object e)
