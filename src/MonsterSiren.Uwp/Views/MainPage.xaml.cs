@@ -13,7 +13,6 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
-    private static bool IsNavigatedToNowPlayingPage = false;
 
     public MainViewModel ViewModel { get; } = new();
 
@@ -33,6 +32,12 @@ public sealed partial class MainPage : Page
         //当在这里添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+    }
+
+    ~MainPage()
+    {
+        MainPageNavigationHelper.GoBackComplete -= OnMainPageGoBackComplete;
+        MainPageNavigationHelper = null;
     }
 
     private void ConfigureTitleBar()
@@ -163,7 +168,6 @@ public sealed partial class MainPage : Page
 
     private void NavigateToNowPlayingPage()
     {
-        IsNavigatedToNowPlayingPage = true;
         StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
         MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), null, new DrillInNavigationTransitionInfo());
     }
@@ -201,8 +205,11 @@ public sealed partial class MainPage : Page
 
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)
     {
-        MainPageNavigationHelper = new NavigationHelper(Frame);
-        MainPageNavigationHelper.GoBackComplete += OnMainPageGoBackComplete;
+        if (MainPageNavigationHelper is null)
+        {
+            MainPageNavigationHelper = new NavigationHelper(Frame);
+            MainPageNavigationHelper.GoBackComplete += OnMainPageGoBackComplete;
+        }
     }
 
     private void OnMainPageGoBackComplete()
@@ -242,7 +249,9 @@ public sealed partial class MainPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested -= BackRequested; //防止重复添加事件订阅
         navigationManager.BackRequested += BackRequested;
     }
 }

@@ -43,10 +43,7 @@ public sealed partial class AlbumDetailPage : Page
 
         if (e.NavigationMode == NavigationMode.Back)
         {
-            if (VisualTreeHelper.GetParent(AlbumCover) is not null)
-            {
-                ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage, AlbumCover);
-            }
+            ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage, AlbumCover);
         }
     }
 }
