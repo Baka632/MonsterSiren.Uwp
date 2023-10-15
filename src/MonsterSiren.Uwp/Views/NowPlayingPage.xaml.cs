@@ -9,6 +9,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class NowPlayingPage : Page
 {
+    public NowPlayingViewModel ViewModel { get; } = new NowPlayingViewModel();
+
     public NowPlayingPage()
     {
         this.InitializeComponent();
@@ -17,5 +19,6 @@ public sealed partial class NowPlayingPage : Page
     private void OnNowPlayingPageLoaded(object sender, RoutedEventArgs e)
     {
         SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+        EntranceStoryboard.Begin();
     }
 }

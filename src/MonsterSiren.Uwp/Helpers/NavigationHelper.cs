@@ -24,6 +24,11 @@ public class NavigationHelper
     private readonly Frame currentFrame;
 
     /// <summary>
+    /// 指示是否能向后导航的值
+    /// </summary>
+    public bool CanGoBack => currentFrame.CanGoBack;
+
+    /// <summary>
     /// 使用指定的参数构造 <see cref="NavigationHelper"/> 的新实例
     /// </summary>
     /// <param name="frame">要进行导航操作的 <see cref="Frame"/></param>

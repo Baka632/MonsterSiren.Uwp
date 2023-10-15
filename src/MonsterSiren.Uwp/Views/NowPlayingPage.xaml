@@ -5,12 +5,37 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingViewModel}"
     Loaded="OnNowPlayingPageLoaded"
     mc:Ignorable="d">
+    <Page.Resources>
+        <Storyboard x:Name="EntranceStoryboard">
+            <DoubleAnimation
+                Storyboard.TargetName="BackdropGrid"
+                Storyboard.TargetProperty="Opacity"
+                To="1"
+                Duration="0:0:0.2" />
+        </Storyboard>
+    </Page.Resources>
 
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="This is Now Playing Page" />
+    <Grid>
+        <Image
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Opacity="0.3"
+            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover}"
+            Stretch="UniformToFill" />
+        <Grid x:Name="BackdropGrid">
+            <Grid.Background>
+                <media:BackdropBlurBrush Amount="20" />
+            </Grid.Background>
+        </Grid>
+
+        <TextBlock
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="No media" />
     </Grid>
 </Page>

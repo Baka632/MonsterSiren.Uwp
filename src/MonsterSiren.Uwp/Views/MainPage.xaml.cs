@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -66,12 +67,11 @@ public sealed partial class MainPage : Page
 
     internal static void BackRequested(object sender, BackRequestedEventArgs e)
     {
-        if (IsNavigatedToNowPlayingPage)
+        if (MainPageNavigationHelper.CanGoBack)
         {
             MainPageNavigationHelper.GoBack(e);
-            IsNavigatedToNowPlayingPage = false;
         }
-        else
+        else if(ContentFrameNavigationHelper.CanGoBack)
         {
             ContentFrameNavigationHelper.GoBack(e);
         }
@@ -165,7 +165,7 @@ public sealed partial class MainPage : Page
     {
         IsNavigatedToNowPlayingPage = true;
         StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
-        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage));
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), null, new DrillInNavigationTransitionInfo());
     }
 
     private void OnContentFrameNavigated(object sender, NavigationEventArgs e)
