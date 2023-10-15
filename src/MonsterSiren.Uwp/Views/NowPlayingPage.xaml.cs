@@ -21,4 +21,40 @@ public sealed partial class NowPlayingPage : Page
         SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
         EntranceStoryboard.Begin();
     }
+
+    private void OnPositionSliderValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+    {
+        if (ViewModel.MusicInfo.IsModifyingMusicPositionBySlider)
+        {
+            ViewModel.MusicInfo.MusicPosition = TimeSpan.FromSeconds(e.NewValue);
+        }
+    }
+
+    private void OnPositionSliderPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        ViewModel.MusicInfo.IsModifyingMusicPositionBySlider = false;
+        ViewModel.UpdateMusicPosition(TimeSpan.FromSeconds(MusicProcessSlider.Value));
+    }
+
+    private void OnPositionSliderPointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        ViewModel.MusicInfo.IsModifyingMusicPositionBySlider = true;
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
+        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
+        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+
+        MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
+        MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
+    }
 }

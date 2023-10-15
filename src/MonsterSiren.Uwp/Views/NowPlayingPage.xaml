@@ -2,10 +2,13 @@
     x:Class="MonsterSiren.Uwp.Views.NowPlayingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Win17763="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 7)"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingViewModel}"
     Loaded="OnNowPlayingPageLoaded"
@@ -34,8 +37,189 @@
         </Grid>
 
         <TextBlock
+            x:Uid="NoMusicTextBlock"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Text="No media" />
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+
+        <Grid
+            Margin="11,0,11,0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Image
+                    Grid.Column="0"
+                    Width="130"
+                    Height="130"
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
+                <StackPanel
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        Grid.Row="0"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Margin="0,0,0,5"
+                        FontSize="16"
+                        FontWeight="Medium"
+                        TextTrimming="CharacterEllipsis">
+                        <Run Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
+                        <Run Text="·" />
+                        <Run Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle, Mode=OneWay}" />
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid x:Name="MusicProcessContainer" Grid.Row="0">
+                    <Grid
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                        <Slider
+                            x:Name="MusicProcessSlider"
+                            Grid.Column="1"
+                            Margin="5,0,5,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
+                            IsThumbToolTipEnabled="False"
+                            Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
+                            ValueChanged="OnPositionSliderValueChanged"
+                            Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
+                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                    </Grid>
+                    <muxc:ProgressBar
+                        x:Name="MusicStatusProgressBar"
+                        Margin="15,0,15,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        IsIndeterminate="True"
+                        Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}" />
+                </Grid>
+                <Grid Grid.Row="1" Margin="0,5,0,0">
+                    <StackPanel
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Height" Value="35" />
+                                <Setter Property="Width" Value="35" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Margin" Value="5,0,5,0" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                            <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="ToggleButton">
+                                <Setter Property="Height" Value="35" />
+                                <Setter Property="Width" Value="35" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Margin" Value="5,0,5,0" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </StackPanel.Resources>
+
+                        <Button
+                            Margin="0,0,5,0"
+                            Win17763:CornerRadius="4"
+                            Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            <FontIcon Glyph="&#xE100;" />
+                        </Button>
+                        <Button
+                            Win17763:CornerRadius="4"
+                            Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            <FontIcon
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="25"
+                                Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
+                        </Button>
+                        <Button
+                            Win17763:CornerRadius="4"
+                            Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            <FontIcon Glyph="&#xE101;" />
+                        </Button>
+                        <ToggleButton
+                            x:Name="IsShuffleToggleButton"
+                            Win17763:CornerRadius="4"
+                            IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
+                            IsThreeState="False"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}">
+                            <FontIcon Glyph="&#xE14B;" />
+                        </ToggleButton>
+                        <ToggleButton
+                            x:Name="IsRepeatToggleButton"
+                            Win17763:CornerRadius="4"
+                            IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
+                            IsThreeState="True"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
+                            <FontIcon Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
+                        </ToggleButton>
+                    </StackPanel>
+                </Grid>
+                <Button
+                    Grid.Row="2"
+                    Width="30"
+                    Height="30"
+                    Margin="0,10,0,0"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <FontIcon Glyph="&#xE010;" />
+                </Button>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>

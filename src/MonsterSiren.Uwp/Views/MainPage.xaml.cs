@@ -29,7 +29,7 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
 
-        //当在这里添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
+        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
     }
@@ -253,5 +253,10 @@ public sealed partial class MainPage : Page
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
         navigationManager.BackRequested -= BackRequested; //防止重复添加事件订阅
         navigationManager.BackRequested += BackRequested;
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
     }
 }
