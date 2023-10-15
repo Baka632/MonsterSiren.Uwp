@@ -147,6 +147,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private static void InitializeFromSettings()
     {
+        #region Volume
         {
             if (SettingsService.TryGet(CommonValues.MusicVolumeSettingsKey, out double volume))
             {
@@ -158,7 +159,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 SettingsService.Set(CommonValues.MusicVolumeSettingsKey, 1d);
             }
         }
+        #endregion
 
+        #region Mute State
         {
             if (SettingsService.TryGet(CommonValues.MusicMuteStateSettingsKey, out bool isMute))
             {
@@ -170,7 +173,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 SettingsService.Set(CommonValues.MusicMuteStateSettingsKey, false);
             }
         }
-        
+        #endregion
+
+        #region Shuffle State
         {
             if (SettingsService.TryGet(CommonValues.MusicShuffleStateSettingsKey, out bool isShuffle))
             {
@@ -182,7 +187,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 SettingsService.Set(CommonValues.MusicShuffleStateSettingsKey, false);
             }
         }
+        #endregion
 
+        #region Repeat State
         {
             if (SettingsService.TryGet(CommonValues.MusicRepeatStateSettingsKey, out string enumString)
                 && Enum.TryParse(enumString, out PlayerRepeatingState result))
@@ -195,6 +202,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 SettingsService.Set(CommonValues.MusicRepeatStateSettingsKey, PlayerRepeatingState.None.ToString());
             }
         }
+        #endregion
     }
 
     private void OnPlayerMediaReplacing()
