@@ -130,9 +130,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
     /// </summary>
     public MusicInfoService()
     {
-        //HACK: Modify volume by settings
-        MusicService.PlayerVolume = 1d;
-
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
         MusicService.PlayerVolumeChanged += OnPlayerVolumeChanged;
         MusicService.PlayerMuteStateChanged += OnPlayerMuteStateChanged;
@@ -143,8 +140,61 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
 
+        InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColorDark2"];
         IsActive = true;
+    }
+
+    private static void InitializeFromSettings()
+    {
+        {
+            if (SettingsService.TryGet(CommonValues.MusicVolumeSettingsKey, out double volume))
+            {
+                MusicService.PlayerVolume = volume;
+            }
+            else
+            {
+                MusicService.PlayerVolume = 1d;
+                SettingsService.Set(CommonValues.MusicVolumeSettingsKey, 1d);
+            }
+        }
+
+        {
+            if (SettingsService.TryGet(CommonValues.MusicMuteStateSettingsKey, out bool isMute))
+            {
+                MusicService.IsPlayerMuted = isMute;
+            }
+            else
+            {
+                MusicService.IsPlayerMuted = false;
+                SettingsService.Set(CommonValues.MusicMuteStateSettingsKey, false);
+            }
+        }
+        
+        {
+            if (SettingsService.TryGet(CommonValues.MusicShuffleStateSettingsKey, out bool isShuffle))
+            {
+                MusicService.IsPlayerShuffleEnabled = isShuffle;
+            }
+            else
+            {
+                MusicService.IsPlayerShuffleEnabled = false;
+                SettingsService.Set(CommonValues.MusicShuffleStateSettingsKey, false);
+            }
+        }
+
+        {
+            if (SettingsService.TryGet(CommonValues.MusicRepeatStateSettingsKey, out string enumString)
+                && Enum.TryParse(enumString, out PlayerRepeatingState result))
+            {
+                MusicService.PlayerRepeatingState = result;
+            }
+            else
+            {
+                MusicService.PlayerRepeatingState = PlayerRepeatingState.None;
+                SettingsService.Set(CommonValues.MusicRepeatStateSettingsKey, PlayerRepeatingState.None.ToString());
+            }
+        }
     }
 
     private void OnPlayerMediaReplacing()
@@ -154,6 +204,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
     {
+        SettingsService.Set(CommonValues.MusicRepeatStateSettingsKey, state.ToString());
         OnPropertyChanged(nameof(IsRepeat));
         RepeatIconGlyph = state switch
         {
@@ -171,6 +222,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private void OnPlayerShuffleStateChanged(bool value)
     {
+        SettingsService.Set(CommonValues.MusicShuffleStateSettingsKey, value);
         OnPropertyChanged(nameof(IsShuffle));
         ShuffleStateDescription = value switch
         {
@@ -221,6 +273,8 @@ public sealed partial class MusicInfoService : ObservableRecipient
         {
             ChangeVolumeIconByVolume(MusicService.PlayerVolume);
         }
+
+        SettingsService.Set(CommonValues.MusicMuteStateSettingsKey, isMute);
         OnPropertyChanged(nameof(IsMute));
     }
 
@@ -230,6 +284,8 @@ public sealed partial class MusicInfoService : ObservableRecipient
         {
             ChangeVolumeIconByVolume(volume);
         }
+
+        SettingsService.Set(CommonValues.MusicVolumeSettingsKey, volume);
     }
 
     private void ChangeVolumeIconByVolume(double volume)

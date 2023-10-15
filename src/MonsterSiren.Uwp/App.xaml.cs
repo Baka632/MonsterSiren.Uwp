@@ -83,6 +83,7 @@ sealed partial class App : Application
 
             // 将框架放在当前窗口中
             Window.Current.Content = rootFrame;
+            UIThreadHelper.Initialize(rootFrame.Dispatcher);
 
             TitleBarHelper.SetTitleBarAppearance();
             LoadMuxcResources();

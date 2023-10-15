@@ -22,8 +22,6 @@ public sealed partial class MainPage : Page
 
         NavigationCacheMode = NavigationCacheMode.Enabled;
 
-        UIThreadHelper.Initialize(Dispatcher);
-
         SetMainPageBackground();
         ConfigureTitleBar();
 

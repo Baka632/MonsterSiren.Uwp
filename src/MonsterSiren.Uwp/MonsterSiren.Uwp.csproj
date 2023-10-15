@@ -148,6 +148,7 @@
     <Compile Include="Models\PlayerRepeatingState.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
+    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MusicViewModel.cs" />
