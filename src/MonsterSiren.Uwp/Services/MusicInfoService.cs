@@ -330,7 +330,12 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 AlbumDetail albumDetail = details.First();
 
                 Uri uri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                CurrentMediaCover = new BitmapImage(uri);
+                CurrentMediaCover = new BitmapImage(uri)
+                {
+                    DecodePixelHeight = 250,
+                    DecodePixelWidth = 250,
+                    DecodePixelType = DecodePixelType.Logical,
+                };
 
                 if (CacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
                 {
@@ -345,6 +350,12 @@ public sealed partial class MusicInfoService : ObservableRecipient
             else if (props.Thumbnail is not null)
             {
                 IRandomAccessStreamWithContentType stream = await props.Thumbnail.OpenReadAsync();
+                CurrentMediaCover = new BitmapImage()
+                {
+                    DecodePixelHeight = 250,
+                    DecodePixelWidth = 250,
+                    DecodePixelType = DecodePixelType.Logical,
+                };
                 await CurrentMediaCover.SetSourceAsync(stream);
 
                 if (CacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
@@ -395,7 +406,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     [RelayCommand]
-    private void StopMusic() => MusicService.StopMusic();
+    private void StopMusic()
+    {
+        MusicService.StopMusic();
+        CurrentMediaCover = null;
+    }
 
     [RelayCommand]
     private void NextMusic() => MusicService.NextMusic();
