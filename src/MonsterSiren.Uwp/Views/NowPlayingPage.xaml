@@ -91,9 +91,9 @@
 
             <Grid Grid.Row="1" Margin="0,0,0,10">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Grid x:Name="MusicProcessContainer" Grid.Row="0">
@@ -137,7 +137,6 @@
                     </Grid>
                     <muxc:ProgressBar
                         x:Name="MusicStatusProgressBar"
-                        Margin="15,0,15,0"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         IsIndeterminate="True"
@@ -205,6 +204,73 @@
                             ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
                             <FontIcon Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
                         </ToggleButton>
+                        <Button Win17763:CornerRadius="4">
+                            <FontIcon Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
+
+                            <Button.Flyout>
+                                <Flyout>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ToggleButton
+                                            Width="35"
+                                            Height="35"
+                                            Margin="0,0,5,0"
+                                            Padding="0"
+                                            HorizontalAlignment="Center"
+                                            Background="Transparent"
+                                            IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
+                                            IsThreeState="False">
+                                            <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
+                                        </ToggleButton>
+                                        <Slider
+                                            Width="100"
+                                            VerticalAlignment="Center"
+                                            Maximum="100"
+                                            Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                        <Button
+                            Win17763:CornerRadius="4"
+                            Content="&#xE10C;"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="16">
+                            <Button.Flyout>
+                                <Flyout>
+                                    <StackPanel>
+                                        <Button
+                                            Margin="0,5,0,5"
+                                            HorizontalAlignment="Stretch"
+                                            Win17763:CornerRadius="4"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
+                                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
+                                                <TextBlock x:Uid="ClearPlaybackList" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button
+                                            Margin="0,5,0,5"
+                                            HorizontalAlignment="Stretch"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
+                                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <FontIcon
+                                                    Margin="0,0,5,0"
+                                                    FontFamily="Segoe MDL2 Assets"
+                                                    FontSize="16"
+                                                    Glyph="&#xE158;" />
+                                                <TextBlock x:Uid="EnterCompactMode" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
                     </StackPanel>
                 </Grid>
                 <Button

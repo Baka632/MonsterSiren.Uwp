@@ -41,7 +41,9 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private async Task ToCompactNowPlayingPage()
     {
-        SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested -= MainPage.BackRequested;
+        navigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
         
         ViewModePreferences preferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
         preferences.CustomSize = new Size(300, 300);

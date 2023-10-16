@@ -45,6 +45,22 @@ public sealed partial class NowPlayingPage : Page
     {
         base.OnNavigatedTo(e);
 
+        if (e.NavigationMode == NavigationMode.Back)
+        {
+            SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+            navigationManager.BackRequested -= MainPage.BackRequested;
+            navigationManager.BackRequested += MainPage.BackRequested;
+        }
+
+        if (Frame.CanGoBack)
+        {
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+        }
+        else
+        {
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
+        }
+
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);

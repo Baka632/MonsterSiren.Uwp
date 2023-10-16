@@ -2,6 +2,9 @@
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -20,5 +23,19 @@ public partial class NowPlayingViewModel : ObservableObject
     public void UpdateMusicPosition(TimeSpan timeSpan)
     {
         MusicInfo.MusicPosition = MusicService.PlayerPosition = timeSpan;
+    }
+
+    [RelayCommand]
+    private async Task ToCompactNowPlayingPage()
+    {
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.BackRequested -= MainPage.BackRequested;
+        navigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
+
+        ViewModePreferences preferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+        preferences.CustomSize = new Size(300, 300);
+        await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, preferences);
+
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingCompactPage), null, new SuppressNavigationTransitionInfo());
     }
 }
