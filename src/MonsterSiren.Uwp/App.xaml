@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+            <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

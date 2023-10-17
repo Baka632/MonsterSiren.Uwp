@@ -9,6 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:playback="using:Windows.Media.Playback"
+    xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingViewModel}"
     Loaded="OnNowPlayingPageLoaded"
@@ -24,13 +26,19 @@
     </Page.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
         <Image
+            Grid.RowSpan="2"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Opacity="0.3"
             Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
             Stretch="UniformToFill" />
-        <Grid x:Name="BackdropGrid">
+        <Grid x:Name="BackdropGrid" Grid.RowSpan="2">
             <Grid.Background>
                 <media:BackdropBlurBrush Amount="20" />
             </Grid.Background>
@@ -38,12 +46,14 @@
 
         <TextBlock
             x:Uid="NoMusicTextBlock"
+            Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
 
         <Grid
-            Margin="11,0,11,0"
+            Grid.Row="0"
+            Margin="11,40,11,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
             Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
@@ -287,5 +297,32 @@
                 </Button>
             </Grid>
         </Grid>
+
+        <ListView
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            AllowDrop="True"
+            CanReorderItems="True"
+            ItemsSource="{x:Bind services:MusicService.CurrentMediaPlaybackList}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="playback:MediaPlaybackItem">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
     </Grid>
 </Page>

@@ -109,6 +109,14 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 获取播放器当前的播放列表
+    /// </summary>
+    public static IObservableVector<MediaPlaybackItem> CurrentMediaPlaybackList
+    {
+        get => mediaPlaybackList.Items;
+    }
+
+    /// <summary>
     /// 获取播放器当前的 <see cref="MediaPlaybackItem"/>
     /// </summary>
     public static MediaPlaybackItem CurrentMediaPlaybackItem
@@ -260,7 +268,11 @@ public static class MusicService
     public static void AddMusic(MediaPlaybackItem media)
     {
         mediaPlaybackList.Items.Add(media);
-        PlayMusic();
+
+        if (IsPlayerPlaylistHasMusic != true)
+        {
+            PlayMusic();
+        }
     }
 
     /// <summary>
