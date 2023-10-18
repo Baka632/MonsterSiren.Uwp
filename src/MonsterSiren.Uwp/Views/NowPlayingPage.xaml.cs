@@ -89,4 +89,12 @@ public sealed partial class NowPlayingPage : Page
             isNowPlayingListExpanded = true;
         }
     }
+
+    private void OnMusicListExpandStoryboardCompleted(object sender, object e)
+    {
+        if (MusicService.CurrentMediaPlaybackItem is not null && NowPlayingListView.Items.Contains(MusicService.CurrentMediaPlaybackItem))
+        {
+            NowPlayingListView.ScrollIntoView(MusicService.CurrentMediaPlaybackItem);
+        }
+    }
 }

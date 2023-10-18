@@ -327,6 +327,21 @@ public static class MusicService
     }
 
     /// <summary>
+    ///将正在播放的项目更改为索引指向的项目
+    /// </summary>
+    /// <param name="index">项目在正在播放列表的索引</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引指向不存在的项目</exception>
+    public static void MoveTo(uint index)
+    {
+        if (index + 1 > mediaPlaybackList.Items.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        mediaPlaybackList.MoveTo(index);
+    }
+
+    /// <summary>
     /// 开始播放音乐
     /// </summary>
     public static void PlayMusic()

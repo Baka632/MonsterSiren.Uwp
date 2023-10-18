@@ -11,11 +11,14 @@ public sealed class MediaPlaybackItemToMusicRelatedPropertiesConverter : IValueC
         {
             MusicDisplayProperties musicProperties = playbackItem.GetDisplayProperties().MusicProperties;
 
+            string duration = playbackItem.Source.Duration is null ? "" : playbackItem.Source.Duration.Value.ToString(@"m\:ss");
             return args switch
             {
                 "AlbumArtist" => musicProperties.AlbumArtist,
                 "MusicTitle" => musicProperties.Title,
                 "MusicAlbum" => musicProperties.AlbumTitle,
+                "MusicDuration" => duration,
+                "MusicTrackNumber" => musicProperties.TrackNumber,
                 _ => DependencyProperty.UnsetValue,
             };
         }

@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -134,6 +134,7 @@
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
+    <Compile Include="Helpers\DataTemplateSelectors\NowPlayingItemDataTemplateSelector.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
     <Compile Include="Helpers\DeviceFamilyHelper.cs" />
     <Compile Include="Helpers\ImageColorHelper.cs" />

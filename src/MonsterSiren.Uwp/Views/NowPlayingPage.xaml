@@ -24,7 +24,7 @@
                 Duration="0:0:0.2" />
         </Storyboard>
 
-        <Storyboard x:Name="MusicListExpandStoryboard">
+        <Storyboard x:Name="MusicListExpandStoryboard" Completed="OnMusicListExpandStoryboardCompleted">
             <DoubleAnimation
                 Storyboard.TargetName="BackgroundImage"
                 Storyboard.TargetProperty="Opacity"
@@ -395,13 +395,16 @@
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
                     <Grid>
+                        <!-- Commented for not fitting to narrow UI -->
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
+                            <!--<ColumnDefinition />-->
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}" />
                         <TextBlock Grid.Column="1" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}" />
+                        <!--<TextBlock Grid.Column="2" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='AlbumArtist'}" />-->
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
