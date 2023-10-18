@@ -14,6 +14,9 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// </summary>
 public partial class NowPlayingViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private string nowPlayingListExpandButtonGlyph = "\uE010";
+
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
 
     /// <summary>
