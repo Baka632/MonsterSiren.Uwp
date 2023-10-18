@@ -80,13 +80,11 @@ public sealed partial class NowPlayingPage : Page
     {
         if (isNowPlayingListExpanded)
         {
-            ViewModel.NowPlayingListExpandButtonGlyph = "\uE010";
             MusicListFoldStoryboard.Begin();
             isNowPlayingListExpanded = false;
         }
         else
         {
-            ViewModel.NowPlayingListExpandButtonGlyph = "\uE011";
             MusicListExpandStoryboard.Begin();
             isNowPlayingListExpanded = true;
         }

@@ -31,6 +31,12 @@
                 To="0.1"
                 Duration="0:0:0.2" />
 
+            <DoubleAnimation
+                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                To="180"
+                Duration="0:0:0.2" />
+
             <ObjectAnimationUsingKeyFrames
                 Storyboard.TargetName="MusicInfoAndControlGrid"
                 Storyboard.TargetProperty="VerticalAlignment"
@@ -59,6 +65,13 @@
                 Storyboard.TargetProperty="Opacity"
                 To="0.3"
                 Duration="0:0:0.2" />
+
+            <DoubleAnimation
+                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                To="0"
+                Duration="0:0:0.2" />
+
             <ObjectAnimationUsingKeyFrames
                 Storyboard.TargetName="MusicInfoAndControlGrid"
                 Storyboard.TargetProperty="(Grid.Row)"
@@ -357,7 +370,15 @@
                     Background="Transparent"
                     BorderThickness="0"
                     Click="OnExpandOrFoldNowPlayinglList">
-                    <FontIcon Glyph="{x:Bind ViewModel.NowPlayingListExpandButtonGlyph, Mode=OneWay}" />
+
+                    <FontIcon
+                        x:Name="ExpandOrFoldIndicatorFontIcon"
+                        Glyph="&#xE010;"
+                        RenderTransformOrigin="0.5, 0.5">
+                        <FontIcon.RenderTransform>
+                            <RotateTransform />
+                        </FontIcon.RenderTransform>
+                    </FontIcon>
                 </Button>
             </Grid>
         </Grid>

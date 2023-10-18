@@ -1,11 +1,6 @@
-﻿using Windows.Media;
-using Windows.Media.Playback;
-using Windows.Storage.Streams;
-using Windows.UI;
-using Windows.UI.Core;
+﻿using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
