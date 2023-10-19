@@ -139,6 +139,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
+        MusicService.MusicStopped += OnMusicStopped;
 
         InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColorDark2"];
@@ -208,6 +209,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
     private void OnPlayerMediaReplacing()
     {
         IsLoadingMedia = true;
+    }
+
+    private void OnMusicStopped()
+    {
+        if (CurrentMediaCover != null)
+        {
+            CurrentMediaCover = null;
+        }
     }
 
     private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
@@ -409,7 +418,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
     private void StopMusic()
     {
         MusicService.StopMusic();
-        CurrentMediaCover = null;
     }
 
     [RelayCommand]

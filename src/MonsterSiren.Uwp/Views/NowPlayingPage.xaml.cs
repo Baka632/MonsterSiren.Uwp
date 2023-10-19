@@ -11,11 +11,12 @@ public sealed partial class NowPlayingPage : Page
 {
     private bool isNowPlayingListExpanded = false;
 
-    public NowPlayingViewModel ViewModel { get; } = new NowPlayingViewModel();
+    public NowPlayingViewModel ViewModel { get; }
 
     public NowPlayingPage()
     {
         this.InitializeComponent();
+        ViewModel = new NowPlayingViewModel(this);
     }
 
     private void OnNowPlayingPageLoaded(object sender, RoutedEventArgs e)
@@ -43,6 +44,12 @@ public sealed partial class NowPlayingPage : Page
         ViewModel.MusicInfo.IsModifyingMusicPositionBySlider = true;
     }
 
+    private void OnMusicStopped()
+    {
+        MusicListFoldStoryboard.Begin();
+        isNowPlayingListExpanded = false;
+    }
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -63,6 +70,8 @@ public sealed partial class NowPlayingPage : Page
             SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Collapsed;
         }
 
+        MusicService.MusicStopped += OnMusicStopped;
+
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
@@ -72,11 +81,17 @@ public sealed partial class NowPlayingPage : Page
     {
         base.OnNavigatedFrom(e);
 
+        MusicService.MusicStopped -= OnMusicStopped;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
         MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
     }
 
-    private void OnExpandOrFoldNowPlayinglList(object sender, RoutedEventArgs e)
+    private void OnExpandOrFoldNowPlayingList(object sender, RoutedEventArgs e)
+    {
+        ExpandOrFoldNowPlayingList();
+    }
+
+    private void ExpandOrFoldNowPlayingList()
     {
         if (isNowPlayingListExpanded)
         {

@@ -1,4 +1,5 @@
-﻿using Windows.Media.Playback;
+﻿using Windows.Foundation.Collections;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Services;
 
@@ -51,6 +52,14 @@ public static class MusicService
     /// 当音乐的时长发生改变时引发
     /// </summary>
     public static event Action<TimeSpan> MusicDurationChanged;
+    /// <summary>
+    /// 当音乐停止播放时引发
+    /// </summary>
+    public static event Action MusicStopped;
+    /// <summary>
+    /// 当播放列表发生变化时引发
+    /// </summary>
+    public static event VectorChangedEventHandler<MediaPlaybackItem> PlaylistChanged;
 
     /// <summary>
     /// 获取播放器的播放状态
@@ -259,6 +268,21 @@ public static class MusicService
                 PlayerPlayItemChanged?.Invoke(args);
             });
         };
+
+        mediaPlaybackList.Items.VectorChanged += async (sender, args) =>
+        {
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                if (args.CollectionChange == CollectionChange.ItemRemoved && args.Index == 0 && !sender.Any())
+                {
+                    mediaPlayer.Pause();
+                    mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+                    MusicStopped?.Invoke();
+                }
+
+                PlaylistChanged?.Invoke(sender, args);
+            });
+        };
     }
 
     /// <summary>
@@ -267,9 +291,15 @@ public static class MusicService
     /// <param name="media">表示音乐的 <see cref="MediaPlaybackItem"/></param>
     public static void AddMusic(MediaPlaybackItem media)
     {
+        bool shouldPlayMusic = false;
+        if (IsPlayerPlaylistHasMusic != true)
+        {
+            shouldPlayMusic = true;
+        }
+
         mediaPlaybackList.Items.Add(media);
 
-        if (IsPlayerPlaylistHasMusic != true)
+        if (shouldPlayMusic)
         {
             PlayMusic();
         }
@@ -342,6 +372,21 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 移除指定索引指向的播放项
+    /// </summary>
+    /// <param name="index">项目在正在播放列表的索引</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
+    public static void RemoveAt(int index)
+    {
+        if (index < 0 || index + 1 > mediaPlaybackList.Items.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        mediaPlaybackList.Items.RemoveAt(index);
+    }
+
+    /// <summary>
     /// 开始播放音乐
     /// </summary>
     public static void PlayMusic()
@@ -376,10 +421,15 @@ public static class MusicService
     /// <summary>
     /// 终止音乐播放
     /// </summary>
-    public static void StopMusic()
+    public static async void StopMusic()
     {
         mediaPlayer.Pause();
         mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
         mediaPlaybackList.Items.Clear();
+
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            MusicStopped?.Invoke();
+        });
     }
 }
