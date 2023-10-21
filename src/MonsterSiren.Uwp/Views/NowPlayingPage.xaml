@@ -8,11 +8,11 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+    xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:playback="using:Windows.Media.Playback"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
-    x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingViewModel}"
     Loaded="OnNowPlayingPageLoaded"
     mc:Ignorable="d">
@@ -388,7 +388,7 @@
             x:Name="NowPlayingListView"
             Grid.Row="1"
             HorizontalAlignment="Stretch"
-            VerticalAlignment="Top"
+            VerticalAlignment="Stretch"
             x:FieldModifier="Internal"
             AllowDrop="True"
             CanReorderItems="True"
@@ -396,53 +396,68 @@
             Visibility="Collapsed">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
-                    <Grid Background="Transparent">
-                        <Grid.ContextFlyout>
-                            <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft">
-                                <muxc:CommandBarFlyout.SecondaryCommands>
-                                    <AppBarButton
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.MoveToIndexCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <AppBarSeparator />
-                                    <AppBarButton
-                                        x:Uid="RemoveCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.RemoveAtCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Delete" />
-                                </muxc:CommandBarFlyout.SecondaryCommands>
-                            </muxc:CommandBarFlyout>
-                        </Grid.ContextFlyout>
+                    <models:NowPlayingListViewItem
+                        x:Name="NowPlayingListViewItemContainer"
+                        Padding="15,0,0,0"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        Style="{StaticResource DefaultListViewItemStyle}">
+                        <Grid Background="Transparent">
+                            <Grid.ContextFlyout>
+                                <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft">
+                                    <muxc:CommandBarFlyout.SecondaryCommands>
+                                        <AppBarButton
+                                            x:Uid="PlayCommandButton"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Play"
+                                            Loaded="PlayCommandButtonLoaded" />
+                                        <AppBarSeparator />
+                                        <AppBarButton
+                                            x:Uid="RemoveCommandButton"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Delete"
+                                            Loaded="RemoveCommandButtonLoaded" />
+                                    </muxc:CommandBarFlyout.SecondaryCommands>
+                                </muxc:CommandBarFlyout>
+                            </Grid.ContextFlyout>
 
-                        <!--  Commented for not fitting to narrow UI  -->
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <!--<ColumnDefinition />-->
-                        </Grid.ColumnDefinitions>
+                            <!--  Commented for not fitting to narrow UI  -->
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <!--<ColumnDefinition />-->
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}"
-                            TextTrimming="CharacterEllipsis" />
-                        <TextBlock
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
-                            TextTrimming="CharacterEllipsis" />
-                        <!--<TextBlock Grid.Column="2" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='AlbumArtist'}" />-->
-                    </Grid>
+                            <StackPanel
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <PathIcon
+                                    Margin="0,0,10,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="F1 M 12.5 17.5 L 12.5 6.259766 L 13.740234 6.259766 L 13.740234 17.5 Z M 1.240234 17.5 L 1.240234 13.759766 L 2.5 13.759766 L 2.5 17.5 Z M 5 17.5 L 5 10 L 6.240234 10 L 6.240234 17.5 Z M 8.740234 17.5 L 8.740234 1.259766 L 10 1.259766 L 10 17.5 Z M 16.240234 10 L 17.5 10 L 17.5 17.5 L 16.240234 17.5 Z "
+                                    Foreground="{ThemeResource SystemAccentColorLight2}"
+                                    Visibility="{Binding ElementName=NowPlayingListViewItemContainer, Path=CurrentNowPlayingItemIndicatorVisibility, Mode=OneWay}" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{Binding ElementName=NowPlayingListViewItemContainer, Path=ContentBrush, Mode=OneWay}"
+                                    Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Foreground="{Binding ElementName=NowPlayingListViewItemContainer, Path=ContentBrush, Mode=OneWay}"
+                                Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
+                                TextTrimming="CharacterEllipsis" />
+                            <!--<TextBlock Grid.Column="2" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='AlbumArtist'}" />-->
+                        </Grid>
+                    </models:NowPlayingListViewItem>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="15,0,0,0" />
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.Transitions>
                 <TransitionCollection>
                     <EntranceThemeTransition />

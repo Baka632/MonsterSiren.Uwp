@@ -11,6 +11,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
+            <converters:MediaPlaybackItemForSelectionNowPlayingItemConverter x:Key="MediaPlaybackItemForSelectionNowPlayingItemConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

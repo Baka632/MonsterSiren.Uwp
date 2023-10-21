@@ -1,4 +1,4 @@
-﻿using Windows.Foundation.Collections;
+﻿using System.Collections.Specialized;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Services;
@@ -59,7 +59,7 @@ public static class MusicService
     /// <summary>
     /// 当播放列表发生变化时引发
     /// </summary>
-    public static event VectorChangedEventHandler<MediaPlaybackItem> PlaylistChanged;
+    public static event NotifyCollectionChangedEventHandler PlaylistChanged;
 
     /// <summary>
     /// 获取播放器的播放状态
@@ -114,16 +114,13 @@ public static class MusicService
     /// </summary>
     public static bool IsPlayerPlaylistHasMusic
     {
-        get => mediaPlaybackList.Items.Count != 0;
+        get => CurrentMediaPlaybackList.Count != 0;
     }
 
     /// <summary>
     /// 获取播放器当前的播放列表
     /// </summary>
-    public static IObservableVector<MediaPlaybackItem> CurrentMediaPlaybackList
-    {
-        get => mediaPlaybackList.Items;
-    }
+    public static NowPlayingList CurrentMediaPlaybackList { get; }
 
     /// <summary>
     /// 获取播放器当前的 <see cref="MediaPlaybackItem"/>
@@ -202,6 +199,7 @@ public static class MusicService
     static MusicService()
     {
         mediaPlayer.Source = mediaPlaybackList;
+        CurrentMediaPlaybackList = new NowPlayingList(mediaPlaybackList.Items);
 
         //下面的事件处理器在 UI 线程引发事件，这样可以让与 UI 相关的代码在处理这些事件时不会出错
         mediaPlayer.VolumeChanged += async (sender, arg) =>
@@ -269,11 +267,11 @@ public static class MusicService
             });
         };
 
-        mediaPlaybackList.Items.VectorChanged += async (sender, args) =>
+        CurrentMediaPlaybackList.CollectionChanged += async (sender, args) =>
         {
             await UIThreadHelper.RunOnUIThread(() =>
             {
-                if (args.CollectionChange == CollectionChange.ItemRemoved && args.Index == 0 && !sender.Any())
+                if (args.Action == NotifyCollectionChangedAction.Remove && IsPlayerPlaylistHasMusic != true)
                 {
                     mediaPlayer.Pause();
                     mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
@@ -289,7 +287,7 @@ public static class MusicService
     /// 添加要播放的音乐
     /// </summary>
     /// <param name="media">表示音乐的 <see cref="MediaPlaybackItem"/></param>
-    public static void AddMusic(MediaPlaybackItem media)
+    public static async void AddMusic(MediaPlaybackItem media)
     {
         bool shouldPlayMusic = false;
         if (IsPlayerPlaylistHasMusic != true)
@@ -297,7 +295,7 @@ public static class MusicService
             shouldPlayMusic = true;
         }
 
-        mediaPlaybackList.Items.Add(media);
+        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
 
         if (shouldPlayMusic)
         {
@@ -311,13 +309,14 @@ public static class MusicService
     /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/></param>
     public static async void ReplaceMusic(MediaPlaybackItem media)
     {
+        StopMusic();
+
         await UIThreadHelper.RunOnUIThread(() =>
         {
             PlayerMediaReplacing?.Invoke();
         });
 
-        StopMusic();
-        mediaPlaybackList.Items.Add(media);
+        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
         PlayMusic();
     }
 
@@ -327,16 +326,16 @@ public static class MusicService
     /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
     public static async void ReplaceMusic(IEnumerable<MediaPlaybackItem> medias)
     {
+        StopMusic();
+
         await UIThreadHelper.RunOnUIThread(() =>
         {
             PlayerMediaReplacing?.Invoke();
+            foreach (MediaPlaybackItem media in medias)
+            {
+                CurrentMediaPlaybackList.Add(media);
+            }
         });
-
-        StopMusic();
-        foreach (MediaPlaybackItem media in medias)
-        {
-            mediaPlaybackList.Items.Add(media);
-        }
         PlayMusic();
     }
 
@@ -363,7 +362,7 @@ public static class MusicService
     /// <exception cref="ArgumentOutOfRangeException">索引指向不存在的项目</exception>
     public static void MoveTo(uint index)
     {
-        if (index + 1 > mediaPlaybackList.Items.Count)
+        if (index + 1 > CurrentMediaPlaybackList.Count)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
@@ -376,14 +375,14 @@ public static class MusicService
     /// </summary>
     /// <param name="index">项目在正在播放列表的索引</param>
     /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
-    public static void RemoveAt(int index)
+    public static async void RemoveAt(int index)
     {
-        if (index < 0 || index + 1 > mediaPlaybackList.Items.Count)
+        if (index < 0 || index + 1 > CurrentMediaPlaybackList.Count)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        mediaPlaybackList.Items.RemoveAt(index);
+        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.RemoveAt(index));
     }
 
     /// <summary>
@@ -425,10 +424,10 @@ public static class MusicService
     {
         mediaPlayer.Pause();
         mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
-        mediaPlaybackList.Items.Clear();
 
         await UIThreadHelper.RunOnUIThread(() =>
         {
+            CurrentMediaPlaybackList.Clear();
             MusicStopped?.Invoke();
         });
     }
