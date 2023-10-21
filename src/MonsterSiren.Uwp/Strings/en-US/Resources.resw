@@ -123,4 +123,7 @@
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>Currently, there is no music that is playing</value>
   </data>
+  <data name="RemoveCommandButton.Label" xml:space="preserve">
+    <value>Remove</value>
+  </data>
 </root>

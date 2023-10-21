@@ -46,7 +46,7 @@
             ShowsScrollingPlaceholders="False">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
-                    <Grid Padding="5">
+                    <Grid Padding="5" Background="Transparent">
                         <Grid.ContextFlyout>
                             <muxc:CommandBarFlyout>
                                 <muxc:CommandBarFlyout.SecondaryCommands>

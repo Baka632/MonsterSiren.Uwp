@@ -1,11 +1,7 @@
-﻿using Windows.Media;
-using Windows.Media.Playback;
-using Windows.Storage.Streams;
-using Windows.UI;
+﻿using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -14,7 +10,17 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// </summary>
 public partial class NowPlayingViewModel : ObservableObject
 {
+    private readonly NowPlayingPage view;
+
+    [ObservableProperty]
+    private string nowPlayingListExpandButtonGlyph = "\uE010";
+
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
+
+    public NowPlayingViewModel(NowPlayingPage nowPlaying)
+    {
+        view = nowPlaying ?? throw new ArgumentNullException(nameof(nowPlaying));
+    }
 
     /// <summary>
     /// 使用指定的 <see cref="TimeSpan"/> 更新音乐播放位置的相关属性
@@ -37,5 +43,22 @@ public partial class NowPlayingViewModel : ObservableObject
         await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, preferences);
 
         MainPageNavigationHelper.Navigate(typeof(NowPlayingCompactPage), null, new SuppressNavigationTransitionInfo());
+    }
+
+    [RelayCommand]
+    private void MoveToIndex(MediaPlaybackItem playbackItem)
+    {
+        int index = view.NowPlayingListView.Items.IndexOf(playbackItem);
+
+        MusicService.MoveTo((uint)index);
+        MusicService.PlayMusic();
+    }
+    
+    [RelayCommand]
+    private void RemoveAt(MediaPlaybackItem playbackItem)
+    {
+        int index = view.NowPlayingListView.Items.IndexOf(playbackItem);
+
+        MusicService.RemoveAt(index);
     }
 }
