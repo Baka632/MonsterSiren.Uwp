@@ -1,7 +1,6 @@
 ﻿using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MonsterSiren.Uwp.Helpers;
@@ -20,7 +19,6 @@ internal static class SongDetailExtensions
     public static MediaPlaybackItem ToMediaPlaybackItem(this SongDetail songDetail, AlbumDetail albumDetail)
     {
         Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-        Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
 
         List<SongInfo> songs = albumDetail.Songs.ToList();
         MediaSource source = MediaSource.CreateFromUri(musicUri);
@@ -33,7 +31,11 @@ internal static class SongDetailExtensions
         displayProps.MusicProperties.AlbumTitle = albumDetail.Name;
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
-        displayProps.Thumbnail = RandomAccessStreamReference.CreateFromUri(coverUri);
+
+        Uri fileCoverUri = FileCacheHelper.Default.GetAlbumCoverUriAsync(albumDetail).Result;
+        displayProps.Thumbnail = fileCoverUri != null
+            ? RandomAccessStreamReference.CreateFromUri(fileCoverUri)
+            : RandomAccessStreamReference.CreateFromUri(new(albumDetail.CoverUrl, UriKind.Absolute));
 
         playbackItem.ApplyDisplayProperties(displayProps);
 

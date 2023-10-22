@@ -1,13 +1,16 @@
 ﻿namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为应用程序数据提供缓存的类
+/// 为应用程序数据提供内存中缓存的类
 /// </summary>
-internal class CacheHelper<T>
+internal sealed class MemoryCacheHelper<T>
 {
     private readonly Dictionary<string, T> _cache = new(200);
 
-    public static CacheHelper<T> Default { get; } = new CacheHelper<T>();
+    /// <summary>
+    /// 获取 <see cref="MemoryCacheHelper{T}"/> 的默认实例
+    /// </summary>
+    public static MemoryCacheHelper<T> Default { get; } = new MemoryCacheHelper<T>();
 
     /// <summary>
     /// 使用指定的 Key 存储数据

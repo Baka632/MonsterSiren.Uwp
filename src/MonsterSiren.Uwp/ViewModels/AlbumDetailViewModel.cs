@@ -27,7 +27,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
         try
         {
-            if (CacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
+            if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
             {
                 albumDetail = detail;
             }
@@ -63,7 +63,7 @@ public partial class AlbumDetailViewModel : ObservableObject
                     }
                 });
 
-                CacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
             }
 
             CurrentAlbumDetail = albumDetail;
@@ -181,14 +181,14 @@ public partial class AlbumDetailViewModel : ObservableObject
 
     private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
     {
-        if (CacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
         {
             return detail;
         }
         else
         {
             SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
-            CacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
             return songDetail;
         }

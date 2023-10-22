@@ -334,11 +334,23 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
             CurrentMusicProperties = props.MusicProperties;
 
-            if (CacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
+            if (MemoryCacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
             {
                 AlbumDetail albumDetail = details.First();
 
-                Uri uri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                Uri uri;
+
+                Uri fileCoverUri = await FileCacheHelper.Default.GetAlbumCoverUriAsync(albumDetail);
+                if (fileCoverUri != null)
+                {
+                    uri = fileCoverUri;
+                }
+                else
+                {
+                    uri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                    await FileCacheHelper.Default.StoreAlbumCoverAsync(albumDetail);
+                }
+
                 CurrentMediaCover = new BitmapImage(uri)
                 {
                     DecodePixelHeight = 250,
@@ -346,14 +358,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
                     DecodePixelType = DecodePixelType.Logical,
                 };
 
-                if (CacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
+                if (MemoryCacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
                 {
                     MusicThemeColor = color;
                 }
                 else
                 {
                     MusicThemeColor = await ImageColorHelper.GetPaletteColor(uri);
-                    CacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
+                    MemoryCacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
                 }
             }
             else if (props.Thumbnail is not null)
@@ -367,14 +379,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 };
                 await CurrentMediaCover.SetSourceAsync(stream);
 
-                if (CacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
+                if (MemoryCacheHelper<Color>.Default.TryGetData(props.MusicProperties.AlbumTitle, out Color color))
                 {
                     MusicThemeColor = color;
                 }
                 else
                 {
                     MusicThemeColor = await ImageColorHelper.GetPaletteColor(stream);
-                    CacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
+                    MemoryCacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
                 }
             }
 

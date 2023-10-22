@@ -131,7 +131,8 @@
     <Compile Include="CommonValues.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Helpers\AcrylicHelper.cs" />
-    <Compile Include="Helpers\CacheHelper.cs" />
+    <Compile Include="Helpers\FileCacheHelper.cs" />
+    <Compile Include="Helpers\MemoryCacheHelper.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemForSelectionNowPlayingItemConverter.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
@@ -239,6 +240,11 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+      <Version>7.0.4</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>

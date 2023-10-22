@@ -26,7 +26,7 @@ public sealed partial class MusicViewModel : ObservableObject
         ErrorVisibility = Visibility.Collapsed;
         try
         {
-            if (CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
+            if (MemoryCacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
             {
                 Albums = infos;
             }
@@ -42,6 +42,12 @@ public sealed partial class MusicViewModel : ObservableObject
                         {
                             albumList[i] = albumList[i] with { Artistes = new string[] { "MSR".GetLocalized() } };
                         }
+
+                        Uri fileCoverUri = await FileCacheHelper.Default.GetAlbumCoverUriAsync(albumList[i]);
+                        if (fileCoverUri != null)
+                        {
+                            albumList[i] = albumList[i] with { CoverUrl = fileCoverUri.ToString() };
+                        }
                     }
 
                     return albumList;
@@ -50,7 +56,7 @@ public sealed partial class MusicViewModel : ObservableObject
                 int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
                 Albums = new(new AlbumInfoSource(albums), loadCount);
 
-                CacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
+                MemoryCacheHelper<IncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
             }
 
 
@@ -125,7 +131,7 @@ public sealed partial class MusicViewModel : ObservableObject
     private static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
     {
         AlbumDetail albumDetail;
-        if (CacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
+        if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
         {
             albumDetail = detail;
         }
@@ -158,7 +164,7 @@ public sealed partial class MusicViewModel : ObservableObject
                 albumDetail = albumDetail with { Songs = songs };
             }
 
-            CacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+            MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
         }
 
         return albumDetail;
@@ -166,14 +172,14 @@ public sealed partial class MusicViewModel : ObservableObject
 
     private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
     {
-        if (CacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
         {
             return detail;
         }
         else
         {
             SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
-            CacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
             return songDetail;
         }
