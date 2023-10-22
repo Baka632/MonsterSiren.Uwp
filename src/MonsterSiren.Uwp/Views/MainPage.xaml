@@ -530,65 +530,251 @@
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Win16299:Setter Target="ContentFrame.Margin" Value="-10,20,0,0" />
+                    <VisualState.Storyboard>
+                        <Storyboard Duration="0">
+                            <Win16299:ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="ContentFrame"
+                                Storyboard.TargetProperty="Margin"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="-10,20,0,0" />
+                            </Win16299:ObjectAnimationUsingKeyFrames>
 
-                        <Setter Target="MediaInfoButton.Padding" Value="5" />
-                        <Setter Target="MediaCoverImage.Visibility" Value="Collapsed" />
-                        <Setter Target="VolumeStackPanel.Visibility" Value="Collapsed" />
-                        <Setter Target="IsShuffleToggleButton.Visibility" Value="Collapsed" />
-                        <Setter Target="IsRepeatToggleButton.Visibility" Value="Collapsed" />
-                        <Setter Target="MediaAdditionalControlStackPanel.Visibility" Value="Collapsed" />
-                        <Setter Target="NarrowMediaAdditionalControlButton.Visibility" Value="Visible" />
-                        <Setter Target="MusicProcessGrid.MaxWidth" Value="Infinity" />
-                        <Setter Target="MusicStatusProgressBar.MaxWidth" Value="Infinity" />
-                        <Setter Target="MediaControlsStackPanel.HorizontalAlignment" Value="Right" />
-                        <Setter Target="MediaControlsStackPanel.Margin" Value="0,10,15,0" />
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="Padding"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="5" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaCoverImage"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="VolumeStackPanel"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="IsShuffleToggleButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="IsRepeatToggleButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaAdditionalControlStackPanel"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="NarrowMediaAdditionalControlButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="MaxWidth"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Infinity" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="MaxWidth"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Infinity" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="HorizontalAlignment"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Right" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="Margin"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0,10,15,0" />
+                            </ObjectAnimationUsingKeyFrames>
 
-                        <Setter Target="MusicStatusProgressBar.(Grid.ColumnSpan)" Value="3" />
-                        <Setter Target="MusicProcessGrid.(Grid.ColumnSpan)" Value="3" />
-                        <Setter Target="MediaControlsStackPanel.(Grid.ColumnSpan)" Value="2" />
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="3" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="3" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="(Grid.Column)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="(Grid.Column)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                            </ObjectAnimationUsingKeyFrames>
 
-                        <Setter Target="MusicProcessGrid.(Grid.Column)" Value="0" />
-                        <Setter Target="MusicStatusProgressBar.(Grid.Column)" Value="0" />
-                        <Setter Target="MediaInfoButton.(Grid.RowSpan)" Value="0" />
-                    </VisualState.Setters>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState.Storyboard>
                 </VisualState>
 
                 <VisualState x:Name="MainPageWide">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="641" />
                     </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentFrame.Margin" Value="0,0,0,0" />
-                    </VisualState.Setters>
+                    <VisualState.Storyboard>
+                        <Storyboard Duration="0">
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="ContentFrame"
+                                Storyboard.TargetProperty="Margin"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0" />
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState.Storyboard>
                 </VisualState>
 
                 <VisualState x:Name="MusicControlsWide">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="750" />
+                        <AdaptiveTrigger MinWindowWidth="800" />
                     </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="MediaInfoButton.Padding" Value="0" />
-                        <Setter Target="MediaCoverImage.Visibility" Value="Visible" />
-                        <Setter Target="VolumeStackPanel.Visibility" Value="Visible" />
-                        <Setter Target="IsShuffleToggleButton.Visibility" Value="Visible" />
-                        <Setter Target="IsRepeatToggleButton.Visibility" Value="Visible" />
-                        <Setter Target="MediaAdditionalControlStackPanel.Visibility" Value="Visible" />
-                        <Setter Target="NarrowMediaAdditionalControlButton.Visibility" Value="Collapsed" />
-                        <Setter Target="MusicProcessGrid.MaxWidth" Value="420" />
-                        <Setter Target="MusicStatusProgressBar.MaxWidth" Value="420" />
-                        <Setter Target="MediaControlsStackPanel.HorizontalAlignment" Value="Center" />
-                        <Setter Target="MediaControlsStackPanel.Margin" Value="0,10,0,0" />
+                    <VisualState.Storyboard>
+                        <Storyboard Duration="0">
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="Padding"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaCoverImage"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="VolumeStackPanel"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="IsShuffleToggleButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="IsRepeatToggleButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaAdditionalControlStackPanel"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="NarrowMediaAdditionalControlButton"
+                                Storyboard.TargetProperty="Visibility"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="MaxWidth"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="420" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="MaxWidth"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="420" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="HorizontalAlignment"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Center" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="Margin"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="0,10,0,0" />
+                            </ObjectAnimationUsingKeyFrames>
 
-                        <Setter Target="MusicProcessGrid.(Grid.ColumnSpan)" Value="1" />
-                        <Setter Target="MusicStatusProgressBar.(Grid.ColumnSpan)" Value="1" />
-                        <Setter Target="MediaControlsStackPanel.(Grid.ColumnSpan)" Value="1" />
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaControlsStackPanel"
+                                Storyboard.TargetProperty="(Grid.ColumnSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicProcessGrid"
+                                Storyboard.TargetProperty="(Grid.Column)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MusicStatusProgressBar"
+                                Storyboard.TargetProperty="(Grid.Column)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
 
-                        <Setter Target="MusicProcessGrid.(Grid.Column)" Value="1" />
-                        <Setter Target="MusicStatusProgressBar.(Grid.Column)" Value="1" />
-                        <Setter Target="MediaInfoButton.(Grid.RowSpan)" Value="2" />
-                    </VisualState.Setters>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState.Storyboard>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
