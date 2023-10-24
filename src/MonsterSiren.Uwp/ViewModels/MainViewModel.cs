@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
 using Microsoft.UI.Xaml.Controls;
+using MonsterSiren.Uwp.Helpers;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -67,6 +68,22 @@ public partial class MainViewModel : ObservableRecipient
                     SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
                     MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    public static async Task AddToPlaylistForSongInfo(SongInfo songInfo, AlbumDetail albumDetail)
+    {
+        try
+        {
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
             });
         }
         catch (HttpRequestException)

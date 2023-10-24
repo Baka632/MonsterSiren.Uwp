@@ -401,6 +401,7 @@
                         Padding="15,0,0,0"
                         HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
+                        Background="Transparent"
                         Style="{StaticResource DefaultListViewItemStyle}">
                         <Grid Background="Transparent">
                             <Grid.ContextFlyout>

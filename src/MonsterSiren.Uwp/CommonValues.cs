@@ -28,5 +28,6 @@ internal static class CommonValues
 
     #region Data Package Type
     public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
+    public const string MusicSongInfoAndAlbumPackDetailFormatId = "Music_SongInfoAndAlbumDetailPack_DataPackage_FormatId";
     #endregion
 }

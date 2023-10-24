@@ -46,7 +46,10 @@
             ShowsScrollingPlaceholders="False">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
-                    <GridViewItem CanDrag="True" DragStarting="OnGridViewItemDragStarting">
+                    <GridViewItem
+                        CanDrag="True"
+                        DragStarting="OnGridViewItemDragStarting"
+                        Style="{StaticResource DefaultGridViewItemStyle}">
                         <Grid Padding="5" Background="Transparent">
                             <Grid.ContextFlyout>
                                 <muxc:CommandBarFlyout>

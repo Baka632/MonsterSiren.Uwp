@@ -150,45 +150,46 @@
                 ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
+                        <ListViewItem
+                            HorizontalContentAlignment="Stretch"
+                            CanDrag="True"
+                            DragStarting="OnListViewItemDragStarting"
+                            Style="{StaticResource DefaultListViewItemStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock
-                                Grid.Column="0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Text="{x:Bind Name}" />
+                                <TextBlock
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind Name}" />
 
-                            <StackPanel
-                                Grid.Column="1"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Orientation="Horizontal">
-                                <StackPanel.Resources>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="Transparent" />
-                                        <Setter Property="BorderThickness" Value="0" />
-                                    </Style>
-                                </StackPanel.Resources>
+                                <StackPanel
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                    </StackPanel.Resources>
 
-                                <Button Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}" CommandParameter="{x:Bind}">
-                                    <SymbolIcon Symbol="Play" />
-                                </Button>
-                                <Button Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}" CommandParameter="{x:Bind}">
-                                    <SymbolIcon Symbol="Add" />
-                                </Button>
-                            </StackPanel>
-                        </Grid>
+                                    <Button Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}" CommandParameter="{x:Bind}">
+                                        <SymbolIcon Symbol="Play" />
+                                    </Button>
+                                    <Button Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}" CommandParameter="{x:Bind}">
+                                        <SymbolIcon Symbol="Add" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </ListViewItem>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-                <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
             </ListView>
         </Grid>
 

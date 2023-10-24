@@ -266,8 +266,15 @@ public sealed partial class MainPage : Page
 
     private void OnAlbumInfoDataPackageDragOver(object sender, DragEventArgs e)
     {
-        e.AcceptedOperation = DataPackageOperation.Link;
-        e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId) || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        {
+            e.AcceptedOperation = DataPackageOperation.Link;
+            e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+        }
+        else
+        {
+            e.AcceptedOperation = DataPackageOperation.None;
+        }
     }
 
     private async void OnDropAlbumInfoDataPackage(object sender, DragEventArgs e)
@@ -279,6 +286,14 @@ public sealed partial class MainPage : Page
             AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
             await MainViewModel.AddToPlaylistForAlbumInfo(albumInfo);
+        }
+        else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        {
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId);
+
+            SongInfoAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
+
+            await MainViewModel.AddToPlaylistForSongInfo(pack.SongInfo, pack.AlbumDetail);
         }
     }
 }
