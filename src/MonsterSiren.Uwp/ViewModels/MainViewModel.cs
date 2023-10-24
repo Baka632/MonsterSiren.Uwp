@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Net.Http;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -39,7 +41,7 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private async Task ToCompactNowPlayingPage()
+    private static async Task ToCompactNowPlayingPage()
     {
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
         navigationManager.BackRequested -= MainPage.BackRequested;
@@ -52,21 +54,97 @@ public partial class MainViewModel : ObservableRecipient
         MainPageNavigationHelper.Navigate(typeof(NowPlayingCompactPage), null, new SuppressNavigationTransitionInfo());
     }
 
-    #region InfoBar
-    [ObservableProperty]
-    private bool _InfoBarOpen;
-    [ObservableProperty]
-    private string _InfoBarTitle = string.Empty;
-    [ObservableProperty]
-    private string _InfoBarMessage = string.Empty;
-    [ObservableProperty]
-    private InfoBarSeverity _InfoBarSeverity;
-    private void SetInfoBar(string title, string message, InfoBarSeverity severity)
+    public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
     {
-        InfoBarTitle = title;
-        InfoBarMessage = message;
-        InfoBarSeverity = severity;
-        InfoBarOpen = true;
+        try
+        {
+            await Task.Run(async () =>
+            {
+                AlbumDetail albumDetail = await GetAlbumDetail(albumInfo).ConfigureAwait(false);
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
+                }
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
-    #endregion
+
+    private static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
+    {
+        AlbumDetail albumDetail;
+        if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
+        {
+            albumDetail = detail;
+        }
+        else
+        {
+            albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
+
+            bool shouldUpdate = false;
+            foreach (SongInfo item in albumDetail.Songs)
+            {
+                if (item.Artists is null || item.Artists.Any() != true)
+                {
+                    shouldUpdate = true;
+                    break;
+                }
+            }
+
+            if (shouldUpdate)
+            {
+                List<SongInfo> songs = albumDetail.Songs.ToList();
+                for (int i = 0; i < songs.Count; i++)
+                {
+                    SongInfo songInfo = songs[i];
+                    if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+                    {
+                        songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                    }
+                }
+
+                albumDetail = albumDetail with { Songs = songs };
+            }
+
+            MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+        }
+
+        return albumDetail;
+    }
+
+    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
+    {
+        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        {
+            return detail;
+        }
+        else
+        {
+            SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
+            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+
+            return songDetail;
+        }
+    }
+
+    private static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
+    {
+        await UIThreadHelper.RunOnUIThread(async () =>
+        {
+            ContentDialog contentDialog = new()
+            {
+                Title = title,
+                Content = message,
+                PrimaryButtonText = primaryButtonText,
+                CloseButtonText = closeButtonText
+            };
+
+            await contentDialog.ShowAsync();
+        });
+    }
 }

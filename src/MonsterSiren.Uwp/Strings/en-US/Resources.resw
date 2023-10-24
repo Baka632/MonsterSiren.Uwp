@@ -126,4 +126,7 @@
   <data name="RemoveCommandButton.Label" xml:space="preserve">
     <value>Remove</value>
   </data>
+  <data name="AddToPlaylist" xml:space="preserve">
+    <value>Add to playlist</value>
+  </data>
 </root>

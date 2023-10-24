@@ -79,7 +79,7 @@ public sealed partial class MusicViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
+    private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
     {
         try
         {
@@ -107,7 +107,7 @@ public sealed partial class MusicViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
+    private static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
     {
         try
         {

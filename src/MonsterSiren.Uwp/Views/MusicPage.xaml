@@ -46,57 +46,59 @@
             ShowsScrollingPlaceholders="False">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="albumModels:AlbumInfo">
-                    <Grid Padding="5" Background="Transparent">
-                        <Grid.ContextFlyout>
-                            <muxc:CommandBarFlyout>
-                                <muxc:CommandBarFlyout.SecondaryCommands>
-                                    <AppBarButton
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <AppBarButton
-                                        x:Uid="AddToPlaylistCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                </muxc:CommandBarFlyout.SecondaryCommands>
-                            </muxc:CommandBarFlyout>
-                        </Grid.ContextFlyout>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
+                    <GridViewItem CanDrag="True" DragStarting="OnGridViewItemDragStarting">
+                        <Grid Padding="5" Background="Transparent">
+                            <Grid.ContextFlyout>
+                                <muxc:CommandBarFlyout>
+                                    <muxc:CommandBarFlyout.SecondaryCommands>
+                                        <AppBarButton
+                                            x:Uid="PlayCommandButton"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Play" />
+                                        <AppBarButton
+                                            x:Uid="AddToPlaylistCommandButton"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Add" />
+                                    </muxc:CommandBarFlyout.SecondaryCommands>
+                                </muxc:CommandBarFlyout>
+                            </Grid.ContextFlyout>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
 
-                        <Image
-                            x:Name="AlbumImage"
-                            Grid.Row="0"
-                            Width="170"
-                            Height="170"
-                            Margin="0,0,0,5"
-                            Stretch="UniformToFill">
-                            <Image.Source>
-                                <BitmapImage
-                                    DecodePixelHeight="250"
-                                    DecodePixelType="Logical"
-                                    DecodePixelWidth="250"
-                                    UriSource="{x:Bind CoverUrl}" />
-                            </Image.Source>
-                        </Image>
-                        <TextBlock
-                            Grid.Row="1"
-                            HorizontalAlignment="Left"
-                            FontWeight="SemiBold"
-                            Text="{x:Bind Name}" />
-                        <TextBlock
-                            Grid.Row="2"
-                            Margin="0,0,0,5"
-                            HorizontalAlignment="Left"
-                            Foreground="#8f8f8f"
-                            Text="{x:Bind x:String.Join(' / ', Artistes)}"
-                            TextTrimming="CharacterEllipsis" />
-                    </Grid>
+                            <Image
+                                x:Name="AlbumImage"
+                                Grid.Row="0"
+                                Width="170"
+                                Height="170"
+                                Margin="0,0,0,5"
+                                Stretch="UniformToFill">
+                                <Image.Source>
+                                    <BitmapImage
+                                        DecodePixelHeight="250"
+                                        DecodePixelType="Logical"
+                                        DecodePixelWidth="250"
+                                        UriSource="{x:Bind CoverUrl}" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock
+                                Grid.Row="1"
+                                HorizontalAlignment="Left"
+                                FontWeight="SemiBold"
+                                Text="{x:Bind Name}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Margin="0,0,0,5"
+                                HorizontalAlignment="Left"
+                                Foreground="#8f8f8f"
+                                Text="{x:Bind x:String.Join(' / ', Artistes)}"
+                                TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                    </GridViewItem>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
