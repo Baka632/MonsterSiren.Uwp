@@ -54,11 +54,15 @@ public sealed partial class MusicPage : Page
         await ViewModel.Initialize();
     }
 
-    private void OnGridViewItemDragStarting(UIElement sender, DragStartingEventArgs args)
+    private void OnGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        DragOperationDeferral deferral = args.GetDeferral();
+        object dataContext = e.Items.FirstOrDefault();
 
-        object dataContext = ((FrameworkElement)sender).DataContext;
+        if (dataContext is null)
+        {
+            e.Cancel = true;
+            return;
+        }
 
         using MemoryStream stream = new();
         JsonSerializer.SerializeAsync(stream, (AlbumInfo)dataContext);
@@ -68,8 +72,6 @@ public sealed partial class MusicPage : Page
         StreamReader reader = new(stream);
         string json = reader.ReadToEnd();
 
-        args.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
-
-        deferral.Complete();
+        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
     }
 }

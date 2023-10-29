@@ -199,7 +199,6 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             FontSize="12"
-                            Foreground="White"
                             Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
                             Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
                         <Slider
@@ -218,7 +217,6 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             FontSize="12"
-                            Foreground="White"
                             Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
                             Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
                     </Grid>
@@ -396,13 +394,7 @@
             Visibility="Collapsed">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
-                    <models:NowPlayingListViewItem
-                        x:Name="NowPlayingListViewItemContainer"
-                        Padding="15,0,0,0"
-                        HorizontalContentAlignment="Stretch"
-                        VerticalContentAlignment="Stretch"
-                        Background="Transparent"
-                        Style="{StaticResource DefaultListViewItemStyle}">
+                    <models:NowPlayingListViewItem x:Name="NowPlayingListViewItemContainer" Style="{StaticResource DefaultListViewItemStyle}">
                         <Grid Background="Transparent">
                             <Grid.ContextFlyout>
                                 <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft">
@@ -459,6 +451,12 @@
                     </models:NowPlayingListViewItem>
                 </DataTemplate>
             </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="15,0,0,0" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.Transitions>
                 <TransitionCollection>
                     <EntranceThemeTransition />

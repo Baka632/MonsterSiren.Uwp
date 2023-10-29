@@ -48,11 +48,16 @@ public sealed partial class AlbumDetailPage : Page
         }
     }
 
-    private void OnListViewItemDragStarting(UIElement sender, DragStartingEventArgs args)
+    private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        DragOperationDeferral deferral = args.GetDeferral();
+        object dataContext = e.Items.FirstOrDefault();
 
-        object dataContext = ((FrameworkElement)sender).DataContext;
+        if (dataContext is null)
+        {
+            e.Cancel = true;
+            return;
+        }
+
         SongInfoAndAlbumDetailPack pack = new((SongInfo)dataContext, ViewModel.CurrentAlbumDetail);
 
         using MemoryStream stream = new();
@@ -63,8 +68,6 @@ public sealed partial class AlbumDetailPage : Page
         StreamReader reader = new(stream);
         string json = reader.ReadToEnd();
 
-        args.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
-
-        deferral.Complete();
+        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
     }
 }
