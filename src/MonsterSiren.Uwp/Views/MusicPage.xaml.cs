@@ -65,7 +65,7 @@ public sealed partial class MusicPage : Page
         }
 
         using MemoryStream stream = new();
-        JsonSerializer.SerializeAsync(stream, (AlbumInfo)dataContext);
+        JsonSerializer.Serialize(stream, (AlbumInfo)dataContext);
 
         stream.Seek(0, SeekOrigin.Begin);
 

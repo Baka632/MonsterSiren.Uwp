@@ -61,7 +61,7 @@ public sealed partial class AlbumDetailPage : Page
         SongInfoAndAlbumDetailPack pack = new((SongInfo)dataContext, ViewModel.CurrentAlbumDetail);
 
         using MemoryStream stream = new();
-        JsonSerializer.SerializeAsync(stream, pack);
+        JsonSerializer.Serialize(stream, pack);
 
         stream.Seek(0, SeekOrigin.Begin);
 
