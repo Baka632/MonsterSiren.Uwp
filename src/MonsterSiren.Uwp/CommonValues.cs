@@ -25,4 +25,9 @@ internal static class CommonValues
     public const string MusicShuffleStateSettingsKey = "Music_ShuffleState_SettingsKey";
     public const string MusicRepeatStateSettingsKey = "Music_RepeatState_SettingsKey";
     #endregion
+
+    #region Data Package Type
+    public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
+    public const string MusicSongInfoAndAlbumPackDetailFormatId = "Music_SongInfoAndAlbumDetailPack_DataPackage_FormatId";
+    #endregion
 }

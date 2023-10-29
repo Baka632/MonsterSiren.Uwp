@@ -39,6 +39,8 @@
         <GridView
             x:Name="ContentGridView"
             Grid.Row="1"
+            CanDragItems="True"
+            DragItemsStarting="OnGridViewItemsDragStarting"
             IsItemClickEnabled="True"
             ItemClick="OnContentGridViewItemClicked"
             ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"

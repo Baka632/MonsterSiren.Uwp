@@ -129,6 +129,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CommonValues.cs" />
+    <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Helpers\AcrylicHelper.cs" />
     <Compile Include="Helpers\FileCacheHelper.cs" />
@@ -148,11 +149,11 @@
     <Compile Include="Helpers\SongDetailExtensions.cs" />
     <Compile Include="Helpers\TitleBarHelper.cs" />
     <Compile Include="Helpers\XamlHelper.cs" />
-    <Compile Include="Models\NowPlayingListViewItem.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
+    <Compile Include="Models\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
     <Compile Include="Services\SettingsService.cs" />

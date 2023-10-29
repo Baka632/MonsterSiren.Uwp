@@ -111,6 +111,9 @@
                 <muxc:NavigationViewItem
                     x:Name="NowPlayingPageItem"
                     x:Uid="NowPlayingNavViewItem"
+                    AllowDrop="True"
+                    DragOver="OnAlbumInfoDataPackageDragOver"
+                    Drop="OnDropAlbumInfoDataPackage"
                     Tag="NowPlayingPage">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="MusicInfo" />
@@ -133,28 +136,18 @@
                 <muxc:NavigationViewItemSeparator />
             </muxc:NavigationView.PaneFooter>
 
-            <Grid Margin="20,20,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <muxc:InfoBar
-                    Title="{x:Bind ViewModel.InfoBarTitle, Mode=OneWay}"
-                    Grid.Row="0"
-                    Margin="0,0,0,10"
-                    IsOpen="{x:Bind ViewModel.InfoBarOpen, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.InfoBarMessage, Mode=OneWay}"
-                    Severity="{x:Bind ViewModel.InfoBarSeverity, Mode=OneWay}" />
-                <Frame
-                    x:Name="ContentFrame"
-                    Grid.Row="1"
-                    Navigated="OnContentFrameNavigated" />
-            </Grid>
+            <Frame
+                x:Name="ContentFrame"
+                Margin="20,20,0,0"
+                Navigated="OnContentFrameNavigated" />
         </muxc:NavigationView>
 
         <Grid
             Grid.Row="2"
             HorizontalAlignment="Stretch"
+            AllowDrop="True"
+            DragOver="OnAlbumInfoDataPackageDragOver"
+            Drop="OnDropAlbumInfoDataPackage"
             RequestedTheme="Dark">
             <Win16299:Grid.Background>
                 <Win16299:AcrylicBrush

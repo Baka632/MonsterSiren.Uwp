@@ -147,6 +147,8 @@
             <ListView
                 x:Name="SongList"
                 Grid.Row="1"
+                CanDragItems="True"
+                DragItemsStarting="OnSongListViewItemsDragStarting"
                 ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">
@@ -184,8 +186,9 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+
                 <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     </Style>
                 </ListView.ItemContainerStyle>

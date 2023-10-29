@@ -1,5 +1,8 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
+using System.Text.Json;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -49,5 +52,26 @@ public sealed partial class MusicPage : Page
     private async void OnMusicPageLoaded(object sender, RoutedEventArgs e)
     {
         await ViewModel.Initialize();
+    }
+
+    private void OnGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
+    {
+        object dataContext = e.Items.FirstOrDefault();
+
+        if (dataContext is null)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        using MemoryStream stream = new();
+        JsonSerializer.Serialize(stream, (AlbumInfo)dataContext);
+
+        stream.Seek(0, SeekOrigin.Begin);
+
+        StreamReader reader = new(stream);
+        string json = reader.ReadToEnd();
+
+        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
     }
 }

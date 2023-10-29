@@ -1,12 +1,9 @@
 ﻿using Windows.Media.Playback;
 using Windows.UI;
 
-namespace MonsterSiren.Uwp.Models;
+namespace MonsterSiren.Uwp.Controls;
 
-/// <summary>
-/// 自定义的正在播放列表项目
-/// </summary>
-public sealed class NowPlayingListViewItem : ListViewItem
+public sealed class NowPlayingItemGrid : Grid
 {
     public SolidColorBrush ContentBrush
     {
@@ -17,7 +14,7 @@ public sealed class NowPlayingListViewItem : ListViewItem
     public static readonly DependencyProperty ContentBrushProperty
         = DependencyProperty.Register("ContentBrush",
                                       typeof(SolidColorBrush),
-                                      typeof(NowPlayingListViewItem),
+                                      typeof(NowPlayingItemGrid),
                                       new PropertyMetadata(new SolidColorBrush((Color)Application.Current.Resources["SystemBaseHighColor"])));
 
     public Visibility CurrentNowPlayingItemIndicatorVisibility
@@ -27,9 +24,9 @@ public sealed class NowPlayingListViewItem : ListViewItem
     }
 
     public static readonly DependencyProperty CurrentNowPlayingItemIndicatorVisibilityProperty =
-        DependencyProperty.Register("CurrentNowPlayingItemIndicatorVisibility", typeof(Visibility), typeof(NowPlayingListViewItem), new PropertyMetadata(Visibility.Collapsed));
+        DependencyProperty.Register("CurrentNowPlayingItemIndicatorVisibility", typeof(Visibility), typeof(NowPlayingItemGrid), new PropertyMetadata(Visibility.Collapsed));
 
-    public NowPlayingListViewItem() : base()
+    public NowPlayingItemGrid() : base()
     {
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
         Loaded += OnLoaded;
@@ -49,7 +46,7 @@ public sealed class NowPlayingListViewItem : ListViewItem
         }
     }
 
-    ~NowPlayingListViewItem()
+    ~NowPlayingItemGrid()
     {
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
     }

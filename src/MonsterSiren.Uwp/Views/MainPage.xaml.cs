@@ -1,6 +1,10 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
+using System.Net.Http;
+using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -258,5 +262,38 @@ public sealed partial class MainPage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
+    }
+
+    private void OnAlbumInfoDataPackageDragOver(object sender, DragEventArgs e)
+    {
+        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId) || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        {
+            e.AcceptedOperation = DataPackageOperation.Link;
+            e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+        }
+        else
+        {
+            e.AcceptedOperation = DataPackageOperation.None;
+        }
+    }
+
+    private async void OnDropAlbumInfoDataPackage(object sender, DragEventArgs e)
+    {
+        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+        {
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+            AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+            await MainViewModel.AddToPlaylistForAlbumInfo(albumInfo);
+        }
+        else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        {
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId);
+
+            SongInfoAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
+
+            await MainViewModel.AddToPlaylistForSongInfo(pack.SongInfo, pack.AlbumDetail);
+        }
     }
 }
