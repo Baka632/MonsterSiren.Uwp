@@ -170,7 +170,7 @@
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <StackPanel.Resources>
-                                    <Style TargetType="Button">
+                                    <Style BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
                                         <Setter Property="Background" Value="Transparent" />
                                         <Setter Property="BorderThickness" Value="0" />
                                     </Style>
@@ -188,7 +188,7 @@
                 </ListView.ItemTemplate>
 
                 <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     </Style>
                 </ListView.ItemContainerStyle>

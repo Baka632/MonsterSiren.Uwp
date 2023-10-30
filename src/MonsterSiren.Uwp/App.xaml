@@ -6,9 +6,6 @@
     xmlns:local="using:MonsterSiren.Uwp">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
-            </ResourceDictionary.MergedDictionaries>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
             <converters:MediaPlaybackItemForSelectionNowPlayingItemConverter x:Key="MediaPlaybackItemForSelectionNowPlayingItemConverter" />

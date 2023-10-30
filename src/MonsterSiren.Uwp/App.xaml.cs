@@ -86,7 +86,7 @@ sealed partial class App : Application
             UIThreadHelper.Initialize(rootFrame.Dispatcher);
 
             TitleBarHelper.SetTitleBarAppearance();
-            LoadMuxcResources();
+            LoadResourceDictionaries();
         }
 
         if (e.PrelaunchActivated == false)
@@ -125,7 +125,7 @@ sealed partial class App : Application
         deferral.Complete();
     }
 
-    private void LoadMuxcResources()
+    private void LoadResourceDictionaries()
     {
         XamlControlsResources muxcStyle = new()
         {
@@ -134,5 +134,12 @@ sealed partial class App : Application
                 : ControlsResourcesVersion.Version1
         };
         Resources.MergedDictionaries.Add(muxcStyle);
+
+        //mediaControlToggleButtonStyle 依赖于 WinUI 2 中的样式，因此必须在这里加载
+        ResourceDictionary mediaControlToggleButtonStyle = new()
+        {
+            Source = new Uri("ms-appx:///ResourcesDictionaries/MediaControlToggleButton.xaml")
+        };
+        Resources.MergedDictionaries.Add(mediaControlToggleButtonStyle);
     }
 }

@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:NotWin16299="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract, 5)"
     xmlns:Win16299="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
-    xmlns:Win17763="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 7)"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp"
@@ -239,7 +238,7 @@
                 VerticalAlignment="Top"
                 Orientation="Horizontal">
                 <StackPanel.Resources>
-                    <Style TargetType="Button">
+                    <Style BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
                         <Setter Property="Background" Value="Transparent" />
@@ -259,22 +258,17 @@
 
                 <ToggleButton
                     x:Name="IsShuffleToggleButton"
-                    Win17763:CornerRadius="4"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                     IsThreeState="False"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}">
                     <FontIcon Glyph="&#xE14B;" />
                 </ToggleButton>
-                <Button
-                    Win17763:CornerRadius="4"
-                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}" IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
                     Width="51"
                     Height="51"
-                    Win17763:CornerRadius="4"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
                     IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
@@ -283,15 +277,11 @@
                         FontSize="25"
                         Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
                 </Button>
-                <Button
-                    Win17763:CornerRadius="4"
-                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}" IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <ToggleButton
                     x:Name="IsRepeatToggleButton"
-                    Win17763:CornerRadius="4"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                     IsThreeState="True"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
@@ -303,7 +293,6 @@
                     Width="35"
                     Height="35"
                     Padding="0"
-                    Win17763:CornerRadius="4"
                     Visibility="Collapsed">
                     <Button.Flyout>
                         <Flyout>
@@ -329,7 +318,6 @@
                                 <ToggleButton
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
-                                    Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
@@ -343,7 +331,6 @@
                                 <ToggleButton
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
-                                    Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
@@ -372,7 +359,6 @@
                                 </Button>
                                 <Button
                                     HorizontalAlignment="Stretch"
-                                    Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
@@ -500,7 +486,6 @@
                                 <Button
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
-                                    Win17763:CornerRadius="4"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
