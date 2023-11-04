@@ -1,6 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using System.Runtime.InteropServices;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.Web.Http;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -27,9 +29,9 @@ internal sealed class FileCacheHelper
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
         StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-        using IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
-        await RandomAccessStream.CopyAsync(stream, fileStream);
-        await fileStream.FlushAsync();
+        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+        await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+        await transaction.CommitAsync();
     }
 
     /// <summary>
@@ -38,13 +40,7 @@ internal sealed class FileCacheHelper
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
     public async Task StoreAlbumCoverAsync(AlbumDetail albumDetail)
     {
-        Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
-
-        RandomAccessStreamReference coverFile = RandomAccessStreamReference.CreateFromUri(coverUri);
-        IRandomAccessStreamWithContentType stream = await coverFile.OpenReadAsync();
-        string fileName = $"{albumDetail.Cid}.jpg";
-
-        await StoreAlbumCoverAsync(fileName, stream);
+        await StoreAlbumByUriAndCid(albumDetail.CoverUrl, albumDetail.Cid);
     }
 
     /// <summary>
@@ -53,13 +49,33 @@ internal sealed class FileCacheHelper
     /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例</param>
     public async Task StoreAlbumCoverAsync(AlbumInfo albumInfo)
     {
-        Uri coverUri = new(albumInfo.CoverUrl, UriKind.Absolute);
+        await StoreAlbumByUriAndCid(albumInfo.CoverUrl, albumInfo.Cid);
+    }
 
-        RandomAccessStreamReference coverFile = RandomAccessStreamReference.CreateFromUri(coverUri);
-        IRandomAccessStreamWithContentType stream = await coverFile.OpenReadAsync();
-        string fileName = $"{albumInfo.Cid}.jpg";
+    /// <summary>
+    /// 使用指定的 Uri 字符串与 CID 字符串，在专辑封面缓存文件夹创建专辑封面文件
+    /// </summary>
+    /// <param name="uri">专辑封面的 Uri</param>
+    /// <param name="cid">专辑的 CID</param>
+    public async Task StoreAlbumByUriAndCid(string uri, string cid)
+    {
+        Uri coverUri = new(uri, UriKind.Absolute);
 
-        await StoreAlbumCoverAsync(fileName, stream);
+        try
+        {
+            using HttpClient httpClient = new();
+            using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+            using InMemoryRandomAccessStream stream = new();
+            await result.Content.WriteToStreamAsync(stream);
+            stream.Seek(0);
+            string fileName = $"{cid}.jpg";
+            await StoreAlbumCoverAsync(fileName, stream);
+        }
+        catch (COMException)
+        {
+            return;
+        }
     }
 
     /// <summary>

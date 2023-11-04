@@ -1,10 +1,9 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
-using System.Net.Http;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Media.Playback;
+using Windows.Networking.Connectivity;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -257,11 +256,25 @@ public sealed partial class MainPage : Page
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
         navigationManager.BackRequested -= BackRequested; //防止重复添加事件订阅
         navigationManager.BackRequested += BackRequested;
+
+        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        OnNetworkStatusChanged();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
+        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+    }
+
+    private async void OnNetworkStatusChanged(object sender = null)
+    {
+        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile().GetConnectionCost();
+
+        if (costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        {
+            await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
+        }
     }
 
     private void OnAlbumInfoDataPackageDragOver(object sender, DragEventArgs e)

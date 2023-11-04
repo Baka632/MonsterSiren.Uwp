@@ -129,4 +129,7 @@
   <data name="AddToPlaylist" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
+  <data name="UsingMeteredInternet" xml:space="preserve">
+    <value>You are using metered Internet connection</value>
+  </data>
 </root>

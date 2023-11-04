@@ -207,4 +207,7 @@
   <data name="AddToPlaylist" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
+  <data name="UsingMeteredInternet" xml:space="preserve">
+    <value>正在使用流量计费网络</value>
+  </data>
 </root>

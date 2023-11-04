@@ -93,6 +93,8 @@
                             Width="170"
                             Height="170"
                             Margin="0,0,0,5"
+                            DataContext="{x:Bind}"
+                            Loaded="OnAlbumImageLoaded"
                             Stretch="UniformToFill">
                             <Image.Source>
                                 <BitmapImage
