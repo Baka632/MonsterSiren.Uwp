@@ -32,7 +32,7 @@ internal static class SongDetailExtensions
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
 
-        Uri fileCoverUri = FileCacheHelper.Default.GetAlbumCoverUriAsync(albumDetail).Result;
+        Uri fileCoverUri = FileCacheHelper.GetAlbumCoverUriAsync(albumDetail).Result;
         displayProps.Thumbnail = fileCoverUri != null
             ? RandomAccessStreamReference.CreateFromUri(fileCoverUri)
             : RandomAccessStreamReference.CreateFromUri(new(albumDetail.CoverUrl, UriKind.Absolute));

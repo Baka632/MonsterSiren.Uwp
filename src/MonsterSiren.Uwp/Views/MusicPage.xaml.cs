@@ -89,10 +89,10 @@ public sealed partial class MusicPage : Page
 
         AlbumInfo info = (AlbumInfo)((Image)sender).DataContext;
 
-        Uri fileCoverUri = await FileCacheHelper.Default.GetAlbumCoverUriAsync(info);
+        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
         if (fileCoverUri is null)
         {
-            await FileCacheHelper.Default.StoreAlbumCoverAsync(info);
+            await FileCacheHelper.StoreAlbumCoverAsync(info);
         }
     }
 }

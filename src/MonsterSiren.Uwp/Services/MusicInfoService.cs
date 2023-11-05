@@ -340,7 +340,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
                 Uri uri;
 
-                Uri fileCoverUri = await FileCacheHelper.Default.GetAlbumCoverUriAsync(albumDetail);
+                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
                 if (fileCoverUri != null)
                 {
                     uri = fileCoverUri;
@@ -348,7 +348,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 else
                 {
                     uri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                    await FileCacheHelper.Default.StoreAlbumCoverAsync(albumDetail);
+                    await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
                 }
 
                 CurrentMediaCover = new BitmapImage(uri)
@@ -408,7 +408,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     [RelayCommand]
-    private void PlayOrPauseMusic()
+    private static void PlayOrPauseMusic()
     {
         switch (MusicService.PlayerPlayBackState)
         {
@@ -427,16 +427,16 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     [RelayCommand]
-    private void StopMusic()
+    private static void StopMusic()
     {
         MusicService.StopMusic();
     }
 
     [RelayCommand]
-    private void NextMusic() => MusicService.NextMusic();
+    private static void NextMusic() => MusicService.NextMusic();
 
     [RelayCommand]
-    private void PreviousMusic()
+    private static void PreviousMusic()
     {
         if (MusicService.PlayerPosition.TotalSeconds > 5)
         {

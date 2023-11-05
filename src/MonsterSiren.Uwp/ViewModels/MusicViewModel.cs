@@ -43,7 +43,7 @@ public sealed partial class MusicViewModel : ObservableObject
                             albumList[i] = albumList[i] with { Artistes = new string[] { "MSR".GetLocalized() } };
                         }
 
-                        Uri fileCoverUri = await FileCacheHelper.Default.GetAlbumCoverUriAsync(albumList[i]);
+                        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumList[i]);
                         if (fileCoverUri != null)
                         {
                             albumList[i] = albumList[i] with { CoverUrl = fileCoverUri.ToString() };
