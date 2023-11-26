@@ -9,6 +9,7 @@
     xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:msrControls="using:MonsterSiren.Uwp.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:triggers="using:WindowsStateTriggers"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
@@ -199,15 +200,10 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
-                        <Image
-                            x:Name="MediaCoverImage"
-                            Grid.Column="0"
-                            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
-                    </Grid>
-
                     <Grid
+                        x:Name="SongTitleAndArtistNameContainerGrid"
                         Grid.Column="1"
+                        MaxWidth="150"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
@@ -216,16 +212,23 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
 
-                        <TextBlock
+                        <msrControls:ScrollableTextBlock
                             Grid.Row="0"
                             FontSize="18"
                             Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}" />
-                        <TextBlock
+                        <msrControls:ScrollableTextBlock
                             Grid.Row="1"
                             Margin="0,0,0,5"
                             FontSize="16"
                             FontWeight="Bold"
                             Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
+                        <Image
+                            x:Name="MediaCoverImage"
+                            Grid.Column="0"
+                            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
                     </Grid>
                 </Grid>
             </Button>
