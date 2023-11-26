@@ -1,0 +1,65 @@
+﻿<UserControl
+    x:Class="MonsterSiren.Uwp.Controls.ScrollableTextBlock"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MonsterSiren.Uwp.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance Type=local:ScrollableTextBlock}"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    PointerEntered="OnPointerEntered"
+    SizeChanged="OnSizeChanged"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <Storyboard x:Name="DefaultStoryboard" Duration="0">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="SecondaryText" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Separator" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation
+                Storyboard.TargetName="Container"
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                From="0"
+                To="0"
+                Duration="0" />
+        </Storyboard>
+        <Storyboard x:Name="ScrollStoryboard" Completed="OnScrollStoryboardCompleted">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="SecondaryText" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Separator" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation
+                x:Name="ScrollAnimation"
+                Storyboard.TargetName="Container"
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                From="0" />
+        </Storyboard>
+    </UserControl.Resources>
+
+    <StackPanel x:Name="Container" Orientation="Horizontal">
+        <StackPanel.RenderTransform>
+            <TranslateTransform X="0" />
+        </StackPanel.RenderTransform>
+        <TextBlock
+            x:Name="SecondaryText"
+            FontSize="{x:Bind FontSize, Mode=OneWay}"
+            FontWeight="{x:Bind FontWeight, Mode=OneWay}"
+            Text="{x:Bind Text, Mode=OneWay}"
+            Visibility="Collapsed" />
+        <StackPanel
+            x:Name="Separator"
+            Margin="6,0,6,0"
+            Visibility="Collapsed" />
+        <TextBlock
+            x:Name="PrimaryText"
+            FontSize="{x:Bind FontSize, Mode=OneWay}"
+            FontWeight="{x:Bind FontWeight, Mode=OneWay}"
+            Loaded="OnLoaded"
+            Text="{x:Bind Text, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

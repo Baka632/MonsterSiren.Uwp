@@ -1,11 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-using System;
 using System.Text.Json;
-using MonsterSiren.Api.Models.Album;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -82,17 +78,19 @@ public sealed partial class MusicPage : Page
     {
         ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile().GetConnectionCost();
 
-        if (costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
         {
             return;
         }
 
-        AlbumInfo info = (AlbumInfo)((Image)sender).DataContext;
-
-        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
-        if (fileCoverUri is null)
+        Image image = (Image)sender;
+        if (image.DataContext is AlbumInfo info)
         {
-            await FileCacheHelper.StoreAlbumCoverAsync(info);
+            Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
+            if (fileCoverUri is null)
+            {
+                await FileCacheHelper.StoreAlbumCoverAsync(info);
+            }
         }
     }
 }
