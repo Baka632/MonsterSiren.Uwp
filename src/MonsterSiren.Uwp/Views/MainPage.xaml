@@ -84,6 +84,7 @@
         <muxc:NavigationView
             x:Name="NavigationView"
             Grid.Row="1"
+            AlwaysShowHeader="False"
             IsBackButtonVisible="Collapsed"
             IsBackEnabled="False"
             ItemInvoked="OnNavigationViewItemInvoked">
@@ -525,7 +526,7 @@
                                 Storyboard.TargetName="ContentFrame"
                                 Storyboard.TargetProperty="Margin"
                                 Duration="0">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="-10,20,0,0" />
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="12,45,0,0" />
                             </Win16299:ObjectAnimationUsingKeyFrames>
 
                             <ObjectAnimationUsingKeyFrames
@@ -638,7 +639,7 @@
 
                 <VisualState x:Name="MainPageWide">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="641" />
+                        <AdaptiveTrigger MinWindowWidth="640" />
                     </VisualState.StateTriggers>
                     <VisualState.Storyboard>
                         <Storyboard Duration="0">
@@ -646,7 +647,7 @@
                                 Storyboard.TargetName="ContentFrame"
                                 Storyboard.TargetProperty="Margin"
                                 Duration="0">
-                                <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0" />
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="20,20,0,0" />
                             </ObjectAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState.Storyboard>
