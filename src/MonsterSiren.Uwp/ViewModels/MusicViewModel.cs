@@ -202,14 +202,9 @@ public sealed partial class MusicViewModel : ObservableObject
     }
 }
 
-public class AlbumInfoSource : IIncrementalSource<AlbumInfo>
+public class AlbumInfoSource(IEnumerable<AlbumInfo> infos) : IIncrementalSource<AlbumInfo>
 {
-    private readonly List<AlbumInfo> albumInfos;
-
-    public AlbumInfoSource(IEnumerable<AlbumInfo> infos)
-    {
-        albumInfos = new List<AlbumInfo>(infos);
-    }
+    private readonly List<AlbumInfo> albumInfos = new(infos);
 
     public async Task<IEnumerable<AlbumInfo>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {

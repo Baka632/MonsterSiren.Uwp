@@ -2,7 +2,6 @@
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI;
-using Windows.UI.Xaml.Controls;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -99,12 +98,7 @@ public static class TitleBarHelper
 /// <summary>
 /// 为“后退按钮的可视性发生改变”事件提供数据
 /// </summary>
-public sealed class BackButtonVisibilityChangedEventArgs : EventArgs
+public sealed class BackButtonVisibilityChangedEventArgs(AppViewBackButtonVisibility visibility) : EventArgs
 {
-    public AppViewBackButtonVisibility BackButtonVisibility { get; }
-
-    public BackButtonVisibilityChangedEventArgs(AppViewBackButtonVisibility visibility)
-    {
-        BackButtonVisibility = visibility;
-    }
+    public AppViewBackButtonVisibility BackButtonVisibility { get; } = visibility;
 }

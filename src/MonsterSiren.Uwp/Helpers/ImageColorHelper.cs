@@ -70,7 +70,7 @@ public static class ImageColorHelper
         //颜色中最大色相
         double maxH = 0;
         double count = 0;
-        List<Color> notBlackWhite = new();
+        List<Color> notBlackWhite = [];
         foreach (Color item in colors)
         {
             //将 rgb 转换成 hsv 对象

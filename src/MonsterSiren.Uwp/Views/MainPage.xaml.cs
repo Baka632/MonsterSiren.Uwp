@@ -1,11 +1,8 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 using System.Text.Json;
-using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Text;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Media.Playback;
 using Windows.Networking.Connectivity;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Animation;
@@ -20,14 +17,6 @@ public sealed partial class MainPage : Page
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
 
-    private bool allowSongTitleScroll;
-    private bool isSongTitleScrolling;
-    private Storyboard songTitleScrollAnimation;
-
-    private bool allowArtistNameScroll;
-    private bool isArtistNameScrolling;
-    private Storyboard artistNameScrollAnimation;
-
     public MainViewModel ViewModel { get; } = new();
 
     public MainPage()
@@ -39,7 +28,6 @@ public sealed partial class MainPage : Page
         SetMainPageBackground();
         ConfigureTitleBar();
 
-        MusicService.PlayerPlayItemChanged += OnMusicPlayItemChanged;
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
@@ -47,21 +35,6 @@ public sealed partial class MainPage : Page
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
-    }
-
-    private void OnMusicPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
-    {
-        if (songTitleScrollAnimation is not null)
-        {
-            songTitleScrollAnimation.Stop();
-            isSongTitleScrolling = false;
-        }
-        
-        if (artistNameScrollAnimation is not null)
-        {
-            artistNameScrollAnimation.Stop();
-            isArtistNameScrolling = false;
-        }
     }
 
     ~MainPage()
@@ -170,143 +143,6 @@ public sealed partial class MainPage : Page
                 break;
         }
         TitleBar.Visibility = visibility;
-    }
-
-    private string EvaluateIfSongTitleCanScroll(string text)
-    {
-        //CanvasTextFormat textFormat = new()
-        //{
-        //    FontSize = (float)SongTitleTextBlock.FontSize,
-        //    FontFamily = SongTitleTextBlock.FontFamily.Source,
-        //    Direction = CanvasTextDirection.LeftToRightThenTopToBottom,
-        //    WordWrapping = CanvasWordWrapping.NoWrap
-        //};
-
-        //double textWidth = MeasureTextSize(text, textFormat, (float)SongTitleAndArtistNameContainerGrid.ActualWidth);
-        //if (textWidth >= SongTitleAndArtistNameContainerGrid.ActualWidth)
-        //{
-        //    allowSongTitleScroll = true;
-        //    return $"{text}     {text}";
-        //}
-        //else
-        //{
-        //    allowSongTitleScroll = false;
-        //    return text;
-        //}
-
-        return text;
-    }
-    
-    private string EvaluateIfArtistNameCanScroll(string text)
-    {
-        //CanvasTextFormat textFormat = new()
-        //{
-        //    FontSize = (float)ArtistNameTextBlock.FontSize,
-        //    FontFamily = ArtistNameTextBlock.FontFamily.Source,
-        //    Direction = CanvasTextDirection.LeftToRightThenTopToBottom,
-        //    WordWrapping = CanvasWordWrapping.NoWrap
-        //};
-
-        //double textWidth = MeasureTextSize(text, textFormat, (float)SongTitleAndArtistNameContainerGrid.ActualWidth);
-        //if (textWidth >= SongTitleAndArtistNameContainerGrid.ActualWidth)
-        //{
-        //    allowArtistNameScroll = true;
-        //    return $"{text}     {text}";
-        //}
-        //else
-        //{
-        //    allowArtistNameScroll = false;
-        //    return text;
-        //}
-
-        return text;
-    }
-
-    private static double MeasureTextSize(string text, CanvasTextFormat textFormat, float limitedToWidth = 0.0f)
-    {
-        CanvasDevice device = CanvasDevice.GetSharedDevice();
-
-        float width = (float.IsNaN(limitedToWidth) || limitedToWidth < 0) ? 0 : limitedToWidth;
-        using CanvasTextLayout layout = new(device, text, textFormat, width, 0);
-        return layout.LayoutBounds.Width;
-    }
-
-    private void StartSongTitleScrollAnimation()
-    {
-        //if (allowSongTitleScroll == false && isSongTitleScrolling == false)
-        //{
-        //    return;
-        //}
-
-        //Storyboard storyboard = CreateScrollAnimation(SongTitleTextBlock);
-        //    storyboard.Completed += OnSongTitleScrollAnimationCompleted;
-
-        //    songTitleScrollAnimation = storyboard;
-        //    songTitleScrollAnimation?.Begin();
-        //    isSongTitleScrolling = true;
-
-        //void OnSongTitleScrollAnimationCompleted(object sender, object e)
-        //{
-        //    isSongTitleScrolling = false;
-        //    songTitleScrollAnimation.Completed -= OnSongTitleScrollAnimationCompleted;
-        //}
-    }
-    
-    private void StartArtistNameScrollAnimation()
-    {
-        //if (allowArtistNameScroll == false && isArtistNameScrolling == false)
-        //{
-        //    return;
-        //}
-
-        //Storyboard storyboard = CreateScrollAnimation(ArtistNameTextBlock);
-        //storyboard.Completed += OnArtistNameScrollAnimationCompleted;
-
-        //artistNameScrollAnimation = storyboard;
-        //artistNameScrollAnimation?.Begin();
-        //isArtistNameScrolling = true;
-
-        //void OnArtistNameScrollAnimationCompleted(object sender, object e)
-        //{
-        //    isArtistNameScrolling = false;
-        //    artistNameScrollAnimation.Completed -= OnArtistNameScrollAnimationCompleted;
-        //}
-    }
-
-    private static Storyboard CreateScrollAnimation(TextBlock target)
-    {
-        Storyboard storyboard = new();
-        DoubleAnimation animation = new()
-        {
-            Duration = TimeSpan.FromSeconds(target.ActualWidth / target.FontSize / 4),
-            From = 0,
-            To = -((target.ActualWidth / 2) + (target.FontSize / 2))
-        };
-        Storyboard.SetTarget(animation, target);
-        Storyboard.SetTargetProperty(animation, "(UIElement.RenderTransform).(TranslateTransform.X)");
-        storyboard.Children.Add(animation);
-
-        return storyboard;
-    }
-
-    private void OnSongTitleTextBlockSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        StartSongTitleScrollAnimation();
-    }
-
-    private void OnArtistNameTextBlockSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        StartArtistNameScrollAnimation();
-    }
-
-    private void OnSongTitleTextBlockPointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        StartSongTitleScrollAnimation();
-    }
-    
-    private void OnArtistNameTextBlockPointerEntered(object sender, PointerRoutedEventArgs e)
-    {
-        StartArtistNameScrollAnimation();
     }
 
     private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)

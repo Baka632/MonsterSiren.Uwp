@@ -10,7 +10,7 @@ public partial class NowPlayingCompactViewModel : ObservableObject
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
 
     [RelayCommand]
-    private async Task Back()
+    private static async Task Back()
     {
         await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
         MainPageNavigationHelper.GoBack();

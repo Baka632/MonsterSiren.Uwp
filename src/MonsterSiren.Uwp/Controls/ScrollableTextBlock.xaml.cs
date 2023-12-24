@@ -80,13 +80,6 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
         return layout.LayoutBounds.Width;
     }
 
-    private void ResetToDefault()
-    {
-        SecondaryText.Visibility = Visibility.Collapsed;
-        Separator.Visibility = Visibility.Collapsed;
-        ((TranslateTransform)Container.RenderTransform).X = 0;
-    }
-
     /// <summary>
     /// 通知运行时属性已经发生更改
     /// </summary>

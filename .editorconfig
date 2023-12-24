@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0290: 使用主构造函数
+dotnet_diagnostic.IDE0290.severity = silent

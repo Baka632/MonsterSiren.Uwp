@@ -8,19 +8,14 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// <summary>
 /// 为 <see cref="NowPlayingPage"/> 提供视图模型
 /// </summary>
-public partial class NowPlayingViewModel : ObservableObject
+public partial class NowPlayingViewModel(NowPlayingPage nowPlaying) : ObservableObject
 {
-    private readonly NowPlayingPage view;
+    private readonly NowPlayingPage view = nowPlaying ?? throw new ArgumentNullException(nameof(nowPlaying));
 
     [ObservableProperty]
     private string nowPlayingListExpandButtonGlyph = "\uE010";
 
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
-
-    public NowPlayingViewModel(NowPlayingPage nowPlaying)
-    {
-        view = nowPlaying ?? throw new ArgumentNullException(nameof(nowPlaying));
-    }
 
     /// <summary>
     /// 使用指定的 <see cref="TimeSpan"/> 更新音乐播放位置的相关属性
@@ -32,7 +27,7 @@ public partial class NowPlayingViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ToCompactNowPlayingPage()
+    private static async Task ToCompactNowPlayingPage()
     {
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
         navigationManager.BackRequested -= MainPage.BackRequested;

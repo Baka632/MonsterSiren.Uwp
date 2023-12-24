@@ -70,7 +70,7 @@ public class CustomObservableCollection<T> : Collection<T>, INotifyCollectionCha
     /// Occurs when the collection changes, either by adding or removing an item.
     /// </summary>
     [field: NonSerialized]
-    public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     /// <summary>
     /// Called by base class Collection&lt;T&gt; when the list is being cleared;
@@ -158,7 +158,7 @@ public class CustomObservableCollection<T> : Collection<T>, INotifyCollectionCha
     /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
     /// </summary>
     [field: NonSerialized]
-    protected virtual event PropertyChangedEventHandler PropertyChanged;
+    protected event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
     /// Raise CollectionChanged event to any listeners.

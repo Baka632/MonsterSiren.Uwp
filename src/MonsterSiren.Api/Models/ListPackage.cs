@@ -1,7 +1,7 @@
 ﻿namespace MonsterSiren.Api.Models;
 
 /// <summary>
-/// 为响应中列表数据提供通用模型
+/// 为响应中的列表数据提供通用模型
 /// </summary>
 /// <typeparam name="T">列表中数据的类型</typeparam>
 public struct ListPackage<T>

@@ -7,7 +7,7 @@ Windows 10 1703 (15063)
 
 ## 构建需求
 - Visual Studio 2022 及以上
-- .NET 7 SDK（为了使用最新的 C# 语言版本）
+- .NET 8 SDK（为了使用最新的 C# 语言版本）
 - Windows 10 SDK (至少为 16299，因为需要生成 ARM64 版本的程序)
     - 需安装 Windows SDK for UWP Managed Apps
 

@@ -5,15 +5,11 @@ namespace MonsterSiren.Uwp.Models;
 /// <summary>
 /// 表示一个播放列表
 /// </summary>
-public sealed class NowPlayingList : CustomObservableCollection<MediaPlaybackItem>
+public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObservableCollection<MediaPlaybackItem>(items)
 {
     private bool shouldMoveToNewItem;
     private TimeSpan newItemPosition;
     private MediaPlaybackState previousState;
-
-    public NowPlayingList(IList<MediaPlaybackItem> items) : base(items)
-    {
-    }
 
     protected override async void InsertItem(int index, MediaPlaybackItem item)
     {
