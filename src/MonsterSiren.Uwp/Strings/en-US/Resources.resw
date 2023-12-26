@@ -132,4 +132,7 @@
   <data name="UsingMeteredInternet" xml:space="preserve">
     <value>You are using metered Internet connection</value>
   </data>
+  <data name="RefreshButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
 </root>

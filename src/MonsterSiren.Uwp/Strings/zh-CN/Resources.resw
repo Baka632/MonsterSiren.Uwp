@@ -210,4 +210,7 @@
   <data name="UsingMeteredInternet" xml:space="preserve">
     <value>正在使用流量计费网络</value>
   </data>
+  <data name="RefreshButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>刷新</value>
+  </data>
 </root>
