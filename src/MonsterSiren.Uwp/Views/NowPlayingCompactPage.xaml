@@ -74,13 +74,17 @@
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
-                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}">
+                <Button
+                    Win17763:CornerRadius="4"
+                    AccessKey="P"
+                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
                     Width="51"
                     Height="51"
                     Win17763:CornerRadius="4"
+                    AccessKey="S"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}">
                     <FontIcon
@@ -88,7 +92,10 @@
                         FontSize="25"
                         Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
                 </Button>
-                <Button Win17763:CornerRadius="4" Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}">
+                <Button
+                    Win17763:CornerRadius="4"
+                    AccessKey="N"
+                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
             </StackPanel>
@@ -121,6 +128,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
+                AccessKey="E"
                 Background="Transparent"
                 Command="{x:Bind ViewModel.BackCommand}"
                 Content="&#xE158;"

@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64|arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -142,7 +142,7 @@
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DataTemplateSelectors\NowPlayingItemDataTemplateSelector.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
-    <Compile Include="Helpers\DeviceFamilyHelper.cs" />
+    <Compile Include="Helpers\EnvironmentHelper.cs" />
     <Compile Include="Helpers\ImageColorHelper.cs" />
     <Compile Include="Helpers\LocalizationHelper.cs" />
     <Compile Include="Helpers\UIThreadHelper.cs" />
@@ -152,6 +152,7 @@
     <Compile Include="Helpers\SongDetailExtensions.cs" />
     <Compile Include="Helpers\TitleBarHelper.cs" />
     <Compile Include="Helpers\XamlHelper.cs" />
+    <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />

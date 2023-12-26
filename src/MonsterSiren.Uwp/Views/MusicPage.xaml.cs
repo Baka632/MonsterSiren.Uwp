@@ -93,4 +93,16 @@ public sealed partial class MusicPage : Page
             }
         }
     }
+
+    private async void OnRefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
+    {
+        using Deferral deferral = args.GetDeferral();
+        await ViewModel.RefreshAlbums();
+        deferral.Complete();
+    }
+
+    private void RefreshAlbums(object sender, RoutedEventArgs e)
+    {
+        RefreshActionContainer.RequestRefresh();
+    }
 }

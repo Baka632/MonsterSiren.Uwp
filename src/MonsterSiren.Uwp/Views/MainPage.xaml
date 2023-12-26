@@ -87,7 +87,8 @@
             AlwaysShowHeader="False"
             IsBackButtonVisible="Collapsed"
             IsBackEnabled="False"
-            ItemInvoked="OnNavigationViewItemInvoked">
+            ItemInvoked="OnNavigationViewItemInvoked"
+            Loaded="OnNavigationViewLoaded">
             <muxc:NavigationView.Resources>
                 <Thickness x:Key="NavigationViewItemInnerHeaderMargin">0,0,0,0</Thickness>
                 <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,0,0,0</Thickness>
@@ -97,13 +98,22 @@
                 <AutoSuggestBox
                     x:Name="SearchBox"
                     x:Uid="NavigationViewSearchBox"
+                    AccessKey="Q"
+                    AccessKeyInvoked="OnAutoSuggestBoxAccessKeyInvoked"
                     QueryIcon="Find" />
             </muxc:NavigationView.AutoSuggestBox>
+            <muxc:NavigationView.PaneToggleButtonStyle>
+                <Style BasedOn="{StaticResource PaneToggleButtonStyle}" TargetType="Button">
+                    <Setter Property="AccessKey" Value="MN" />
+                </Style>
+            </muxc:NavigationView.PaneToggleButtonStyle>
 
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem
                     x:Name="MusicPageItem"
                     x:Uid="MusicNavViewItem"
+                    AccessKey="MP"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     Tag="MusicPage">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Audio" />
@@ -113,6 +123,8 @@
                 <muxc:NavigationViewItem
                     x:Name="NowPlayingPageItem"
                     x:Uid="NowPlayingNavViewItem"
+                    AccessKey="NP"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     AllowDrop="True"
                     DragOver="OnAlbumInfoDataPackageDragOver"
                     Drop="OnDropAlbumInfoDataPackage"
@@ -127,6 +139,8 @@
                 <muxc:NavigationViewItem
                     x:Name="NewsPageItem"
                     x:Uid="NewsNavViewItem"
+                    AccessKey="NS"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     Tag="NewsPage">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE90A;" />
@@ -263,17 +277,22 @@
 
                 <ToggleButton
                     x:Name="IsShuffleToggleButton"
+                    AccessKey="SF"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                     IsThreeState="False"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}">
                     <FontIcon Glyph="&#xE14B;" />
                 </ToggleButton>
-                <Button Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}" IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                <Button
+                    AccessKey="P"
+                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
                     Width="51"
                     Height="51"
+                    AccessKey="S"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
                     IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
@@ -281,12 +300,20 @@
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
                         Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
+                    <Win16299:Button.KeyboardAccelerators>
+                        <Win16299:KeyboardAccelerator Key="Space" Modifiers="None" />
+                        <Win16299:KeyboardAccelerator Key="P" Modifiers="Control" />
+                    </Win16299:Button.KeyboardAccelerators>
                 </Button>
-                <Button Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}" IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                <Button
+                    AccessKey="X"
+                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <ToggleButton
                     x:Name="IsRepeatToggleButton"
+                    AccessKey="RP"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                     IsThreeState="True"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
@@ -298,6 +325,7 @@
                     Width="35"
                     Height="35"
                     Padding="0"
+                    AccessKey="MO"
                     Visibility="Collapsed">
                     <Button.Flyout>
                         <Flyout>
@@ -309,6 +337,7 @@
                                         Margin="0,0,5,0"
                                         Padding="0"
                                         HorizontalAlignment="Left"
+                                        AccessKey="MU"
                                         Background="Transparent"
                                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                                         IsThreeState="False">
@@ -323,6 +352,7 @@
                                 <ToggleButton
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
+                                    AccessKey="SF"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
@@ -336,6 +366,7 @@
                                 <ToggleButton
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
+                                    AccessKey="RP"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
@@ -349,6 +380,7 @@
                                 <Button
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
+                                    AccessKey="CP"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
@@ -364,6 +396,7 @@
                                 </Button>
                                 <Button
                                     HorizontalAlignment="Stretch"
+                                    AccessKey="CL"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
@@ -452,6 +485,7 @@
                         Margin="0,0,5,0"
                         Padding="0"
                         HorizontalAlignment="Center"
+                        AccessKey="MU"
                         Background="Transparent"
                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                         IsThreeState="False">
@@ -469,6 +503,7 @@
                     Margin="5,0,5,0"
                     Padding="0"
                     HorizontalAlignment="Center"
+                    AccessKey="CP"
                     Background="Transparent"
                     Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
                     Content="&#xE158;"
@@ -481,6 +516,7 @@
                     Margin="5,0,5,0"
                     Padding="0"
                     HorizontalAlignment="Center"
+                    AccessKey="MO"
                     Background="Transparent"
                     Content="&#xE10C;"
                     FontFamily="Segoe MDL2 Assets"
@@ -491,6 +527,7 @@
                                 <Button
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
+                                    AccessKey="CL"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"

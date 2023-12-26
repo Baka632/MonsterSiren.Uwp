@@ -14,131 +14,150 @@
     Loaded="OnMusicPageLoaded"
     mc:Ignorable="d">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <muxc:RefreshContainer x:Name="RefreshActionContainer" RefreshRequested="OnRefreshRequested">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-        <StackPanel
-            Grid.Row="0"
-            Margin="0,0,0,5"
-            Orientation="Horizontal"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
-            <FontIcon
-                Margin="0,0,10,0"
+            <Grid
+                Grid.Row="0"
+                Margin="0,0,0,5"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <FontIcon
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Center"
+                        FontSize="45"
+                        Glyph="&#xE93C;" />
+                    <TextBlock
+                        x:Uid="AlbumCollectionTextBlock"
+                        Margin="0,0,5,0"
+                        HorizontalAlignment="Center"
+                        FontSize="30" />
+                </StackPanel>
+                <Button
+                    x:Uid="RefreshButton"
+                    Width="40"
+                    Height="40"
+                    Margin="0,0,5,0"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    AccessKey="F"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="RefreshAlbums"
+                    IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsRefreshing), Mode=OneWay}">
+                    <FontIcon Glyph="&#xE72C;" />
+                </Button>
+            </Grid>
+
+            <GridView
+                x:Name="ContentGridView"
+                Grid.Row="1"
+                CanDragItems="True"
+                DragItemsStarting="OnGridViewItemsDragStarting"
+                IsItemClickEnabled="True"
+                ItemClick="OnContentGridViewItemClicked"
+                ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
+                SelectionMode="None"
+                ShowsScrollingPlaceholders="False">
+                <GridView.Resources>
+                    <SolidColorBrush x:Key="SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
+                    <SolidColorBrush x:Key="SystemControlTransparentRevealBorderBrush" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBorderBrush" Color="Transparent" />
+                    <Thickness x:Key="ListViewItemRevealBorderThemeThickness">0</Thickness>
+                    <Thickness x:Key="GridViewItemRevealBorderThemeThickness">0</Thickness>
+                    <SolidColorBrush x:Key="ListViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListViewItemRevealPlaceholderBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundPressed" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelected" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
+                    <SolidColorBrush x:Key="GridViewItemRevealPlaceholderBackground" Color="Transparent" />
+                </GridView.Resources>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="albumModels:AlbumInfo">
+                        <Grid Padding="5" Background="Transparent">
+                            <Grid.ContextFlyout>
+                                <muxc:CommandBarFlyout>
+                                    <muxc:CommandBarFlyout.SecondaryCommands>
+                                        <AppBarButton
+                                            x:Uid="PlayCommandButton"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Play" />
+                                        <AppBarButton
+                                            x:Uid="AddToPlaylistCommandButton"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Add" />
+                                    </muxc:CommandBarFlyout.SecondaryCommands>
+                                </muxc:CommandBarFlyout>
+                            </Grid.ContextFlyout>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <Image
+                                x:Name="AlbumImage"
+                                Grid.Row="0"
+                                Width="170"
+                                Height="170"
+                                Margin="0,0,0,5"
+                                DataContext="{x:Bind}"
+                                Loaded="OnAlbumImageLoaded"
+                                Stretch="UniformToFill">
+                                <Image.Source>
+                                    <BitmapImage
+                                        DecodePixelHeight="250"
+                                        DecodePixelType="Logical"
+                                        DecodePixelWidth="250"
+                                        UriSource="{x:Bind CoverUrl}" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock
+                                Grid.Row="1"
+                                HorizontalAlignment="Left"
+                                FontWeight="SemiBold"
+                                Text="{x:Bind Name}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Margin="0,0,0,5"
+                                HorizontalAlignment="Left"
+                                Foreground="#8f8f8f"
+                                Text="{x:Bind x:String.Join(' / ', Artistes)}"
+                                TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+
+            <!--#region Loading & Error-->
+            <ProgressRing
+                Grid.Row="1"
+                Width="50"
+                Height="50"
                 HorizontalAlignment="Center"
-                FontSize="45"
-                Glyph="&#xE93C;" />
-            <TextBlock
-                x:Uid="AlbumCollectionTextBlock"
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <StackPanel
+                Grid.Row="1"
                 HorizontalAlignment="Center"
-                FontSize="30" />
-        </StackPanel>
-
-        <GridView
-            x:Name="ContentGridView"
-            Grid.Row="1"
-            CanDragItems="True"
-            DragItemsStarting="OnGridViewItemsDragStarting"
-            IsItemClickEnabled="True"
-            ItemClick="OnContentGridViewItemClicked"
-            ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
-            SelectionMode="None"
-            ShowsScrollingPlaceholders="False">
-            <GridView.Resources>
-                <SolidColorBrush x:Key="SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
-                <SolidColorBrush x:Key="SystemControlTransparentRevealBorderBrush" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBorderBrush" Color="Transparent" />
-                <Thickness x:Key="ListViewItemRevealBorderThemeThickness">0</Thickness>
-                <Thickness x:Key="GridViewItemRevealBorderThemeThickness">0</Thickness>
-                <SolidColorBrush x:Key="ListViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
-                <SolidColorBrush x:Key="ListViewItemRevealPlaceholderBackground" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackground" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackgroundPointerOver" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackgroundPressed" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelected" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPointerOver" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
-                <SolidColorBrush x:Key="GridViewItemRevealPlaceholderBackground" Color="Transparent" />
-            </GridView.Resources>
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="albumModels:AlbumInfo">
-                    <Grid Padding="5" Background="Transparent">
-                        <Grid.ContextFlyout>
-                            <muxc:CommandBarFlyout>
-                                <muxc:CommandBarFlyout.SecondaryCommands>
-                                    <AppBarButton
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <AppBarButton
-                                        x:Uid="AddToPlaylistCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                </muxc:CommandBarFlyout.SecondaryCommands>
-                            </muxc:CommandBarFlyout>
-                        </Grid.ContextFlyout>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-
-                        <Image
-                            x:Name="AlbumImage"
-                            Grid.Row="0"
-                            Width="170"
-                            Height="170"
-                            Margin="0,0,0,5"
-                            DataContext="{x:Bind}"
-                            Loaded="OnAlbumImageLoaded"
-                            Stretch="UniformToFill">
-                            <Image.Source>
-                                <BitmapImage
-                                    DecodePixelHeight="250"
-                                    DecodePixelType="Logical"
-                                    DecodePixelWidth="250"
-                                    UriSource="{x:Bind CoverUrl}" />
-                            </Image.Source>
-                        </Image>
-                        <TextBlock
-                            Grid.Row="1"
-                            HorizontalAlignment="Left"
-                            FontWeight="SemiBold"
-                            Text="{x:Bind Name}" />
-                        <TextBlock
-                            Grid.Row="2"
-                            Margin="0,0,0,5"
-                            HorizontalAlignment="Left"
-                            Foreground="#8f8f8f"
-                            Text="{x:Bind x:String.Join(' / ', Artistes)}"
-                            TextTrimming="CharacterEllipsis" />
-                    </Grid>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
-
-        <!--#region Loading & Error-->
-        <ProgressRing
-            Grid.Row="1"
-            Width="50"
-            Height="50"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
-
-        <StackPanel
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
-            <FontIcon HorizontalAlignment="Left" Glyph="&#xEA39;" />
-            <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
-            <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
-        </StackPanel>
-        <!--#endregion-->
-    </Grid>
+                VerticalAlignment="Center"
+                Visibility="{x:Bind ViewModel.ErrorVisibility, Mode=OneWay}">
+                <FontIcon HorizontalAlignment="Left" Glyph="&#xEA39;" />
+                <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Title, Mode=OneWay}" />
+                <TextBlock Text="{x:Bind ViewModel.ErrorInfo.Message, Mode=OneWay}" />
+            </StackPanel>
+            <!--#endregion-->
+        </Grid>
+    </muxc:RefreshContainer>
 </Page>

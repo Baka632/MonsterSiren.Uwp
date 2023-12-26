@@ -115,6 +115,7 @@
                         <Button
                             x:Name="PlayAlbumButton"
                             Margin="0,0,5,0"
+                            AccessKey="0"
                             Background="Transparent"
                             Command="{x:Bind ViewModel.PlayForCurrentAlbumDetailCommand}"
                             IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
@@ -129,6 +130,7 @@
 
                         <Button
                             x:Name="AddToPlayListButton"
+                            AccessKey="1"
                             Background="Transparent"
                             Command="{x:Bind ViewModel.AddToPlaylistForCurrentAlbumDetailCommand}"
                             IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
