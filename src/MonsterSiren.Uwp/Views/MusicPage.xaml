@@ -21,27 +21,30 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <StackPanel
+            <Grid
                 Grid.Row="0"
                 Margin="0,0,0,5"
-                Orientation="Horizontal"
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
-                <FontIcon
-                    Margin="0,0,10,0"
-                    HorizontalAlignment="Center"
-                    FontSize="45"
-                    Glyph="&#xE93C;" />
-                <TextBlock
-                    x:Uid="AlbumCollectionTextBlock"
-                    Margin="0,0,5,0"
-                    HorizontalAlignment="Center"
-                    FontSize="30" />
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <FontIcon
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Center"
+                        FontSize="45"
+                        Glyph="&#xE93C;" />
+                    <TextBlock
+                        x:Uid="AlbumCollectionTextBlock"
+                        Margin="0,0,5,0"
+                        HorizontalAlignment="Center"
+                        FontSize="30" />
+                </StackPanel>
                 <Button
                     x:Uid="RefreshButton"
                     Width="40"
                     Height="40"
+                    Margin="0,0,5,0"
                     Padding="0"
-                    HorizontalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
                     AccessKey="F"
                     Background="Transparent"
                     BorderThickness="0"
@@ -49,7 +52,7 @@
                     IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsRefreshing), Mode=OneWay}">
                     <FontIcon Glyph="&#xE72C;" />
                 </Button>
-            </StackPanel>
+            </Grid>
 
             <GridView
                 x:Name="ContentGridView"
