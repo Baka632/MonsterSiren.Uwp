@@ -42,6 +42,7 @@
                     Height="40"
                     Padding="0"
                     HorizontalAlignment="Center"
+                    AccessKey="F"
                     Background="Transparent"
                     BorderThickness="0"
                     Click="RefreshAlbums"

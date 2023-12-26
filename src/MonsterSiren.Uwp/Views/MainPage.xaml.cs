@@ -147,25 +147,30 @@ public sealed partial class MainPage : Page
 
     private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
-        string str = args.InvokedItemContainer.Tag as string;
+        string tag = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
             ContentFrameNavigationHelper.Navigate(typeof(SettingsPage));
         }
         else
         {
-            if (str == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
-            {
-                ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
-            }
-            else if (str == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
-            {
-                NavigateToNowPlayingPage();
-            }
-            else if (str == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
-            {
-                ContentFrameNavigationHelper.Navigate(typeof(NewsPage));
-            }
+            NavigateByNavViewItemTag(tag);
+        }
+    }
+
+    private void NavigateByNavViewItemTag(string tag)
+    {
+        if (tag == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
+        }
+        else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
+        {
+            NavigateToNowPlayingPage();
+        }
+        else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(NewsPage));
         }
     }
 
@@ -264,6 +269,11 @@ public sealed partial class MainPage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
+
+        if (NavigationView?.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
+        {
+            settings.AccessKeyInvoked -= OnNavigationViewItemAccessKeyInvoked;
+        }
         NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
     }
 
@@ -307,6 +317,36 @@ public sealed partial class MainPage : Page
             SongInfoAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
 
             await MainViewModel.AddToPlaylistForSongInfo(pack.SongInfo, pack.AlbumDetail);
+        }
+    }
+
+    private void OnAutoSuggestBoxAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
+    {
+        Control control = sender as Control;
+        args.Handled = control.Focus(FocusState.Programmatic);
+    }
+
+    private void OnNavigationViewItemAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
+    {
+        if (sender == NavigationView.SettingsItem && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage));
+        }
+        else
+        {
+            var item = sender as Microsoft.UI.Xaml.Controls.NavigationViewItemBase;
+
+            string tag = item.Tag as string;
+            NavigateByNavViewItemTag(tag);
+        }
+    }
+
+    private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.NavigationView view && view.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
+        {
+            settings.AccessKeyInvoked += OnNavigationViewItemAccessKeyInvoked;
+            settings.AccessKey = "T";
         }
     }
 }

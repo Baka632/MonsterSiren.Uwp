@@ -1,4 +1,4 @@
-﻿namespace LiveCompass.Helpers;
+﻿namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
 /// 为在 Xaml 中进行数值转换等操作提供方法的类
