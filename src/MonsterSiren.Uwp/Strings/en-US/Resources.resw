@@ -135,4 +135,7 @@
   <data name="RefreshButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Refresh</value>
   </data>
+  <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Click to refresh "Album Collection" page</value>
+  </data>
 </root>

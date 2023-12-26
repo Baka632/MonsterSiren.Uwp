@@ -213,4 +213,7 @@
   <data name="RefreshButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>刷新</value>
   </data>
+  <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>单击刷新“专辑陈列”页面</value>
+  </data>
 </root>
