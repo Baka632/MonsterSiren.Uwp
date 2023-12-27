@@ -5,6 +5,7 @@ using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -347,6 +348,37 @@ public sealed partial class MainPage : Page
         {
             settings.AccessKeyInvoked += OnNavigationViewItemAccessKeyInvoked;
             settings.AccessKey = "T";
+        }
+    }
+
+    private void OnVolumeSliderPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    {
+        double addDelta = 5d;
+        UIElement element = sender as UIElement;
+        PointerPoint currentPoint = e.GetCurrentPoint(element);
+        int wheelDelta = currentPoint.Properties.MouseWheelDelta;
+
+        if (wheelDelta > 0)
+        {
+            if (Math.Ceiling(MusicInfoService.Default.Volume + addDelta) >= 100d)
+            {
+                MusicInfoService.Default.Volume = 100d;
+            }
+            else
+            {
+                MusicInfoService.Default.Volume += addDelta;
+            }
+        }
+        else if (wheelDelta < 0)
+        {
+            if (Math.Floor(MusicInfoService.Default.Volume - addDelta) <= 0d)
+            {
+                MusicInfoService.Default.Volume = 0d;
+            }
+            else
+            {
+                MusicInfoService.Default.Volume -= addDelta;
+            }
         }
     }
 }

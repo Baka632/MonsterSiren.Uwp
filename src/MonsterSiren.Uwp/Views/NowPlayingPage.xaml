@@ -315,6 +315,7 @@
                                             Width="100"
                                             VerticalAlignment="Center"
                                             Maximum="100"
+                                            PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
                                             Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                                     </StackPanel>
                                 </Flyout>

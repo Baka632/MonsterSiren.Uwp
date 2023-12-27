@@ -347,6 +347,7 @@
                                         Width="100"
                                         HorizontalAlignment="Stretch"
                                         Maximum="100"
+                                        PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
                                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                                 </StackPanel>
                                 <ToggleButton
@@ -495,6 +496,7 @@
                         Width="100"
                         HorizontalAlignment="Center"
                         Maximum="100"
+                        PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button
