@@ -1,4 +1,6 @@
-﻿namespace MonsterSiren.Uwp.Helpers;
+﻿using Windows.UI;
+
+namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
 /// 为在 Xaml 中进行数值转换等操作提供方法的类
@@ -126,5 +128,25 @@ public static class XamlHelper
     public static Visibility IsNullReverseVisibility(object value)
     {
         return ReverseVisibility(IsNull(value));
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="Color"/> 转换为 <see cref="SolidColorBrush"/>
+    /// </summary>
+    /// <param name="color">一个 <see cref="Color"/> 实例</param>
+    /// <returns>按 <paramref name="color"/> 构造而成的 <see cref="SolidColorBrush"/> 实例</returns>
+    public static SolidColorBrush ToSolidColorBrush(Color color)
+    {
+        return new SolidColorBrush(color);
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="SolidColorBrush"/> 转换为 <see cref="Color"/>
+    /// </summary>
+    /// <param name="solidColorBrush">一个 <see cref="SolidColorBrush"/> 实例</param>
+    /// <returns>从 <paramref name="solidColorBrush"/> 获得的的 <see cref="Color"/> 实例</returns>
+    public static Color ToColor(SolidColorBrush solidColorBrush)
+    {
+        return solidColorBrush.Color;
     }
 }
