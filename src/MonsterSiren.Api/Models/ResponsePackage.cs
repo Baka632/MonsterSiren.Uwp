@@ -25,7 +25,7 @@ public struct ResponsePackage<T>
     public T? Data { get; set; } = default;
 
     /// <summary>
-    /// 以默认参数构造 <see cref="ResponsePackage{T}"/> 的新实例
+    /// 使用指定的参数构造 <see cref="ResponsePackage{T}"/> 的新实例
     /// </summary>
     public ResponsePackage(int code, string message, T? data)
     {

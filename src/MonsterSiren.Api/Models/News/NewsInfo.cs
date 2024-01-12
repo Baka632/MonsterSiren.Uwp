@@ -27,7 +27,7 @@ public struct NewsInfo : IEquatable<NewsInfo>
     public DateTimeOffset Date { get; set; }
 
     /// <summary>
-    /// 以默认参数构造 <see cref="NewsInfo"/> 的新实例
+    /// 使用指定的参数构造 <see cref="NewsInfo"/> 的新实例
     /// </summary>
     public NewsInfo(string cid, string title, int category, DateTimeOffset date)
     {

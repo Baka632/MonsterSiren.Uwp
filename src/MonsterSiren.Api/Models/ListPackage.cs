@@ -24,7 +24,7 @@ public struct ListPackage<T>
     public bool? IsAutoplay { get; set; } = null;
 
     /// <summary>
-    /// 以默认参数构造 <see cref="ListPackage{T}"/> 的新实例
+    /// 使用指定的参数构造 <see cref="ListPackage{T}"/> 的新实例
     /// </summary>
     public ListPackage(IEnumerable<T> list, bool? isEnd, bool? isAutoplay)
     {

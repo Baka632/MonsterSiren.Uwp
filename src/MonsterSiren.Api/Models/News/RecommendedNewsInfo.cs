@@ -34,7 +34,7 @@ public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
     public string Data { get; set; } = string.Empty;
 
     /// <summary>
-    /// 以默认参数构造 <see cref="RecommendedNewsInfo"/> 的新实例
+    /// 使用指定的参数构造 <see cref="RecommendedNewsInfo"/> 的新实例
     /// </summary>
     public RecommendedNewsInfo(string title, string coverUrl, RecommendedNewsCoverInfo cover, string description, int type, string data)
     {

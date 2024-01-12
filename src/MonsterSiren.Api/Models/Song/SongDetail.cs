@@ -42,7 +42,7 @@ public struct SongDetail : IEquatable<SongDetail>
     public IEnumerable<string> Artists { get; set; } = Enumerable.Empty<string>();
 
     /// <summary>
-    /// 以默认参数构造 <see cref="SongDetail"/> 的新实例
+    /// 使用指定的参数构造 <see cref="SongDetail"/> 的新实例
     /// </summary>
     public SongDetail(string cid, string name, string albumCid, string sourceUrl, string lyricUrl, string mvUrl, string mvCoverUrl, IEnumerable<string> artists)
     {
