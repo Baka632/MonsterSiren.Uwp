@@ -194,6 +194,7 @@
                 Margin="40,0,10,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
+                Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                 IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}" />
             <Button
                 x:Name="MediaInfoButton"
@@ -477,6 +478,7 @@
                 Margin="15,0,15,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
+                Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                 IsIndeterminate="True"
                 Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}" />
 

@@ -34,12 +34,12 @@ public static class SettingsService
     /// <param name="key">值的存储键</param>
     /// <param name="result">若成功获取在设置中寻找到指定的值，则返回 <typeparamref name="T"/> 的实例，否则返回 <typeparamref name="T"/> 的默认值</param>
     /// <returns>指示过程是否成功的值</returns>
-    /// <exception cref="ArgumentException"><paramref name="key"/> 为 <see langword="null"/> 或空白</exception>
     public static bool TryGet<T>(string key, out T result)
     {
         if (string.IsNullOrWhiteSpace(key))
         {
-            throw new ArgumentException($"“{nameof(key)}”不能为 null 或空白。", nameof(key));
+            result = default;
+            return false;
         }
 
         if (localSettings.Values.TryGetValue(key, out object val) && val is T target)

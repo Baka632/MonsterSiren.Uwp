@@ -1,10 +1,13 @@
-﻿using Windows.Media.Playback;
+﻿using System.ComponentModel;
+using Windows.Media.Playback;
 using Windows.UI;
 
 namespace MonsterSiren.Uwp.Controls;
 
 public sealed class NowPlayingItemGrid : Grid
 {
+    private static Color CurrentThemeColor { get => MusicInfoService.Default.MusicThemeColorLight2; }
+
     public Brush ContentBrush
     {
         get => (Brush)GetValue(ContentBrushProperty);
@@ -30,13 +33,36 @@ public sealed class NowPlayingItemGrid : Grid
     {
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
         Loaded += OnLoaded;
+        MusicInfoService.Default.PropertyChanged += OnMusicInfoServicePropertyChanged;
+    }
+
+    private void OnMusicInfoServicePropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MusicInfoService.MusicThemeColorLight2) && MusicService.CurrentMediaPlaybackItem is not null && MusicService.CurrentMediaPlaybackItem == DataContext)
+        {
+            ContentBrush = new SolidColorBrush(CurrentThemeColor);
+        }
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (MusicService.CurrentMediaPlaybackItem is not null && MusicService.CurrentMediaPlaybackItem == DataContext)
         {
-            ContentBrush = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorLight2"]);
+            ContentBrush = new SolidColorBrush(CurrentThemeColor);
+            CurrentNowPlayingItemIndicatorVisibility = Visibility.Visible;
+        }
+        else
+        {
+            ContentBrush = new SolidColorBrush((Color)Application.Current.Resources["SystemBaseHighColor"]);
+            CurrentNowPlayingItemIndicatorVisibility = Visibility.Collapsed;
+        }
+    }
+
+    private void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
+    {
+        if (args.NewItem is not null && args.NewItem == DataContext)
+        {
+            ContentBrush = new SolidColorBrush(CurrentThemeColor);
             CurrentNowPlayingItemIndicatorVisibility = Visibility.Visible;
         }
         else
@@ -49,19 +75,6 @@ public sealed class NowPlayingItemGrid : Grid
     ~NowPlayingItemGrid()
     {
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
-    }
-
-    private void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
-    {
-        if (args.NewItem is not null && args.NewItem == DataContext)
-        {
-            ContentBrush = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorLight2"]);
-            CurrentNowPlayingItemIndicatorVisibility = Visibility.Visible;
-        }
-        else
-        {
-            ContentBrush = new SolidColorBrush((Color)Application.Current.Resources["SystemBaseHighColor"]);
-            CurrentNowPlayingItemIndicatorVisibility = Visibility.Collapsed;
-        }
+        MusicInfoService.Default.PropertyChanged -= OnMusicInfoServicePropertyChanged;
     }
 }

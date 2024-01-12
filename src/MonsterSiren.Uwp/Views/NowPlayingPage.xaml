@@ -228,6 +228,7 @@
                         x:Name="MusicStatusProgressBar"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
+                        Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                         IsIndeterminate="True"
                         Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.IsMusicBufferingOrOpening), Mode=OneWay}" />
                 </Grid>
@@ -453,8 +454,9 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Data="F1 M 12.5 17.5 L 12.5 6.259766 L 13.740234 6.259766 L 13.740234 17.5 Z M 1.240234 17.5 L 1.240234 13.759766 L 2.5 13.759766 L 2.5 17.5 Z M 5 17.5 L 5 10 L 6.240234 10 L 6.240234 17.5 Z M 8.740234 17.5 L 8.740234 1.259766 L 10 1.259766 L 10 17.5 Z M 16.240234 10 L 17.5 10 L 17.5 17.5 L 16.240234 17.5 Z "
-                                Foreground="{ThemeResource SystemAccentColorLight2}"
+                                Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                                 Visibility="{Binding ElementName=NowPlayingItemGrid, Path=CurrentNowPlayingItemIndicatorVisibility, Mode=OneWay}" />
+
                             <TextBlock
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"

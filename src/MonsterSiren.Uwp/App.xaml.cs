@@ -165,7 +165,17 @@ sealed partial class App : Application
         {
             Source = new Uri("ms-appx:///ResourcesDictionaries/ThemedSlider.xaml")
         };
+
         Resources.MergedDictionaries.Add(mediaControlToggleButtonStyle);
         Resources.MergedDictionaries.Add(themedSliderStyle);
+
+        if (EnvironmentHelper.IsWindowsMobile)
+        {
+            ResourceDictionary win10AppBackgroundStyle = new()
+            {
+                Source = new Uri("ms-appx:///ResourcesDictionaries/Win10AppBackground.xaml")
+            };
+            Resources.MergedDictionaries.Add(win10AppBackgroundStyle);
+        }
     }
 }
