@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:albumModels="using:MonsterSiren.Api.Models.Album"
+    xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
@@ -57,6 +58,7 @@
             <GridView
                 x:Name="ContentGridView"
                 Grid.Row="1"
+                animations:ReorderGridAnimation.Duration="500"
                 CanDragItems="True"
                 DragItemsStarting="OnGridViewItemsDragStarting"
                 IsItemClickEnabled="True"

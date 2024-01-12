@@ -48,7 +48,20 @@ public sealed partial class MusicInfoService : ObservableRecipient
     [ObservableProperty]
     private string shuffleStateDescription = "ShuffleOffText".GetLocalized();
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorLight1))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorLight2))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorLight3))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorDark1))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorDark2))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorDark3))]
     private Color musicThemeColor;
+
+    public Color MusicThemeColorLight1 { get => MusicThemeColor.LighterBy(0.3f); }
+    public Color MusicThemeColorLight2 { get => MusicThemeColor.LighterBy(0.6f); }
+    public Color MusicThemeColorLight3 { get => MusicThemeColor.LighterBy(0.9f); }
+    public Color MusicThemeColorDark1 { get => MusicThemeColor.DarkerBy(0.3f); }
+    public Color MusicThemeColorDark2 { get => MusicThemeColor.DarkerBy(0.6f); }
+    public Color MusicThemeColorDark3 { get => MusicThemeColor.DarkerBy(0.9f); }
 
     /// <summary>
     /// 获取或设置播放器音量
@@ -142,7 +155,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.MusicStopped += OnMusicStopped;
 
         InitializeFromSettings();
-        MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColorDark2"];
+        MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColor"];
         IsActive = true;
     }
 

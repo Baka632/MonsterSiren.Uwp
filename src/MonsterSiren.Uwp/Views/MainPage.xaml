@@ -13,6 +13,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:triggers="using:WindowsStateTriggers"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Loaded="OnMainPageLoaded"
     mc:Ignorable="d">
@@ -265,24 +266,29 @@
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
                     </Style>
-                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="ToggleButton">
+                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="BorderThickness" Value="0" />
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
+                        <Setter Property="ThemeBackground">
+                            <Setter.Value>
+                                <SolidColorBrush Color="{Binding ElementName=Self, Path=ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
+                            </Setter.Value>
+                        </Setter>
                     </Style>
                 </StackPanel.Resources>
 
-                <ToggleButton
+                <msrControls:ThemedToggleButton
                     x:Name="IsShuffleToggleButton"
                     AccessKey="SF"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                     IsThreeState="False"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}">
                     <FontIcon Glyph="&#xE14B;" />
-                </ToggleButton>
+                </msrControls:ThemedToggleButton>
                 <Button
                     AccessKey="P"
                     Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
@@ -311,14 +317,14 @@
                     IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
-                <ToggleButton
+                <msrControls:ThemedToggleButton
                     x:Name="IsRepeatToggleButton"
                     AccessKey="RP"
                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                     IsThreeState="True"
                     ToolTipService.ToolTip="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}">
                     <FontIcon Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
-                </ToggleButton>
+                </msrControls:ThemedToggleButton>
 
                 <Button
                     x:Name="NarrowMediaAdditionalControlButton"
@@ -330,54 +336,60 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel>
+                                <StackPanel.Resources>
+                                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                                        <Setter Property="Background" Value="Transparent" />
+                                    </Style>
+                                </StackPanel.Resources>
+
                                 <StackPanel Orientation="Horizontal">
-                                    <ToggleButton
+                                    <msrControls:ThemedToggleButton
                                         Width="35"
                                         Height="35"
                                         Margin="0,0,5,0"
                                         Padding="0"
                                         HorizontalAlignment="Left"
                                         AccessKey="MU"
-                                        Background="Transparent"
                                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                                        IsThreeState="False">
+                                        IsThreeState="False"
+                                        ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                         <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
-                                    </ToggleButton>
+                                    </msrControls:ThemedToggleButton>
                                     <Slider
                                         Width="100"
                                         HorizontalAlignment="Stretch"
+                                        Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                                         Maximum="100"
                                         PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
+                                        Style="{StaticResource ThemedSlider}"
                                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                                 </StackPanel>
-                                <ToggleButton
+                                <msrControls:ThemedToggleButton
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="SF"
-                                    Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
                                     IsThreeState="False"
-                                    Style="{StaticResource MediaControlToggleButton}">
+                                    ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon Margin="0,0,5,0" Glyph="&#xE14B;" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}" />
                                     </StackPanel>
-                                </ToggleButton>
-                                <ToggleButton
+                                </msrControls:ThemedToggleButton>
+                                <msrControls:ThemedToggleButton
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="RP"
-                                    Background="Transparent"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
                                     IsThreeState="True"
-                                    Style="{StaticResource MediaControlToggleButton}">
+                                    ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}" />
                                     </StackPanel>
-                                </ToggleButton>
+                                </msrControls:ThemedToggleButton>
                                 <Button
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
@@ -441,9 +453,11 @@
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
+                    Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                     IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
                     Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
+                    Style="{StaticResource ThemedSlider}"
                     ValueChanged="OnPositionSliderValueChanged"
                     Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
                 <TextBlock
@@ -480,7 +494,7 @@
                     Margin="0,0,5,0"
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">
-                    <ToggleButton
+                    <msrControls:ThemedToggleButton
                         Width="35"
                         Height="35"
                         Margin="0,0,5,0"
@@ -489,14 +503,21 @@
                         AccessKey="MU"
                         Background="Transparent"
                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                        IsThreeState="False">
+                        IsThreeState="False"
+                        Style="{StaticResource MediaControlToggleButton}">
+                        <msrControls:ThemedToggleButton.ThemeBackground>
+                            <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
+                        </msrControls:ThemedToggleButton.ThemeBackground>
+
                         <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
-                    </ToggleButton>
+                    </msrControls:ThemedToggleButton>
                     <Slider
                         Width="100"
                         HorizontalAlignment="Center"
+                        Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                         Maximum="100"
                         PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
+                        Style="{StaticResource ThemedSlider}"
                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
                 </StackPanel>
                 <Button

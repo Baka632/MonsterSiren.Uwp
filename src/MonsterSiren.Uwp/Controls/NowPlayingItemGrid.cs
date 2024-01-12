@@ -5,15 +5,15 @@ namespace MonsterSiren.Uwp.Controls;
 
 public sealed class NowPlayingItemGrid : Grid
 {
-    public SolidColorBrush ContentBrush
+    public Brush ContentBrush
     {
-        get => (SolidColorBrush)GetValue(ContentBrushProperty);
+        get => (Brush)GetValue(ContentBrushProperty);
         set => SetValue(ContentBrushProperty, value);
     }
 
     public static readonly DependencyProperty ContentBrushProperty
         = DependencyProperty.Register("ContentBrush",
-                                      typeof(SolidColorBrush),
+                                      typeof(Brush),
                                       typeof(NowPlayingItemGrid),
                                       new PropertyMetadata(new SolidColorBrush((Color)Application.Current.Resources["SystemBaseHighColor"])));
 
