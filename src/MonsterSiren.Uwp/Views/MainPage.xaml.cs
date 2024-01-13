@@ -53,8 +53,8 @@ public sealed partial class MainPage : Page
         else
         {
             TitleBarHelper.Hook(ContentFrame);
-            TitleBarHelper.BackButtonVisibilityChangedEvent += OnBackButtonVisibilityChanged;
-            TitleBarHelper.TitleBarVisibilityChangedEvent += OnTitleBarVisibilityChanged;
+            TitleBarHelper.BackButtonVisibilityChanged += OnBackButtonVisibilityChanged;
+            TitleBarHelper.TitleBarVisibilityChanged += OnTitleBarVisibilityChanged;
         }
     }
 
@@ -86,7 +86,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void OnTitleBarVisibilityChanged(CoreApplicationViewTitleBar bar)
+    private void OnTitleBarVisibilityChanged(object sender, CoreApplicationViewTitleBar bar)
     {
         if (bar.IsVisible)
         {
@@ -98,9 +98,9 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void OnBackButtonVisibilityChanged(BackButtonVisibilityChangedEventArgs args)
+    private void OnBackButtonVisibilityChanged(object sender, AppViewBackButtonVisibility args)
     {
-        StartTitleTextBlockAnimation(args.BackButtonVisibility);
+        StartTitleTextBlockAnimation(args);
     }
 
     private void StartTitleTextBlockAnimation(AppViewBackButtonVisibility buttonVisibility)
@@ -221,7 +221,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void OnMainPageGoBackComplete()
+    private void OnMainPageGoBackComplete(object sender, EventArgs arg)
     {
         AppViewBackButtonVisibility backButtonVisibility = ContentFrame.CanGoBack
                 ? AppViewBackButtonVisibility.Visible
