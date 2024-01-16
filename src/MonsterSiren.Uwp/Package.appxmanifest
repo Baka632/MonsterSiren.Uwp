@@ -10,7 +10,7 @@
   <Identity
     Name="Baka632.MonsterSiren.Uwp"
     Publisher="CN=Baka632"
-    Version="1.0.14.1" />
+    Version="1.0.15.0" />
 
   <mp:PhoneIdentity PhoneProductId="c4f5a7b1-db02-4855-b1bd-304559dec527" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -39,10 +39,11 @@
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="ms-resource:AppDescription"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo"/>
             <uap:ShowOn Tile="wide310x150Logo"/>
+            <uap:ShowOn Tile="square310x310Logo"/>
           </uap:ShowNameOnTiles>
         </uap:DefaultTile >
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
