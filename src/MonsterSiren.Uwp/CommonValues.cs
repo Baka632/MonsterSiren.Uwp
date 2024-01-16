@@ -24,6 +24,8 @@ internal static class CommonValues
     public const string MusicMuteStateSettingsKey = "Music_MuteState_SettingsKey";
     public const string MusicShuffleStateSettingsKey = "Music_ShuffleState_SettingsKey";
     public const string MusicRepeatStateSettingsKey = "Music_RepeatState_SettingsKey";
+
+    public const string MusicDownloadPathSettingsKey = "Download_Path_SettingsKey";
     #endregion
 
     #region Data Package Type

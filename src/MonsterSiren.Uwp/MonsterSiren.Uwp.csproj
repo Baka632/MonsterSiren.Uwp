@@ -150,12 +150,12 @@
     <Compile Include="Models\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
-    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MusicViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingCompactViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\AlbumDetailPage.xaml.cs">
       <DependentUpon>AlbumDetailPage.xaml</DependentUpon>
     </Compile>
@@ -290,7 +290,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
-      <Version>1.0.1</Version>
+      <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.2</Version>

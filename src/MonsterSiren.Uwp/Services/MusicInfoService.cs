@@ -163,49 +163,49 @@ public sealed partial class MusicInfoService : ObservableRecipient
     {
         #region Volume
         {
-            if (SettingsService.TryGet(CommonValues.MusicVolumeSettingsKey, out double volume))
+            if (SettingsHelper.TryGet(CommonValues.MusicVolumeSettingsKey, out double volume))
             {
                 MusicService.PlayerVolume = volume;
             }
             else
             {
                 MusicService.PlayerVolume = 1d;
-                SettingsService.Set(CommonValues.MusicVolumeSettingsKey, 1d);
+                SettingsHelper.Set(CommonValues.MusicVolumeSettingsKey, 1d);
             }
         }
         #endregion
 
         #region Mute State
         {
-            if (SettingsService.TryGet(CommonValues.MusicMuteStateSettingsKey, out bool isMute))
+            if (SettingsHelper.TryGet(CommonValues.MusicMuteStateSettingsKey, out bool isMute))
             {
                 MusicService.IsPlayerMuted = isMute;
             }
             else
             {
                 MusicService.IsPlayerMuted = false;
-                SettingsService.Set(CommonValues.MusicMuteStateSettingsKey, false);
+                SettingsHelper.Set(CommonValues.MusicMuteStateSettingsKey, false);
             }
         }
         #endregion
 
         #region Shuffle State
         {
-            if (SettingsService.TryGet(CommonValues.MusicShuffleStateSettingsKey, out bool isShuffle))
+            if (SettingsHelper.TryGet(CommonValues.MusicShuffleStateSettingsKey, out bool isShuffle))
             {
                 MusicService.IsPlayerShuffleEnabled = isShuffle;
             }
             else
             {
                 MusicService.IsPlayerShuffleEnabled = false;
-                SettingsService.Set(CommonValues.MusicShuffleStateSettingsKey, false);
+                SettingsHelper.Set(CommonValues.MusicShuffleStateSettingsKey, false);
             }
         }
         #endregion
 
         #region Repeat State
         {
-            if (SettingsService.TryGet(CommonValues.MusicRepeatStateSettingsKey, out string enumString)
+            if (SettingsHelper.TryGet(CommonValues.MusicRepeatStateSettingsKey, out string enumString)
                 && Enum.TryParse(enumString, out PlayerRepeatingState result))
             {
                 MusicService.PlayerRepeatingState = result;
@@ -213,7 +213,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             else
             {
                 MusicService.PlayerRepeatingState = PlayerRepeatingState.None;
-                SettingsService.Set(CommonValues.MusicRepeatStateSettingsKey, PlayerRepeatingState.None.ToString());
+                SettingsHelper.Set(CommonValues.MusicRepeatStateSettingsKey, PlayerRepeatingState.None.ToString());
             }
         }
         #endregion
@@ -234,7 +234,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
     {
-        SettingsService.Set(CommonValues.MusicRepeatStateSettingsKey, state.ToString());
+        SettingsHelper.Set(CommonValues.MusicRepeatStateSettingsKey, state.ToString());
         OnPropertyChanged(nameof(IsRepeat));
         RepeatIconGlyph = state switch
         {
@@ -252,7 +252,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private void OnPlayerShuffleStateChanged(bool value)
     {
-        SettingsService.Set(CommonValues.MusicShuffleStateSettingsKey, value);
+        SettingsHelper.Set(CommonValues.MusicShuffleStateSettingsKey, value);
         OnPropertyChanged(nameof(IsShuffle));
         ShuffleStateDescription = value switch
         {
@@ -304,7 +304,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             ChangeVolumeIconByVolume(MusicService.PlayerVolume);
         }
 
-        SettingsService.Set(CommonValues.MusicMuteStateSettingsKey, isMute);
+        SettingsHelper.Set(CommonValues.MusicMuteStateSettingsKey, isMute);
         OnPropertyChanged(nameof(IsMute));
     }
 
@@ -315,7 +315,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             ChangeVolumeIconByVolume(volume);
         }
 
-        SettingsService.Set(CommonValues.MusicVolumeSettingsKey, volume);
+        SettingsHelper.Set(CommonValues.MusicVolumeSettingsKey, volume);
     }
 
     private void ChangeVolumeIconByVolume(double volume)

@@ -138,4 +138,10 @@
   <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Click to refresh "Album Collection" page</value>
   </data>
+  <data name="DownloadPivotItem.Header" xml:space="preserve">
+    <value>Download settings</value>
+  </data>
+  <data name="AboutPivotItem.Header" xml:space="preserve">
+    <value>About</value>
+  </data>
 </root>

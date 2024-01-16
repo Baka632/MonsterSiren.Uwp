@@ -5,9 +5,32 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
     mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="This is Settings Page" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <FontIcon
+                Margin="0,0,10,0"
+                HorizontalAlignment="Center"
+                FontSize="40"
+                Glyph="&#xE115;" />
+            <TextBlock
+                Margin="0,0,5,0"
+                HorizontalAlignment="Center"
+                FontSize="30"
+                Text="设置" />
+        </StackPanel>
+
+        <Pivot Grid.Row="1" Margin="-10,0,0,0">
+            <PivotItem x:Uid="DownloadPivotItem" />
+            <PivotItem x:Uid="AboutPivotItem" />
+        </Pivot>
     </Grid>
 </Page>

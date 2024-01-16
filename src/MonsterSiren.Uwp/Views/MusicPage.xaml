@@ -26,7 +26,7 @@
                 Grid.Row="0"
                 Margin="0,0,0,5"
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
                     <FontIcon
                         Margin="0,0,10,0"
                         HorizontalAlignment="Center"

@@ -7,6 +7,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class SettingsPage : Page
 {
+    public SettingsViewModel ViewModel { get; } = new();
+
     public SettingsPage()
     {
         this.InitializeComponent();
