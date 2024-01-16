@@ -16,7 +16,6 @@
                         <Grid.Resources>
                             <Style x:Key="SliderThumbStyle" TargetType="Thumb">
                                 <Setter Property="BorderThickness" Value="1" />
-                                <!--<Setter Property="Background" Value="{TemplateBinding Foreground}" />-->
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Thumb">

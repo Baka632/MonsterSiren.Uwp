@@ -45,6 +45,7 @@
         <StackPanel.RenderTransform>
             <TranslateTransform X="0" />
         </StackPanel.RenderTransform>
+
         <TextBlock
             x:Name="SecondaryText"
             FontSize="{x:Bind FontSize, Mode=OneWay}"
