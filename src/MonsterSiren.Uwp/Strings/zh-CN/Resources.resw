@@ -252,4 +252,19 @@
   <data name="DownloadTextBlock.Text" xml:space="preserve">
     <value>下载</value>
   </data>
+  <data name="DownloadPage_OpenDownloadFolder.Text" xml:space="preserve">
+    <value>打开下载文件夹</value>
+  </data>
+  <data name="DownloadPage_PauseAll.Text" xml:space="preserve">
+    <value>全部暂停</value>
+  </data>
+  <data name="DownloadPage_ResumeAll.Text" xml:space="preserve">
+    <value>全部继续</value>
+  </data>
+  <data name="DownloadPage_CancelAll.Text" xml:space="preserve">
+    <value>全部取消</value>
+  </data>
+  <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
+    <value>当前没有下载项目</value>
+  </data>
 </root>

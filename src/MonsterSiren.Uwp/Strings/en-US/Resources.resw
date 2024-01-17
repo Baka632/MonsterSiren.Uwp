@@ -174,4 +174,19 @@
   <data name="DownloadTextBlock.Text" xml:space="preserve">
     <value>Download</value>
   </data>
+  <data name="DownloadPage_OpenDownloadFolder.Text" xml:space="preserve">
+    <value>Open download folder</value>
+  </data>
+  <data name="DownloadPage_PauseAll.Text" xml:space="preserve">
+    <value>Pause all</value>
+  </data>
+  <data name="DownloadPage_ResumeAll.Text" xml:space="preserve">
+    <value>Resume all</value>
+  </data>
+  <data name="DownloadPage_CancelAll.Text" xml:space="preserve">
+    <value>Cancel all</value>
+  </data>
+  <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
+    <value>No download items</value>
+  </data>
 </root>

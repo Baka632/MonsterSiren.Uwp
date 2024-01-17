@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Net.Http;
 using System.Threading;
 using Windows.Networking.BackgroundTransfer;
@@ -97,28 +96,10 @@ public static class DownloadService
         IReadOnlyList<DownloadOperation> downloadsItem = await BackgroundDownloader.GetCurrentDownloadsAsync();
         foreach (DownloadOperation op in downloadsItem)
         {
-            await HandleDownloadOperation(op, op.ResultFile.Name, false);
+            _ = HandleDownloadOperation(op, op.ResultFile.Name, false);
         }
 
         _isInitialized = true;
-    }
-
-    /// <summary>
-    /// 全部开始下载
-    /// </summary>
-    public static async Task StartAllDownload()
-    {
-        await Task.Run(async () =>
-        {
-            foreach (DownloadItem item in DownloadList)
-            {
-                DownloadOperation op = item.Operation;
-                if (op.Progress.Status != BackgroundTransferStatus.Running)
-                {
-                    await op.StartAsync();
-                }
-            }
-        });
     }
 
     /// <summary>

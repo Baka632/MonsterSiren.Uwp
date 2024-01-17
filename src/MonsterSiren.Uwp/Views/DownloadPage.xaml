@@ -11,6 +11,8 @@
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:DownloadViewModel}"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded"
     mc:Ignorable="d">
 
     <Grid Margin="0,0,0,20">
@@ -19,26 +21,87 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel
-            Grid.Row="0"
-            Margin="0,0,0,10"
-            Orientation="Horizontal">
-            <FontIcon
-                Margin="0,0,10,0"
-                HorizontalAlignment="Center"
-                FontSize="35"
-                Glyph="&#xE118;" />
-            <TextBlock
-                x:Uid="DownloadTextBlock"
-                Margin="0,0,5,0"
-                HorizontalAlignment="Center"
-                FontSize="30" />
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                <FontIcon
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Center"
+                    FontSize="35"
+                    Glyph="&#xE118;" />
+                <TextBlock
+                    x:Uid="DownloadTextBlock"
+                    Margin="0,0,5,0"
+                    HorizontalAlignment="Center"
+                    FontSize="30" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Button
+                    Margin="0,0,5,0"
+                    AccessKey="0"
+                    Background="Transparent"
+                    Command="{x:Bind ViewModel.OpenDownloadFolderCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
+                            Margin="0,0,5,0"
+                            HorizontalAlignment="Center"
+                            Glyph="&#xE197;" />
+                        <TextBlock x:Uid="DownloadPage_OpenDownloadFolder" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button
+                    Margin="0,0,5,0"
+                    AccessKey="1"
+                    Background="Transparent"
+                    Command="{x:Bind ViewModel.PauseAllDownloadCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
+                            Margin="0,0,5,0"
+                            HorizontalAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Glyph="&#xE103;" />
+                        <TextBlock x:Uid="DownloadPage_PauseAll" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button
+                    Margin="0,0,5,0"
+                    AccessKey="2"
+                    Background="Transparent"
+                    Command="{x:Bind ViewModel.ResumeAllDownloadCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
+                            Margin="0,0,5,0"
+                            HorizontalAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Glyph="&#xE102;" />
+                        <TextBlock x:Uid="DownloadPage_ResumeAll" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button
+                    AccessKey="3"
+                    Background="Transparent"
+                    Command="{x:Bind ViewModel.CancelAllDownloadCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
+                            Margin="0,0,5,0"
+                            HorizontalAlignment="Center"
+                            FontFamily="Segoe MDL2 Assets"
+                            Glyph="&#xE10A;" />
+                        <TextBlock x:Uid="DownloadPage_CancelAll" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </StackPanel>
+
 
         <ListView
             Grid.Row="1"
             ItemsSource="{x:Bind services:DownloadService.DownloadList}"
-            SelectionMode="None">
+            SelectionMode="None"
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsDownloadListEmpty), Mode=OneWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:DownloadItem">
                     <Grid>
@@ -71,15 +134,17 @@
                                 Command="{Binding ElementName=Self, Path=ViewModel.PauseOrResumeDownloadCommand}"
                                 CommandParameter="{x:Bind}">
                                 <Grid>
-                                    <SymbolIcon
+                                    <FontIcon
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Symbol="Play"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Glyph="&#xE102;"
                                         Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPaused), Mode=OneWay}" />
-                                    <SymbolIcon
+                                    <FontIcon
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Symbol="Pause"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Glyph="&#xE103;"
                                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPaused), Mode=OneWay}" />
                                 </Grid>
                             </Button>
@@ -91,6 +156,27 @@
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="Margin" Value="0,5,0,5" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
         </ListView>
+        <StackPanel
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDownloadListEmpty), Mode=OneWay}">
+            <FontIcon
+                Margin="0,0,0,5"
+                FontSize="40"
+                Glyph="&#xED59;" />
+            <TextBlock
+                x:Uid="DownloadPage_NoDownloadItem"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="20" />
+        </StackPanel>
     </Grid>
 </Page>

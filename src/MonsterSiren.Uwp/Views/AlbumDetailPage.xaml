@@ -154,7 +154,7 @@
                                     Margin="0,0,5,0"
                                     HorizontalAlignment="Center"
                                     Symbol="Download" />
-                                <TextBlock HorizontalAlignment="Center" Text="下载" />
+                                <TextBlock x:Uid="DownloadTextBlock" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

@@ -79,6 +79,14 @@ public sealed record DownloadItem : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// 取消下载
+    /// </summary>
+    public void CancelDownload()
+    {
+        CancelToken.Cancel();
+    }
+
+    /// <summary>
     /// 通知运行时属性已经发生更改
     /// </summary>
     /// <param name="propertyName">发生更改的属性名称,其填充是自动完成的</param>
