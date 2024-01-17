@@ -181,25 +181,44 @@
                                 VerticalAlignment="Center"
                                 Text="{x:Bind Name}" />
 
-                            <StackPanel
+                            <Button
                                 Grid.Column="1"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
-                                Orientation="Horizontal">
-                                <StackPanel.Resources>
+                                Background="Transparent"
+                                BorderThickness="0">
+                                <Button.Resources>
                                     <Style BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
                                         <Setter Property="Background" Value="Transparent" />
                                         <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     </Style>
-                                </StackPanel.Resources>
+                                </Button.Resources>
 
-                                <Button Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}" CommandParameter="{x:Bind}">
-                                    <SymbolIcon Symbol="Play" />
-                                </Button>
-                                <Button Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}" CommandParameter="{x:Bind}">
-                                    <SymbolIcon Symbol="Add" />
-                                </Button>
-                            </StackPanel>
+                                <Button.Flyout>
+                                    <muxc:MenuBarItemFlyout>
+                                        <MenuFlyoutItem
+                                            x:Uid="PlayMusicTextBlock"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Play" />
+                                        <MenuFlyoutItem
+                                            x:Uid="AddToPlaylistTextBlock"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Add" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem
+                                            x:Uid="DownloadTextBlock"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.DownloadForSongInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Download" />
+                                    </muxc:MenuBarItemFlyout>
+                                </Button.Flyout>
+
+                                <SymbolIcon Symbol="More" />
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

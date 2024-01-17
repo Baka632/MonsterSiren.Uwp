@@ -203,6 +203,23 @@ public partial class AlbumDetailViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public async Task DownloadForSongInfo(SongInfo songInfo)
+    {
+        try
+        {
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
     private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
     {
         if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
