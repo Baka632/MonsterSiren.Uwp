@@ -122,6 +122,17 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem
+                    x:Name="DownloadPageItem"
+                    x:Uid="DownloadNavViewItem"
+                    AccessKey="DL"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    Tag="DownloadPage">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Download" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+
+                <muxc:NavigationViewItem
                     x:Name="NowPlayingPageItem"
                     x:Uid="NowPlayingNavViewItem"
                     AccessKey="NP"

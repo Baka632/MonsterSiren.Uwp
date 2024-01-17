@@ -222,4 +222,7 @@
   <data name="AboutPivotItem.Header" xml:space="preserve">
     <value>关于</value>
   </data>
+  <data name="DownloadNavViewItem.Content" xml:space="preserve">
+    <value>下载队列</value>
+  </data>
 </root>

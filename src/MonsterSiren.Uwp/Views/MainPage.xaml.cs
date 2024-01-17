@@ -188,6 +188,10 @@ public sealed partial class MainPage : Page
         {
             ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: DefaultTransitionInfo);
         }
+        else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: DefaultTransitionInfo);
+        }
     }
 
     private void NavigateToNowPlayingPage()
@@ -216,6 +220,10 @@ public sealed partial class MainPage : Page
         else if (ContentFrame.CurrentSourcePageType == typeof(NowPlayingPage))
         {
             NavigationView.SelectedItem = NowPlayingPageItem;
+        }
+        else if (ContentFrame.CurrentSourcePageType == typeof(DownloadPage))
+        {
+            NavigationView.SelectedItem = DownloadPageItem;
         }
         else if (ContentFrame.CurrentSourcePageType == typeof(NewsPage))
         {

@@ -144,4 +144,7 @@
   <data name="AboutPivotItem.Header" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="DownloadNavViewItem.Content" xml:space="preserve">
+    <value>Download quene</value>
+  </data>
 </root>
