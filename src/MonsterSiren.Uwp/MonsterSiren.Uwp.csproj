@@ -152,6 +152,7 @@
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
+    <Compile Include="ViewModels\DownloadViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MusicViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingCompactViewModel.cs" />

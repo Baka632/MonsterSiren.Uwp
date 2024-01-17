@@ -141,6 +141,30 @@ public partial class AlbumDetailViewModel : ObservableObject
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
+    
+    [RelayCommand]
+    public async Task DownloadForCurrentAlbumDetail()
+    {
+        if (CurrentAlbumDetail.Songs is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                foreach (SongInfo item in CurrentAlbumDetail.Songs)
+                {
+                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    await DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
+                }
+            });
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
 
     [RelayCommand]
     public async Task PlayForSongInfo(SongInfo songInfo)

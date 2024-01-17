@@ -246,4 +246,10 @@
   <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
     <value>下载歌词</value>
   </data>
+  <data name="SettingsTextBlock.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="DownloadTextBlock.Text" xml:space="preserve">
+    <value>下载</value>
+  </data>
 </root>

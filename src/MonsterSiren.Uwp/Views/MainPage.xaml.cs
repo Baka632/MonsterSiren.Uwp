@@ -233,6 +233,10 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
+        else
+        {
+            NavigationView.SelectedItem = MusicPageItem;
+        }
     }
 
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)

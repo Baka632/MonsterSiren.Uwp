@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Net.Http;
 using System.Threading;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.Web;
 
 namespace MonsterSiren.Uwp.Services;
 
@@ -60,9 +63,8 @@ public static class DownloadService
             return;
         }
 
-        DownloadLyric = SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
-            ? dlLyric
-            : true;
+        DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
+                        || dlLyric;
 
         if (SettingsHelper.TryGet(CommonValues.MusicDownloadPathSettingsKey, out string dlPath) && Directory.Exists(dlPath))
         {
@@ -133,6 +135,11 @@ public static class DownloadService
             throw new InvalidOperationException($"请先调用 {nameof(Initialize)} 方法");
         }
 
+        if (DownloadList.Any(item => item.Operation.RequestedUri.ToString() == songDetail.SourceUrl))
+        {
+            return;
+        }
+
         await Task.Run(async () =>
         {
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
@@ -150,7 +157,7 @@ public static class DownloadService
             if (downloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
                 StorageFile lrcFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.lrc", CreationCollisionOption.ReplaceExisting);
-                DownloadOperation lrcDownload = downloader.CreateDownload(lrcUri, musicFile);
+                DownloadOperation lrcDownload = downloader.CreateDownload(lrcUri, lrcFile);
                 await HandleDownloadOperation(lrcDownload, $"{songDetail.Name} - {"LyricFile".GetLocalized()}", true);
             }
         });
@@ -160,7 +167,7 @@ public static class DownloadService
     {
         CancellationTokenSource cts = new();
         DownloadItem item = new(operation, name, cts);
-        DownloadList.Add(item);
+        await AddToList(item);
 
         try
         {
@@ -174,19 +181,61 @@ public static class DownloadService
                 await operation.AttachAsync().AsTask(cts.Token, progressCallback);
             }
         }
+        catch (TaskCanceledException)
+        {
+            if (operation.ResultFile is not null)
+            {
+                await operation.ResultFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+        }
+        catch (Exception ex)
+        {
+            WebErrorStatus error = BackgroundTransferError.GetStatus(ex.HResult);
+
+            if (error != WebErrorStatus.Unknown)
+            {
+                HttpRequestException httpRequestException = new(error.ToString(), ex);
+                throw httpRequestException;
+            }
+            else
+            {
+                throw;
+            }
+        }
         finally
         {
-            DownloadList.Remove(item);
+            await RemoveFromList(item);
         }
+    }
+
+    private static async Task AddToList(DownloadItem item)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            DownloadList.Add(item);
+        });
+    }
+
+    private static async Task RemoveFromList(DownloadItem item)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            DownloadList.Remove(item);
+        });
     }
 
     private static void OnDownloadProgress(DownloadOperation op)
     {
-        DownloadItem item = DownloadList.First(x => x.Operation == op);
-        BackgroundDownloadProgress progress = op.Progress;
+        DownloadItem item = DownloadList.FirstOrDefault(x => x.Operation == op);
 
+        if (item is null)
+        {
+            return;
+        }
+
+        BackgroundDownloadProgress progress = op.Progress;
         item.Progress = op.Progress.TotalBytesToReceive == 0
-            ? 0
-            : progress.BytesReceived / op.Progress.TotalBytesToReceive;
+            ? 0d
+            : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
     }
 }

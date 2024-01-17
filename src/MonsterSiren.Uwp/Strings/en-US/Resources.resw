@@ -168,4 +168,10 @@
   <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
     <value>Download lyrics</value>
   </data>
+  <data name="SettingsTextBlock.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="DownloadTextBlock.Text" xml:space="preserve">
+    <value>Download</value>
+  </data>
 </root>
