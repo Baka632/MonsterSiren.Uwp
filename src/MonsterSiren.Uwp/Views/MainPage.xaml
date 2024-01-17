@@ -712,7 +712,7 @@
 
                 <VisualState x:Name="MainPageWide">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="640" />
+                        <AdaptiveTrigger MinWindowWidth="740" />
                     </VisualState.StateTriggers>
                     <VisualState.Storyboard>
                         <Storyboard Duration="0">

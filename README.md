@@ -1,3 +1,5 @@
+<img src="./assets/icon.png" width="100px"/>
+
 # Monster Siren - UWP
 
 一个基于 UWP 的塞壬唱片第三方客户端
