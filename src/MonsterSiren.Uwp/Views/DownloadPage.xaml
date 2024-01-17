@@ -7,6 +7,7 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MonsterSiren.Uwp.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
@@ -50,48 +51,37 @@
                     </StackPanel>
                 </Button>
 
-                <Button
-                    Margin="0,0,5,0"
-                    AccessKey="1"
-                    Background="Transparent"
-                    Command="{x:Bind ViewModel.PauseAllDownloadCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon
-                            Margin="0,0,5,0"
-                            HorizontalAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Glyph="&#xE103;" />
-                        <TextBlock x:Uid="DownloadPage_PauseAll" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                <Button AccessKey="1" Background="Transparent">
+                    <Button.Flyout>
+                        <muxc:MenuBarItemFlyout>
+                            <MenuFlyoutItem
+                                x:Uid="DownloadPage_PauseAll"
+                                AccessKey="0"
+                                Command="{x:Bind ViewModel.PauseAllDownloadCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE103;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem
+                                x:Uid="DownloadPage_ResumeAll"
+                                AccessKey="1"
+                                Command="{x:Bind ViewModel.ResumeAllDownloadCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE102;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem
+                                x:Uid="DownloadPage_CancelAll"
+                                AccessKey="2"
+                                Command="{x:Bind ViewModel.CancelAllDownloadCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </muxc:MenuBarItemFlyout>
+                    </Button.Flyout>
 
-                <Button
-                    Margin="0,0,5,0"
-                    AccessKey="2"
-                    Background="Transparent"
-                    Command="{x:Bind ViewModel.ResumeAllDownloadCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon
-                            Margin="0,0,5,0"
-                            HorizontalAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Glyph="&#xE102;" />
-                        <TextBlock x:Uid="DownloadPage_ResumeAll" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-
-                <Button
-                    AccessKey="3"
-                    Background="Transparent"
-                    Command="{x:Bind ViewModel.CancelAllDownloadCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon
-                            Margin="0,0,5,0"
-                            HorizontalAlignment="Center"
-                            FontFamily="Segoe MDL2 Assets"
-                            Glyph="&#xE10A;" />
-                        <TextBlock x:Uid="DownloadPage_CancelAll" HorizontalAlignment="Center" />
-                    </StackPanel>
+                    <SymbolIcon Symbol="More" />
                 </Button>
             </StackPanel>
         </StackPanel>

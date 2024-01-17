@@ -354,7 +354,7 @@
                                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE158;" />
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
-                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutSeparator Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}" />
                                     <MenuFlyoutItem
                                         x:Uid="ClearPlaybackList"
                                         AccessKey="CL"
