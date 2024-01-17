@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
     mc:Ignorable="d">
@@ -29,7 +30,87 @@
         </StackPanel>
 
         <Pivot Grid.Row="1" Margin="-10,0,0,0">
-            <PivotItem x:Uid="DownloadPivotItem" />
+            <PivotItem x:Uid="DownloadPivotItem">
+                <StackPanel Margin="0,5,0,0">
+                    <muxc:Expander
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsExpanded="True">
+                        <muxc:Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Margin="0,0,10,0" Glyph="&#xE159;" />
+                                <TextBlock x:Uid="SettingsPage_PathConfig" />
+                            </StackPanel>
+                        </muxc:Expander.Header>
+
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_DownloadFolderRedirected"
+                                    Grid.Row="0"
+                                    Grid.ColumnSpan="2"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
+                                    Severity="Warning" />
+
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
+                                    <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                                </StackPanel>
+
+                                <Button
+                                    x:Uid="SettingsPage_PickButton"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                            </Grid>
+                        </StackPanel>
+                    </muxc:Expander>
+
+                    <muxc:Expander
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsExpanded="True">
+                        <muxc:Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Margin="0,0,10,0" Glyph="&#xE118;" />
+                                <TextBlock x:Uid="SettingsPage_DownloadConfig" />
+                            </StackPanel>
+                        </muxc:Expander.Header>
+
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    x:Uid="SettingsPage_DownloadLyric"
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center" />
+
+                                <ToggleSwitch
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    IsOn="{x:Bind ViewModel.DownloadLryic, Mode=TwoWay}" />
+                            </Grid>
+                        </StackPanel>
+                    </muxc:Expander>
+                </StackPanel>
+            </PivotItem>
             <PivotItem x:Uid="AboutPivotItem" />
         </Pivot>
     </Grid>

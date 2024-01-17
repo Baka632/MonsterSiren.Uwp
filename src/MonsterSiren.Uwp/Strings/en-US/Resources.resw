@@ -139,12 +139,33 @@
     <value>Click to refresh "Album Collection" page</value>
   </data>
   <data name="DownloadPivotItem.Header" xml:space="preserve">
-    <value>Download settings</value>
+    <value>Storage settings</value>
   </data>
   <data name="AboutPivotItem.Header" xml:space="preserve">
     <value>About</value>
   </data>
   <data name="DownloadNavViewItem.Content" xml:space="preserve">
     <value>Download quene</value>
+  </data>
+  <data name="SettingsPage_PathConfig.Text" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="SettingsPage_DownloadPath.Text" xml:space="preserve">
+    <value>Download path</value>
+  </data>
+  <data name="SettingsPage_PickButton.Content" xml:space="preserve">
+    <value>Pick</value>
+  </data>
+  <data name="SettingsPage_DownloadFolderRedirected.Message" xml:space="preserve">
+    <value>App cannot use the folder selected before, so the download path was set to default path</value>
+  </data>
+  <data name="LyricFile" xml:space="preserve">
+    <value>Lyric file</value>
+  </data>
+  <data name="SettingsPage_DownloadConfig.Text" xml:space="preserve">
+    <value>Download options</value>
+  </data>
+  <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
+    <value>Download lyrics</value>
   </data>
 </root>

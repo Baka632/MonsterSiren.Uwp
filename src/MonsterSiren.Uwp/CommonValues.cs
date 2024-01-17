@@ -26,6 +26,7 @@ internal static class CommonValues
     public const string MusicRepeatStateSettingsKey = "Music_RepeatState_SettingsKey";
 
     public const string MusicDownloadPathSettingsKey = "Download_Path_SettingsKey";
+    public const string MusicDownloadLyricSettingsKey = "Download_DownloadLyric_SettingsKey";
     #endregion
 
     #region Data Package Type

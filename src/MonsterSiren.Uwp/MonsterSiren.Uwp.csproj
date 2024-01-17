@@ -136,18 +136,19 @@
     <Compile Include="Controls\ThemedToggleButton.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Helpers\FileCacheHelper.cs" />
-    <Compile Include="Helpers\Converters\MediaPlaybackItemForSelectionNowPlayingItemConverter.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DataTemplateSelectors\NowPlayingItemDataTemplateSelector.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
     <Compile Include="Helpers\SongDetailExtensions.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
+    <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
     <Compile Include="Models\SongInfoAndAlbumDetailPack.cs" />
+    <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
@@ -301,6 +302,11 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.2</Version>
+    </PackageReference>
+    <PackageReference Include="IsExternalInit">
+      <Version>1.0.3</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
       <Version>8.0.0</Version>

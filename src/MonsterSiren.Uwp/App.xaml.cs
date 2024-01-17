@@ -92,7 +92,7 @@ sealed partial class App : Application
     /// 将在启动应用程序以打开特定文件等情况下使用。
     /// </summary>
     /// <param name="e">有关启动请求和过程的详细信息。</param>
-    protected override void OnLaunched(LaunchActivatedEventArgs e)
+    protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
@@ -113,6 +113,8 @@ sealed partial class App : Application
 
             TitleBarHelper.SetTitleBarAppearance();
             LoadResourceDictionaries();
+
+            await DownloadService.Initialize();
         }
 
         if (e.PrelaunchActivated == false)
