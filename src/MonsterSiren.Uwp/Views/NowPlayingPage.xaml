@@ -117,12 +117,17 @@
             </Grid.Background>
         </Grid>
 
-        <TextBlock
-            x:Uid="NoMusicTextBlock"
+        <StackPanel
             Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            <FontIcon
+                Margin="0,0,0,5"
+                FontSize="30"
+                Glyph="&#xEC4F;" />
+            <TextBlock x:Uid="NoMusicTextBlock" FontSize="20" />
+        </StackPanel>
 
         <Grid
             x:Name="MusicInfoAndControlGrid"
