@@ -182,7 +182,7 @@ public sealed partial class MainPage : Page
         }
         else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
         {
-            NavigateToNowPlayingPage();
+            NavigateToNowPlayingPage(true);
         }
         else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
         {
@@ -194,10 +194,10 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void NavigateToNowPlayingPage()
+    private void NavigateToNowPlayingPage(bool expandNowPlayingList = false)
     {
         StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
-        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), null, new DrillInNavigationTransitionInfo());
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), expandNowPlayingList, new DrillInNavigationTransitionInfo());
     }
 
     private void OnContentFrameNavigated(object sender, NavigationEventArgs e)
