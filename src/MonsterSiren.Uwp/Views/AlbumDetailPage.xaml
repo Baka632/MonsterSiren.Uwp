@@ -169,11 +169,32 @@
                 ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">
-                        <Grid>
+                        <Grid Background="Transparent">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
+
+                            <Grid.ContextFlyout>
+                                <muxc:MenuBarItemFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="PlayMusicTextBlock"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Play" />
+                                    <MenuFlyoutItem
+                                        x:Uid="AddToPlaylistTextBlock"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Add" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadTextBlock"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.DownloadForSongInfoCommand}"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Download" />
+                                </muxc:MenuBarItemFlyout>
+                            </Grid.ContextFlyout>
 
                             <TextBlock
                                 Grid.Column="0"

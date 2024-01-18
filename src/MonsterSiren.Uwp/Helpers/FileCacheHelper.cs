@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -12,22 +14,8 @@ namespace MonsterSiren.Uwp.Helpers;
 internal static class FileCacheHelper
 {
     private const string DefaultAlbumCoverCacheFolderName = "AlbumCover";
+    private const string DefaultMusicInfoCacheFolderName = "MusicInfo";
     private static readonly StorageFolder tempFolder = ApplicationData.Current.TemporaryFolder;
-
-    /// <summary>
-    /// 使用指定的文件名与随机访问流，在专辑封面缓存文件夹创建文件
-    /// </summary>
-    /// <param name="fileName">文件名</param>
-    /// <param name="stream">专辑封面的随机访问流</param>
-    public static async Task StoreAlbumCoverAsync(string fileName, IRandomAccessStream stream)
-    {
-        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-        StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-        await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-        await transaction.CommitAsync();
-    }
 
     /// <summary>
     /// 使用指定的 <see cref="AlbumDetail"/> 实例，在专辑封面缓存文件夹创建专辑封面文件
@@ -74,23 +62,18 @@ internal static class FileCacheHelper
     }
 
     /// <summary>
-    /// 通过指定的文件名获取专辑封面的随机访问流
+    /// 使用指定的文件名与随机访问流，在专辑封面缓存文件夹创建文件
     /// </summary>
-    /// <param name="fileName">专辑封面的文件名</param>
-    /// <returns>包含专辑封面数据的 <see cref="IRandomAccessStream"/></returns>
-    public static async Task<IRandomAccessStream> GetAlbumCoverStreamAsync(string fileName)
+    /// <param name="fileName">文件名</param>
+    /// <param name="stream">专辑封面的随机访问流</param>
+    private static async Task StoreAlbumCoverAsync(string fileName, IRandomAccessStream stream)
     {
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
-        if (coverFolder != null)
-        {
-            StorageFile file = await coverFolder.GetFileAsync(fileName);
-            return await file?.OpenReadAsync();
-        }
-        else
-        {
-            return null;
-        }
+        StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+        await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+        await transaction.CommitAsync();
     }
 
     /// <summary>
@@ -116,17 +99,18 @@ internal static class FileCacheHelper
     }
 
     /// <summary>
-    /// 通过指定的文件名获取指向专辑封面的 Uri
+    /// 通过指定的文件名获取专辑封面的随机访问流
     /// </summary>
     /// <param name="fileName">专辑封面的文件名</param>
-    /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
-    public static async Task<Uri> GetAlbumCoverUriAsync(string fileName)
+    /// <returns>包含专辑封面数据的 <see cref="IRandomAccessStream"/></returns>
+    private static async Task<IRandomAccessStream> GetAlbumCoverStreamAsync(string fileName)
     {
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
-        if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
+        if (coverFolder != null)
         {
-            return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+            StorageFile file = await coverFolder.GetFileAsync(fileName);
+            return await file?.OpenReadAsync();
         }
         else
         {
@@ -154,5 +138,35 @@ internal static class FileCacheHelper
     {
         string fileName = $"{albumInfo.Cid}.jpg";
         return await GetAlbumCoverUriAsync(fileName);
+    }
+
+    /// <summary>
+    /// 通过指定的文件名获取指向专辑封面的 Uri
+    /// </summary>
+    /// <param name="fileName">专辑封面的文件名</param>
+    /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
+    private static async Task<Uri> GetAlbumCoverUriAsync(string fileName)
+    {
+        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+        if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
+        {
+            return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public static async Task StoreAlbumInfoAsync(AlbumInfo info)
+    {
+        StorageFolder musicInfoFolder = await tempFolder.CreateFolderAsync(DefaultMusicInfoCacheFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFile file = await musicInfoFolder.CreateFileAsync($"{info.Cid}.json", CreationCollisionOption.ReplaceExisting);
+
+        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+        using Stream utf8Json = transaction.Stream.AsStreamForWrite();
+        await JsonSerializer.SerializeAsync(utf8Json, info);
+        await transaction.CommitAsync();
     }
 }

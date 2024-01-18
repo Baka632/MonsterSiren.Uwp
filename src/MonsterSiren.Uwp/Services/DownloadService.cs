@@ -124,9 +124,19 @@ public static class DownloadService
 
         await Task.Run(async () =>
         {
+            char[] invalidFileChars = Path.GetInvalidFileNameChars();
+            string musicName = songDetail.Name;
+            foreach (char item in invalidFileChars)
+            {
+                if (musicName.Contains(item))
+                {
+                    musicName = musicName.Replace(item.ToString(), string.Empty);
+                }
+            }
+
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.wav.tmp", CreationCollisionOption.ReplaceExisting);
+            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
 
             //List<SongInfo> songs = albumDetail.Songs.ToList();
             //MusicProperties musicProp = await musicFile.Properties.GetMusicPropertiesAsync();
@@ -147,13 +157,13 @@ public static class DownloadService
             };
 
             DownloadOperation musicDownload = downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-            await HandleDownloadOperation(musicDownload, songDetail.Name, true);
+            await HandleDownloadOperation(musicDownload, musicName, true);
 
             if (DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
+                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicName}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
                 DownloadOperation lrcDownload = downloader.CreateDownload(lrcUri, lrcFile);
-                await HandleDownloadOperation(lrcDownload, $"{songDetail.Name} - {"LyricFile".GetLocalized()}", true);
+                await HandleDownloadOperation(lrcDownload, $"{musicName} - {"LyricFile".GetLocalized()}", true);
             }
         });
     }
