@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
+using Windows.Media.MediaProperties;
+using Windows.Media.Transcoding;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.Web;
 
 namespace MonsterSiren.Uwp.Services;
@@ -16,6 +19,10 @@ public static class DownloadService
     private static bool _isInitialized;
     private static string _downloadPath;
     private static bool _downloadLyric = true;
+    private static readonly BackgroundDownloader Downloader = new()
+    {
+        CostPolicy = BackgroundTransferCostPolicy.Always
+    };
 
     /// <summary>
     /// 获取或设置下载路径
@@ -138,31 +145,20 @@ public static class DownloadService
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
             StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
 
-            //List<SongInfo> songs = albumDetail.Songs.ToList();
-            //MusicProperties musicProp = await musicFile.Properties.GetMusicPropertiesAsync();
-            //Dictionary<string, object> artistsProp = new()
-            //{
-            //    ["System.Music.Artist"] = songDetail.Artists.ToArray()
-            //};
-            //await musicFile.Properties.SavePropertiesAsync(artistsProp);
-            //musicProp.Title = songDetail.Name;
-            //musicProp.Album = albumDetail.Name;
-            //musicProp.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
-            //musicProp.TrackNumber = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
-            //await musicProp.SavePropertiesAsync();
+            StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicName}.json.tmp", CreationCollisionOption.ReplaceExisting);
+            SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
+            Stream infoFileStream = await infoFile.OpenStreamForWriteAsync();
+            infoFileStream.Seek(0, SeekOrigin.Begin);
+            await JsonSerializer.SerializeAsync(infoFileStream, pack);
+            infoFileStream.Dispose();
 
-            BackgroundDownloader downloader = new()
-            {
-                CostPolicy = BackgroundTransferCostPolicy.Always
-            };
-
-            DownloadOperation musicDownload = downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
+            DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
             await HandleDownloadOperation(musicDownload, musicName, true);
 
             if (DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
                 StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicName}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
-                DownloadOperation lrcDownload = downloader.CreateDownload(lrcUri, lrcFile);
+                DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
                 await HandleDownloadOperation(lrcDownload, $"{musicName} - {"LyricFile".GetLocalized()}", true);
             }
         });
@@ -186,6 +182,7 @@ public static class DownloadService
                 await operation.AttachAsync().AsTask(cts.Token, progressCallback);
             }
             await operation.ResultFile.RenameAsync(operation.ResultFile.Name.Replace(".tmp", string.Empty), NameCollisionOption.ReplaceExisting);
+            await WriteTagsToFile((StorageFile)operation.ResultFile);
         }
         catch (TaskCanceledException)
         {
@@ -211,6 +208,64 @@ public static class DownloadService
         finally
         {
             await RemoveFromList(item);
+        }
+    }
+
+    private static async Task WriteTagsToFile(StorageFile musicFile)
+    {
+        if (Path.GetExtension(musicFile.Name) == ".lrc")
+        {
+            return;
+        }
+
+        string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
+        string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
+
+        if (File.Exists(infoFilePath))
+        {
+            StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+            using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
+            SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
+            AlbumDetail albumDetail = pack.AlbumDetail;
+            SongDetail songDetail = pack.SongDetail;
+            UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
+            using TagLib.File file = TagLib.File.Create(uwpStorageFile);
+            IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
+
+            try
+            {
+                List<SongInfo> songs = albumDetail.Songs.ToList();
+                file.Tag.Performers = songDetail.Artists.ToArray();
+                file.Tag.Title = songDetail.Name;
+                file.Tag.Album = albumDetail.Name;
+                file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()];
+                file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
+
+                TagLib.Picture picture;
+                if (coverStream is null)
+                {
+                    Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                    using Windows.Web.Http.HttpClient httpClient = new();
+                    using Windows.Web.Http.HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+                    coverStream = new InMemoryRandomAccessStream();
+                    await result.Content.WriteToStreamAsync(coverStream);
+                }
+
+                coverStream.Seek(0);
+                Stream stream = coverStream.AsStreamForRead();
+                picture = new(TagLib.ByteVector.FromStream(stream))
+                {
+                    MimeType = "image/jpeg"
+                };
+                file.Tag.Pictures = [picture];
+            }
+            finally
+            {
+                file.Save();
+                coverStream.Dispose();
+                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
         }
     }
 
@@ -243,5 +298,66 @@ public static class DownloadService
         item.Progress = op.Progress.TotalBytesToReceive == 0
             ? 0d
             : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
+    }
+
+    private static async Task TranscodeFile(StorageFile sourceFile, StorageFile destinationFile, MediaEncodingProfile profile)
+    {
+        MediaTranscoder transcoder = new();
+        PrepareTranscodeResult prepareOp = await transcoder.PrepareFileTranscodeAsync(sourceFile, destinationFile, profile);
+
+        if (prepareOp.CanTranscode)
+        {
+            await prepareOp.TranscodeAsync();
+        }
+    }
+}
+
+internal class UwpStorageFileAbstraction : TagLib.File.IFileAbstraction, IDisposable
+{
+    private bool disposedValue;
+
+    public UwpStorageFileAbstraction(IStorageFile file)
+    {
+        if (file == null)
+        {
+            throw new ArgumentNullException(nameof(file));
+        }
+
+        Name = file.Name;
+        ReadStream = file.OpenStreamForReadAsync().GetAwaiter().GetResult();
+        WriteStream = file.OpenStreamForWriteAsync().GetAwaiter().GetResult();
+    }
+
+    public string Name { get; }
+
+    public Stream ReadStream { get; }
+
+    public Stream WriteStream { get; }
+
+    public void CloseStream(Stream stream)
+    {
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                ReadStream?.Dispose();
+                WriteStream?.Dispose();
+            }
+            disposedValue = true;
+        }
+    }
+    ~UwpStorageFileAbstraction()
+    {
+        Dispose(disposing: false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

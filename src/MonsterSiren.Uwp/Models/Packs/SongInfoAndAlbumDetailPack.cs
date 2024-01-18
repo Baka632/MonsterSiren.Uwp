@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="songInfo">一个 <see cref="Api.Models.Song.SongInfo"/> 实例</param>
 /// <param name="albumDetail">一个 <see cref="Api.Models.Album.AlbumDetail"/> 实例</param>
-public struct SongInfoAndAlbumDetailPack(SongInfo songInfo, AlbumDetail albumDetail)
+internal struct SongInfoAndAlbumDetailPack(SongInfo songInfo, AlbumDetail albumDetail)
 {
     /// <summary>
     /// <see cref="Api.Models.Song.SongInfo"/> 的实例

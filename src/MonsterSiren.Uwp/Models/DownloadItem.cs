@@ -53,6 +53,12 @@ public sealed record DownloadItem : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// 使用指定的参数构造 <see cref="DownloadItem"/> 的新实例
+    /// </summary>
+    /// <param name="op">表示下载操作的 <see cref="DownloadOperation"/></param>
+    /// <param name="name">下载项的名称</param>
+    /// <param name="cancelToken">用于取消下载操作的 <see cref="CancellationTokenSource"/></param>
     public DownloadItem(DownloadOperation op, string name, CancellationTokenSource cancelToken)
     {
         Operation = op;

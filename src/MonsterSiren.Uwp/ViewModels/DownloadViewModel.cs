@@ -24,7 +24,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void CancelDownload(DownloadItem item)
     {
-        item.CancelToken.Cancel();
+        item.CancelDownload();
     }
 
     [RelayCommand]
