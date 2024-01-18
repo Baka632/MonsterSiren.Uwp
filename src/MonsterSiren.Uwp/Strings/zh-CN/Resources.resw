@@ -267,4 +267,7 @@
   <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
     <value>当前没有下载项目</value>
   </data>
+  <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
+    <value>下载专辑</value>
+  </data>
 </root>

@@ -1,7 +1,7 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
-
-using System.Text.Json;
+﻿using System.Text.Json;
 using Windows.UI.Xaml.Media.Animation;
+
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -60,13 +60,7 @@ public sealed partial class AlbumDetailPage : Page
 
         SongInfoAndAlbumDetailPack pack = new((SongInfo)dataContext, ViewModel.CurrentAlbumDetail);
 
-        using MemoryStream stream = new();
-        JsonSerializer.Serialize(stream, pack);
-
-        stream.Seek(0, SeekOrigin.Begin);
-
-        StreamReader reader = new(stream);
-        string json = reader.ReadToEnd();
+        string json = JsonSerializer.Serialize(pack);
 
         e.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
     }

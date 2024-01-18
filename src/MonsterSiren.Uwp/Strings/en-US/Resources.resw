@@ -189,4 +189,7 @@
   <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
     <value>No download items</value>
   </data>
+  <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
+    <value>Download album</value>
+  </data>
 </root>

@@ -97,7 +97,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
-            _ = Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 List<MediaPlaybackItem> items = new(CurrentAlbumDetail.Songs.Count());
 
@@ -127,7 +127,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
         try
         {
-            _ = Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
@@ -173,7 +173,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
-            _ = Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
                 MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
@@ -191,7 +191,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     {
         try
         {
-            _ = Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));

@@ -98,6 +98,12 @@
                                             Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
                                             CommandParameter="{x:Bind}"
                                             Icon="Add" />
+                                        <AppBarSeparator />
+                                        <AppBarButton
+                                            x:Uid="DownloadAlbumCommandButton"
+                                            Command="{Binding ElementName=Self, Path=ViewModel.DownloadForAlbumInfoCommand}"
+                                            CommandParameter="{x:Bind}"
+                                            Icon="Download" />
                                     </muxc:CommandBarFlyout.SecondaryCommands>
                                 </muxc:CommandBarFlyout>
                             </Grid.ContextFlyout>

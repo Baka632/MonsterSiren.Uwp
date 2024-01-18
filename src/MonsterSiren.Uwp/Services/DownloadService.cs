@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Web;
 
 namespace MonsterSiren.Uwp.Services;
@@ -96,7 +97,8 @@ public static class DownloadService
         IReadOnlyList<DownloadOperation> downloadsItem = await BackgroundDownloader.GetCurrentDownloadsAsync();
         foreach (DownloadOperation op in downloadsItem)
         {
-            _ = HandleDownloadOperation(op, op.ResultFile.Name, false);
+            string name = op.ResultFile is StorageFile file ? file.DisplayName : op.ResultFile.Name;
+            _ = HandleDownloadOperation(op, name, false);
         }
 
         _isInitialized = true;
@@ -107,9 +109,8 @@ public static class DownloadService
     /// </summary>
     /// <param name="albumDetail">歌曲所属专辑信息</param>
     /// <param name="songDetail">歌曲详细信息</param>
-    /// <param name="downloadLyric">指示是否在可能的情况下下载歌词的值</param>
     /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize"/> 方法</exception>
-    public static async Task DownloadSong(AlbumDetail albumDetail, SongDetail songDetail, bool downloadLyric = true)
+    public static async Task DownloadSong(AlbumDetail albumDetail, SongDetail songDetail)
     {
         if (_isInitialized != true)
         {
@@ -125,7 +126,20 @@ public static class DownloadService
         {
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.wav", CreationCollisionOption.ReplaceExisting);
+            StorageFile musicFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.wav.tmp", CreationCollisionOption.ReplaceExisting);
+
+            //List<SongInfo> songs = albumDetail.Songs.ToList();
+            //MusicProperties musicProp = await musicFile.Properties.GetMusicPropertiesAsync();
+            //Dictionary<string, object> artistsProp = new()
+            //{
+            //    ["System.Music.Artist"] = songDetail.Artists.ToArray()
+            //};
+            //await musicFile.Properties.SavePropertiesAsync(artistsProp);
+            //musicProp.Title = songDetail.Name;
+            //musicProp.Album = albumDetail.Name;
+            //musicProp.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
+            //musicProp.TrackNumber = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
+            //await musicProp.SavePropertiesAsync();
 
             BackgroundDownloader downloader = new()
             {
@@ -135,9 +149,9 @@ public static class DownloadService
             DownloadOperation musicDownload = downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
             await HandleDownloadOperation(musicDownload, songDetail.Name, true);
 
-            if (downloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
+            if (DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.lrc", CreationCollisionOption.ReplaceExisting);
+                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{songDetail.Name}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
                 DownloadOperation lrcDownload = downloader.CreateDownload(lrcUri, lrcFile);
                 await HandleDownloadOperation(lrcDownload, $"{songDetail.Name} - {"LyricFile".GetLocalized()}", true);
             }
@@ -161,6 +175,7 @@ public static class DownloadService
             {
                 await operation.AttachAsync().AsTask(cts.Token, progressCallback);
             }
+            await operation.ResultFile.RenameAsync(operation.ResultFile.Name.Replace(".tmp", string.Empty), NameCollisionOption.ReplaceExisting);
         }
         catch (TaskCanceledException)
         {
