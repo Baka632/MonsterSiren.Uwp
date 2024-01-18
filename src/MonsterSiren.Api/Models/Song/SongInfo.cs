@@ -19,6 +19,9 @@ public struct SongInfo : IEquatable<SongInfo>
     /// <summary>
     /// 歌曲所属专辑 CID
     /// </summary>
+    /// <remarks>
+    /// 如果此实例是从 <see cref="Album.AlbumDetail"/> 中获取的，那么此值始终为空
+    /// </remarks>
     public string AlbumCid { get; set; } = string.Empty;
     /// <summary>
     /// 歌曲艺术家
