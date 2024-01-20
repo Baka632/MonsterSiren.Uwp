@@ -27,6 +27,7 @@ internal static class CommonValues
 
     public const string MusicDownloadPathSettingsKey = "Download_Path_SettingsKey";
     public const string MusicDownloadLyricSettingsKey = "Download_DownloadLyric_SettingsKey";
+    public const string MusicTranscodeDownloadedItemSettingsKey = "Download_TranscodeDownloadedItem_SettingsKey";
     #endregion
 
     #region Data Package Type

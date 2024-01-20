@@ -12,10 +12,17 @@ public partial class SettingsViewModel : ObservableObject
     private bool isFolderRedirected = DownloadService.DownloadPathRedirected;
     [ObservableProperty]
     private bool downloadLryic = DownloadService.DownloadLyric;
+    [ObservableProperty]
+    private bool transcodeDownloadedMusic = DownloadService.TranscodeDownloadedItem;
 
     partial void OnDownloadLryicChanged(bool value)
     {
         DownloadService.DownloadLyric = value;
+    }
+
+    partial void OnTranscodeDownloadedMusicChanged(bool value)
+    {
+        DownloadService.TranscodeDownloadedItem = value;
     }
 
     [RelayCommand]

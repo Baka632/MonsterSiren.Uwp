@@ -16,7 +16,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <StackPanel
+            Grid.Row="0"
+            Margin="0,0,0,5"
+            Orientation="Horizontal">
             <FontIcon
                 Margin="0,0,10,0"
                 HorizontalAlignment="Center"
@@ -29,113 +32,110 @@
                 FontSize="30" />
         </StackPanel>
 
-        <Pivot Grid.Row="1" Margin="-10,0,0,0">
-            <PivotItem x:Uid="DownloadPivotItem">
-                <StackPanel Margin="0,5,0,0">
-                    <StackPanel.Resources>
-                        <Style TargetType="muxc:Expander">
-                            <Setter Property="HorizontalAlignment" Value="Stretch" />
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="IsExpanded" Value="True" />
-                        </Style>
-                    </StackPanel.Resources>
+        <ScrollViewer Grid.Row="1" Margin="-10,0,0,0">
+            <Pivot>
+                <PivotItem x:Uid="DownloadPivotItem">
+                    <StackPanel Margin="0,5,0,0">
+                        <StackPanel.Resources>
+                            <Style TargetType="muxc:Expander">
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </StackPanel.Resources>
 
-                    <muxc:Expander Margin="0,0,0,10">
-                        <muxc:Expander.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <FontIcon Margin="0,0,10,0" Glyph="&#xE159;" />
-                                <TextBlock x:Uid="SettingsPage_PathConfig" />
-                            </StackPanel>
-                        </muxc:Expander.Header>
-
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-
-                                <muxc:InfoBar
-                                    x:Uid="SettingsPage_DownloadFolderRedirected"
-                                    Grid.Row="0"
-                                    Grid.ColumnSpan="2"
-                                    IsClosable="False"
-                                    IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
-                                    Severity="Warning" />
-
-                                <StackPanel Grid.Row="1" Grid.Column="0">
-                                    <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
-                                    <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                        <muxc:Expander Margin="0,0,0,10">
+                            <muxc:Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Margin="0,0,10,0" Glyph="&#xE159;" />
+                                    <TextBlock x:Uid="SettingsPage_PathConfig" />
                                 </StackPanel>
+                            </muxc:Expander.Header>
 
-                                <Button
-                                    x:Uid="SettingsPage_PickButton"
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
-                            </Grid>
-                        </StackPanel>
-                    </muxc:Expander>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
 
-                    <muxc:Expander>
-                        <muxc:Expander.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <FontIcon Margin="0,0,10,0" Glyph="&#xE118;" />
-                                <TextBlock x:Uid="SettingsPage_DownloadConfig" />
+                                    <muxc:InfoBar
+                                        x:Uid="SettingsPage_DownloadFolderRedirected"
+                                        Grid.Row="0"
+                                        Grid.ColumnSpan="2"
+                                        IsClosable="False"
+                                        IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
+                                        Severity="Warning" />
+
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
+                                        <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button
+                                        x:Uid="SettingsPage_PickButton"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                                </Grid>
                             </StackPanel>
-                        </muxc:Expander.Header>
+                        </muxc:Expander>
 
-                        <StackPanel>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
+                        <muxc:Expander>
+                            <muxc:Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Margin="0,0,10,0" Glyph="&#xE118;" />
+                                    <TextBlock x:Uid="SettingsPage_DownloadConfig" />
+                                </StackPanel>
+                            </muxc:Expander.Header>
 
-                                <TextBlock
-                                    x:Uid="SettingsPage_DownloadLyric"
-                                    Grid.Column="0"
-                                    VerticalAlignment="Center" />
+                            <StackPanel>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
 
-                                <ToggleSwitch
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    IsOn="{x:Bind ViewModel.DownloadLryic, Mode=TwoWay}" />
-                            </Grid>
+                                    <TextBlock
+                                        x:Uid="SettingsPage_DownloadLyric"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
 
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        IsOn="{x:Bind ViewModel.DownloadLryic, Mode=TwoWay}" />
+                                </Grid>
 
-                                <TextBlock
-                                    x:Uid="SettingsPage_TranscodeOption"
-                                    Grid.Column="0"
-                                    VerticalAlignment="Center" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
 
-                                <ComboBox
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    SelectedIndex="0">
-                                    <x:String>Blue</x:String>
-                                    <x:String>Green</x:String>
-                                    <x:String>Red</x:String>
-                                    <x:String>Yellow</x:String>
-                                </ComboBox>
-                            </Grid>
-                        </StackPanel>
-                    </muxc:Expander>
-                </StackPanel>
-            </PivotItem>
-            <PivotItem x:Uid="AboutPivotItem" />
-        </Pivot>
+                                    <TextBlock
+                                        x:Uid="SettingsPage_EnableTranscode"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </muxc:Expander>
+                    </StackPanel>
+                </PivotItem>
+                <PivotItem x:Uid="AboutPivotItem" />
+            </Pivot>
+        </ScrollViewer>
     </Grid>
 </Page>

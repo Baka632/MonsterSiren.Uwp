@@ -270,7 +270,7 @@
   <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
     <value>下载专辑</value>
   </data>
-  <data name="SettingsPage_TranscodeOption.Text" xml:space="preserve">
-    <value>编码选项</value>
+  <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
+    <value>对下载的音乐文件转码</value>
   </data>
 </root>

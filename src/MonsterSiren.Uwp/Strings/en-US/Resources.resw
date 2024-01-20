@@ -192,7 +192,7 @@
   <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
     <value>Download album</value>
   </data>
-  <data name="SettingsPage_TranscodeOption.Text" xml:space="preserve">
-    <value>Transcode options</value>
+  <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
+    <value>Transcode downloaded music</value>
   </data>
 </root>

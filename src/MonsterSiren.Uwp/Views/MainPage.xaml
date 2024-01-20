@@ -122,17 +122,6 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem
-                    x:Name="DownloadPageItem"
-                    x:Uid="DownloadNavViewItem"
-                    AccessKey="DL"
-                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
-                    Tag="DownloadPage">
-                    <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Download" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-
-                <muxc:NavigationViewItem
                     x:Name="NowPlayingPageItem"
                     x:Uid="NowPlayingNavViewItem"
                     AccessKey="NP"
@@ -159,6 +148,19 @@
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
+
+            <muxc:NavigationView.FooterMenuItems>
+                <muxc:NavigationViewItem
+                    x:Name="DownloadPageItem"
+                    x:Uid="DownloadNavViewItem"
+                    AccessKey="DL"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    Tag="DownloadPage">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Download" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.FooterMenuItems>
 
             <muxc:NavigationView.PaneFooter>
                 <muxc:NavigationViewItemSeparator />
@@ -562,8 +564,8 @@
                             <MenuFlyoutItem
                                 x:Uid="ClearPlaybackList"
                                 AccessKey="CL"
-                                Icon="Cancel"
                                 Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
+                                Icon="Cancel"
                                 IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}" />
                         </muxc:MenuBarItemFlyout>
                     </Button.Flyout>

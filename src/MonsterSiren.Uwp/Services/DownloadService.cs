@@ -19,6 +19,7 @@ public static class DownloadService
     private static bool _isInitialized;
     private static string _downloadPath;
     private static bool _downloadLyric = true;
+    private static bool _transcodeDownloadedItem = true;
     private static readonly BackgroundDownloader Downloader = new()
     {
         CostPolicy = BackgroundTransferCostPolicy.Always
@@ -50,6 +51,17 @@ public static class DownloadService
         }
     }
 
+    public static bool TranscodeDownloadedItem
+    {
+        get => _transcodeDownloadedItem;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicTranscodeDownloadedItemSettingsKey, value);
+            _transcodeDownloadedItem = value;
+        }
+    }
+
+
     /// <summary>
     /// 获取下载列表
     /// </summary>
@@ -72,6 +84,10 @@ public static class DownloadService
 
         DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
                         || dlLyric;
+
+        TranscodeDownloadedItem = !SettingsHelper.TryGet(CommonValues.MusicTranscodeDownloadedItemSettingsKey, out bool transcodeItem)
+            || transcodeItem;
+
 
         if (SettingsHelper.TryGet(CommonValues.MusicDownloadPathSettingsKey, out string dlPath) && Directory.Exists(dlPath))
         {
@@ -181,8 +197,8 @@ public static class DownloadService
             {
                 await operation.AttachAsync().AsTask(cts.Token, progressCallback);
             }
-            await operation.ResultFile.RenameAsync(operation.ResultFile.Name.Replace(".tmp", string.Empty), NameCollisionOption.ReplaceExisting);
-            await WriteTagsToFile((StorageFile)operation.ResultFile);
+
+            await HandleDownloadedFile(operation);
         }
         catch (TaskCanceledException)
         {
@@ -211,6 +227,30 @@ public static class DownloadService
         }
     }
 
+    private static async Task HandleDownloadedFile(DownloadOperation operation)
+    {
+        StorageFile sourceFile = (StorageFile)operation.ResultFile;
+        await sourceFile.RenameAsync(sourceFile.Name.Replace(".tmp", string.Empty), NameCollisionOption.ReplaceExisting);
+
+        if (sourceFile.ContentType.Contains("audio"))
+        {
+            if (TranscodeDownloadedItem)
+            {
+                MediaEncodingProfile profile = MediaEncodingProfile.CreateMp3(AudioEncodingQuality.High);
+                StorageFolder destinationFolder = await sourceFile.GetParentAsync();
+                string desiredName = sourceFile.Name.Replace(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower()}");
+                StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
+                await TranscodeFile(sourceFile, destinationFile, profile);
+                await WriteTagsToFile(destinationFile);
+                await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+            else
+            {
+                await WriteTagsToFile(sourceFile);
+            }
+        }
+    }
+
     private static async Task WriteTagsToFile(StorageFile musicFile)
     {
         if (Path.GetExtension(musicFile.Name) == ".lrc")
@@ -227,6 +267,8 @@ public static class DownloadService
 
             if (musicFile.ContentType == "audio/wav")
             {
+                // 给 WAV 写音乐信息会出现奇奇怪怪的问题
+
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 return;
             }
@@ -235,7 +277,7 @@ public static class DownloadService
             SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
             AlbumDetail albumDetail = pack.AlbumDetail;
             SongDetail songDetail = pack.SongDetail;
-            UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
+            using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
             using TagLib.File file = TagLib.File.Create(uwpStorageFile);
             IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
 
@@ -307,7 +349,7 @@ public static class DownloadService
             : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
     }
 
-    private static async Task TranscodeFile(StorageFile sourceFile, StorageFile destinationFile, MediaEncodingProfile profile)
+    private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, MediaEncodingProfile profile)
     {
         MediaTranscoder transcoder = new();
         PrepareTranscodeResult prepareOp = await transcoder.PrepareFileTranscodeAsync(sourceFile, destinationFile, profile);
@@ -315,6 +357,10 @@ public static class DownloadService
         if (prepareOp.CanTranscode)
         {
             await prepareOp.TranscodeAsync();
+        }
+        else
+        {
+            throw new InvalidOperationException($"转码操作失败，原因：{prepareOp.FailureReason}");
         }
     }
 }
