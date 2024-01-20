@@ -224,6 +224,13 @@ public static class DownloadService
         if (File.Exists(infoFilePath))
         {
             StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+
+            if (musicFile.ContentType == "audio/wav")
+            {
+                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                return;
+            }
+
             using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
             SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
             AlbumDetail albumDetail = pack.AlbumDetail;
