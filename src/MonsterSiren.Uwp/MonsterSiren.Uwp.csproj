@@ -301,7 +301,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
-      <Version>1.0.2</Version>
+      <Version>1.0.3</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.2</Version>

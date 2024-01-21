@@ -268,7 +268,6 @@ public static class DownloadService
             if (musicFile.ContentType == "audio/wav")
             {
                 // 给 WAV 写音乐信息会出现奇奇怪怪的问题
-
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 return;
             }
