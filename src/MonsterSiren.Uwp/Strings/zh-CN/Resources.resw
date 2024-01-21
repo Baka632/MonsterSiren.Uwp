@@ -273,4 +273,7 @@
   <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
     <value>对下载的音乐文件转码</value>
   </data>
+  <data name="AppVersion_WithPlaceholder" xml:space="preserve">
+    <value>版本：{0}</value>
+  </data>
 </root>

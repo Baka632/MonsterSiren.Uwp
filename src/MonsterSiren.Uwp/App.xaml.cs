@@ -14,6 +14,14 @@ sealed partial class App : Application
     /// 获取应用程序名
     /// </summary>
     public static string AppDisplayName => ReswHelper.GetReswString("AppDisplayName");
+    /// <summary>
+    /// 获取应用程序版本
+    /// </summary>
+    public static string AppVersion => $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
+    /// <summary>
+    /// 获取带“版本”文字的应用程序版本字符串
+    /// </summary>
+    public static string AppVersionWithText => string.Format("AppVersion_WithPlaceholder".GetLocalized(), AppVersion);
 
     /// <summary>
     /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
