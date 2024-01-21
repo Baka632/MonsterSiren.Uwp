@@ -183,11 +183,11 @@
                 <Win16299:AcrylicBrush
                     AlwaysUseFallback="False"
                     BackgroundSource="Backdrop"
-                    TintColor="{x:Bind ViewModel.MusicInfo.MusicThemeColor, Mode=OneWay}"
+                    TintColor="{x:Bind ViewModel.MusicInfo.MusicThemeColorThemeAware, Mode=OneWay}"
                     TintOpacity="0.5" />
             </Win16299:Grid.Background>
             <NotWin16299:Grid.Background>
-                <NotWin16299:SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColor, Mode=OneWay}" />
+                <NotWin16299:SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorThemeAware, Mode=OneWay}" />
             </NotWin16299:Grid.Background>
 
             <Grid.ColumnDefinitions>

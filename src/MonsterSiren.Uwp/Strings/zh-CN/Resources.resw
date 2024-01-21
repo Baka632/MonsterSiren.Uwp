@@ -168,10 +168,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
-  <data name="PlayCommandButton.Label" xml:space="preserve">
+  <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>播放</value>
   </data>
-  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>目前没有正在播放的歌曲</value>
   </data>
-  <data name="RemoveCommandButton.Label" xml:space="preserve">
+  <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>移除</value>
   </data>
   <data name="AddToPlaylist" xml:space="preserve">
@@ -267,7 +267,7 @@
   <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
     <value>当前没有下载项目</value>
   </data>
-  <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
+  <data name="DownloadAlbumCommandButton.Text" xml:space="preserve">
     <value>下载专辑</value>
   </data>
   <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">

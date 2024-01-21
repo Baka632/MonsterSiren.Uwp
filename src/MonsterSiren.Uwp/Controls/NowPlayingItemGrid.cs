@@ -6,7 +6,7 @@ namespace MonsterSiren.Uwp.Controls;
 
 public sealed class NowPlayingItemGrid : Grid
 {
-    private static Color CurrentThemeColor { get => MusicInfoService.Default.MusicThemeColorLight2; }
+    private static Color CurrentThemeColor { get => MusicInfoService.Default.MusicThemeColorThemeAware; }
 
     public Brush ContentBrush
     {
@@ -38,7 +38,7 @@ public sealed class NowPlayingItemGrid : Grid
 
     private void OnMusicInfoServicePropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MusicInfoService.MusicThemeColorLight2) && MusicService.CurrentMediaPlaybackItem is not null && MusicService.CurrentMediaPlaybackItem == DataContext)
+        if (e.PropertyName == nameof(MusicInfoService.MusicThemeColorThemeAware) && MusicService.CurrentMediaPlaybackItem is not null && MusicService.CurrentMediaPlaybackItem == DataContext)
         {
             ContentBrush = new SolidColorBrush(CurrentThemeColor);
         }

@@ -1,4 +1,5 @@
-﻿using Windows.Media;
+﻿using Microsoft.Toolkit.Uwp.UI.Helpers;
+using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
@@ -14,6 +15,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
     public static readonly MusicInfoService Default = new();
 
     private MusicDisplayProperties formerMusicDisplayProperties;
+    private readonly ThemeListener themeListener = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentMusicPropertiesExists))]
@@ -54,6 +56,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
     [NotifyPropertyChangedFor(nameof(MusicThemeColorDark1))]
     [NotifyPropertyChangedFor(nameof(MusicThemeColorDark2))]
     [NotifyPropertyChangedFor(nameof(MusicThemeColorDark3))]
+    [NotifyPropertyChangedFor(nameof(MusicThemeColorThemeAware))]
     private Color musicThemeColor;
 
     public Color MusicThemeColorLight1 { get => MusicThemeColor.LighterBy(0.3f); }
@@ -62,6 +65,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
     public Color MusicThemeColorDark1 { get => MusicThemeColor.DarkerBy(0.3f); }
     public Color MusicThemeColorDark2 { get => MusicThemeColor.DarkerBy(0.6f); }
     public Color MusicThemeColorDark3 { get => MusicThemeColor.DarkerBy(0.9f); }
+    public Color MusicThemeColorThemeAware => themeListener.CurrentTheme switch
+    {
+        ApplicationTheme.Dark => MusicThemeColorLight1,
+        _ => MusicThemeColorDark1
+    };
 
     /// <summary>
     /// 获取或设置播放器音量
@@ -154,9 +162,16 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
         MusicService.MusicStopped += OnMusicStopped;
 
+        themeListener.ThemeChanged += OnThemeChanged;
+
         InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColor"];
         IsActive = true;
+    }
+
+    private void OnThemeChanged(ThemeListener sender)
+    {
+        OnPropertyChanged(nameof(MusicThemeColorThemeAware));
     }
 
     private static void InitializeFromSettings()

@@ -127,18 +127,6 @@ public sealed partial class NowPlayingPage : Page
         }
     }
 
-    private void PlayCommandButtonLoaded(object sender, RoutedEventArgs e)
-    {
-        AppBarButton barButton = sender as AppBarButton;
-        barButton.Command = ViewModel.MoveToIndexCommand;
-    }
-
-    private void RemoveCommandButtonLoaded(object sender, RoutedEventArgs e)
-    {
-        AppBarButton barButton = sender as AppBarButton;
-        barButton.Command = ViewModel.RemoveAtCommand;
-    }
-
     private void OnVolumeSliderPointerWheelChanged(object sender, PointerRoutedEventArgs e)
     {
         double addDelta = 5d;

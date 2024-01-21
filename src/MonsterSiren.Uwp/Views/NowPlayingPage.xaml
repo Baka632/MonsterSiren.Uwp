@@ -410,21 +410,19 @@
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
                     <controls:NowPlayingItemGrid Name="NowPlayingItemGrid" Background="Transparent">
                         <controls:NowPlayingItemGrid.ContextFlyout>
-                            <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft">
-                                <muxc:CommandBarFlyout.SecondaryCommands>
-                                    <AppBarButton
-                                        x:Uid="PlayCommandButton"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play"
-                                        Loaded="PlayCommandButtonLoaded" />
-                                    <AppBarSeparator />
-                                    <AppBarButton
-                                        x:Uid="RemoveCommandButton"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Delete"
-                                        Loaded="RemoveCommandButtonLoaded" />
-                                </muxc:CommandBarFlyout.SecondaryCommands>
-                            </muxc:CommandBarFlyout>
+                            <muxc:MenuBarItemFlyout>
+                                <MenuFlyoutItem
+                                    x:Uid="PlayCommandButton"
+                                    Command="{Binding ElementName=Self, Path=ViewModel.MoveToIndexCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    Icon="Play" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    x:Uid="RemoveCommandButton"
+                                    Command="{Binding ElementName=Self, Path=ViewModel.RemoveAtCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    Icon="Delete" />
+                            </muxc:MenuBarItemFlyout>
                         </controls:NowPlayingItemGrid.ContextFlyout>
 
                         <!--  Commented for not fitting to narrow UI  -->

@@ -90,10 +90,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
-  <data name="PlayCommandButton.Label" xml:space="preserve">
+  <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>Play</value>
   </data>
-  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
@@ -123,7 +123,7 @@
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>Currently, there is no music that is playing</value>
   </data>
-  <data name="RemoveCommandButton.Label" xml:space="preserve">
+  <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>Remove</value>
   </data>
   <data name="AddToPlaylist" xml:space="preserve">
@@ -189,7 +189,7 @@
   <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
     <value>No download items</value>
   </data>
-  <data name="DownloadAlbumCommandButton.Label" xml:space="preserve">
+  <data name="DownloadAlbumCommandButton.Text" xml:space="preserve">
     <value>Download album</value>
   </data>
   <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
