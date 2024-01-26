@@ -40,6 +40,12 @@ sealed partial class App : Application
         e.Handled = true;
 
         Exception exception = e.Exception;
+
+        if (exception is null)
+        {
+            return;
+        }
+
         ToastContent toastContent = new()
         {
             Visual = new ToastVisual()
@@ -70,29 +76,21 @@ sealed partial class App : Application
 
         StorageFolder temporaryFolder = ApplicationData.Current.TemporaryFolder;
         StorageFolder logFolder = await temporaryFolder.CreateFolderAsync("Log", CreationCollisionOption.OpenIfExists);
-        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.UtcNow:yyyy-MM-dd HH,mm,ss.fff}.log");
+        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.Now:yyyy-MM-dd_HH.mm.ss.fff}.log");
 
-        using StorageStreamTransaction transaction = await logFile.OpenTransactedWriteAsync();
-        using Stream target = transaction.Stream.AsStreamForWrite();
-        target.Seek(0, SeekOrigin.Begin);
-
-        using StreamWriter writer = new(target);
-        await writer.WriteAsync($"""
+        await FileIO.WriteTextAsync(logFile, $"""
             [Exception Detail]
-            {exception.GetType().Name}: {exception.Message}
+            {exception.GetType()?.Name}: {exception.Message}
             ======
             Source: {exception.Source}
             HResult: {exception.HResult}
             TargetSite Info:
-                Name: {exception?.TargetSite.Name}
-                Module Name: {exception?.TargetSite?.Module.Name}
-                DeclaringType: {exception?.TargetSite?.DeclaringType.Name}
+                Name: {exception.TargetSite?.Name}
+                Module Name: {exception.TargetSite?.Module?.Name}
+                DeclaringType: {exception.TargetSite?.DeclaringType?.Name}
             StackTrace:
             {exception.StackTrace}
             """);
-        await writer.FlushAsync();
-
-        await transaction.CommitAsync();
     }
 
     /// <summary>

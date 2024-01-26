@@ -136,7 +136,6 @@ public static class DownloadService
         {
             TranscodeDownloadedItem = false;
             IsSupportCommonTranscode = false;
-            TranscodeEncoderInfo = null;
         }
 
         if (SettingsHelper.TryGet(CommonValues.MusicTranscodeQualitySettingsKey, out string qualityString) && Enum.TryParse(qualityString, out AudioEncodingQuality quality) && quality != AudioEncodingQuality.Auto)
