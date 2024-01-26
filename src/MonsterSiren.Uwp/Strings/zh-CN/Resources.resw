@@ -306,4 +306,7 @@
   <data name="AudioQualityLow" xml:space="preserve">
     <value>低（96 kbps 及以上）</value>
   </data>
+  <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
+    <value>转码后保留原始 WAV 文件</value>
+  </data>
 </root>

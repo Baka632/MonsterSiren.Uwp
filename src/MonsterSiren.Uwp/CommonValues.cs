@@ -30,6 +30,7 @@ internal static class CommonValues
     public const string MusicTranscodeDownloadedItemSettingsKey = "Download_TranscodeDownloadedItem_SettingsKey";
     public const string MusicTranscodeEncoderGuidSettingsKey = "Download_TranscodeEncoderGuid_SettingsKey";
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
+    public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
     #endregion
 
     #region Data Package Type

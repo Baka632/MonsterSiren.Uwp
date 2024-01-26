@@ -19,6 +19,7 @@ public static class DownloadService
 {
     private static bool _isInitialized;
     private static string _downloadPath;
+    private static bool _keepWavFileAfterTranscode;
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
     private static CodecInfo _transcodeEncoderInfo;
@@ -94,6 +95,20 @@ public static class DownloadService
     }
 
     /// <summary>
+    /// 指示在转码后是否保留原始 WAV 文件的值
+    /// </summary>
+    public static bool KeepWavFileAfterTranscode
+    {
+        get => _keepWavFileAfterTranscode;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicTranscodeKeepWavFileSettingsKey, value);
+            _keepWavFileAfterTranscode = value;
+        }
+    }
+
+
+    /// <summary>
     /// 获取下载列表
     /// </summary>
     public static ObservableCollection<DownloadItem> DownloadList { get; } = [];
@@ -119,6 +134,9 @@ public static class DownloadService
 
         DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
                         || dlLyric;
+
+        KeepWavFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
+                                    && keepWav;
 
         if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> commonEncoders))
         {
@@ -185,19 +203,6 @@ public static class DownloadService
         _isInitialized = true;
     }
 
-    private static async Task<bool> IsFolderExist(string dlPath)
-    {
-        try
-        {
-            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(dlPath);
-            return folder != null;
-        }
-        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException or ArgumentException)
-        {
-            return false;
-        }
-    }
-
     /// <summary>
     /// 下载单个歌曲
     /// </summary>
@@ -220,11 +225,11 @@ public static class DownloadService
         {
             char[] invalidFileChars = Path.GetInvalidFileNameChars();
             string musicName = songDetail.Name;
-            foreach (char item in invalidFileChars)
+            foreach (char invalidChar in invalidFileChars)
             {
-                if (musicName.Contains(item))
+                if (musicName.Contains(invalidChar))
                 {
-                    musicName = musicName.Replace(item.ToString(), string.Empty);
+                    musicName = musicName.Replace(invalidChar.ToString(), string.Empty);
                 }
             }
 
@@ -315,7 +320,11 @@ public static class DownloadService
                 
                 await TranscodeFile(sourceFile, destinationFile, profile);
                 await WriteTagsToFile(destinationFile);
-                await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                if (KeepWavFileAfterTranscode != true)
+                {
+                    await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
             }
             else
             {
@@ -466,6 +475,19 @@ public static class DownloadService
         else
         {
             throw new InvalidOperationException($"转码操作失败，原因：{prepareOp.FailureReason}");
+        }
+    }
+
+    private static async Task<bool> IsFolderExist(string dlPath)
+    {
+        try
+        {
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(dlPath);
+            return folder != null;
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException or ArgumentException)
+        {
+            return false;
         }
     }
 }
