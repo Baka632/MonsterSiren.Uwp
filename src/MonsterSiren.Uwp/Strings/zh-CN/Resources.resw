@@ -235,7 +235,7 @@
     <value>选取</value>
   </data>
   <data name="SettingsPage_DownloadFolderRedirected.Message" xml:space="preserve">
-    <value>由于应用无法使用先前指定的文件夹，因此下载路径已被更改为默认路径</value>
+    <value>由于应用无法使用先前指定的文件夹，因此下载路径已被更改为默认路径。</value>
   </data>
   <data name="LyricFile" xml:space="preserve">
     <value>歌词文件</value>
@@ -275,5 +275,35 @@
   </data>
   <data name="AppVersion_WithPlaceholder" xml:space="preserve">
     <value>版本：{0}</value>
+  </data>
+  <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
+    <value>由于此设备不支持常用的编码器，因此该设置已被禁用。</value>
+  </data>
+  <data name="RepoAddress.Text" xml:space="preserve">
+    <value>仓库地址</value>
+  </data>
+  <data name="SettingsPage_SelectTranscoder.Text" xml:space="preserve">
+    <value>转码格式</value>
+  </data>
+  <data name="Mp3Format" xml:space="preserve">
+    <value>MP3 格式</value>
+  </data>
+  <data name="FlacFormat" xml:space="preserve">
+    <value>FLAC 格式</value>
+  </data>
+  <data name="SettingsPage_TranscodeConfig.Text" xml:space="preserve">
+    <value>转码设置</value>
+  </data>
+  <data name="SettingsPage_SelectTranscodeQuality.Text" xml:space="preserve">
+    <value>转码质量</value>
+  </data>
+  <data name="AudioQualityHigh" xml:space="preserve">
+    <value>高（192 kbps 及以上）</value>
+  </data>
+  <data name="AudioQualityMedium" xml:space="preserve">
+    <value>中（128 kbps 及以上）</value>
+  </data>
+  <data name="AudioQualityLow" xml:space="preserve">
+    <value>低（96 kbps 及以上）</value>
   </data>
 </root>

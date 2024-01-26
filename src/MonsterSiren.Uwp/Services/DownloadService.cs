@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
+using Windows.Media.Core;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Networking.BackgroundTransfer;
@@ -20,6 +21,8 @@ public static class DownloadService
     private static string _downloadPath;
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
+    private static CodecInfo _transcodeEncoderInfo;
+    private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static readonly BackgroundDownloader Downloader = new()
     {
         CostPolicy = BackgroundTransferCostPolicy.Always
@@ -51,6 +54,9 @@ public static class DownloadService
         }
     }
 
+    /// <summary>
+    /// 指示是否转码下载项的值
+    /// </summary>
     public static bool TranscodeDownloadedItem
     {
         get => _transcodeDownloadedItem;
@@ -61,6 +67,31 @@ public static class DownloadService
         }
     }
 
+    /// <summary>
+    /// 获取或设置转码操作要使用的编码器信息
+    /// </summary>
+    public static CodecInfo TranscodeEncoderInfo
+    {
+        get => _transcodeEncoderInfo;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicTranscodeEncoderGuidSettingsKey, value.Subtypes[0]);
+            _transcodeEncoderInfo = value;
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置转码质量
+    /// </summary>
+    public static AudioEncodingQuality TranscodeQuality
+    {
+        get => _transcodeQuality;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicTranscodeQualitySettingsKey, value.ToString());
+            _transcodeQuality = value;
+        }
+    }
 
     /// <summary>
     /// 获取下载列表
@@ -71,6 +102,10 @@ public static class DownloadService
     /// 指示应用是否因某种原因而改变下载文件夹的默认路径
     /// </summary>
     public static bool DownloadPathRedirected { get; private set; }
+    /// <summary>
+    /// 指示设备是否支持常用的转码操作
+    /// </summary>
+    public static bool IsSupportCommonTranscode { get; private set; }
 
     /// <summary>
     /// 初始化下载服务
@@ -85,11 +120,35 @@ public static class DownloadService
         DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
                         || dlLyric;
 
-        TranscodeDownloadedItem = !SettingsHelper.TryGet(CommonValues.MusicTranscodeDownloadedItemSettingsKey, out bool transcodeItem)
-            || transcodeItem;
+        if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> commonEncoders))
+        {
+            TranscodeEncoderInfo = SettingsHelper.TryGet(CommonValues.MusicTranscodeEncoderGuidSettingsKey, out string encoderGuid) && commonEncoders.Any(info => CodecQueryHelper.IsCodecInfoHasTargetEncoder(info, encoderGuid))
+                ? commonEncoders.First(info => CodecQueryHelper.IsCodecInfoHasTargetEncoder(info, encoderGuid))
+                : commonEncoders.First();
 
+            TranscodeDownloadedItem = SettingsHelper.TryGet(CommonValues.MusicTranscodeDownloadedItemSettingsKey, out bool transcodeItem)
+                ? transcodeItem
+                : true;
 
-        if (SettingsHelper.TryGet(CommonValues.MusicDownloadPathSettingsKey, out string dlPath) && Directory.Exists(dlPath))
+            IsSupportCommonTranscode = true;
+        }
+        else
+        {
+            TranscodeDownloadedItem = false;
+            IsSupportCommonTranscode = false;
+            TranscodeEncoderInfo = null;
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.MusicTranscodeQualitySettingsKey, out string qualityString) && Enum.TryParse(qualityString, out AudioEncodingQuality quality) && quality != AudioEncodingQuality.Auto)
+        {
+            TranscodeQuality = quality;
+        }
+        else
+        {
+            TranscodeQuality = AudioEncodingQuality.High;
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.MusicDownloadPathSettingsKey, out string dlPath) && await IsFolderExist(dlPath))
         {
             DownloadPath = dlPath;
         }
@@ -125,6 +184,19 @@ public static class DownloadService
         }
 
         _isInitialized = true;
+    }
+
+    private static async Task<bool> IsFolderExist(string dlPath)
+    {
+        try
+        {
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(dlPath);
+            return folder != null;
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException or ArgumentException)
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -236,10 +308,12 @@ public static class DownloadService
         {
             if (TranscodeDownloadedItem)
             {
-                MediaEncodingProfile profile = MediaEncodingProfile.CreateMp3(AudioEncodingQuality.High);
+                MediaEncodingProfile profile = GetEncodingProfile();
+
                 StorageFolder destinationFolder = await sourceFile.GetParentAsync();
                 string desiredName = sourceFile.Name.Replace(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower()}");
                 StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
+                
                 await TranscodeFile(sourceFile, destinationFile, profile);
                 await WriteTagsToFile(destinationFile);
                 await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
@@ -248,6 +322,39 @@ public static class DownloadService
             {
                 await WriteTagsToFile(sourceFile);
             }
+        }
+    }
+
+    private static MediaEncodingProfile GetEncodingProfile()
+    {
+        if (TranscodeEncoderInfo is null)
+        {
+            throw new InvalidOperationException($"{TranscodeEncoderInfo} 为 null");
+        }
+        else if (TranscodeEncoderInfo.Kind != CodecKind.Audio || TranscodeEncoderInfo.Category != CodecCategory.Encoder)
+        {
+            throw new InvalidOperationException($"{TranscodeEncoderInfo} 不是音频编码器");
+        }
+        else if (TranscodeQuality == AudioEncodingQuality.Auto)
+        {
+            throw new InvalidOperationException($"{TranscodeQuality} 被设为 '{AudioEncodingQuality.Auto}'");
+        }
+
+        IReadOnlyList<string> subtypes = TranscodeEncoderInfo.Subtypes;
+        if (subtypes.Any(IsTargetEncoder(CodecSubtypes.AudioFormatMP3)))
+        {
+            return MediaEncodingProfile.CreateMp3(TranscodeQuality);
+        }
+        else if (subtypes.Any(IsTargetEncoder(CodecSubtypes.AudioFormatFlac)))
+        {
+            return MediaEncodingProfile.CreateFlac(TranscodeQuality);
+        }
+
+        throw new NotImplementedException("尚未实现对目标编码器的支持");
+
+        static Func<string, bool> IsTargetEncoder(string targetEncoderGuid)
+        {
+            return encoderGuid => encoderGuid == targetEncoderGuid;
         }
     }
 
@@ -364,6 +471,7 @@ public static class DownloadService
     }
 }
 
+// Source: https://github.com/HyPlayer/HyPlayer/blob/8f7cd2c26c4176353a95ea37e671cc710a7e4dd3/HyPlayer/HyPlayControl/DownloadManager.cs#L552
 internal class UwpStorageFileAbstraction : TagLib.File.IFileAbstraction, IDisposable
 {
     private bool disposedValue;

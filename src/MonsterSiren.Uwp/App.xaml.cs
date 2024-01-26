@@ -163,22 +163,6 @@ sealed partial class App : Application
 
     private void LoadResourceDictionaries()
     {
-        XamlControlsResources muxcStyle = new();
-        Resources.MergedDictionaries.Add(muxcStyle);
-
-        // 以下的资源字典依赖于 WinUI 2 中的样式，因此必须在这里加载
-        ResourceDictionary mediaControlToggleButtonStyle = new()
-        {
-            Source = new Uri("ms-appx:///ResourcesDictionaries/MediaControlToggleButton.xaml")
-        };
-        ResourceDictionary themedSliderStyle = new()
-        {
-            Source = new Uri("ms-appx:///ResourcesDictionaries/ThemedSlider.xaml")
-        };
-
-        Resources.MergedDictionaries.Add(mediaControlToggleButtonStyle);
-        Resources.MergedDictionaries.Add(themedSliderStyle);
-
         if (EnvironmentHelper.IsWindowsMobile)
         {
             ResourceDictionary win10AppBackgroundStyle = new()

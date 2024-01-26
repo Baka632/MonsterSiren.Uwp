@@ -7,7 +7,16 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+            <converters:AudioGuidToStringConverter x:Key="AudioGuidToStringConverter" />
+            <converters:AudioEncodingQualityToStringConverter x:Key="AudioEncodingQualityToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
+
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
+                <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
+				<ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

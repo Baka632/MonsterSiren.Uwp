@@ -148,7 +148,7 @@
     <value>Download quene</value>
   </data>
   <data name="SettingsPage_PathConfig.Text" xml:space="preserve">
-    <value>Path</value>
+    <value>Path options</value>
   </data>
   <data name="SettingsPage_DownloadPath.Text" xml:space="preserve">
     <value>Download path</value>
@@ -157,7 +157,7 @@
     <value>Pick</value>
   </data>
   <data name="SettingsPage_DownloadFolderRedirected.Message" xml:space="preserve">
-    <value>App cannot use the folder selected before, so the download path was set to default path</value>
+    <value>App cannot use the folder selected before, so the download path was set to default path.</value>
   </data>
   <data name="LyricFile" xml:space="preserve">
     <value>Lyric file</value>
@@ -197,5 +197,35 @@
   </data>
   <data name="AppVersion_WithPlaceholder" xml:space="preserve">
     <value>Version: {0}</value>
+  </data>
+  <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
+    <value>This device does not support most common encoders, so this option is disabled.</value>
+  </data>
+  <data name="RepoAddress.Text" xml:space="preserve">
+    <value>Repo address</value>
+  </data>
+  <data name="SettingsPage_SelectTranscoder.Text" xml:space="preserve">
+    <value>Transcode format</value>
+  </data>
+  <data name="Mp3Format" xml:space="preserve">
+    <value>Format MP3</value>
+  </data>
+  <data name="FlacFormat" xml:space="preserve">
+    <value>Format FLAC</value>
+  </data>
+  <data name="SettingsPage_TranscodeConfig.Text" xml:space="preserve">
+    <value>Transcode options</value>
+  </data>
+  <data name="SettingsPage_SelectTranscodeQuality.Text" xml:space="preserve">
+    <value>Transcode Quality</value>
+  </data>
+  <data name="AudioQualityHigh" xml:space="preserve">
+    <value>High (192 kbps and above)</value>
+  </data>
+  <data name="AudioQualityMedium" xml:space="preserve">
+    <value>Medium (128 kbps and above)</value>
+  </data>
+  <data name="AudioQualityLow" xml:space="preserve">
+    <value>Low (96 kbps and above)</value>
   </data>
 </root>
