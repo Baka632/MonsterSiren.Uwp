@@ -14,6 +14,10 @@ public enum DownloadItemState
     /// </summary>
     Transcoding,
     /// <summary>
+    /// 写入音乐信息中
+    /// </summary>
+    WritingTag,
+    /// <summary>
     /// 已暂停
     /// </summary>
     Paused,

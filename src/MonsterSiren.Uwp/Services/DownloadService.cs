@@ -284,6 +284,7 @@ public static class DownloadService
             {
                 await operation.ResultFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
+            await RemoveFromList(item);
         }
         catch (Exception ex)
         {
@@ -302,6 +303,20 @@ public static class DownloadService
 
             item.ErrorException = exception;
             item.State = DownloadItemState.Error;
+        }
+        finally
+        {
+            // 防止临时文件残留
+
+            StorageFile musicFile = (StorageFile)operation.ResultFile;
+            string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
+            string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
+
+            if (File.Exists(infoFilePath))
+            {
+                StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
         }
     }
 
@@ -324,7 +339,7 @@ public static class DownloadService
                 StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
 
                 await TranscodeFile(sourceFile, destinationFile, profile, dlItem);
-                await WriteTagsToFile(destinationFile);
+                await WriteTagsToFile(destinationFile, dlItem);
 
                 if (KeepWavFileAfterTranscode != true)
                 {
@@ -333,7 +348,7 @@ public static class DownloadService
             }
             else
             {
-                await WriteTagsToFile(sourceFile);
+                await WriteTagsToFile(sourceFile, dlItem);
             }
         }
 
@@ -373,7 +388,7 @@ public static class DownloadService
         }
     }
 
-    private static async Task WriteTagsToFile(StorageFile musicFile)
+    private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem)
     {
         if (Path.GetExtension(musicFile.Name) == ".lrc")
         {
@@ -393,6 +408,8 @@ public static class DownloadService
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 return;
             }
+
+            dlItem.State = DownloadItemState.WritingTag;
 
             using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
             SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);

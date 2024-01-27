@@ -118,6 +118,7 @@
                                     Grid.Column="1"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Center"
+                                    IsIndeterminate="{x:Bind local:DownloadPage.IsWritingTag(State), Mode=OneWay}"
                                     Maximum="1"
                                     ShowError="{x:Bind local:DownloadPage.IsError(State), Mode=OneWay}"
                                     ShowPaused="{x:Bind local:DownloadPage.IsDownloadItemPaused(State), Mode=OneWay}"

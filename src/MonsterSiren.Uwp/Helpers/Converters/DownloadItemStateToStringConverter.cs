@@ -10,6 +10,7 @@ public sealed class DownloadItemStateToStringConverter : IValueConverter
             {
                 DownloadItemState.Downloading => "DownloadItemState_Downloading".GetLocalized(),
                 DownloadItemState.Transcoding => "DownloadItemState_Transcoding".GetLocalized(),
+                DownloadItemState.WritingTag => "DownloadItemState_WritingTag".GetLocalized(),
                 DownloadItemState.Paused => "DownloadItemState_Paused".GetLocalized(),
                 DownloadItemState.Done => "DownloadItemState_Done".GetLocalized(),
                 DownloadItemState.Error => "DownloadItemState_Error".GetLocalized(),

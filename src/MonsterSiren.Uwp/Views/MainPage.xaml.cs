@@ -408,4 +408,9 @@ public sealed partial class MainPage : Page
             }
         }
     }
+
+    internal static Visibility ShowDownloadItemInfoBadge(int count)
+    {
+        return XamlHelper.ToVisibility(count > 0);
+    }
 }

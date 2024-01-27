@@ -3,14 +3,16 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Win16299="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
+    xmlns:app="using:MonsterSiren.Uwp"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
-    xmlns:local="using:MonsterSiren.Uwp"
+    xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.UI.Xaml.Media"
     xmlns:msrControls="using:MonsterSiren.Uwp.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
@@ -74,7 +76,7 @@
                 Margin="0,8,0,0"
                 VerticalAlignment="Center"
                 Style="{StaticResource CaptionTextBlockStyle}"
-                Text="{x:Bind local:App.AppDisplayName}">
+                Text="{x:Bind app:App.AppDisplayName}">
                 <TextBlock.RenderTransform>
                     <TranslateTransform />
                 </TextBlock.RenderTransform>
@@ -158,6 +160,9 @@
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Download" />
                     </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.InfoBadge>
+                        <muxc:InfoBadge Visibility="{x:Bind local:MainPage.ShowDownloadItemInfoBadge(services:DownloadService.DownloadList.Count), Mode=OneWay}" Value="{x:Bind services:DownloadService.DownloadList.Count, Mode=OneWay}" />
+                    </muxc:NavigationViewItem.InfoBadge>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.FooterMenuItems>
 

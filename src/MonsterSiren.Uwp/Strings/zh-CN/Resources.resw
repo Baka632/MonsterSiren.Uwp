@@ -327,4 +327,7 @@
   <data name="DownloadItemState_Canceled" xml:space="preserve">
     <value>已取消</value>
   </data>
+  <data name="DownloadItemState_WritingTag" xml:space="preserve">
+    <value>写入音乐信息...</value>
+  </data>
 </root>

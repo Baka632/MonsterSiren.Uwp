@@ -249,4 +249,7 @@
   <data name="DownloadItemState_Canceled" xml:space="preserve">
     <value>Canceled</value>
   </data>
+  <data name="DownloadItemState_WritingTag" xml:space="preserve">
+    <value>Writing music info...</value>
+  </data>
 </root>

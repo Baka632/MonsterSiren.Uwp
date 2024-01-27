@@ -66,4 +66,9 @@ public sealed partial class DownloadPage : Page
     {
         return state == DownloadItemState.Error;
     }
+    
+    internal static bool IsWritingTag(DownloadItemState state)
+    {
+        return state == DownloadItemState.WritingTag;
+    }
 }
