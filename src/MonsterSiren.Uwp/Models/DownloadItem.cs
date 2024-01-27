@@ -16,20 +16,20 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
-    /// 表示当前的下载操作
+    /// 获取表示当前的下载操作的 <see cref="DownloadOperation"/>
     /// </summary>
     public DownloadOperation Operation { get; init; }
     /// <summary>
-    /// 当前下载项的名称
+    /// 当前下载项的显示名称
     /// </summary>
-    public string Name { get; init; }
+    public string DisplayName { get; init; }
     /// <summary>
-    /// 表示指示下载操作是否应当取消的 <see cref="CancellationTokenSource"/>
+    /// 获取指示下载操作是否应当取消的 <see cref="CancellationTokenSource"/>
     /// </summary>
     public CancellationTokenSource CancelToken { get; init; }
 
     /// <summary>
-    /// 表示下载或转码操作的进度
+    /// 获取下载或转码操作的进度
     /// </summary>
     public double Progress
     {
@@ -42,7 +42,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// 表示下载操作的状态
+    /// 获取下载操作的状态
     /// </summary>
     public DownloadItemState State
     {
@@ -51,34 +51,24 @@ public sealed record DownloadItem : INotifyPropertyChanged
         {
             _state = value;
             OnPropertiesChanged();
-            OnPropertiesChanged(nameof(IsPaused));
         }
     }
 
     /// <summary>
-    /// 导致下载操作出现错误的异常
+    /// 获取导致下载操作出现错误的异常
     /// </summary>
     public Exception ErrorException { get; internal set; }
-
-    [Obsolete("Use State property instead")]
-    /// <summary>
-    /// 指示下载操作是否暂停的值
-    /// </summary>
-    public bool IsPaused
-    {
-        get => State == DownloadItemState.Paused;
-    }
 
     /// <summary>
     /// 使用指定的参数构造 <see cref="DownloadItem"/> 的新实例
     /// </summary>
     /// <param name="op">表示下载操作的 <see cref="DownloadOperation"/></param>
-    /// <param name="name">下载项的名称</param>
+    /// <param name="displayName">下载项的显示名称</param>
     /// <param name="cancelToken">用于取消下载操作的 <see cref="CancellationTokenSource"/></param>
-    public DownloadItem(DownloadOperation op, string name, CancellationTokenSource cancelToken)
+    public DownloadItem(DownloadOperation op, string displayName, CancellationTokenSource cancelToken)
     {
         Operation = op;
-        Name = name;
+        DisplayName = displayName;
         CancelToken = cancelToken;
     }
 

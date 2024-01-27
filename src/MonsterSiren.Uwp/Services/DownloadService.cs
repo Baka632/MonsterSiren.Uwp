@@ -257,10 +257,10 @@ public static class DownloadService
         });
     }
 
-    private static async Task HandleDownloadOperation(DownloadOperation operation, string name, bool isNew)
+    private static async Task HandleDownloadOperation(DownloadOperation operation, string displayName, bool isNew)
     {
         CancellationTokenSource cts = new();
-        DownloadItem item = new(operation, name, cts);
+        DownloadItem item = new(operation, displayName, cts);
         await AddToList(item);
 
         try

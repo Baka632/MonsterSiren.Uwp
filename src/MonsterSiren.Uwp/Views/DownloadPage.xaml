@@ -101,7 +101,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <TextBlock Margin="0,0,0,5" Text="{x:Bind Name}" />
+                            <TextBlock Margin="0,0,0,5" Text="{x:Bind DisplayName}" />
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
