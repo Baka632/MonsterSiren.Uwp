@@ -422,7 +422,7 @@ public static class DownloadService
             try
             {
                 List<SongInfo> songs = albumDetail.Songs.ToList();
-                file.Tag.Performers = songDetail.Artists.ToArray();
+                file.Tag.Performers = songDetail.Artists.Any() ? songDetail.Artists.ToArray() : ["MSR".GetLocalized()];
                 file.Tag.Title = songDetail.Name;
                 file.Tag.Album = albumDetail.Name;
                 file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()];
