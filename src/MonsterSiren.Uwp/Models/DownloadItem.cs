@@ -12,6 +12,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
 {
     private double _progress;
     private DownloadItemState _state;
+    private Exception _errorException;
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -57,7 +58,15 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// <summary>
     /// 获取导致下载操作出现错误的异常
     /// </summary>
-    public Exception ErrorException { get; internal set; }
+    public Exception ErrorException
+    {
+        get => _errorException;
+        internal set
+        {
+            _errorException = value;
+            OnPropertiesChanged();
+        }
+    }
 
     /// <summary>
     /// 使用指定的参数构造 <see cref="DownloadItem"/> 的新实例

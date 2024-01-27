@@ -24,7 +24,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void CancelOrRemoveDownload(DownloadItem item)
     {
-        if (item.State == DownloadItemState.Canceled)
+        if (item.State is DownloadItemState.Canceled or DownloadItemState.Error or DownloadItemState.Done)
         {
             DownloadService.DownloadList.Remove(item);
         }

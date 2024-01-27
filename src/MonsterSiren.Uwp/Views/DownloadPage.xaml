@@ -114,11 +114,11 @@
                                     VerticalAlignment="Center"
                                     Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                     Text="{x:Bind State, Converter={StaticResource DownloadItemStateToStringConverter}, Mode=OneWay}" />
-                                <ProgressBar
+                                <muxc:ProgressBar
                                     Grid.Column="1"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Center"
-                                    IsIndeterminate="{x:Bind local:DownloadPage.IsWritingTag(State), Mode=OneWay}"
+                                    IsIndeterminate="{x:Bind local:DownloadPage.IsDisplayAsIndeterminate(State), Mode=OneWay}"
                                     Maximum="1"
                                     ShowError="{x:Bind local:DownloadPage.IsError(State), Mode=OneWay}"
                                     ShowPaused="{x:Bind local:DownloadPage.IsDownloadItemPaused(State), Mode=OneWay}"
@@ -137,7 +137,31 @@
                             </StackPanel.Resources>
 
                             <Button
+                                x:Name="ExceptionViewButton"
                                 Margin="0,0,5,0"
+                                x:Load="{x:Bind helpers:XamlHelper.IsNotNull(ErrorException), Mode=OneWay}">
+                                <FontIcon Glyph="&#xE783;" />
+
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <ScrollViewer
+                                            MaxWidth="400"
+                                            MaxHeight="500"
+                                            Padding="0,0,5,10"
+                                            HorizontalScrollBarVisibility="Auto"
+                                            VerticalScrollBarVisibility="Auto">
+                                            <TextBlock IsTextSelectionEnabled="True">
+                                                <Run Text="{x:Bind ErrorException.ToString(), Mode=OneWay}" />
+                                            </TextBlock>
+                                        </ScrollViewer>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <Button
+                                x:Name="PauseOrResumeButton"
+                                Margin="0,0,5,0"
+                                x:Load="{x:Bind helpers:XamlHelper.IsNull(ErrorException), Mode=OneWay}"
                                 Command="{Binding ElementName=Self, Path=ViewModel.PauseOrResumeDownloadCommand}"
                                 CommandParameter="{x:Bind}"
                                 IsEnabled="{x:Bind local:DownloadPage.IsPausableOrResumable(State), Mode=OneWay}">
