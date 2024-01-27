@@ -225,19 +225,20 @@ public static class DownloadService
         {
             char[] invalidFileChars = Path.GetInvalidFileNameChars();
             string musicName = songDetail.Name;
+            string musicFileName = $"{songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()} - {musicName}";
             foreach (char invalidChar in invalidFileChars)
             {
-                if (musicName.Contains(invalidChar))
+                if (musicFileName.Contains(invalidChar))
                 {
-                    musicName = musicName.Replace(invalidChar.ToString(), string.Empty);
+                    musicFileName = musicFileName.Replace(invalidChar.ToString(), string.Empty);
                 }
             }
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
+            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
 
-            StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicName}.json.tmp", CreationCollisionOption.ReplaceExisting);
+            StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", CreationCollisionOption.ReplaceExisting);
             SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
             Stream infoFileStream = await infoFile.OpenStreamForWriteAsync();
             infoFileStream.Seek(0, SeekOrigin.Begin);
@@ -249,7 +250,7 @@ public static class DownloadService
 
             if (DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicName}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
+                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
                 DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
                 await HandleDownloadOperation(lrcDownload, $"{musicName} - {"LyricFile".GetLocalized()}", true);
             }
