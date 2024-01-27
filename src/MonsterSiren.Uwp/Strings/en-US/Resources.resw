@@ -231,4 +231,22 @@
   <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
     <value>Preserve original WAV file after transcode</value>
   </data>
+  <data name="DownloadItemState_Downloading" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="DownloadItemState_Transcoding" xml:space="preserve">
+    <value>Transcoding</value>
+  </data>
+  <data name="DownloadItemState_Paused" xml:space="preserve">
+    <value>Pausing</value>
+  </data>
+  <data name="DownloadItemState_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="DownloadItemState_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="DownloadItemState_Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
 </root>

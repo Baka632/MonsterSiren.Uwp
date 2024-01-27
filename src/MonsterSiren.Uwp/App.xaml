@@ -7,6 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+            <converters:DownloadItemStateToStringConverter x:Key="DownloadItemStateToStringConverter" />
             <converters:AudioGuidToStringConverter x:Key="AudioGuidToStringConverter" />
             <converters:AudioEncodingQualityToStringConverter x:Key="AudioEncodingQualityToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />

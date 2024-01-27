@@ -138,6 +138,7 @@
     <Compile Include="Helpers\CodecQueryHelper.cs" />
     <Compile Include="Helpers\Converters\AudioEncodingQualityToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioGuidToStringConverter.cs" />
+    <Compile Include="Helpers\Converters\DownloadItemStateToStringConverter.cs" />
     <Compile Include="Helpers\FileCacheHelper.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Helpers\SongDetailExtensions.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
+    <Compile Include="Models\DownloadItemState.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />

@@ -11,7 +11,8 @@ namespace MonsterSiren.Uwp.Models;
 public sealed record DownloadItem : INotifyPropertyChanged
 {
     private double _progress;
-    private bool _IsPaused;
+    private DownloadItemState _state;
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
@@ -28,7 +29,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public CancellationTokenSource CancelToken { get; init; }
 
     /// <summary>
-    /// 表示下载操作的进度
+    /// 表示下载或转码操作的进度
     /// </summary>
     public double Progress
     {
@@ -41,16 +42,31 @@ public sealed record DownloadItem : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// 表示下载操作的状态
+    /// </summary>
+    public DownloadItemState State
+    {
+        get => _state;
+        internal set
+        {
+            _state = value;
+            OnPropertiesChanged();
+            OnPropertiesChanged(nameof(IsPaused));
+        }
+    }
+
+    /// <summary>
+    /// 导致下载操作出现错误的异常
+    /// </summary>
+    public Exception ErrorException { get; internal set; }
+
+    [Obsolete("Use State property instead")]
+    /// <summary>
     /// 指示下载操作是否暂停的值
     /// </summary>
     public bool IsPaused
     {
-        get => _IsPaused;
-        set
-        {
-            _IsPaused = value;
-            OnPropertiesChanged();
-        }
+        get => State == DownloadItemState.Paused;
     }
 
     /// <summary>
@@ -72,7 +88,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public void ResumeDownload()
     {
         Operation.Resume();
-        IsPaused = false;
+        State = DownloadItemState.Downloading;
     }
     
     /// <summary>
@@ -81,7 +97,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public void PauseDownload()
     {
         Operation.Pause();
-        IsPaused = true;
+        State = DownloadItemState.Paused;
     }
 
     /// <summary>
@@ -90,6 +106,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public void CancelDownload()
     {
         CancelToken.Cancel();
+        State = DownloadItemState.Canceled;
     }
 
     /// <summary>

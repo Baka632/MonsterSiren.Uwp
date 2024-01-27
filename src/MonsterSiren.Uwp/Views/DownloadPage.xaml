@@ -102,11 +102,27 @@
 
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <TextBlock Margin="0,0,0,5" Text="{x:Bind Name}" />
-                            <ProgressBar
-                                VerticalAlignment="Bottom"
-                                Maximum="1"
-                                ShowPaused="{x:Bind IsPaused, Mode=OneWay}"
-                                Value="{x:Bind Progress, Mode=OneWay}" />
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Margin="0,0,5,0"
+                                    VerticalAlignment="Center"
+                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                    Text="{x:Bind State, Converter={StaticResource DownloadItemStateToStringConverter}, Mode=OneWay}" />
+                                <ProgressBar
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Maximum="1"
+                                    ShowError="{x:Bind local:DownloadPage.IsError(State), Mode=OneWay}"
+                                    ShowPaused="{x:Bind local:DownloadPage.IsDownloadItemPaused(State), Mode=OneWay}"
+                                    Value="{x:Bind Progress, Mode=OneWay}" />
+                            </Grid>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -122,23 +138,24 @@
                             <Button
                                 Margin="0,0,5,0"
                                 Command="{Binding ElementName=Self, Path=ViewModel.PauseOrResumeDownloadCommand}"
-                                CommandParameter="{x:Bind}">
+                                CommandParameter="{x:Bind}"
+                                IsEnabled="{x:Bind local:DownloadPage.IsPausableOrResumable(State), Mode=OneWay}">
                                 <Grid>
                                     <FontIcon
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="Segoe MDL2 Assets"
                                         Glyph="&#xE102;"
-                                        Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPaused), Mode=OneWay}" />
+                                        Visibility="{x:Bind local:DownloadPage.IsDownloadItemPausedReturnVisibility(State), Mode=OneWay}" />
                                     <FontIcon
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="Segoe MDL2 Assets"
                                         Glyph="&#xE103;"
-                                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPaused), Mode=OneWay}" />
+                                        Visibility="{x:Bind local:DownloadPage.IsDownloadItemPausedReverseVisibility(State), Mode=OneWay}" />
                                 </Grid>
                             </Button>
-                            <Button Command="{Binding ElementName=Self, Path=ViewModel.CancelDownloadCommand}" CommandParameter="{x:Bind}">
+                            <Button Command="{Binding ElementName=Self, Path=ViewModel.CancelOrRemoveDownloadCommand}" CommandParameter="{x:Bind}">
                                 <SymbolIcon Symbol="Cancel" />
                             </Button>
                         </StackPanel>

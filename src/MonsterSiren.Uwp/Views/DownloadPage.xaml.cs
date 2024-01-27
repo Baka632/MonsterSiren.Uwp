@@ -37,4 +37,33 @@ public sealed partial class DownloadPage : Page
             ViewModel.IsDownloadListEmpty = true;
         }
     }
+
+    internal static bool IsDownloadItemPaused(DownloadItemState state)
+    {
+        return state == DownloadItemState.Paused;
+    }
+    
+    internal static Visibility IsDownloadItemPausedReturnVisibility(DownloadItemState state)
+    {
+        return XamlHelper.ToVisibility(state == DownloadItemState.Paused);
+    }
+    
+    internal static Visibility IsDownloadItemPausedReverseVisibility(DownloadItemState state)
+    {
+        return XamlHelper.ReverseVisibility(state == DownloadItemState.Paused);
+    }
+
+    internal static bool IsPausableOrResumable(DownloadItemState state)
+    {
+        return state switch
+        {
+            DownloadItemState.Downloading or DownloadItemState.Paused => true,
+            _ => false
+        };
+    }
+
+    internal static bool IsError(DownloadItemState state)
+    {
+        return state == DownloadItemState.Error;
+    }
 }

@@ -264,6 +264,7 @@ public static class DownloadService
 
         try
         {
+            item.State = DownloadItemState.Downloading;
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
             if (isNew)
             {
@@ -274,7 +275,8 @@ public static class DownloadService
                 await operation.AttachAsync().AsTask(cts.Token, progressCallback);
             }
 
-            await HandleDownloadedFile(operation);
+            await HandleDownloadedFile(item);
+            await RemoveFromList(item);
         }
         catch (TaskCanceledException)
         {
@@ -285,40 +287,43 @@ public static class DownloadService
         }
         catch (Exception ex)
         {
+            Exception exception;
             WebErrorStatus error = BackgroundTransferError.GetStatus(ex.HResult);
 
             if (error != WebErrorStatus.Unknown)
             {
                 HttpRequestException httpRequestException = new(error.ToString(), ex);
-                throw httpRequestException;
+                exception = httpRequestException;
             }
             else
             {
-                throw;
+                exception = ex;
             }
-        }
-        finally
-        {
-            await RemoveFromList(item);
+
+            item.ErrorException = exception;
+            item.State = DownloadItemState.Error;
         }
     }
 
-    private static async Task HandleDownloadedFile(DownloadOperation operation)
+    private static async Task HandleDownloadedFile(DownloadItem dlItem)
     {
-        StorageFile sourceFile = (StorageFile)operation.ResultFile;
+        StorageFile sourceFile = (StorageFile)dlItem.Operation.ResultFile;
         await sourceFile.RenameAsync(sourceFile.Name.Replace(".tmp", string.Empty), NameCollisionOption.ReplaceExisting);
 
         if (sourceFile.ContentType.Contains("audio"))
         {
             if (TranscodeDownloadedItem)
             {
+                dlItem.Progress = 0d;
+                dlItem.State = DownloadItemState.Transcoding;
+
                 MediaEncodingProfile profile = GetEncodingProfile();
 
                 StorageFolder destinationFolder = await sourceFile.GetParentAsync();
                 string desiredName = sourceFile.Name.Replace(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower()}");
                 StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
-                
-                await TranscodeFile(sourceFile, destinationFile, profile);
+
+                await TranscodeFile(sourceFile, destinationFile, profile, dlItem);
                 await WriteTagsToFile(destinationFile);
 
                 if (KeepWavFileAfterTranscode != true)
@@ -331,6 +336,8 @@ public static class DownloadService
                 await WriteTagsToFile(sourceFile);
             }
         }
+
+        dlItem.State = DownloadItemState.Done;
     }
 
     private static MediaEncodingProfile GetEncodingProfile()
@@ -463,14 +470,19 @@ public static class DownloadService
             : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
     }
 
-    private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, MediaEncodingProfile profile)
+    private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, MediaEncodingProfile profile, DownloadItem dlItem)
     {
         MediaTranscoder transcoder = new();
         PrepareTranscodeResult prepareOp = await transcoder.PrepareFileTranscodeAsync(sourceFile, destinationFile, profile);
 
         if (prepareOp.CanTranscode)
         {
-            await prepareOp.TranscodeAsync();
+            Progress<double> progressCallback = new(progress =>
+            {
+                dlItem.Progress = progress / 100;
+            });
+
+            await prepareOp.TranscodeAsync().AsTask(dlItem.CancelToken.Token, progressCallback);
         }
         else
         {

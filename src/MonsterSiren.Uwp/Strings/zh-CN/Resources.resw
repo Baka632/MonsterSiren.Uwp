@@ -309,4 +309,22 @@
   <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
     <value>转码后保留原始 WAV 文件</value>
   </data>
+  <data name="DownloadItemState_Downloading" xml:space="preserve">
+    <value>下载中</value>
+  </data>
+  <data name="DownloadItemState_Transcoding" xml:space="preserve">
+    <value>转码中</value>
+  </data>
+  <data name="DownloadItemState_Paused" xml:space="preserve">
+    <value>暂停中</value>
+  </data>
+  <data name="DownloadItemState_Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="DownloadItemState_Error" xml:space="preserve">
+    <value>出现错误</value>
+  </data>
+  <data name="DownloadItemState_Canceled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
 </root>

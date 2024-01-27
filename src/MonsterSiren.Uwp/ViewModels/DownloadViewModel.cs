@@ -11,20 +11,27 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void PauseOrResumeDownload(DownloadItem item)
     {
-        if (item.IsPaused)
+        if (item.State == DownloadItemState.Paused)
         {
             item.ResumeDownload();
         }
-        else
+        else if (item.State == DownloadItemState.Downloading)
         {
             item.PauseDownload();
         }
     }
     
     [RelayCommand]
-    private static void CancelDownload(DownloadItem item)
+    private static void CancelOrRemoveDownload(DownloadItem item)
     {
-        item.CancelDownload();
+        if (item.State == DownloadItemState.Canceled)
+        {
+            DownloadService.DownloadList.Remove(item);
+        }
+        else
+        {
+            item.CancelDownload();
+        }
     }
 
     [RelayCommand]
@@ -32,7 +39,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     {
         foreach (DownloadItem item in DownloadService.DownloadList)
         {
-            if (item.IsPaused != true)
+            if (item.State == DownloadItemState.Downloading)
             {
                 item.PauseDownload();
             }
@@ -44,7 +51,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     {
         foreach (DownloadItem item in DownloadService.DownloadList)
         {
-            if (item.IsPaused)
+            if (item.State == DownloadItemState.Paused)
             {
                 item.ResumeDownload();
             }
