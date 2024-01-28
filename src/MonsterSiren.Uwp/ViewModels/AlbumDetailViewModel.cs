@@ -141,6 +141,30 @@ public partial class AlbumDetailViewModel : ObservableObject
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
+    
+    [RelayCommand]
+    public async Task DownloadForCurrentAlbumDetail()
+    {
+        if (CurrentAlbumDetail.Songs is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                foreach (SongInfo item in CurrentAlbumDetail.Songs)
+                {
+                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
+                }
+            });
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
 
     [RelayCommand]
     public async Task PlayForSongInfo(SongInfo songInfo)
@@ -171,6 +195,23 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    public async Task DownloadForSongInfo(SongInfo songInfo)
+    {
+        try
+        {
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
             });
         }
         catch (HttpRequestException)

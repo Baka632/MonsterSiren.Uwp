@@ -117,12 +117,17 @@
             </Grid.Background>
         </Grid>
 
-        <TextBlock
-            x:Uid="NoMusicTextBlock"
+        <StackPanel
             Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            <FontIcon
+                Margin="0,0,0,5"
+                FontSize="30"
+                Glyph="&#xEC4F;" />
+            <TextBlock x:Uid="NoMusicTextBlock" FontSize="20" />
+        </StackPanel>
 
         <Grid
             x:Name="MusicInfoAndControlGrid"
@@ -344,40 +349,24 @@
                             FontFamily="Segoe MDL2 Assets"
                             FontSize="16">
                             <Button.Flyout>
-                                <Flyout>
-                                    <StackPanel>
-                                        <Button
-                                            Margin="0,5,0,5"
-                                            HorizontalAlignment="Stretch"
-                                            AccessKey="CL"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
-                                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
-                                                <TextBlock x:Uid="ClearPlaybackList" />
-                                            </StackPanel>
-                                        </Button>
-                                        <Button
-                                            Margin="0,5,0,5"
-                                            HorizontalAlignment="Stretch"
-                                            AccessKey="CP"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
-                                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <FontIcon
-                                                    Margin="0,0,5,0"
-                                                    FontFamily="Segoe MDL2 Assets"
-                                                    FontSize="16"
-                                                    Glyph="&#xE158;" />
-                                                <TextBlock x:Uid="EnterCompactMode" />
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
-                                </Flyout>
+                                <muxc:MenuBarItemFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="EnterCompactMode"
+                                        AccessKey="CP"
+                                        Command="{x:Bind ViewModel.ToCompactNowPlayingPageCommand}"
+                                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE158;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}" />
+                                    <MenuFlyoutItem
+                                        x:Uid="ClearPlaybackList"
+                                        AccessKey="CL"
+                                        Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
+                                        Icon="Cancel"
+                                        IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}" />
+                                </muxc:MenuBarItemFlyout>
                             </Button.Flyout>
                         </Button>
                     </StackPanel>
@@ -421,21 +410,19 @@
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
                     <controls:NowPlayingItemGrid Name="NowPlayingItemGrid" Background="Transparent">
                         <controls:NowPlayingItemGrid.ContextFlyout>
-                            <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft">
-                                <muxc:CommandBarFlyout.SecondaryCommands>
-                                    <AppBarButton
-                                        x:Uid="PlayCommandButton"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play"
-                                        Loaded="PlayCommandButtonLoaded" />
-                                    <AppBarSeparator />
-                                    <AppBarButton
-                                        x:Uid="RemoveCommandButton"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Delete"
-                                        Loaded="RemoveCommandButtonLoaded" />
-                                </muxc:CommandBarFlyout.SecondaryCommands>
-                            </muxc:CommandBarFlyout>
+                            <muxc:MenuBarItemFlyout>
+                                <MenuFlyoutItem
+                                    x:Uid="PlayCommandButton"
+                                    Command="{Binding ElementName=Self, Path=ViewModel.MoveToIndexCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    Icon="Play" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    x:Uid="RemoveCommandButton"
+                                    Command="{Binding ElementName=Self, Path=ViewModel.RemoveAtCommand}"
+                                    CommandParameter="{x:Bind}"
+                                    Icon="Delete" />
+                            </muxc:MenuBarItemFlyout>
                         </controls:NowPlayingItemGrid.ContextFlyout>
 
                         <!--  Commented for not fitting to narrow UI  -->

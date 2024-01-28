@@ -71,6 +71,11 @@ public sealed partial class NowPlayingPage : Page
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+
+        if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && isNowPlayingListExpanded == false)
+        {
+            ExpandOrFoldNowPlayingList();
+        }
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -120,18 +125,6 @@ public sealed partial class NowPlayingPage : Page
         {
             NowPlayingListView.ScrollIntoView(MusicService.CurrentMediaPlaybackItem);
         }
-    }
-
-    private void PlayCommandButtonLoaded(object sender, RoutedEventArgs e)
-    {
-        AppBarButton barButton = sender as AppBarButton;
-        barButton.Command = ViewModel.MoveToIndexCommand;
-    }
-
-    private void RemoveCommandButtonLoaded(object sender, RoutedEventArgs e)
-    {
-        AppBarButton barButton = sender as AppBarButton;
-        barButton.Command = ViewModel.RemoveAtCommand;
     }
 
     private void OnVolumeSliderPointerWheelChanged(object sender, PointerRoutedEventArgs e)

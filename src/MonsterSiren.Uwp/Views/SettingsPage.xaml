@@ -2,12 +2,258 @@
     x:Class="MonsterSiren.Uwp.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:app="using:MonsterSiren.Uwp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mediaCore="using:Windows.Media.Core"
+    xmlns:mediaProps="using:Windows.Media.MediaProperties"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:services="using:MonsterSiren.Uwp.Services"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
     mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="This is Settings Page" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Grid.Row="0"
+            Margin="0,0,0,5"
+            Orientation="Horizontal">
+            <FontIcon
+                Margin="0,0,10,0"
+                HorizontalAlignment="Center"
+                FontSize="40"
+                Glyph="&#xE115;" />
+            <TextBlock
+                x:Uid="SettingsTextBlock"
+                Margin="0,0,5,0"
+                HorizontalAlignment="Center"
+                FontSize="30" />
+        </StackPanel>
+
+        <Pivot Grid.Row="1" Margin="-10,0,0,0">
+            <PivotItem x:Uid="DownloadPivotItem">
+                <ScrollViewer Margin="0,5,0,0">
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <Style TargetType="muxc:Expander">
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsExpanded" Value="True" />
+                                <Setter Property="Margin" Value="0,0,0,10" />
+                            </Style>
+                            <Style BasedOn="{StaticResource RightAlignedCompactToggleSwitchStyle}" TargetType="ToggleSwitch" />
+                        </StackPanel.Resources>
+
+                        <muxc:Expander>
+                            <muxc:Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Margin="0,0,10,0" Glyph="&#xE159;" />
+                                    <TextBlock x:Uid="SettingsPage_PathConfig" />
+                                </StackPanel>
+                            </muxc:Expander.Header>
+
+                            <StackPanel>
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_DownloadFolderRedirected"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
+                                    Severity="Warning" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
+                                        <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button
+                                        x:Uid="SettingsPage_PickButton"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                                </Grid>
+                            </StackPanel>
+                        </muxc:Expander>
+
+                        <muxc:Expander>
+                            <muxc:Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Margin="0,0,10,0" Glyph="&#xE118;" />
+                                    <TextBlock x:Uid="SettingsPage_DownloadConfig" />
+                                </StackPanel>
+                            </muxc:Expander.Header>
+
+                            <StackPanel>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_DownloadLyric"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        IsOn="{x:Bind ViewModel.DownloadLyric, Mode=TwoWay}" />
+                                </Grid>
+
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_EncodeNotAvailable"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind helpers:XamlHelper.ReverseBoolean(services:DownloadService.IsSupportCommonTranscode)}"
+                                    Severity="Warning" />
+
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_EnableTranscode"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        IsEnabled="{x:Bind services:DownloadService.IsSupportCommonTranscode}"
+                                        IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </muxc:Expander>
+
+                        <muxc:Expander Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.TranscodeDownloadedMusic), Mode=OneWay}">
+                            <muxc:Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon Margin="0,0,10,0" Glyph="&#xE189;" />
+                                    <TextBlock x:Uid="SettingsPage_TranscodeConfig" />
+                                </StackPanel>
+                            </muxc:Expander.Header>
+
+                            <StackPanel>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_SelectTranscoder"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        ItemsSource="{x:Bind ViewModel.AvailableCommonEncoders}"
+                                        SelectedIndex="{x:Bind ViewModel.SelectedCodecInfoIndex, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="mediaCore:CodecInfo">
+                                                <TextBlock Text="{x:Bind Subtypes, Converter={StaticResource AudioGuidToStringConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_SelectTranscodeQuality"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        ItemsSource="{x:Bind ViewModel.AudioEncodingQualities}"
+                                        SelectedIndex="{x:Bind ViewModel.SelectedTranscodeQualityIndex, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="mediaProps:AudioEncodingQuality">
+                                                <TextBlock Text="{x:Bind Converter={StaticResource AudioEncodingQualityToStringConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_TranscodeKeepWavFile"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        IsOn="{x:Bind ViewModel.PreserveWavAfterTranscode, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </muxc:Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <PivotItem x:Uid="AboutPivotItem">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                        <Image
+                            Width="90"
+                            Height="90"
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Style="{ThemeResource AppLogoImage}" />
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SubheaderTextBlockStyle}"
+                            Text="{x:Bind app:App.AppDisplayName}" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Margin="0,0,0,5"
+                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                        Text="{x:Bind app:App.AppVersionWithText}" />
+
+                    <HyperlinkButton NavigateUri="https://github.com/Baka632/MonsterSiren.Uwp">
+                        <StackPanel Orientation="Horizontal">
+                            <PathIcon
+                                Margin="0,0,5,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z" />
+                            <TextBlock x:Uid="RepoAddress" />
+                        </StackPanel>
+                    </HyperlinkButton>
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
     </Grid>
 </Page>

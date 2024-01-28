@@ -23,17 +23,18 @@ internal static class SongDetailExtensions
         List<SongInfo> songs = albumDetail.Songs.ToList();
         MediaSource source = MediaSource.CreateFromUri(musicUri);
         MediaPlaybackItem playbackItem = new(source);
+
         MediaItemDisplayProperties displayProps = playbackItem.GetDisplayProperties();
         displayProps.Type = MediaPlaybackType.Music;
         displayProps.MusicProperties.Artist = songDetail.Artists.Any() ? string.Join('/', songDetail.Artists) : "MSR".GetLocalized();
         displayProps.MusicProperties.Title = songDetail.Name;
-        displayProps.MusicProperties.TrackNumber = (uint)songs.FindIndex(info => info.Name == songDetail.Name && info.AlbumCid == songDetail.AlbumCid);
+        displayProps.MusicProperties.TrackNumber = (uint)songs.FindIndex(songInfo => songInfo.Cid == songDetail.Cid) + 1;
         displayProps.MusicProperties.AlbumTitle = albumDetail.Name;
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
 
         Uri fileCoverUri = FileCacheHelper.GetAlbumCoverUriAsync(albumDetail).Result;
-        displayProps.Thumbnail = fileCoverUri != null
+        displayProps.Thumbnail = fileCoverUri is not null
             ? RandomAccessStreamReference.CreateFromUri(fileCoverUri)
             : RandomAccessStreamReference.CreateFromUri(new(albumDetail.CoverUrl, UriKind.Absolute));
 

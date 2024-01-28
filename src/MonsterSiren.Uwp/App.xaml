@@ -7,8 +7,40 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+            <converters:DownloadItemStateToStringConverter x:Key="DownloadItemStateToStringConverter" />
+            <converters:AudioGuidToStringConverter x:Key="AudioGuidToStringConverter" />
+            <converters:AudioEncodingQualityToStringConverter x:Key="AudioEncodingQualityToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
-            <converters:MediaPlaybackItemForSelectionNowPlayingItemConverter x:Key="MediaPlaybackItemForSelectionNowPlayingItemConverter" />
+
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
+                <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
+				<ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <Style x:Key="AppLogoImage" TargetType="Image">
+                        <Setter Property="Source" Value="/Assets/App-Logo/Light-Mode.png" />
+                    </Style>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <Style x:Key="AppLogoImage" TargetType="Image">
+                        <Setter Property="Source" Value="/Assets/App-Logo/Dark-Mode.png" />
+                    </Style>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrastBlack">
+                    <Style x:Key="AppLogoImage" TargetType="Image">
+                        <Setter Property="Source" Value="/Assets/App-Logo/Dark-Mode.png" />
+                    </Style>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrastWhite">
+                    <Style x:Key="AppLogoImage" TargetType="Image">
+                        <Setter Property="Source" Value="/Assets/App-Logo/Light-Mode.png" />
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -168,10 +168,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
-  <data name="PlayCommandButton.Label" xml:space="preserve">
+  <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>播放</value>
   </data>
-  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
@@ -201,7 +201,7 @@
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>目前没有正在播放的歌曲</value>
   </data>
-  <data name="RemoveCommandButton.Label" xml:space="preserve">
+  <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>移除</value>
   </data>
   <data name="AddToPlaylist" xml:space="preserve">
@@ -215,5 +215,119 @@
   </data>
   <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>单击刷新“专辑陈列”页面</value>
+  </data>
+  <data name="DownloadPivotItem.Header" xml:space="preserve">
+    <value>存储设置</value>
+  </data>
+  <data name="AboutPivotItem.Header" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="DownloadNavViewItem.Content" xml:space="preserve">
+    <value>下载队列</value>
+  </data>
+  <data name="SettingsPage_PathConfig.Text" xml:space="preserve">
+    <value>路径设置</value>
+  </data>
+  <data name="SettingsPage_DownloadPath.Text" xml:space="preserve">
+    <value>下载路径</value>
+  </data>
+  <data name="SettingsPage_PickButton.Content" xml:space="preserve">
+    <value>选取</value>
+  </data>
+  <data name="SettingsPage_DownloadFolderRedirected.Message" xml:space="preserve">
+    <value>由于应用无法使用先前指定的文件夹，因此下载路径已被更改为默认路径。</value>
+  </data>
+  <data name="LyricFile" xml:space="preserve">
+    <value>歌词文件</value>
+  </data>
+  <data name="SettingsPage_DownloadConfig.Text" xml:space="preserve">
+    <value>下载选项</value>
+  </data>
+  <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
+    <value>下载歌词</value>
+  </data>
+  <data name="SettingsTextBlock.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="DownloadTextBlock.Text" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="DownloadPage_OpenDownloadFolder.Text" xml:space="preserve">
+    <value>打开下载文件夹</value>
+  </data>
+  <data name="DownloadPage_PauseAll.Text" xml:space="preserve">
+    <value>全部暂停</value>
+  </data>
+  <data name="DownloadPage_ResumeAll.Text" xml:space="preserve">
+    <value>全部继续</value>
+  </data>
+  <data name="DownloadPage_CancelAll.Text" xml:space="preserve">
+    <value>全部取消</value>
+  </data>
+  <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
+    <value>当前没有下载项目</value>
+  </data>
+  <data name="DownloadAlbumCommandButton.Text" xml:space="preserve">
+    <value>下载专辑</value>
+  </data>
+  <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
+    <value>对下载的音乐文件转码</value>
+  </data>
+  <data name="AppVersion_WithPlaceholder" xml:space="preserve">
+    <value>版本：{0}</value>
+  </data>
+  <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
+    <value>由于此设备不支持常用的编码器，因此该设置已被禁用。</value>
+  </data>
+  <data name="RepoAddress.Text" xml:space="preserve">
+    <value>仓库地址</value>
+  </data>
+  <data name="SettingsPage_SelectTranscoder.Text" xml:space="preserve">
+    <value>转码格式</value>
+  </data>
+  <data name="Mp3Format" xml:space="preserve">
+    <value>MP3 格式</value>
+  </data>
+  <data name="FlacFormat" xml:space="preserve">
+    <value>FLAC 格式</value>
+  </data>
+  <data name="SettingsPage_TranscodeConfig.Text" xml:space="preserve">
+    <value>转码设置</value>
+  </data>
+  <data name="SettingsPage_SelectTranscodeQuality.Text" xml:space="preserve">
+    <value>转码质量</value>
+  </data>
+  <data name="AudioQualityHigh" xml:space="preserve">
+    <value>高（192 kbps 及以上）</value>
+  </data>
+  <data name="AudioQualityMedium" xml:space="preserve">
+    <value>中（128 kbps 及以上）</value>
+  </data>
+  <data name="AudioQualityLow" xml:space="preserve">
+    <value>低（96 kbps 及以上）</value>
+  </data>
+  <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
+    <value>转码后保留原始 WAV 文件</value>
+  </data>
+  <data name="DownloadItemState_Downloading" xml:space="preserve">
+    <value>下载中</value>
+  </data>
+  <data name="DownloadItemState_Transcoding" xml:space="preserve">
+    <value>转码中</value>
+  </data>
+  <data name="DownloadItemState_Paused" xml:space="preserve">
+    <value>暂停中</value>
+  </data>
+  <data name="DownloadItemState_Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="DownloadItemState_Error" xml:space="preserve">
+    <value>出现错误</value>
+  </data>
+  <data name="DownloadItemState_Canceled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="DownloadItemState_WritingTag" xml:space="preserve">
+    <value>写入音乐信息...</value>
   </data>
 </root>

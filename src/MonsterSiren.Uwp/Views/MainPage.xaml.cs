@@ -1,12 +1,14 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation.Metadata;
 using Windows.Networking.Connectivity;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
+
+// https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -17,6 +19,7 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
+    private readonly NavigationTransitionInfo DefaultTransitionInfo;
 
     public MainViewModel ViewModel { get; } = new();
 
@@ -32,6 +35,18 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
+
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
+        {
+            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
+            {
+                Effect = SlideNavigationTransitionEffect.FromRight
+            };
+        }
+        else
+        {
+            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
+        }
 
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
@@ -151,7 +166,7 @@ public sealed partial class MainPage : Page
         string tag = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage));
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: DefaultTransitionInfo);
         }
         else
         {
@@ -163,22 +178,26 @@ public sealed partial class MainPage : Page
     {
         if (tag == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
+            ContentFrameNavigationHelper.Navigate(typeof(MusicPage), transitionInfo: DefaultTransitionInfo);
         }
         else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
         {
-            NavigateToNowPlayingPage();
+            NavigateToNowPlayingPage(true);
         }
         else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(NewsPage));
+            ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: DefaultTransitionInfo);
+        }
+        else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: DefaultTransitionInfo);
         }
     }
 
-    private void NavigateToNowPlayingPage()
+    private void NavigateToNowPlayingPage(bool expandNowPlayingList = false)
     {
         StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
-        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), null, new DrillInNavigationTransitionInfo());
+        MainPageNavigationHelper.Navigate(typeof(NowPlayingPage), expandNowPlayingList, new DrillInNavigationTransitionInfo());
     }
 
     private void OnContentFrameNavigated(object sender, NavigationEventArgs e)
@@ -202,6 +221,10 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NowPlayingPageItem;
         }
+        else if (ContentFrame.CurrentSourcePageType == typeof(DownloadPage))
+        {
+            NavigationView.SelectedItem = DownloadPageItem;
+        }
         else if (ContentFrame.CurrentSourcePageType == typeof(NewsPage))
         {
             NavigationView.SelectedItem = NewsPageItem;
@@ -209,6 +232,10 @@ public sealed partial class MainPage : Page
         else if (ContentFrame.CurrentSourcePageType == typeof(SettingsPage))
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
+        }
+        else
+        {
+            NavigationView.SelectedItem = MusicPageItem;
         }
     }
 
@@ -331,7 +358,7 @@ public sealed partial class MainPage : Page
     {
         if (sender == NavigationView.SettingsItem && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage));
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: DefaultTransitionInfo);
         }
         else
         {
@@ -380,5 +407,10 @@ public sealed partial class MainPage : Page
                 MusicInfoService.Default.Volume -= addDelta;
             }
         }
+    }
+
+    internal static Visibility ShowDownloadItemInfoBadge(int count)
+    {
+        return XamlHelper.ToVisibility(count > 0);
     }
 }

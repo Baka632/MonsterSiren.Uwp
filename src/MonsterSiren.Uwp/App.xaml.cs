@@ -14,6 +14,14 @@ sealed partial class App : Application
     /// 获取应用程序名
     /// </summary>
     public static string AppDisplayName => ReswHelper.GetReswString("AppDisplayName");
+    /// <summary>
+    /// 获取应用程序版本
+    /// </summary>
+    public static string AppVersion => $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
+    /// <summary>
+    /// 获取带“版本”文字的应用程序版本字符串
+    /// </summary>
+    public static string AppVersionWithText => string.Format("AppVersion_WithPlaceholder".GetLocalized(), AppVersion);
 
     /// <summary>
     /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
@@ -32,6 +40,12 @@ sealed partial class App : Application
         e.Handled = true;
 
         Exception exception = e.Exception;
+
+        if (exception is null)
+        {
+            return;
+        }
+
         ToastContent toastContent = new()
         {
             Visual = new ToastVisual()
@@ -62,29 +76,21 @@ sealed partial class App : Application
 
         StorageFolder temporaryFolder = ApplicationData.Current.TemporaryFolder;
         StorageFolder logFolder = await temporaryFolder.CreateFolderAsync("Log", CreationCollisionOption.OpenIfExists);
-        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.UtcNow:yyyy-MM-dd HH,mm,ss.fff}.log");
+        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.Now:yyyy-MM-dd_HH.mm.ss.fff}.log");
 
-        using StorageStreamTransaction transaction = await logFile.OpenTransactedWriteAsync();
-        using Stream target = transaction.Stream.AsStreamForWrite();
-        target.Seek(0, SeekOrigin.Begin);
-
-        using StreamWriter writer = new(target);
-        await writer.WriteAsync($"""
+        await FileIO.WriteTextAsync(logFile, $"""
             [Exception Detail]
-            {exception.GetType().Name}: {exception.Message}
+            {exception.GetType()?.Name}: {exception.Message}
             ======
             Source: {exception.Source}
             HResult: {exception.HResult}
             TargetSite Info:
-                Name: {exception?.TargetSite.Name}
-                Module Name: {exception?.TargetSite?.Module.Name}
-                DeclaringType: {exception?.TargetSite?.DeclaringType.Name}
+                Name: {exception.TargetSite?.Name}
+                Module Name: {exception.TargetSite?.Module?.Name}
+                DeclaringType: {exception.TargetSite?.DeclaringType?.Name}
             StackTrace:
             {exception.StackTrace}
             """);
-        await writer.FlushAsync();
-
-        await transaction.CommitAsync();
     }
 
     /// <summary>
@@ -92,7 +98,7 @@ sealed partial class App : Application
     /// 将在启动应用程序以打开特定文件等情况下使用。
     /// </summary>
     /// <param name="e">有关启动请求和过程的详细信息。</param>
-    protected override void OnLaunched(LaunchActivatedEventArgs e)
+    protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
@@ -113,6 +119,8 @@ sealed partial class App : Application
 
             TitleBarHelper.SetTitleBarAppearance();
             LoadResourceDictionaries();
+
+            await DownloadService.Initialize();
         }
 
         if (e.PrelaunchActivated == false)
@@ -153,22 +161,6 @@ sealed partial class App : Application
 
     private void LoadResourceDictionaries()
     {
-        XamlControlsResources muxcStyle = new();
-        Resources.MergedDictionaries.Add(muxcStyle);
-
-        // 以下的资源字典依赖于 WinUI 2 中的样式，因此必须在这里加载
-        ResourceDictionary mediaControlToggleButtonStyle = new()
-        {
-            Source = new Uri("ms-appx:///ResourcesDictionaries/MediaControlToggleButton.xaml")
-        };
-        ResourceDictionary themedSliderStyle = new()
-        {
-            Source = new Uri("ms-appx:///ResourcesDictionaries/ThemedSlider.xaml")
-        };
-
-        Resources.MergedDictionaries.Add(mediaControlToggleButtonStyle);
-        Resources.MergedDictionaries.Add(themedSliderStyle);
-
         if (EnvironmentHelper.IsWindowsMobile)
         {
             ResourceDictionary win10AppBackgroundStyle = new()

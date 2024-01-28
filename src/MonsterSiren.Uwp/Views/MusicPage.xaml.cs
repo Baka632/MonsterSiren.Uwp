@@ -63,14 +63,7 @@ public sealed partial class MusicPage : Page
             return;
         }
 
-        using MemoryStream stream = new();
-        JsonSerializer.Serialize(stream, (AlbumInfo)dataContext);
-
-        stream.Seek(0, SeekOrigin.Begin);
-
-        StreamReader reader = new(stream);
-        string json = reader.ReadToEnd();
-
+        string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
         e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
     }
 

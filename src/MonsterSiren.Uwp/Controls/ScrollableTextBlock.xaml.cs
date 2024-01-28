@@ -39,12 +39,15 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
     public static readonly DependencyProperty TextProperty =
         DependencyProperty.Register("Text", typeof(string), typeof(ScrollableTextBlock), new PropertyMetadata(string.Empty));
 
-    private void TryStartScrollAnimation()
+    private async void TryStartScrollAnimation()
     {
         if (isScrolling || parent is null)
         {
             return;
         }
+
+        DefaultStoryboard.Begin();
+        await Task.Delay(300);
 
         double textSize = MeasureTextSize();
         if (textSize > parent.ActualWidth)
@@ -59,7 +62,6 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
         }
         else
         {
-            DefaultStoryboard.Begin();
             isScrolling = false;
         }
     }

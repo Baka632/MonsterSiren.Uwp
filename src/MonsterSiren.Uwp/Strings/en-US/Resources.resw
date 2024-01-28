@@ -90,10 +90,10 @@
   <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
-  <data name="PlayCommandButton.Label" xml:space="preserve">
+  <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>Play</value>
   </data>
-  <data name="AddToPlaylistCommandButton.Label" xml:space="preserve">
+  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
@@ -123,7 +123,7 @@
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>Currently, there is no music that is playing</value>
   </data>
-  <data name="RemoveCommandButton.Label" xml:space="preserve">
+  <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>Remove</value>
   </data>
   <data name="AddToPlaylist" xml:space="preserve">
@@ -137,5 +137,119 @@
   </data>
   <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Click to refresh "Album Collection" page</value>
+  </data>
+  <data name="DownloadPivotItem.Header" xml:space="preserve">
+    <value>Storage settings</value>
+  </data>
+  <data name="AboutPivotItem.Header" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="DownloadNavViewItem.Content" xml:space="preserve">
+    <value>Download quene</value>
+  </data>
+  <data name="SettingsPage_PathConfig.Text" xml:space="preserve">
+    <value>Path options</value>
+  </data>
+  <data name="SettingsPage_DownloadPath.Text" xml:space="preserve">
+    <value>Download path</value>
+  </data>
+  <data name="SettingsPage_PickButton.Content" xml:space="preserve">
+    <value>Pick</value>
+  </data>
+  <data name="SettingsPage_DownloadFolderRedirected.Message" xml:space="preserve">
+    <value>App cannot use the folder selected before, so the download path was set to default path.</value>
+  </data>
+  <data name="LyricFile" xml:space="preserve">
+    <value>Lyric file</value>
+  </data>
+  <data name="SettingsPage_DownloadConfig.Text" xml:space="preserve">
+    <value>Download options</value>
+  </data>
+  <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
+    <value>Download lyrics</value>
+  </data>
+  <data name="SettingsTextBlock.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="DownloadTextBlock.Text" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="DownloadPage_OpenDownloadFolder.Text" xml:space="preserve">
+    <value>Open download folder</value>
+  </data>
+  <data name="DownloadPage_PauseAll.Text" xml:space="preserve">
+    <value>Pause all</value>
+  </data>
+  <data name="DownloadPage_ResumeAll.Text" xml:space="preserve">
+    <value>Resume all</value>
+  </data>
+  <data name="DownloadPage_CancelAll.Text" xml:space="preserve">
+    <value>Cancel all</value>
+  </data>
+  <data name="DownloadPage_NoDownloadItem.Text" xml:space="preserve">
+    <value>No download items</value>
+  </data>
+  <data name="DownloadAlbumCommandButton.Text" xml:space="preserve">
+    <value>Download album</value>
+  </data>
+  <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
+    <value>Transcode downloaded music</value>
+  </data>
+  <data name="AppVersion_WithPlaceholder" xml:space="preserve">
+    <value>Version: {0}</value>
+  </data>
+  <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
+    <value>This device does not support most common encoders, so this option is disabled.</value>
+  </data>
+  <data name="RepoAddress.Text" xml:space="preserve">
+    <value>Repo address</value>
+  </data>
+  <data name="SettingsPage_SelectTranscoder.Text" xml:space="preserve">
+    <value>Transcode format</value>
+  </data>
+  <data name="Mp3Format" xml:space="preserve">
+    <value>Format MP3</value>
+  </data>
+  <data name="FlacFormat" xml:space="preserve">
+    <value>Format FLAC</value>
+  </data>
+  <data name="SettingsPage_TranscodeConfig.Text" xml:space="preserve">
+    <value>Transcode options</value>
+  </data>
+  <data name="SettingsPage_SelectTranscodeQuality.Text" xml:space="preserve">
+    <value>Transcode Quality</value>
+  </data>
+  <data name="AudioQualityHigh" xml:space="preserve">
+    <value>High (192 kbps and above)</value>
+  </data>
+  <data name="AudioQualityMedium" xml:space="preserve">
+    <value>Medium (128 kbps and above)</value>
+  </data>
+  <data name="AudioQualityLow" xml:space="preserve">
+    <value>Low (96 kbps and above)</value>
+  </data>
+  <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
+    <value>Preserve original WAV file after transcode</value>
+  </data>
+  <data name="DownloadItemState_Downloading" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="DownloadItemState_Transcoding" xml:space="preserve">
+    <value>Transcoding</value>
+  </data>
+  <data name="DownloadItemState_Paused" xml:space="preserve">
+    <value>Pausing</value>
+  </data>
+  <data name="DownloadItemState_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="DownloadItemState_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="DownloadItemState_Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="DownloadItemState_WritingTag" xml:space="preserve">
+    <value>Writing music info...</value>
   </data>
 </root>
