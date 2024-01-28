@@ -187,6 +187,7 @@
                 <media:AcrylicBrush
                     AlwaysUseFallback="False"
                     BackgroundSource="Backdrop"
+                    FallbackColor="{x:Bind ViewModel.MusicInfo.MusicThemeColorDark1, Mode=OneWay}"
                     TintColor="{x:Bind ViewModel.MusicInfo.MusicThemeColorThemeAware, Mode=OneWay}"
                     TintOpacity="0.5" />
             </Grid.Background>

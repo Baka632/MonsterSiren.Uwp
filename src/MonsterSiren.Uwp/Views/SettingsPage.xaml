@@ -140,7 +140,7 @@
                             </StackPanel>
                         </muxc:Expander>
 
-                        <muxc:Expander x:Name="TranscodeOptionsExpander" x:Load="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=OneWay}">
+                        <muxc:Expander Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.TranscodeDownloadedMusic), Mode=OneWay}">
                             <muxc:Expander.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <FontIcon Margin="0,0,10,0" Glyph="&#xE189;" />
