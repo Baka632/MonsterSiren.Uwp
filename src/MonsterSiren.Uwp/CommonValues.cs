@@ -8,6 +8,7 @@ internal static class CommonValues
     #region Message Token
     public const string NotifyWillUpdateMediaMessageToken = "Notify_WillUpdateMedia_MessageToken";
     public const string NotifyUpdateMediaFailMessageToken = "Notify_UpdateMediaFail_MessageToken";
+    public const string NotifyAppBackgroundChangedMessageToken = "Notify_AppBackgroundChanged_MessageToken";
     #endregion
 
     #region Cache Key
@@ -31,6 +32,8 @@ internal static class CommonValues
     public const string MusicTranscodeEncoderGuidSettingsKey = "Download_TranscodeEncoderGuid_SettingsKey";
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
+
+    public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
     #endregion
 
     #region Data Package Type

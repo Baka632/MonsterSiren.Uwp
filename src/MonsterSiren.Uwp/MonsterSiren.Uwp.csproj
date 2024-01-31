@@ -136,6 +136,7 @@
     <Compile Include="Controls\ThemedToggleButton.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Helpers\CodecQueryHelper.cs" />
+    <Compile Include="Helpers\Converters\AppBackgroundModeToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioEncodingQualityToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioGuidToStringConverter.cs" />
     <Compile Include="Helpers\Converters\DownloadItemStateToStringConverter.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
     <Compile Include="Helpers\SongDetailExtensions.cs" />
+    <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />

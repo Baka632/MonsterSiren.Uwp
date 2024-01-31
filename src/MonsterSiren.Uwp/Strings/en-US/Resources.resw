@@ -252,4 +252,22 @@
   <data name="DownloadItemState_WritingTag" xml:space="preserve">
     <value>Writing music info...</value>
   </data>
+  <data name="PresentationPivotItem.Header" xml:space="preserve">
+    <value>Presentation settings</value>
+  </data>
+  <data name="SettingsPage_AppBackground.Text" xml:space="preserve">
+    <value>App background</value>
+  </data>
+  <data name="MicaBackground" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="AcrylicBackground" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="PureColorBackground" xml:space="preserve">
+    <value>Plain color</value>
+  </data>
+  <data name="SettingsPage_AppBackgroundConfig.Text" xml:space="preserve">
+    <value>Set app's background</value>
+  </data>
 </root>

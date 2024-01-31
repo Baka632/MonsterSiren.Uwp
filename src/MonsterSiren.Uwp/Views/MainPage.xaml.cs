@@ -4,6 +4,7 @@ using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation.Metadata;
 using Windows.Networking.Connectivity;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
@@ -21,15 +22,17 @@ public sealed partial class MainPage : Page
     private bool IsFirstRun = true;
     private readonly NavigationTransitionInfo DefaultTransitionInfo;
 
-    public MainViewModel ViewModel { get; } = new();
+    public MainViewModel ViewModel { get; }
 
     public MainPage()
     {
+        ViewModel = new MainViewModel(this);
+
         this.InitializeComponent();
 
         NavigationCacheMode = NavigationCacheMode.Enabled;
 
-        SetMainPageBackground();
+        AutoSetMainPageBackground();
         ConfigureTitleBar();
 
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
@@ -73,19 +76,45 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void SetMainPageBackground()
+    private void AutoSetMainPageBackground()
     {
-        if (MicaHelper.IsSupported())
+        if (SettingsHelper.TryGet(CommonValues.AppBackgroundModeSettingsKey, out string modeString) && Enum.TryParse(modeString, out AppBackgroundMode mode))
         {
-            MicaHelper.TrySetMica(this);
-        }
-        else if (AcrylicHelper.IsSupported())
-        {
-            AcrylicHelper.TrySetAcrylicBrush(this);
+            // :D
         }
         else
         {
-            Background = Resources["ApplicationPageBackgroundThemeBrush"] as Brush;
+            if (MicaHelper.IsSupported())
+            {
+                mode = AppBackgroundMode.Mica;
+            }
+            else if (AcrylicHelper.IsSupported())
+            {
+                mode = AppBackgroundMode.Acrylic;
+            }
+            else
+            {
+                mode = AppBackgroundMode.PureColor;
+            }
+        }
+
+        SetMainPageBackground(mode);
+    }
+
+    public bool SetMainPageBackground(AppBackgroundMode mode)
+    {
+        switch (mode)
+        {
+            case AppBackgroundMode.Acrylic:
+                return AcrylicHelper.TrySetAcrylicBrush(this);
+            case AppBackgroundMode.Mica:
+                // 设置 Mica 时，要将控件背景设置为透明
+                Background = new SolidColorBrush(Colors.Transparent);
+                return MicaHelper.TrySetMica(this);
+            case AppBackgroundMode.PureColor:
+            default:
+                Background = Resources["ApplicationPageBackgroundThemeBrush"] as Brush;
+                return true;
         }
     }
 
