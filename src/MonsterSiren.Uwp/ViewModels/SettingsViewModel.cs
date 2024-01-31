@@ -122,7 +122,10 @@ public partial class SettingsViewModel : ObservableObject
         if (value >= 0)
         {
             AppBackgroundMode bgMode = AppBackgroundModes[value];
-            SettingsHelper.Set(CommonValues.AppBackgroundModeSettingsKey, bgMode.ToString());
+            string bgModeString = bgMode.ToString();
+            SettingsHelper.Set(CommonValues.AppBackgroundModeSettingsKey, bgModeString);
+
+            WeakReferenceMessenger.Default.Send(bgModeString, CommonValues.NotifyAppBackgroundChangedMessageToken);
         }
     }
 

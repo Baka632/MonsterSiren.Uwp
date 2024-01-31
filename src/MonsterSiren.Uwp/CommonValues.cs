@@ -8,6 +8,7 @@ internal static class CommonValues
     #region Message Token
     public const string NotifyWillUpdateMediaMessageToken = "Notify_WillUpdateMedia_MessageToken";
     public const string NotifyUpdateMediaFailMessageToken = "Notify_UpdateMediaFail_MessageToken";
+    public const string NotifyAppBackgroundChangedMessageToken = "Notify_AppBackgroundChanged_MessageToken";
     #endregion
 
     #region Cache Key

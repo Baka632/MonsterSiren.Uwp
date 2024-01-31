@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
-using Microsoft.UI.Xaml.Controls;
-using MonsterSiren.Uwp.Helpers;
-using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -16,12 +13,17 @@ public partial class MainViewModel : ObservableRecipient
 {
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
 
+    private readonly MainPage view;
+
     [ObservableProperty]
     private bool isMediaInfoVisible;
 
-    public MainViewModel()
+    public MainViewModel(MainPage mainPage)
     {
+        view = mainPage ?? throw new ArgumentNullException(nameof(mainPage));
         MusicInfo.PropertyChanged += OnMusicInfoPropertyChanged;
+
+        IsActive = true;
     }
 
     private void OnMusicInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -39,6 +41,20 @@ public partial class MainViewModel : ObservableRecipient
     public void UpdateMusicPosition(TimeSpan timeSpan)
     {
         MusicInfo.MusicPosition = MusicService.PlayerPosition = timeSpan;
+    }
+
+    protected override void OnActivated()
+    {
+        base.OnActivated();
+        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyAppBackgroundChangedMessageToken, OnAppBackgroundChanged);
+    }
+
+    private void OnAppBackgroundChanged(object recipient, string message)
+    {
+        if (Enum.TryParse(message, out AppBackgroundMode mode))
+        {
+            view.SetMainPageBackground(mode);
+        }
     }
 
     [RelayCommand]
