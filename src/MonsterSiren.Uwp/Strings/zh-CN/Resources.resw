@@ -330,4 +330,22 @@
   <data name="DownloadItemState_WritingTag" xml:space="preserve">
     <value>写入音乐信息...</value>
   </data>
+  <data name="PresentationPivotItem.Header" xml:space="preserve">
+    <value>显示设置</value>
+  </data>
+  <data name="SettingsPage_AppBackground.Text" xml:space="preserve">
+    <value>应用背景</value>
+  </data>
+  <data name="MicaBackground" xml:space="preserve">
+    <value>云母</value>
+  </data>
+  <data name="AcrylicBackground" xml:space="preserve">
+    <value>亚克力</value>
+  </data>
+  <data name="PureColorBackground" xml:space="preserve">
+    <value>纯色</value>
+  </data>
+  <data name="SettingsPage_AppBackgroundConfig.Text" xml:space="preserve">
+    <value>设置应用背景</value>
+  </data>
 </root>

@@ -75,17 +75,38 @@ public sealed partial class MainPage : Page
 
     private void SetMainPageBackground()
     {
-        if (MicaHelper.IsSupported())
+        if (SettingsHelper.TryGet(CommonValues.AppBackgroundModeSettingsKey, out string modeString) && Enum.TryParse(modeString, out AppBackgroundMode mode))
         {
-            MicaHelper.TrySetMica(this);
-        }
-        else if (AcrylicHelper.IsSupported())
-        {
-            AcrylicHelper.TrySetAcrylicBrush(this);
+            // :D
         }
         else
         {
-            Background = Resources["ApplicationPageBackgroundThemeBrush"] as Brush;
+            if (MicaHelper.IsSupported())
+            {
+                mode = AppBackgroundMode.Mica;
+            }
+            else if (AcrylicHelper.IsSupported())
+            {
+                mode = AppBackgroundMode.Acrylic;
+            }
+            else
+            {
+                mode = AppBackgroundMode.PureColor;
+            }
+        }
+
+        switch (mode)
+        {
+            case AppBackgroundMode.Acrylic:
+                AcrylicHelper.TrySetAcrylicBrush(this);
+                break;
+            case AppBackgroundMode.Mica:
+                MicaHelper.TrySetMica(this);
+                break;
+            case AppBackgroundMode.PureColor:
+            default:
+                Background = Resources["ApplicationPageBackgroundThemeBrush"] as Brush;
+                break;
         }
     }
 
