@@ -166,7 +166,8 @@
                 Grid.Row="1"
                 CanDragItems="True"
                 DragItemsStarting="OnSongListViewItemsDragStarting"
-                ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}">
+                ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSongsEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">
                         <Grid Background="Transparent">
@@ -241,6 +242,21 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
+
+            <StackPanel
+                Grid.Row="1"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsSongsEmpty), Mode=OneWay}">
+                <FontIcon
+                    Margin="0,0,0,5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="40"
+                    Glyph="&#xEA91;" />
+                <TextBlock x:Uid="NoSongsInAlbum" />
+            </StackPanel>
         </Grid>
 
         <VisualStateManager.VisualStateGroups>

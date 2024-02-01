@@ -144,7 +144,10 @@ public partial class MainViewModel : ObservableRecipient
                 albumDetail = albumDetail with { Songs = songs };
             }
 
-            MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+            if (albumDetail.Songs.Any())
+            {
+                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+            }
         }
 
         return albumDetail;

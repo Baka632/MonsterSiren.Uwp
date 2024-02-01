@@ -270,4 +270,7 @@
   <data name="SettingsPage_AppBackgroundConfig.Text" xml:space="preserve">
     <value>Set app's background</value>
   </data>
+  <data name="NoSongsInAlbum.Text" xml:space="preserve">
+    <value>There is no song now, try again later</value>
+  </data>
 </root>

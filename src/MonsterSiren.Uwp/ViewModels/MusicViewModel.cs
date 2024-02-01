@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
+using TagLib.Ape;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -137,7 +138,14 @@ public sealed partial class MusicViewModel : ObservableObject
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
-                MusicService.ReplaceMusic(playbackItems);
+                if (playbackItems.Count != 0)
+                {
+                    MusicService.ReplaceMusic(playbackItems);
+                }
+                else
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
             });
         }
         catch (HttpRequestException)
@@ -226,7 +234,10 @@ public sealed partial class MusicViewModel : ObservableObject
                 albumDetail = albumDetail with { Songs = songs };
             }
 
-            MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+            if (albumDetail.Songs.Any())
+            {
+                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+            }
         }
 
         return albumDetail;

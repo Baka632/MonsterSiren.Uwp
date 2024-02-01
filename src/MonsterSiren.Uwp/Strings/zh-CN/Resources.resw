@@ -348,4 +348,7 @@
   <data name="SettingsPage_AppBackgroundConfig.Text" xml:space="preserve">
     <value>设置应用背景</value>
   </data>
+  <data name="NoSongsInAlbum.Text" xml:space="preserve">
+    <value>当前没有歌曲，请稍后再试</value>
+  </data>
 </root>

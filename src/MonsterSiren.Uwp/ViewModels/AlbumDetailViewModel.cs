@@ -18,6 +18,8 @@ public partial class AlbumDetailViewModel : ObservableObject
     private AlbumInfo _currentAlbumInfo;
     [ObservableProperty]
     private AlbumDetail _currentAlbumDetail;
+    [ObservableProperty]
+    private bool isSongsEmpty;
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -63,11 +65,16 @@ public partial class AlbumDetailViewModel : ObservableObject
                     }
                 });
 
-                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+                if (albumDetail.Songs.Any())
+                {
+                    MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
+                }
             }
 
             CurrentAlbumDetail = albumDetail;
             ErrorVisibility = Visibility.Collapsed;
+
+            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
         }
         catch (HttpRequestException ex)
         {
@@ -107,7 +114,14 @@ public partial class AlbumDetailViewModel : ObservableObject
                     items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
 
-                MusicService.ReplaceMusic(items);
+                if (items.Count != 0)
+                {
+                    MusicService.ReplaceMusic(items);
+                }
+                else
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
             });
         }
         catch (HttpRequestException)
