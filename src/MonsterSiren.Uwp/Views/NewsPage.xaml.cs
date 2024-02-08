@@ -7,8 +7,15 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class NewsPage : Page
 {
+    public NewsViewModel ViewModel { get; } = new NewsViewModel();
+
     public NewsPage()
     {
         this.InitializeComponent();
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.Initialize();
     }
 }

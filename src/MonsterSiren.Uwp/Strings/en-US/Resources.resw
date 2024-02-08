@@ -273,4 +273,7 @@
   <data name="NoSongsInAlbum.Text" xml:space="preserve">
     <value>There is no song now, try again later</value>
   </data>
+  <data name="NewsPageTextBlock.Text" xml:space="preserve">
+    <value>News</value>
+  </data>
 </root>

@@ -351,4 +351,7 @@
   <data name="NoSongsInAlbum.Text" xml:space="preserve">
     <value>当前没有歌曲，请稍后再试</value>
   </data>
+  <data name="NewsPageTextBlock.Text" xml:space="preserve">
+    <value>动向</value>
+  </data>
 </root>
