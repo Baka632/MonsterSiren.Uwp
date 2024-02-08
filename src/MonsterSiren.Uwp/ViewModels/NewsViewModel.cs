@@ -11,7 +11,7 @@ public sealed partial class NewsViewModel : ObservableObject
     [ObservableProperty]
     private ErrorInfo errorInfo;
     [ObservableProperty]
-    private IEnumerable<RecommendedNewsInfo> recommendedNewsInfos;
+    private IList<RecommendedNewsInfo> recommendedNewsInfos;
 
     public async Task Initialize()
     {
@@ -21,7 +21,7 @@ public sealed partial class NewsViewModel : ObservableObject
 
         try
         {
-            RecommendedNewsInfos = await NewsService.GetRecommendedNews();
+            RecommendedNewsInfos = (await NewsService.GetRecommendedNews()).ToList();
             ErrorVisibility = Visibility.Collapsed;
         }
         catch (HttpRequestException ex)
