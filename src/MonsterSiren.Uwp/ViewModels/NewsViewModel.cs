@@ -21,7 +21,7 @@ public sealed partial class NewsViewModel : ObservableObject
 
         try
         {
-            RecommendedNewsInfos = (await NewsService.GetRecommendedNews()).ToList();
+            RecommendedNewsInfos = (await NewsService.GetRecommendedNewsAsync()).ToList();
             ErrorVisibility = Visibility.Collapsed;
         }
         catch (HttpRequestException ex)

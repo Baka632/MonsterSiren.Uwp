@@ -8,7 +8,7 @@ public class SearchServiceTest
     [Fact]
     public async void SearchAlbumAndNews()
     {
-        SearchAlbumAndNewsResult result = await SearchService.SearchAlbumAndNews("Spark");
+        SearchAlbumAndNewsResult result = await SearchService.SearchAlbumAndNewsAsync("Spark");
 
         Assert.NotEmpty(result.Albums.List);
         Assert.NotEmpty(result.News.List);
@@ -29,7 +29,7 @@ public class SearchServiceTest
     [Fact]
     public async void SearchAlbum()
     {
-        ListPackage<AlbumInfo> result = await SearchService.SearchAlbum("OST");
+        ListPackage<AlbumInfo> result = await SearchService.SearchAlbumAsync("OST");
 
         Assert.NotEmpty(result.List);
 
@@ -40,7 +40,7 @@ public class SearchServiceTest
         }
 
         string lastCid = result.List.Last().Cid;
-        ListPackage<AlbumInfo> resultWithLastCid = await SearchService.SearchAlbum("OST", lastCid);
+        ListPackage<AlbumInfo> resultWithLastCid = await SearchService.SearchAlbumAsync("OST", lastCid);
         Assert.NotEmpty(resultWithLastCid.List);
         foreach (AlbumInfo item in resultWithLastCid)
         {
@@ -51,7 +51,7 @@ public class SearchServiceTest
     [Fact]
     public async void SearchNews()
     {
-        ListPackage<NewsInfo> result = await SearchService.SearchNews("D.D.D");
+        ListPackage<NewsInfo> result = await SearchService.SearchNewsAsync("D.D.D");
 
         Assert.NotEmpty(result.List);
 
@@ -62,7 +62,7 @@ public class SearchServiceTest
         }
 
         string lastCid = result.List.Last().Cid;
-        ListPackage<NewsInfo> resultWithLastCid = await SearchService.SearchNews("D.D.D", lastCid);
+        ListPackage<NewsInfo> resultWithLastCid = await SearchService.SearchNewsAsync("D.D.D", lastCid);
         Assert.NotEmpty(resultWithLastCid.List);
         foreach (NewsInfo item in resultWithLastCid)
         {

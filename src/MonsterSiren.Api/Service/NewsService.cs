@@ -13,7 +13,7 @@ public static class NewsService
     /// <returns>包含推荐新闻的 <see cref="IEnumerable{T}"/></returns>
     /// <exception cref="InvalidOperationException">出现未知错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<IEnumerable<RecommendedNewsInfo>> GetRecommendedNews()
+    public static async Task<IEnumerable<RecommendedNewsInfo>> GetRecommendedNewsAsync()
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync("recommends");
         ResponsePackage<IEnumerable<RecommendedNewsInfo>> result = await JsonSerializer.DeserializeAsync<ResponsePackage<IEnumerable<RecommendedNewsInfo>>>(jsonStream, CommonValues.DefaultJsonSerializerOptions);
@@ -34,7 +34,7 @@ public static class NewsService
     /// <returns>包含新闻列表的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
     /// <exception cref="InvalidOperationException">出现未知错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<NewsInfo>> GetNewsList()
+    public static async Task<ListPackage<NewsInfo>> GetNewsListAsync()
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync("news");
         ResponsePackage<ListPackage<NewsInfo>> result = await JsonSerializer.DeserializeAsync<ResponsePackage<ListPackage<NewsInfo>>>(jsonStream, CommonValues.DefaultJsonSerializerOptions);
@@ -56,7 +56,7 @@ public static class NewsService
     /// <returns>包含新闻列表的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
     /// <exception cref="InvalidOperationException">出现未知错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<NewsInfo>> GetNewsList(string lastCid)
+    public static async Task<ListPackage<NewsInfo>> GetNewsListAsync(string lastCid)
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync($"news?lastCid={lastCid}");
         ResponsePackage<ListPackage<NewsInfo>> result = await JsonSerializer.DeserializeAsync<ResponsePackage<ListPackage<NewsInfo>>>(jsonStream, CommonValues.DefaultJsonSerializerOptions);
@@ -79,7 +79,7 @@ public static class NewsService
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<NewsDetail> GetDetailedNewsInfo(string cid)
+    public static async Task<NewsDetail> GetDetailedNewsInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {

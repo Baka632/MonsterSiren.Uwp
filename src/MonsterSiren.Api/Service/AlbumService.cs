@@ -13,7 +13,7 @@ public static class AlbumService
     /// <returns>包含全部专辑信息的 <see cref="IEnumerable{T}"/></returns>
     /// <exception cref="InvalidOperationException">出现未知错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<IEnumerable<AlbumInfo>> GetAllAlbums()
+    public static async Task<IEnumerable<AlbumInfo>> GetAllAlbumsAsync()
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync("albums");
         ResponsePackage<IEnumerable<AlbumInfo>> result = await JsonSerializer.DeserializeAsync<ResponsePackage<IEnumerable<AlbumInfo>>>(jsonStream, CommonValues.DefaultJsonSerializerOptions);
@@ -36,7 +36,7 @@ public static class AlbumService
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<AlbumInfo> GetAlbumInfo(string cid)
+    public static async Task<AlbumInfo> GetAlbumInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {
@@ -64,7 +64,7 @@ public static class AlbumService
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<AlbumDetail> GetAlbumDetailedInfo(string cid)
+    public static async Task<AlbumDetail> GetAlbumDetailedInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {

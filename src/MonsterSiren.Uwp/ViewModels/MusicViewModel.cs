@@ -97,7 +97,7 @@ public sealed partial class MusicViewModel : ObservableObject
     {
         List<AlbumInfo> albums = await Task.Run(async () =>
         {
-            List<AlbumInfo> albumList = (await AlbumService.GetAllAlbums()).ToList();
+            List<AlbumInfo> albumList = (await AlbumService.GetAllAlbumsAsync()).ToList();
 
             for (int i = 0; i < albumList.Count; i++)
             {
@@ -206,7 +206,7 @@ public sealed partial class MusicViewModel : ObservableObject
         }
         else
         {
-            albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
+            albumDetail = await AlbumService.GetAlbumDetailedInfoAsync(albumInfo.Cid);
 
             bool shouldUpdate = false;
             foreach (SongInfo item in albumDetail.Songs)
@@ -250,7 +250,7 @@ public sealed partial class MusicViewModel : ObservableObject
         }
         else
         {
-            SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
+            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
             MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
             return songDetail;
