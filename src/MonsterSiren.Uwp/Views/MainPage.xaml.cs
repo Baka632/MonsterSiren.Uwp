@@ -442,4 +442,16 @@ public sealed partial class MainPage : Page
     {
         return XamlHelper.ToVisibility(count > 0);
     }
+
+    private void OnNavigationViewDisplayModeChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs args)
+    {
+        if (args.DisplayMode != Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Minimal)
+        {
+            ContentFrame.Margin = new Thickness(20, 20, 0, 0);
+        }
+        else if (EnvironmentHelper.IsWindowsMobile != true)
+        {
+            ContentFrame.Margin = new Thickness(12, 45, 0, 0);
+        }
+    }
 }
