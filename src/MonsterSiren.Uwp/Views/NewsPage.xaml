@@ -38,7 +38,13 @@
         </StackPanel>
 
         <Grid Grid.Row="1" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
             <StackPanel
+                Grid.Row="0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 PointerEntered="OnRecommendedNewsStackPanelPointerEntered"
@@ -64,6 +70,30 @@
                     SelectedPageIndex="{x:Bind RecommendedNewsFlipView.SelectedIndex, Mode=TwoWay}" />
             </StackPanel>
 
+            <ListView
+                Grid.Row="1"
+                Margin="20,0,20,5"
+                IsItemClickEnabled="True"
+                ItemsSource="{x:Bind ViewModel.NewsInfos, Mode=OneWay}"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="newsModels:NewsInfo">
+                        <Grid Padding="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0">
+                                <Run Text="{x:Bind Category}" />
+                                <Run Text=" / " />
+                                <Run Text="{x:Bind helpers:XamlHelper.ToFormatedString(Date, 'yyyy.M.d')}" />
+                            </TextBlock>
+                            <TextBlock Grid.Row="1" Text="{x:Bind Title}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
 
         <!--#region Loading & Error-->
