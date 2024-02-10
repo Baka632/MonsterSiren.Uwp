@@ -336,7 +336,7 @@ public sealed partial class MainPage : Page
 
     private async void OnNetworkStatusChanged(object sender = null)
     {
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile().GetConnectionCost();
+        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
 
         if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
         {

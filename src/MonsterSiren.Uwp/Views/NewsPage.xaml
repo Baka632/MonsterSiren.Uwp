@@ -84,7 +84,7 @@
                             SelectedPageIndex="{x:Bind RecommendedNewsFlipView.SelectedIndex, Mode=TwoWay}" />
                     </StackPanel>
 
-                    <Grid x:Name="RecommendedNewsDescriptionStackPanel">
+                    <Grid x:Name="RecommendedNewsDescriptionStackPanel" Margin="5,0,5,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
@@ -94,10 +94,7 @@
                             Grid.Row="0"
                             FontWeight="ExtraBold"
                             Text="{x:Bind ((newsModels:RecommendedNewsInfo)RecommendedNewsFlipView.SelectedItem).Title, Mode=OneWay}" />
-                        <ScrollViewer
-                            x:Name="RecommendedNewsDescriptionScrollViewer"
-                            Grid.Row="1"
-                            Margin="0,0,5,0">
+                        <ScrollViewer x:Name="RecommendedNewsDescriptionScrollViewer" Grid.Row="1">
                             <TextBlock
                                 IsTextSelectionEnabled="True"
                                 Text="{x:Bind ((newsModels:RecommendedNewsInfo)RecommendedNewsFlipView.SelectedItem).Description, Mode=OneWay}"
