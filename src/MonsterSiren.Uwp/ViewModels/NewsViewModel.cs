@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Threading;
+using MonsterSiren.Api.Models.News;
 
 namespace MonsterSiren.Uwp.ViewModels;
 

@@ -276,4 +276,19 @@
   <data name="NewsPageTextBlock.Text" xml:space="preserve">
     <value>News</value>
   </data>
+  <data name="NewsCategory_NewSongs" xml:space="preserve">
+    <value>New songs</value>
+  </data>
+  <data name="NewsCategory_LaunchSpeech" xml:space="preserve">
+    <value>Launch speech</value>
+  </data>
+  <data name="NewsCategory_NewsAlert" xml:space="preserve">
+    <value>News alert</value>
+  </data>
+  <data name="NewsCategory_ArtistState" xml:space="preserve">
+    <value>Artist state</value>
+  </data>
+  <data name="NewsCategory_SpecialRadio" xml:space="preserve">
+    <value>Special radio</value>
+  </data>
 </root>

@@ -63,12 +63,12 @@ public sealed partial class NewsPage : Page
         }
     }
 
-    private void OnRecommendedNewsStackPanelPointerEntered(object sender, PointerRoutedEventArgs e)
+    private void OnRecommendedNewsContainerScrollViewerPointerEntered(object sender, PointerRoutedEventArgs e)
     {
         isPointerEnteredRecommendedNewsStackPanel = true;
     }
 
-    private void OnRecommendedNewsStackPanelPointerExited(object sender, PointerRoutedEventArgs e)
+    private void OnRecommendedNewsContainerScrollViewerPointerExited(object sender, PointerRoutedEventArgs e)
     {
         isPointerEnteredRecommendedNewsStackPanel = false;
     }
