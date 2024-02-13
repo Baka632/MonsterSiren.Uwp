@@ -3,9 +3,8 @@
 }
 
 img {
-    overflow-clip-margin: content-box;
-    overflow: clip;
-    max-width: 70%;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 img::selection {

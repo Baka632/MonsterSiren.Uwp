@@ -12,7 +12,7 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:NewsDetailViewModel}"
     mc:Ignorable="d">
 
-    <Grid Padding="5,0,5,0">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
