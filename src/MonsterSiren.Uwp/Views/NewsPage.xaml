@@ -21,22 +21,38 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <StackPanel
+        <Grid
             Grid.Row="0"
             Margin="0,0,0,5"
-            Orientation="Horizontal"
             Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
-            <FontIcon
-                Margin="0,0,10,0"
-                HorizontalAlignment="Center"
-                FontSize="40"
-                Glyph="&#xE90A;" />
-            <TextBlock
-                x:Uid="NewsPageTextBlock"
+            <StackPanel Orientation="Horizontal">
+                <FontIcon
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Center"
+                    FontSize="40"
+                    Glyph="&#xE90A;" />
+                <TextBlock
+                    x:Uid="NewsPageTextBlock"
+                    Margin="0,0,5,0"
+                    HorizontalAlignment="Center"
+                    FontSize="30" />
+            </StackPanel>
+
+            <Button
+                x:Uid="RefreshButton"
+                Width="40"
+                Height="40"
                 Margin="0,0,5,0"
-                HorizontalAlignment="Center"
-                FontSize="30" />
-        </StackPanel>
+                Padding="0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                AccessKey="F"
+                Background="Transparent"
+                BorderThickness="0"
+                Command="{x:Bind ViewModel.RefreshNewsCommand}">
+                <FontIcon Glyph="&#xE72C;" />
+            </Button>
+        </Grid>
 
         <Grid Grid.Row="1" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsLoading), Mode=OneWay}">
             <Grid.RowDefinitions>

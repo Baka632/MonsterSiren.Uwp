@@ -73,4 +73,9 @@ public sealed partial class NewsPage : Page
     {
         isPointerEnteredRecommendedNewsStackPanel = false;
     }
+
+    private void OnRefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
+    {
+
+    }
 }

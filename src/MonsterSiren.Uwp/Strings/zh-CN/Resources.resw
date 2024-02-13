@@ -214,7 +214,7 @@
     <value>刷新</value>
   </data>
   <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>单击刷新“专辑陈列”页面</value>
+    <value>单击刷新此页面</value>
   </data>
   <data name="DownloadPivotItem.Header" xml:space="preserve">
     <value>存储设置</value>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Threading;
+using MonsterSiren.Api.Models.News;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -8,6 +9,8 @@ public sealed partial class NewsViewModel : ObservableObject
 {
     [ObservableProperty]
     private bool isLoading = false;
+    [ObservableProperty]
+    private bool isRefreshing = false;
     [ObservableProperty]
     private Visibility errorVisibility = Visibility.Collapsed;
     [ObservableProperty]
@@ -53,6 +56,32 @@ public sealed partial class NewsViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshNews()
+    {
+        ErrorVisibility = Visibility.Collapsed;
+
+        try
+        {
+            NewsItemCollection newsInfos = new(await NewsService.GetNewsListAsync());
+            NewsInfos = newsInfos;
+            MemoryCacheHelper<NewsItemCollection>.Default.Store(CommonValues.NewsItemCollectionCacheKey, newsInfos);
+
+            List<RecommendedNewsInfo> recommendeds = (await NewsService.GetRecommendedNewsAsync()).ToList();
+            if (RecommendedNewsInfos is null || !RecommendedNewsInfos.SequenceEqual(recommendeds))
+            {
+                RecommendedNewsInfos = recommendeds;
+                MemoryCacheHelper<IList<RecommendedNewsInfo>>.Default.Store(CommonValues.RecommendedNewsInfosCacheKey, RecommendedNewsInfos);
+            }
+
+            ErrorVisibility = Visibility.Collapsed;
+        }
+        catch (HttpRequestException ex)
+        {
+            ShowInternetError(ex);
         }
     }
 
