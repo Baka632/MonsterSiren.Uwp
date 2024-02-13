@@ -63,7 +63,6 @@ public sealed partial class NewsViewModel : ObservableObject
     private async Task RefreshNews()
     {
         ErrorVisibility = Visibility.Collapsed;
-
         try
         {
             NewsItemCollection newsInfos = new(await NewsService.GetNewsListAsync());
@@ -79,9 +78,9 @@ public sealed partial class NewsViewModel : ObservableObject
 
             ErrorVisibility = Visibility.Collapsed;
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            ShowInternetError(ex);
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -92,19 +91,25 @@ public sealed partial class NewsViewModel : ObservableObject
             throw new ArgumentException($"{nameof(e.ClickedItem)} 应当为一个 {nameof(NewsInfo)} 的实例。");
         }
 
+        await NavigateToNewsDetail(newsInfo.Cid);
+    }
+
+    [RelayCommand]
+    private static async Task NavigateToNewsDetail(string cid)
+    {
         try
         {
-            if (!MemoryCacheHelper<NewsDetail>.Default.TryGetData(newsInfo.Cid, out NewsDetail newsDetail))
+            if (!MemoryCacheHelper<NewsDetail>.Default.TryGetData(cid, out NewsDetail newsDetail))
             {
-                newsDetail = await NewsService.GetDetailedNewsInfoAsync(newsInfo.Cid);
-                MemoryCacheHelper<NewsDetail>.Default.Store(newsInfo.Cid, newsDetail);
+                newsDetail = await NewsService.GetDetailedNewsInfoAsync(cid);
+                MemoryCacheHelper<NewsDetail>.Default.Store(cid, newsDetail);
             }
 
             ContentFrameNavigationHelper.Navigate(typeof(NewsDetailPage), newsDetail, CommonValues.DefaultTransitionInfo);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            ShowInternetError(ex);
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -117,6 +122,19 @@ public sealed partial class NewsViewModel : ObservableObject
             Message = "InternetErrorMessage".GetLocalized(),
             Exception = ex
         };
+    }
+
+    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
+    {
+        ContentDialog contentDialog = new()
+        {
+            Title = title,
+            Content = message,
+            PrimaryButtonText = primaryButtonText,
+            CloseButtonText = closeButtonText
+        };
+
+        await contentDialog.ShowAsync();
     }
 }
 

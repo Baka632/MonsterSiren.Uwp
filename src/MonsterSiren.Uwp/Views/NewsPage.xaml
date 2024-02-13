@@ -11,6 +11,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:newsModels="using:MonsterSiren.Api.Models.News"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:NewsViewModel}"
     Loaded="OnLoaded"
     mc:Ignorable="d">
@@ -87,7 +88,15 @@
                             ItemsSource="{x:Bind ViewModel.RecommendedNewsInfos, Mode=OneWay}">
                             <FlipView.ItemTemplate>
                                 <DataTemplate x:DataType="newsModels:RecommendedNewsInfo">
-                                    <Image Source="{x:Bind CoverUrl}" />
+                                    <Button
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.NavigateToNewsDetailCommand}"
+                                        CommandParameter="{x:Bind Data}"
+                                        Style="{x:Null}">
+                                        <Image Source="{x:Bind CoverUrl}" />
+                                    </Button>
                                 </DataTemplate>
                             </FlipView.ItemTemplate>
                         </FlipView>
