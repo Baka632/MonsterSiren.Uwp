@@ -20,7 +20,6 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
-    private readonly NavigationTransitionInfo DefaultTransitionInfo;
 
     public MainViewModel ViewModel { get; }
 
@@ -38,18 +37,6 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
-
-        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
-        {
-            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
-            {
-                Effect = SlideNavigationTransitionEffect.FromRight
-            };
-        }
-        else
-        {
-            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
-        }
 
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
@@ -195,7 +182,7 @@ public sealed partial class MainPage : Page
         string tag = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
         else
         {
@@ -207,7 +194,7 @@ public sealed partial class MainPage : Page
     {
         if (tag == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(MusicPage), transitionInfo: DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(MusicPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
         else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
         {
@@ -215,11 +202,11 @@ public sealed partial class MainPage : Page
         }
         else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
         else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
     }
 
@@ -391,7 +378,7 @@ public sealed partial class MainPage : Page
     {
         if (sender == NavigationView.SettingsItem && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
         else
         {

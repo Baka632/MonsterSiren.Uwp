@@ -24,8 +24,25 @@ public sealed partial class NewsViewModel : ObservableObject
 
         try
         {
-            RecommendedNewsInfos = (await NewsService.GetRecommendedNewsAsync()).ToList();
-            NewsInfos = new NewsItemCollection(await NewsService.GetNewsListAsync());
+            if (MemoryCacheHelper<NewsItemCollection>.Default.TryGetData(CommonValues.NewsItemCollectionCacheKey, out NewsItemCollection newsInfos))
+            {
+                NewsInfos = newsInfos;
+            }
+            else
+            {
+                NewsInfos = new NewsItemCollection(await NewsService.GetNewsListAsync());
+                MemoryCacheHelper<NewsItemCollection>.Default.Store(CommonValues.NewsItemCollectionCacheKey, NewsInfos);
+            }
+
+            if (MemoryCacheHelper<IList<RecommendedNewsInfo>>.Default.TryGetData(CommonValues.RecommendedNewsInfosCacheKey, out IList<RecommendedNewsInfo> recommendedNews))
+            {
+                RecommendedNewsInfos = recommendedNews;
+            }
+            else
+            {
+                RecommendedNewsInfos = (await NewsService.GetRecommendedNewsAsync()).ToList();
+                MemoryCacheHelper<IList<RecommendedNewsInfo>>.Default.Store(CommonValues.RecommendedNewsInfosCacheKey, RecommendedNewsInfos);
+            }
 
             ErrorVisibility = Visibility.Collapsed;
         }
@@ -48,8 +65,13 @@ public sealed partial class NewsViewModel : ObservableObject
 
         try
         {
-            NewsDetail newsDetail = await NewsService.GetDetailedNewsInfoAsync(newsInfo.Cid);
-            ContentFrameNavigationHelper.Navigate(typeof(NewsDetailPage), newsDetail);
+            if (!MemoryCacheHelper<NewsDetail>.Default.TryGetData(newsInfo.Cid, out NewsDetail newsDetail))
+            {
+                newsDetail = await NewsService.GetDetailedNewsInfoAsync(newsInfo.Cid);
+                MemoryCacheHelper<NewsDetail>.Default.Store(newsInfo.Cid, newsDetail);
+            }
+
+            ContentFrameNavigationHelper.Navigate(typeof(NewsDetailPage), newsDetail, CommonValues.DefaultTransitionInfo);
         }
         catch (HttpRequestException ex)
         {

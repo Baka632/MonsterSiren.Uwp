@@ -16,6 +16,7 @@ public sealed partial class NewsPage : Page
     public NewsPage()
     {
         this.InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Enabled;
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
