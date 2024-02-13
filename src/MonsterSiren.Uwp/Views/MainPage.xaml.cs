@@ -242,30 +242,34 @@ public sealed partial class MainPage : Page
     /// </summary>
     private void ChangeSelectedItemOfNavigationView()
     {
-        if (ContentFrame.CurrentSourcePageType == typeof(MusicPage))
+        Type currentSourcePageType = ContentFrame.CurrentSourcePageType;
+
+        if (currentSourcePageType == typeof(MusicPage) || currentSourcePageType == typeof(AlbumDetailPage))
         {
             NavigationView.SelectedItem = MusicPageItem;
         }
-        else if (ContentFrame.CurrentSourcePageType == typeof(NowPlayingPage))
+        else if (currentSourcePageType == typeof(NowPlayingPage))
         {
             NavigationView.SelectedItem = NowPlayingPageItem;
         }
-        else if (ContentFrame.CurrentSourcePageType == typeof(DownloadPage))
+        else if (currentSourcePageType == typeof(DownloadPage))
         {
             NavigationView.SelectedItem = DownloadPageItem;
         }
-        else if (ContentFrame.CurrentSourcePageType == typeof(NewsPage))
+        else if (currentSourcePageType == typeof(NewsPage) || currentSourcePageType == typeof(NewsDetailPage))
         {
             NavigationView.SelectedItem = NewsPageItem;
         }
-        else if (ContentFrame.CurrentSourcePageType == typeof(SettingsPage))
+        else if (currentSourcePageType == typeof(SettingsPage))
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
+#if DEBUG
         else
         {
-            NavigationView.SelectedItem = MusicPageItem;
+            System.Diagnostics.Debugger.Break();
         }
+#endif
     }
 
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)

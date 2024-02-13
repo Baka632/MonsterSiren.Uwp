@@ -163,6 +163,7 @@
     <Compile Include="ViewModels\DownloadViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MusicViewModel.cs" />
+    <Compile Include="ViewModels\NewsDetailViewModel.cs" />
     <Compile Include="ViewModels\NewsViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingCompactViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingViewModel.cs" />
@@ -179,6 +180,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\MusicPage.xaml.cs">
       <DependentUpon>MusicPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NewsDetailPage.xaml.cs">
+      <DependentUpon>NewsDetailPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NewsPage.xaml.cs">
       <DependentUpon>NewsPage.xaml</DependentUpon>
@@ -242,6 +246,8 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\Web\Css\page.css" />
+    <Content Include="Assets\Web\Html\NewsDetailPageTemplate.html" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
@@ -292,6 +298,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MusicPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NewsDetailPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

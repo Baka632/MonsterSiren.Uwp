@@ -109,6 +109,7 @@
                 Grid.RowSpan="2"
                 Grid.Column="1"
                 IsItemClickEnabled="True"
+                ItemClick="{x:Bind ViewModel.HandleNewsListItemClick}"
                 ItemsSource="{x:Bind ViewModel.NewsInfos, Mode=OneWay}"
                 SelectionMode="None">
                 <ListView.ItemTemplate>

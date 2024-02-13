@@ -39,6 +39,24 @@ public sealed partial class NewsViewModel : ObservableObject
         }
     }
 
+    public async void HandleNewsListItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is not NewsInfo newsInfo)
+        {
+            throw new ArgumentException($"{nameof(e.ClickedItem)} 应当为一个 {nameof(NewsInfo)} 的实例。");
+        }
+
+        try
+        {
+            NewsDetail newsDetail = await NewsService.GetDetailedNewsInfoAsync(newsInfo.Cid);
+            ContentFrameNavigationHelper.Navigate(typeof(NewsDetailPage), newsDetail);
+        }
+        catch (HttpRequestException ex)
+        {
+            ShowInternetError(ex);
+        }
+    }
+
     private void ShowInternetError(HttpRequestException ex)
     {
         ErrorVisibility = Visibility.Visible;

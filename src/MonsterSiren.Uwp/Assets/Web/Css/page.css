@@ -1,0 +1,25 @@
+﻿p {
+    font-family: 'Microsoft YaHei UI';
+}
+
+img {
+    overflow-clip-margin: content-box;
+    overflow: clip;
+    max-width: 70%;
+}
+
+img::selection {
+    background: transparent;
+}
+
+.main-content {
+    margin-bottom: 1.4rem;
+    margin-right: 1.4rem;
+    -ms-content-zooming: none;
+}
+
+.image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
