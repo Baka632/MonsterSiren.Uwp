@@ -117,7 +117,7 @@ public partial class MainViewModel : ObservableRecipient
         }
         else
         {
-            albumDetail = await AlbumService.GetAlbumDetailedInfo(albumInfo.Cid);
+            albumDetail = await AlbumService.GetAlbumDetailedInfoAsync(albumInfo.Cid);
 
             bool shouldUpdate = false;
             foreach (SongInfo item in albumDetail.Songs)
@@ -161,7 +161,7 @@ public partial class MainViewModel : ObservableRecipient
         }
         else
         {
-            SongDetail songDetail = await SongService.GetSongDetailedInfo(songInfo.Cid);
+            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
             MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
             return songDetail;

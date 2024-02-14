@@ -10,7 +10,7 @@ public class SongServiceTest
         SongDetail defaultSongDetail = default;
 
         //880368 - Magic Theorem
-        SongDetail songDetail = await SongService.GetSongDetailedInfo("880368");
+        SongDetail songDetail = await SongService.GetSongDetailedInfoAsync("880368");
         Assert.NotEqual(defaultSongDetail, songDetail);
         Assert.NotEmpty(songDetail.Artists);
     }
@@ -20,7 +20,7 @@ public class SongServiceTest
     {
         SongInfo defaultSongInfo = default;
 
-        ListPackage<SongInfo> songInfos = await SongService.GetAllSongs();
+        ListPackage<SongInfo> songInfos = await SongService.GetAllSongsAsync();
         Assert.NotEmpty(songInfos.List);
 
         foreach (SongInfo item in songInfos)

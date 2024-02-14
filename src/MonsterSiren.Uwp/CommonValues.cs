@@ -1,4 +1,7 @@
-﻿namespace MonsterSiren.Uwp;
+﻿using Windows.Foundation.Metadata;
+using Windows.UI.Xaml.Media.Animation;
+
+namespace MonsterSiren.Uwp;
 
 /// <summary>
 /// 提供应用中常用的值的类
@@ -13,6 +16,8 @@ internal static class CommonValues
 
     #region Cache Key
     public const string AlbumInfoCacheKey = "AlbumInfo_CacheKey";
+    public const string NewsItemCollectionCacheKey = "NewsItemCollection_CacheKey";
+    public const string RecommendedNewsInfosCacheKey = "RecommendedNewsInfos_CacheKey";
     #endregion
 
     #region Animation Key
@@ -40,4 +45,23 @@ internal static class CommonValues
     public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
     public const string MusicSongInfoAndAlbumPackDetailFormatId = "Music_SongInfoAndAlbumDetailPack_DataPackage_FormatId";
     #endregion
+
+    #region Other Common Things
+    public static readonly NavigationTransitionInfo DefaultTransitionInfo;
+    #endregion
+
+    static CommonValues()
+    {
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
+        {
+            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
+            {
+                Effect = SlideNavigationTransitionEffect.FromRight
+            };
+        }
+        else
+        {
+            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
+        }
+    }
 }

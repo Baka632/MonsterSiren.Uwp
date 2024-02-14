@@ -9,7 +9,7 @@ public class AlbumServiceTest
     {
         AlbumInfo defaultAlbumInfo = default;
 
-        IEnumerable<AlbumInfo> result = await AlbumService.GetAllAlbums();
+        IEnumerable<AlbumInfo> result = await AlbumService.GetAllAlbumsAsync();
         Assert.NotEmpty(result);
         
         foreach (AlbumInfo item in result)
@@ -24,7 +24,7 @@ public class AlbumServiceTest
         AlbumInfo defaultAlbumInfo = default;
 
         //8930 - 登临意OST
-        AlbumInfo result = await AlbumService.GetAlbumInfo("8930");
+        AlbumInfo result = await AlbumService.GetAlbumInfoAsync("8930");
         Assert.NotEqual(defaultAlbumInfo, result);
     }
     
@@ -34,7 +34,7 @@ public class AlbumServiceTest
         AlbumDetail defaultAlbumInfo = default;
 
         //8930 - 登临意OST
-        AlbumDetail result = await AlbumService.GetAlbumDetailedInfo("8930");
+        AlbumDetail result = await AlbumService.GetAlbumDetailedInfoAsync("8930");
         Assert.NotEqual(defaultAlbumInfo, result);
     }
 }

@@ -20,7 +20,7 @@ public struct NewsInfo : IEquatable<NewsInfo>
     /// 新闻分类
     /// </summary>
     [JsonPropertyName("cate")]
-    public int Category { get; set; } = -1;
+    public NewsCategory Category { get; set; }
     /// <summary>
     /// 新闻日期
     /// </summary>
@@ -29,7 +29,7 @@ public struct NewsInfo : IEquatable<NewsInfo>
     /// <summary>
     /// 使用指定的参数构造 <see cref="NewsInfo"/> 的新实例
     /// </summary>
-    public NewsInfo(string cid, string title, int category, DateTimeOffset date)
+    public NewsInfo(string cid, string title, NewsCategory category, DateTimeOffset date)
     {
         Cid = cid;
         Title = title;

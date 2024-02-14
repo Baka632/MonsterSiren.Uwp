@@ -214,7 +214,7 @@
     <value>刷新</value>
   </data>
   <data name="RefreshButton.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>单击刷新“专辑陈列”页面</value>
+    <value>单击刷新此页面</value>
   </data>
   <data name="DownloadPivotItem.Header" xml:space="preserve">
     <value>存储设置</value>
@@ -350,5 +350,23 @@
   </data>
   <data name="NoSongsInAlbum.Text" xml:space="preserve">
     <value>当前没有歌曲，请稍后再试</value>
+  </data>
+  <data name="NewsPageTextBlock.Text" xml:space="preserve">
+    <value>动向</value>
+  </data>
+  <data name="NewsCategory_NewSongs" xml:space="preserve">
+    <value>新歌发布</value>
+  </data>
+  <data name="NewsCategory_LaunchSpeech" xml:space="preserve">
+    <value>上线致辞</value>
+  </data>
+  <data name="NewsCategory_NewsAlert" xml:space="preserve">
+    <value>资讯速递</value>
+  </data>
+  <data name="NewsCategory_ArtistState" xml:space="preserve">
+    <value>艺人近况</value>
+  </data>
+  <data name="NewsCategory_SpecialRadio" xml:space="preserve">
+    <value>特别电台</value>
   </data>
 </root>

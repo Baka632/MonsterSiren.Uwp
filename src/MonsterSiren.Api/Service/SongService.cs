@@ -15,7 +15,7 @@ public static class SongService
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<SongDetail> GetSongDetailedInfo(string cid)
+    public static async Task<SongDetail> GetSongDetailedInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {
@@ -41,7 +41,7 @@ public static class SongService
     /// <returns>包含全部歌曲的 <see cref="ListPackage{T}"/></returns>
     /// <exception cref="InvalidOperationException">出现未知错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<SongInfo>> GetAllSongs()
+    public static async Task<ListPackage<SongInfo>> GetAllSongsAsync()
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync("songs");
         ResponsePackage<ListPackage<SongInfo>> result = await JsonSerializer.DeserializeAsync<ResponsePackage<ListPackage<SongInfo>>>(jsonStream, CommonValues.DefaultJsonSerializerOptions);

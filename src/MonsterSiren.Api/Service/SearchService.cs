@@ -16,7 +16,7 @@ public static class SearchService
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="keyword"/> 为 null 或空白</exception>
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<SearchAlbumAndNewsResult> SearchAlbumAndNews(string keyword)
+    public static async Task<SearchAlbumAndNewsResult> SearchAlbumAndNewsAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
         {
@@ -44,7 +44,7 @@ public static class SearchService
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="keyword"/> 为 null 或空白</exception>
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<AlbumInfo>> SearchAlbum(string keyword)
+    public static async Task<ListPackage<AlbumInfo>> SearchAlbumAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
         {
@@ -73,7 +73,7 @@ public static class SearchService
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 null 或空白</exception>
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<AlbumInfo>> SearchAlbum(string keyword, string lastCid)
+    public static async Task<ListPackage<AlbumInfo>> SearchAlbumAsync(string keyword, string lastCid)
     {
         if (string.IsNullOrWhiteSpace(keyword))
         {
@@ -106,7 +106,7 @@ public static class SearchService
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="keyword"/> 为 null 或空白</exception>
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<NewsInfo>> SearchNews(string keyword)
+    public static async Task<ListPackage<NewsInfo>> SearchNewsAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
         {
@@ -135,7 +135,7 @@ public static class SearchService
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 null 或空白</exception>
     /// <exception cref="ArgumentException">参数错误</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<ListPackage<NewsInfo>> SearchNews(string keyword, string lastCid)
+    public static async Task<ListPackage<NewsInfo>> SearchNewsAsync(string keyword, string lastCid)
     {
         if (string.IsNullOrWhiteSpace(keyword))
         {
