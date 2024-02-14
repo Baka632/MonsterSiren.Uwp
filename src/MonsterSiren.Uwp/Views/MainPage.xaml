@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:app="using:MonsterSiren.Uwp"
     xmlns:contract5Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
+    xmlns:contract7Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 7)"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
@@ -96,6 +97,7 @@
                 <Thickness x:Key="NavigationViewItemInnerHeaderMargin">0,0,0,0</Thickness>
                 <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,0,0,0</Thickness>
                 <Thickness x:Key="NavigationViewHeaderMargin">0,0,0,0</Thickness>
+                <CornerRadius x:Key="NavigationViewContentGridCornerRadius">0,0,0,0</CornerRadius>
             </muxc:NavigationView.Resources>
             <muxc:NavigationView.AutoSuggestBox>
                 <AutoSuggestBox
@@ -174,6 +176,7 @@
             <Frame
                 x:Name="ContentFrame"
                 Margin="20,20,0,0"
+                contract7Present:CornerRadius="1"
                 Navigated="OnContentFrameNavigated" />
         </muxc:NavigationView>
 
