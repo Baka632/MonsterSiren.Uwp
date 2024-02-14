@@ -105,7 +105,12 @@
                     x:Uid="NavigationViewSearchBox"
                     AccessKey="Q"
                     AccessKeyInvoked="OnAutoSuggestBoxAccessKeyInvoked"
-                    QueryIcon="Find" />
+                    DisplayMemberPath="Name"
+                    ItemsSource="{x:Bind ViewModel.AutoSuggestBoxSuggestion, Mode=OneWay}"
+                    QueryIcon="Find"
+                    QuerySubmitted="OnNavigationViewSearchBoxQuerySubmitted"
+                    TextChanged="OnNavigationViewSearchBoxTextChanged"
+                    TextMemberPath="Name" />
             </muxc:NavigationView.AutoSuggestBox>
             <muxc:NavigationView.PaneToggleButtonStyle>
                 <Style BasedOn="{StaticResource PaneToggleButtonStyle}" TargetType="Button">
@@ -578,6 +583,12 @@
                 </Button>
             </StackPanel>
         </Grid>
+
+        <muxc:TeachingTip
+            x:Name="NotifyNoEmptyStringTeachingTip"
+            x:Uid="EmptyStringInSearchBoxTeachingTip"
+            Grid.RowSpan="3"
+            Target="{x:Bind SearchBox}" />
 
         <controls:InAppNotification
             x:Name="appNotificationControl"

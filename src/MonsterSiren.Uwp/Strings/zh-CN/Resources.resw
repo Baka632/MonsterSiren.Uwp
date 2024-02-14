@@ -369,4 +369,19 @@
   <data name="NewsCategory_SpecialRadio" xml:space="preserve">
     <value>特别电台</value>
   </data>
+  <data name="EmptyStringInSearchBoxTeachingTip.Title" xml:space="preserve">
+    <value>请输入内容</value>
+  </data>
+  <data name="SearchPage_AlbumPivotItem.Header" xml:space="preserve">
+    <value>专辑</value>
+  </data>
+  <data name="SearchPage_NewsPivotItem.Header" xml:space="preserve">
+    <value>新闻</value>
+  </data>
+  <data name="SearchPageTextBlock.Text" xml:space="preserve">
+    <value>搜索结果</value>
+  </data>
+  <data name="SearchNotFound.Text" xml:space="preserve">
+    <value>找不到相关结果</value>
+  </data>
 </root>
