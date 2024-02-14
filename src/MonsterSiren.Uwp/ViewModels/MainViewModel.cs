@@ -17,6 +17,8 @@ public partial class MainViewModel : ObservableRecipient
 
     [ObservableProperty]
     private bool isMediaInfoVisible;
+    [ObservableProperty]
+    private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
 
     public MainViewModel(MainPage mainPage)
     {
@@ -137,7 +139,7 @@ public partial class MainViewModel : ObservableRecipient
                     SongInfo songInfo = songs[i];
                     if (songInfo.Artists is null || songInfo.Artists.Any() != true)
                     {
-                        songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                        songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
                     }
                 }
 
@@ -165,6 +167,25 @@ public partial class MainViewModel : ObservableRecipient
             MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
             return songDetail;
+        }
+    }
+
+    public async Task UpdateAutoSuggestBoxSuggestion(string keyword)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                AutoSuggestBoxSuggestion = null;
+                return;
+            }
+
+            ListPackage<AlbumInfo> searchedAlbums = await SearchService.SearchAlbumAsync(keyword);
+            AutoSuggestBoxSuggestion = searchedAlbums.List;
+        }
+        catch (HttpRequestException)
+        {
+            // Just ignore it...
         }
     }
 

@@ -152,6 +152,7 @@
     <Compile Include="Models\DownloadItemState.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
+    <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="ViewModels\NewsViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingCompactViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingViewModel.cs" />
+    <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\AlbumDetailPage.xaml.cs">
       <DependentUpon>AlbumDetailPage.xaml</DependentUpon>
@@ -192,6 +194,9 @@
     </Compile>
     <Compile Include="Views\NowPlayingPage.xaml.cs">
       <DependentUpon>NowPlayingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchPage.xaml.cs">
+      <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -314,6 +319,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NowPlayingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -291,4 +291,19 @@
   <data name="NewsCategory_SpecialRadio" xml:space="preserve">
     <value>Special radio</value>
   </data>
+  <data name="EmptyStringInSearchBoxTeachingTip.Title" xml:space="preserve">
+    <value>Enter content please</value>
+  </data>
+  <data name="SearchPage_AlbumPivotItem.Header" xml:space="preserve">
+    <value>Albums</value>
+  </data>
+  <data name="SearchPage_NewsPivotItem.Header" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="SearchPageTextBlock.Text" xml:space="preserve">
+    <value>Search result</value>
+  </data>
+  <data name="SearchNotFound.Text" xml:space="preserve">
+    <value>Related content is not found</value>
+  </data>
 </root>

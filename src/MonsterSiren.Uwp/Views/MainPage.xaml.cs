@@ -2,7 +2,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation.Metadata;
 using Windows.Networking.Connectivity;
 using Windows.UI;
 using Windows.UI.Core;
@@ -251,6 +250,10 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
+        else if (currentSourcePageType == typeof(SearchPage))
+        {
+            NavigationView.SelectedItem = null;
+        }
 #if DEBUG
         else
         {
@@ -444,5 +447,29 @@ public sealed partial class MainPage : Page
         {
             ContentFrame.Margin = new Thickness(12, 45, 0, 0);
         }
+    }
+
+    private async void OnNavigationViewSearchBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            await ViewModel.UpdateAutoSuggestBoxSuggestion(sender.Text);
+        }
+    }
+
+    private void OnNavigationViewSearchBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        if (args.QueryText == string.Empty)
+        {
+            return;
+        }
+        else if (string.IsNullOrWhiteSpace(args.QueryText))
+        {
+            NotifyNoEmptyStringTeachingTip.IsOpen = true;
+            return;
+        }
+
+        NotifyNoEmptyStringTeachingTip.IsOpen = false;
+        ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
     }
 }

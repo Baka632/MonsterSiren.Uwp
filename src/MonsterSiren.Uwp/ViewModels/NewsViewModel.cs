@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Net.Http;
-using System.Threading;
-using MonsterSiren.Api.Models.News;
+﻿using System.Net.Http;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -18,7 +15,7 @@ public sealed partial class NewsViewModel : ObservableObject
     [ObservableProperty]
     private IList<RecommendedNewsInfo> recommendedNewsInfos;
     [ObservableProperty]
-    private NewsItemCollection newsInfos;
+    private MsrIncrementalCollection<NewsInfo> newsInfos;
 
     public async Task Initialize()
     {
@@ -27,14 +24,14 @@ public sealed partial class NewsViewModel : ObservableObject
 
         try
         {
-            if (MemoryCacheHelper<NewsItemCollection>.Default.TryGetData(CommonValues.NewsItemCollectionCacheKey, out NewsItemCollection newsInfos))
+            if (MemoryCacheHelper<MsrIncrementalCollection<NewsInfo>>.Default.TryGetData(CommonValues.NewsItemCollectionCacheKey, out MsrIncrementalCollection<NewsInfo> newsInfos))
             {
                 NewsInfos = newsInfos;
             }
             else
             {
-                NewsInfos = new NewsItemCollection(await NewsService.GetNewsListAsync());
-                MemoryCacheHelper<NewsItemCollection>.Default.Store(CommonValues.NewsItemCollectionCacheKey, NewsInfos);
+                NewsInfos = await CreateNewsInfoIncrementalCollection();
+                MemoryCacheHelper<MsrIncrementalCollection<NewsInfo>>.Default.Store(CommonValues.NewsItemCollectionCacheKey, NewsInfos);
             }
 
             if (MemoryCacheHelper<IList<RecommendedNewsInfo>>.Default.TryGetData(CommonValues.RecommendedNewsInfosCacheKey, out IList<RecommendedNewsInfo> recommendedNews))
@@ -65,9 +62,9 @@ public sealed partial class NewsViewModel : ObservableObject
         ErrorVisibility = Visibility.Collapsed;
         try
         {
-            NewsItemCollection newsInfos = new(await NewsService.GetNewsListAsync());
+            MsrIncrementalCollection<NewsInfo> newsInfos = await CreateNewsInfoIncrementalCollection();
             NewsInfos = newsInfos;
-            MemoryCacheHelper<NewsItemCollection>.Default.Store(CommonValues.NewsItemCollectionCacheKey, newsInfos);
+            MemoryCacheHelper<MsrIncrementalCollection<NewsInfo>>.Default.Store(CommonValues.NewsItemCollectionCacheKey, newsInfos);
 
             List<RecommendedNewsInfo> recommendeds = (await NewsService.GetRecommendedNewsAsync()).ToList();
             if (RecommendedNewsInfos is null || !RecommendedNewsInfos.SequenceEqual(recommendeds))
@@ -113,6 +110,12 @@ public sealed partial class NewsViewModel : ObservableObject
         }
     }
 
+    private static async Task<MsrIncrementalCollection<NewsInfo>> CreateNewsInfoIncrementalCollection()
+    {
+        return new MsrIncrementalCollection<NewsInfo>(await NewsService.GetNewsListAsync(),
+            async lastNewsInfo => await NewsService.GetNewsListAsync(lastNewsInfo.Cid));
+    }
+
     private void ShowInternetError(HttpRequestException ex)
     {
         ErrorVisibility = Visibility.Visible;
@@ -136,68 +139,4 @@ public sealed partial class NewsViewModel : ObservableObject
 
         await contentDialog.ShowAsync();
     }
-}
-
-public sealed class NewsItemCollection : ObservableCollection<NewsInfo>, ISupportIncrementalLoading
-{
-    private string lastCid = null;
-
-    public event Action<Exception> ErrorOccured;
-
-    public NewsItemCollection(ListPackage<NewsInfo> newsList) : base(newsList.List)
-    {
-        if (newsList.IsEnd == true)
-        {
-            HasMoreItems = false;
-        }
-        else
-        {
-            HasMoreItems = true;
-            lastCid = newsList.List.Last().Cid;
-        }
-    }
-
-    public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
-    {
-        return AsyncInfo.Run(LoadFromServer);
-    }
-
-    private async Task<LoadMoreItemsResult> LoadFromServer(CancellationToken token)
-    {
-        LoadMoreItemsResult result = new();
-
-        try
-        {
-            ListPackage<NewsInfo> newsList = string.IsNullOrWhiteSpace(lastCid)
-                ? await Task.Run(NewsService.GetNewsListAsync, token)
-                : await Task.Run(() => NewsService.GetNewsListAsync(lastCid), token);
-
-            uint count = 0;
-            foreach (NewsInfo item in newsList.List)
-            {
-                Add(item);
-                count++;
-            }
-
-            result.Count = count;
-
-            if (newsList.IsEnd == true)
-            {
-                HasMoreItems = false;
-            }
-            else
-            {
-                HasMoreItems = true;
-                lastCid = newsList.List.Last().Cid;
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorOccured?.Invoke(ex);
-        }
-
-        return result;
-    }
-
-    public bool HasMoreItems { get; private set; }
 }
