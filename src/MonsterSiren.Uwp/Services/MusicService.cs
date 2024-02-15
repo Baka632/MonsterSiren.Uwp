@@ -131,6 +131,14 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 获取在随机播放时使用的只读列表
+    /// </summary>
+    public static IReadOnlyList<MediaPlaybackItem> CurrentShuffledMediaPlaybackList
+    {
+        get => mediaPlaybackList.ShuffledItems;
+    }
+
+    /// <summary>
     /// 获取或设置播放器的静音状态
     /// </summary>
     public static bool IsPlayerMuted
