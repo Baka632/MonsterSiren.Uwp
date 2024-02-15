@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
 using Windows.Media.Playback;
 using Windows.UI;
 
@@ -46,7 +47,7 @@ public sealed class NowPlayingItemGrid : Grid
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (MusicService.CurrentMediaPlaybackItem is not null && MusicService.CurrentMediaPlaybackItem == DataContext)
+        if (MusicService.CurrentMediaPlaybackItem is not null && ReferenceEquals(MusicService.CurrentMediaPlaybackItem, DataContext))
         {
             ContentBrush = new SolidColorBrush(CurrentThemeColor);
             CurrentNowPlayingItemIndicatorVisibility = Visibility.Visible;
@@ -60,7 +61,7 @@ public sealed class NowPlayingItemGrid : Grid
 
     private void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
-        if (args.NewItem is not null && args.NewItem == DataContext)
+        if (args.NewItem is not null && ReferenceEquals(args.NewItem, DataContext))
         {
             ContentBrush = new SolidColorBrush(CurrentThemeColor);
             CurrentNowPlayingItemIndicatorVisibility = Visibility.Visible;

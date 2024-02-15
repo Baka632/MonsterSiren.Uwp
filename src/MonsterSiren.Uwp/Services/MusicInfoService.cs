@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Helpers;
-using MonsterSiren.Uwp.Helpers.Tile;
+﻿using System.Collections.Specialized;
+using Microsoft.Toolkit.Uwp.UI.Helpers;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -162,6 +162,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
         MusicService.MusicStopped += OnMusicStopped;
+        MusicService.PlaylistChanged += OnPlayListChanged;
 
         themeListener.ThemeChanged += OnThemeChanged;
 
@@ -235,6 +236,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
         #endregion
     }
 
+    private void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
+        {
+            CreateNowPlayingTile();
+        }
+    }
+
     private void OnPlayerMediaReplacing()
     {
         IsLoadingMedia = true;
@@ -264,6 +273,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
             PlayerRepeatingState.RepeatSingle => "RepeatSingleText".GetLocalized(),
             _ => "RepeatOffText".GetLocalized(),
         };
+
+        if (CurrentMusicPropertiesExists)
+        {
+            CreateNowPlayingTile();
+        }
     }
 
     private void OnPlayerShuffleStateChanged(bool value)
@@ -275,6 +289,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
             true => "ShuffleOnText".GetLocalized(),
             false => "ShuffleOffText".GetLocalized()
         };
+
+        if (CurrentMusicPropertiesExists)
+        {
+            CreateNowPlayingTile();
+        }
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)

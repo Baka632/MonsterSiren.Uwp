@@ -143,11 +143,14 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
+                List<MediaPlaybackItem> playbackItems = new(CurrentAlbumDetail.Songs.Count());
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
                     SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
-                    MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                    playbackItems.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
+
+                MusicService.AddMusic(playbackItems);
             });
         }
         catch (HttpRequestException)

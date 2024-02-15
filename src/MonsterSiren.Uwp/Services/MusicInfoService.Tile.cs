@@ -1,8 +1,5 @@
-﻿using System.Reflection;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
 using MonsterSiren.Uwp.Helpers.Tile;
-using MonsterSiren.Uwp.Models;
-using Windows.Data.Xml.Dom;
 using Windows.Media;
 using Windows.Media.Playback;
 
@@ -10,39 +7,14 @@ namespace MonsterSiren.Uwp.Services;
 
 public partial class MusicInfoService
 {
+    private bool isUpdatingTile;
+
     private void CreateNowPlayingTile()
     {
-        //string tileXml = $"""
-        //    <tile>
-        //      <visual>
-        //        <binding template="TileSmall">
-        //         <image src="{CurrentMediaCover.UriSource}" placement="background"/>
-        //        </binding>
-        //        <binding template="TileMedium">
-        //          <image src="{CurrentMediaCover.UriSource}" placement="peek"/>
-        //          <text hint-wrap="true" hint-align="Left" >{CurrentMusicProperties.Title}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.Artist}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.AlbumTitle}</text>
-        //        </binding>
-        //        <binding template="TileWide">
-        //          <image src="{CurrentMediaCover.UriSource}" placement="peek"/>
-        //          <text hint-style="Subtitle" hint-wrap="true" hint-align="Left" >{CurrentMusicProperties.Title}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.Artist}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.AlbumTitle}</text>
-        //        </binding>
-        //        <binding template="TileLarge">
-        //          <image src="{CurrentMediaCover.UriSource}" placement="peek"/>
-        //          <text hint-style="Title" hint-wrap="true" hint-align="Left" >{CurrentMusicProperties.Title}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.Artist}</text>
-        //          <text hint-wrap="true">{CurrentMusicProperties.AlbumTitle}</text>
-        //        </binding>
-        //      </visual>
-        //    </tile>
-        //    """;
-
+        isUpdatingTile = true;
         AdaptiveTileBuilder builder = new();
 
-        if (CurrentMediaCover.UriSource is not null)
+        if (CurrentMediaCover?.UriSource is not null)
         {
             string uri = CurrentMediaCover.UriSource.ToString();
 
@@ -94,6 +66,7 @@ public partial class MusicInfoService
         }
 
         TileHelper.ShowTitle(builder.Build());
+        isUpdatingTile = false;
 
         static void TrySetNextMusicProps(ref MusicDisplayProperties nextMusicProps, IReadOnlyList<MediaPlaybackItem> items, int index)
         {

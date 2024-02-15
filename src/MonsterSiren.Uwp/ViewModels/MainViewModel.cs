@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
+using MonsterSiren.Api.Models.Song;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -80,12 +82,15 @@ public partial class MainViewModel : ObservableRecipient
             await Task.Run(async () =>
             {
                 AlbumDetail albumDetail = await GetAlbumDetail(albumInfo).ConfigureAwait(false);
+                List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
                     SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-                    MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
+                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
+
+                MusicService.AddMusic(playbackItems);
             });
         }
         catch (HttpRequestException)
