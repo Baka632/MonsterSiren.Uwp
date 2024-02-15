@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Helpers;
+using MonsterSiren.Uwp.Helpers.Tile;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -419,10 +420,12 @@ public sealed partial class MusicInfoService : ObservableRecipient
             }
 
             IsLoadingMedia = false;
+            CreateNowPlayingTile();
         }
         else
         {
             CurrentMusicProperties = null;
+            DeleteNowPlayingTile();
         }
     }
 

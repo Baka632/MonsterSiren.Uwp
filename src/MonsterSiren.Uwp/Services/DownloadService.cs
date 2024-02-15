@@ -399,61 +399,66 @@ public static class DownloadService
         string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
         string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
 
-        if (File.Exists(infoFilePath))
+        StorageFile infoFile;
+        try
         {
-            StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+            infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+        }
+        catch
+        {
+            return;
+        }
 
-            if (musicFile.ContentType == "audio/wav")
+        if (musicFile.ContentType == "audio/wav")
+        {
+            // 给 WAV 写音乐信息会出现奇奇怪怪的问题
+            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            return;
+        }
+
+        dlItem.State = DownloadItemState.WritingTag;
+
+        using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
+        SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
+        AlbumDetail albumDetail = pack.AlbumDetail;
+        SongDetail songDetail = pack.SongDetail;
+        using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
+        using TagLib.File file = TagLib.File.Create(uwpStorageFile);
+        IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
+
+        try
+        {
+            List<SongInfo> songs = albumDetail.Songs.ToList();
+            file.Tag.Performers = songDetail.Artists.Any() ? songDetail.Artists.ToArray() : ["MSR".GetLocalized()];
+            file.Tag.Title = songDetail.Name;
+            file.Tag.Album = albumDetail.Name;
+            file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()];
+            file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
+
+            TagLib.Picture picture;
+            if (coverStream is null)
             {
-                // 给 WAV 写音乐信息会出现奇奇怪怪的问题
-                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                return;
+                Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                using Windows.Web.Http.HttpClient httpClient = new();
+                using Windows.Web.Http.HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+                coverStream = new InMemoryRandomAccessStream();
+                await result.Content.WriteToStreamAsync(coverStream);
             }
 
-            dlItem.State = DownloadItemState.WritingTag;
-
-            using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
-            SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
-            AlbumDetail albumDetail = pack.AlbumDetail;
-            SongDetail songDetail = pack.SongDetail;
-            using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
-            using TagLib.File file = TagLib.File.Create(uwpStorageFile);
-            IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
-
-            try
+            coverStream.Seek(0);
+            Stream stream = coverStream.AsStreamForRead();
+            picture = new(TagLib.ByteVector.FromStream(stream))
             {
-                List<SongInfo> songs = albumDetail.Songs.ToList();
-                file.Tag.Performers = songDetail.Artists.Any() ? songDetail.Artists.ToArray() : ["MSR".GetLocalized()];
-                file.Tag.Title = songDetail.Name;
-                file.Tag.Album = albumDetail.Name;
-                file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()];
-                file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
-
-                TagLib.Picture picture;
-                if (coverStream is null)
-                {
-                    Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                    using Windows.Web.Http.HttpClient httpClient = new();
-                    using Windows.Web.Http.HttpResponseMessage result = await httpClient.GetAsync(coverUri);
-
-                    coverStream = new InMemoryRandomAccessStream();
-                    await result.Content.WriteToStreamAsync(coverStream);
-                }
-
-                coverStream.Seek(0);
-                Stream stream = coverStream.AsStreamForRead();
-                picture = new(TagLib.ByteVector.FromStream(stream))
-                {
-                    MimeType = "image/jpeg"
-                };
-                file.Tag.Pictures = [picture];
-            }
-            finally
-            {
-                file.Save();
-                coverStream.Dispose();
-                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-            }
+                MimeType = "image/jpeg"
+            };
+            file.Tag.Pictures = [picture];
+        }
+        finally
+        {
+            file.Save();
+            coverStream.Dispose();
+            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
     }
 

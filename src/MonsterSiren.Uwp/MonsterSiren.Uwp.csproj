@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -146,6 +146,9 @@
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
     <Compile Include="Helpers\SongDetailExtensions.cs" />
+    <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
+    <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
+    <Compile Include="Helpers\Tile\TileHelper.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
@@ -159,6 +162,7 @@
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
+    <Compile Include="Services\MusicInfoService.Tile.cs" />
     <Compile Include="Services\MusicService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\DownloadViewModel.cs" />
