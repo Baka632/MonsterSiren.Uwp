@@ -55,7 +55,7 @@ public partial class MusicInfoService : IDisposable
             .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true);
 
         builder.TileWide
-            .AddAdaptiveText(CurrentMusicProperties.Title, true)
+            .AddAdaptiveText(CurrentMusicProperties.Title, true, AdaptiveTextStyle.Body)
             .AddAdaptiveText(CurrentMusicProperties.Artist, true)
             .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true);
 

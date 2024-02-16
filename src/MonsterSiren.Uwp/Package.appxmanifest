@@ -10,7 +10,7 @@
   <Identity
     Name="Baka632.MonsterSiren.Uwp"
     Publisher="CN=Baka632"
-    Version="1.0.20.4" />
+    Version="1.0.20.6" />
 
   <mp:PhoneIdentity PhoneProductId="c4f5a7b1-db02-4855-b1bd-304559dec527" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
