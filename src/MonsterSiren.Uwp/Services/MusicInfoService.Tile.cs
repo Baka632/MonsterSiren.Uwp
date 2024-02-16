@@ -59,35 +59,40 @@ public partial class MusicInfoService : IDisposable
             .AddAdaptiveText(CurrentMusicProperties.Artist, true)
             .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true);
 
-        builder.TileLarge
-            .AddAdaptiveText(CurrentMusicProperties.Title, true, AdaptiveTextStyle.Title, hintMaxLines: 2)
-            .AddAdaptiveText(CurrentMusicProperties.Artist, true, hintMaxLines: 1)
-            .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true, hintMaxLines: 1);
-
-        MusicDisplayProperties nextMusicProps = null;
-
-        if (IsShuffle == true)
+        if (EnvironmentHelper.IsWindowsMobile != true)
         {
-            List<MediaPlaybackItem> shuffledList = [.. MusicService.CurrentShuffledMediaPlaybackList];
-            int index = shuffledList.IndexOf(MusicService.CurrentMediaPlaybackItem);
+            // Windows 10 Mobile 不支持大型磁贴，所以在 Win10M 上不需要添加大型磁贴特定的元素
 
-            TrySetNextMusicProps(ref nextMusicProps, shuffledList, index);
-        }
-        else
-        {
-            NowPlayingList nowPlayingList = MusicService.CurrentMediaPlaybackList;
-            int index = nowPlayingList.IndexOf(MusicService.CurrentMediaPlaybackItem);
-
-            TrySetNextMusicProps(ref nextMusicProps, nowPlayingList, index);
-        }
-
-        if (nextMusicProps != null)
-        {
             builder.TileLarge
-                .AddAdaptiveText(string.Empty)
-                .AddAdaptiveText(nextMusicProps.Title, true, hintMaxLines: 2)
-                .AddAdaptiveText(nextMusicProps.Artist)
-                .AddAdaptiveText(nextMusicProps.AlbumTitle, true);
+                .AddAdaptiveText(CurrentMusicProperties.Title, true, AdaptiveTextStyle.Title, hintMaxLines: 2)
+                .AddAdaptiveText(CurrentMusicProperties.Artist, true, hintMaxLines: 1)
+                .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true, hintMaxLines: 1);
+
+            MusicDisplayProperties nextMusicProps = null;
+
+            if (IsShuffle == true)
+            {
+                List<MediaPlaybackItem> shuffledList = [.. MusicService.CurrentShuffledMediaPlaybackList];
+                int index = shuffledList.IndexOf(MusicService.CurrentMediaPlaybackItem);
+
+                TrySetNextMusicProps(ref nextMusicProps, shuffledList, index);
+            }
+            else
+            {
+                NowPlayingList nowPlayingList = MusicService.CurrentMediaPlaybackList;
+                int index = nowPlayingList.IndexOf(MusicService.CurrentMediaPlaybackItem);
+
+                TrySetNextMusicProps(ref nextMusicProps, nowPlayingList, index);
+            }
+
+            if (nextMusicProps != null)
+            {
+                builder.TileLarge
+                    .AddAdaptiveText(string.Empty)
+                    .AddAdaptiveText(nextMusicProps.Title, true, hintMaxLines: 2)
+                    .AddAdaptiveText(nextMusicProps.Artist)
+                    .AddAdaptiveText(nextMusicProps.AlbumTitle, true);
+            }
         }
 
         TileHelper.ShowTitle(builder.Build());
