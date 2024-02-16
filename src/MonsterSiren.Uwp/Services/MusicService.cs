@@ -131,6 +131,14 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 获取在随机播放时使用的只读列表
+    /// </summary>
+    public static IReadOnlyList<MediaPlaybackItem> CurrentShuffledMediaPlaybackList
+    {
+        get => mediaPlaybackList.ShuffledItems;
+    }
+
+    /// <summary>
     /// 获取或设置播放器的静音状态
     /// </summary>
     public static bool IsPlayerMuted
@@ -289,15 +297,39 @@ public static class MusicService
     /// <param name="media">表示音乐的 <see cref="MediaPlaybackItem"/></param>
     public static async void AddMusic(MediaPlaybackItem media)
     {
-        bool shouldPlayMusic = false;
-        if (IsPlayerPlaylistHasMusic != true)
-        {
-            shouldPlayMusic = true;
-        }
+        bool shouldStartPlaying = !IsPlayerPlaylistHasMusic;
 
         await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
 
-        if (shouldPlayMusic)
+        if (shouldStartPlaying)
+        {
+            PlayMusic();
+        }
+    }
+
+    /// <summary>
+    /// 添加要播放的音乐
+    /// </summary>
+    /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
+    public static async void AddMusic(IEnumerable<MediaPlaybackItem> medias)
+    {
+        bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
+
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            foreach (MediaPlaybackItem item in medias)
+            {
+                CurrentMediaPlaybackList.Add(item);
+            }
+        });
+
+        if (IsPlayerShuffleEnabled && isNoMusicInPlaylistBefore)
+        {
+            int targetIndex = CurrentMediaPlaybackList.IndexOf(CurrentShuffledMediaPlaybackList[0]);
+            MoveTo((uint)targetIndex);
+        }
+
+        if (isNoMusicInPlaylistBefore)
         {
             PlayMusic();
         }
@@ -336,6 +368,12 @@ public static class MusicService
                 CurrentMediaPlaybackList.Add(media);
             }
         });
+
+        if (IsPlayerShuffleEnabled)
+        {
+            int targetIndex = CurrentMediaPlaybackList.IndexOf(CurrentShuffledMediaPlaybackList[0]);
+            MoveTo((uint)targetIndex);
+        }
         PlayMusic();
     }
 

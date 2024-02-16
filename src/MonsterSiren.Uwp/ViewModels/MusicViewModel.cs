@@ -162,12 +162,15 @@ public sealed partial class MusicViewModel : ObservableObject
             await Task.Run(async () =>
             {
                 AlbumDetail albumDetail = await GetAlbumDetail(albumInfo).ConfigureAwait(false);
+                List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
                     SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-                    MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
+                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
+
+                MusicService.AddMusic(playbackItems);
             });
         }
         catch (HttpRequestException)

@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Helpers;
+﻿using System.Collections.Specialized;
+using Microsoft.Toolkit.Uwp.UI.Helpers;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -161,6 +162,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
         MusicService.MusicStopped += OnMusicStopped;
+        MusicService.PlaylistChanged += OnPlayListChanged;
 
         themeListener.ThemeChanged += OnThemeChanged;
 
@@ -234,6 +236,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
         #endregion
     }
 
+    private async void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
+        {
+            await CreateNowPlayingTile();
+        }
+    }
+
     private void OnPlayerMediaReplacing()
     {
         IsLoadingMedia = true;
@@ -247,7 +257,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
-    private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
+    private async void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
     {
         SettingsHelper.Set(CommonValues.MusicRepeatStateSettingsKey, state.ToString());
         OnPropertyChanged(nameof(IsRepeat));
@@ -263,9 +273,14 @@ public sealed partial class MusicInfoService : ObservableRecipient
             PlayerRepeatingState.RepeatSingle => "RepeatSingleText".GetLocalized(),
             _ => "RepeatOffText".GetLocalized(),
         };
+
+        if (CurrentMusicPropertiesExists)
+        {
+            await CreateNowPlayingTile();
+        }
     }
 
-    private void OnPlayerShuffleStateChanged(bool value)
+    private async void OnPlayerShuffleStateChanged(bool value)
     {
         SettingsHelper.Set(CommonValues.MusicShuffleStateSettingsKey, value);
         OnPropertyChanged(nameof(IsShuffle));
@@ -274,6 +289,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
             true => "ShuffleOnText".GetLocalized(),
             false => "ShuffleOffText".GetLocalized()
         };
+
+        if (CurrentMusicPropertiesExists)
+        {
+            await CreateNowPlayingTile();
+        }
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
@@ -419,10 +439,12 @@ public sealed partial class MusicInfoService : ObservableRecipient
             }
 
             IsLoadingMedia = false;
+            await CreateNowPlayingTile();
         }
         else
         {
             CurrentMusicProperties = null;
+            DeleteNowPlayingTile();
         }
     }
 
