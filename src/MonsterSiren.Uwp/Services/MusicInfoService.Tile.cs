@@ -1,27 +1,52 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using System.Threading;
+using Microsoft.Toolkit.Uwp.Notifications;
 using MonsterSiren.Uwp.Helpers.Tile;
 using Windows.Media;
 using Windows.Media.Playback;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace MonsterSiren.Uwp.Services;
 
-public partial class MusicInfoService
+public partial class MusicInfoService : IDisposable
 {
+    private const string DefaultTileImageFolderName = "TileImage";
+    private static readonly StorageFolder tempFolder = ApplicationData.Current.LocalCacheFolder;
+    private static readonly SemaphoreSlim tileFileSemaphore = new(1);
     private bool isUpdatingTile;
+    private bool disposedValue;
 
-    private void CreateNowPlayingTile()
+    private async Task CreateNowPlayingTile()
     {
         isUpdatingTile = true;
         AdaptiveTileBuilder builder = new();
 
-        if (CurrentMediaCover?.UriSource is not null)
+        if (MusicService.CurrentMediaPlaybackItem is not null)
         {
-            string uri = CurrentMediaCover.UriSource.ToString();
+            await tileFileSemaphore.WaitAsync();
+            try
+            {
+                RandomAccessStreamReference cover = MusicService.CurrentMediaPlaybackItem.GetDisplayProperties().Thumbnail;
+                using IRandomAccessStreamWithContentType coverStream = await cover.OpenReadAsync();
 
-            builder.TileSmall.AddBackgroundImage(uri, 0);
-            builder.TileMedium.AddPeekImage(uri, 0);
-            builder.TileWide.AddPeekImage(uri, 0);
-            builder.TileLarge.AddPeekImage(uri, 0);
+                StorageFolder tileFolder = await tempFolder.CreateFolderAsync(DefaultTileImageFolderName, CreationCollisionOption.OpenIfExists);
+                StorageFile file = await tileFolder.CreateFileAsync("Tile.png", CreationCollisionOption.OpenIfExists);
+
+                StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                await RandomAccessStream.CopyAsync(coverStream, transaction.Stream);
+                await transaction.CommitAsync();
+                transaction.Dispose();
+
+                string imagePath = file.Path;
+                builder.TileSmall.AddBackgroundImage(imagePath, 0);
+                builder.TileMedium.AddPeekImage(imagePath, 0);
+                builder.TileWide.AddPeekImage(imagePath, 0);
+                builder.TileLarge.AddPeekImage(imagePath, 0);
+            }
+            finally
+            {
+                tileFileSemaphore.Release();
+            }
         }
 
         builder.TileMedium
@@ -84,5 +109,33 @@ public partial class MusicInfoService
     private static void DeleteNowPlayingTile()
     {
         TileHelper.DeleteTile();
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                // 释放托管状态(托管对象)
+            }
+
+            // 释放未托管的资源(未托管的对象)并重写终结器
+            // 将大型字段设置为 null
+            tileFileSemaphore.Dispose();
+            themeListener.Dispose();
+            disposedValue = true;
+        }
+    }
+
+    ~MusicInfoService()
+    {
+        Dispose(disposing: false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

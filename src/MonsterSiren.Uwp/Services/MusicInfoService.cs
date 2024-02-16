@@ -236,11 +236,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
         #endregion
     }
 
-    private void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
         {
-            CreateNowPlayingTile();
+            await CreateNowPlayingTile();
         }
     }
 
@@ -257,7 +257,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
-    private void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
+    private async void OnPlayerRepeatingStateChanged(PlayerRepeatingState state)
     {
         SettingsHelper.Set(CommonValues.MusicRepeatStateSettingsKey, state.ToString());
         OnPropertyChanged(nameof(IsRepeat));
@@ -276,11 +276,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
         if (CurrentMusicPropertiesExists)
         {
-            CreateNowPlayingTile();
+            await CreateNowPlayingTile();
         }
     }
 
-    private void OnPlayerShuffleStateChanged(bool value)
+    private async void OnPlayerShuffleStateChanged(bool value)
     {
         SettingsHelper.Set(CommonValues.MusicShuffleStateSettingsKey, value);
         OnPropertyChanged(nameof(IsShuffle));
@@ -292,7 +292,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
         if (CurrentMusicPropertiesExists)
         {
-            CreateNowPlayingTile();
+            await CreateNowPlayingTile();
         }
     }
 
@@ -439,7 +439,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             }
 
             IsLoadingMedia = false;
-            CreateNowPlayingTile();
+            await CreateNowPlayingTile();
         }
         else
         {
