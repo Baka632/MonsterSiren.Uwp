@@ -334,7 +334,7 @@
     <value>显示设置</value>
   </data>
   <data name="SettingsPage_AppBackground.Text" xml:space="preserve">
-    <value>应用背景</value>
+    <value>背景 + 颜色</value>
   </data>
   <data name="MicaBackground" xml:space="preserve">
     <value>云母</value>
@@ -383,5 +383,35 @@
   </data>
   <data name="SearchNotFound.Text" xml:space="preserve">
     <value>找不到相关结果</value>
+  </data>
+  <data name="SettingsPage_AppColorTheme.Text" xml:space="preserve">
+    <value>设置颜色主题（需要重启应用）</value>
+  </data>
+  <data name="ColorTheme_Default" xml:space="preserve">
+    <value>系统默认</value>
+  </data>
+  <data name="ColorTheme_Light" xml:space="preserve">
+    <value>亮色</value>
+  </data>
+  <data name="ColorTheme_Dark" xml:space="preserve">
+    <value>暗色</value>
+  </data>
+  <data name="SettingsPage_OpenLogFolder.Text" xml:space="preserve">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="CodecInfoDialog.Title" xml:space="preserve">
+    <value>音频编解码器信息</value>
+  </data>
+  <data name="CodecInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="SettingsPage_OpenCodecInfoDialog.Text" xml:space="preserve">
+    <value>音频编解码器信息</value>
+  </data>
+  <data name="CodecInfo_Encoder" xml:space="preserve">
+    <value>编码器</value>
+  </data>
+  <data name="CodecInfo_Decoder" xml:space="preserve">
+    <value>解码器</value>
   </data>
 </root>

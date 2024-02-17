@@ -229,7 +229,7 @@
     <value>Low (96 kbps and above)</value>
   </data>
   <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
-    <value>Preserve original WAV file after transcode</value>
+    <value>Preserve original WAV file after transcoding</value>
   </data>
   <data name="DownloadItemState_Downloading" xml:space="preserve">
     <value>Downloading</value>
@@ -256,7 +256,7 @@
     <value>Presentation settings</value>
   </data>
   <data name="SettingsPage_AppBackground.Text" xml:space="preserve">
-    <value>App background</value>
+    <value>Background + Color</value>
   </data>
   <data name="MicaBackground" xml:space="preserve">
     <value>Mica</value>
@@ -305,5 +305,35 @@
   </data>
   <data name="SearchNotFound.Text" xml:space="preserve">
     <value>Related content is not found</value>
+  </data>
+  <data name="SettingsPage_AppColorTheme.Text" xml:space="preserve">
+    <value>Set app's color theme (Require restart)</value>
+  </data>
+  <data name="ColorTheme_Default" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="ColorTheme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ColorTheme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="SettingsPage_OpenLogFolder.Text" xml:space="preserve">
+    <value>Open log folder</value>
+  </data>
+  <data name="CodecInfoDialog.Title" xml:space="preserve">
+    <value>Audio codec infomation</value>
+  </data>
+  <data name="CodecInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsPage_OpenCodecInfoDialog.Text" xml:space="preserve">
+    <value>Audio codec infomation</value>
+  </data>
+  <data name="CodecInfo_Encoder" xml:space="preserve">
+    <value>Encoder</value>
+  </data>
+  <data name="CodecInfo_Decoder" xml:space="preserve">
+    <value>Decoder</value>
   </data>
 </root>

@@ -39,6 +39,7 @@ internal static class CommonValues
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
 
     public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
+    public const string AppColorThemeSettingsKey = "App_ColorTheme_SettingsKey";
     #endregion
 
     #region Data Package Type

@@ -3,6 +3,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.AccessCache;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;
+using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -11,6 +12,7 @@ public partial class SettingsViewModel : ObservableObject
     public readonly IReadOnlyList<CodecInfo> AvailableCommonEncoders;
     public readonly IReadOnlyList<AudioEncodingQuality> AudioEncodingQualities;
     public readonly IReadOnlyList<AppBackgroundMode> AppBackgroundModes;
+    public readonly IReadOnlyList<AppColorTheme> AppColorThemes;
 
     [ObservableProperty]
     private string downloadPath = DownloadService.DownloadPath;
@@ -28,9 +30,12 @@ public partial class SettingsViewModel : ObservableObject
     private bool preserveWavAfterTranscode = DownloadService.KeepWavFileAfterTranscode;
     [ObservableProperty]
     private int selectedAppBackgroundModeIndex;
+    [ObservableProperty]
+    private int selectedAppColorThemeIndex;
 
     public SettingsViewModel()
     {
+        #region Transcoding
         if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> infos))
         {
             List<CodecInfo> codecInfos = infos.ToList();
@@ -42,7 +47,9 @@ public partial class SettingsViewModel : ObservableObject
         List<AudioEncodingQuality> qualities = [AudioEncodingQuality.High, AudioEncodingQuality.Medium, AudioEncodingQuality.Low];
         AudioEncodingQualities = qualities;
         selectedTranscodeQualityIndex = qualities.IndexOf(DownloadService.TranscodeQuality);
+        #endregion
 
+        #region Background
         List<AppBackgroundMode> bgModes = new(3);
 
         bool isSupportMica = MicaHelper.IsSupported();
@@ -84,6 +91,23 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         selectedAppBackgroundModeIndex = bgModes.IndexOf(backgroundMode);
+        #endregion
+
+        #region Color Theme
+        List<AppColorTheme> appColorThemes = [AppColorTheme.Default, AppColorTheme.Light, AppColorTheme.Dark];
+        AppColorThemes = appColorThemes;
+
+        if (SettingsHelper.TryGet(CommonValues.AppColorThemeSettingsKey, out string colorThemeString) && Enum.TryParse(colorThemeString, out AppColorTheme colorTheme))
+        {
+            // ;-)
+        }
+        else
+        {
+            colorTheme = AppColorTheme.Default;
+        }
+
+        selectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
+        #endregion
     }
 
     partial void OnDownloadLyricChanged(bool value)
@@ -129,6 +153,16 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    partial void OnSelectedAppColorThemeIndexChanged(int value)
+    {
+        if (value >= 0)
+        {
+            AppColorTheme theme = AppColorThemes[value];
+            string themeString = theme.ToString();
+            SettingsHelper.Set(CommonValues.AppColorThemeSettingsKey, themeString);
+        }
+    }
+
     [RelayCommand]
     private async Task PickDownloadFolderAsync()
     {
@@ -147,13 +181,24 @@ public partial class SettingsViewModel : ObservableObject
         IsFolderRedirected = false;
     }
 
-    private static bool HasCommonEncoders(CodecInfo info)
+    [RelayCommand]
+    private static async Task OpenLogFolder()
     {
-        return info.Subtypes.Any(IsCommonEncoder);
+        StorageFolder temporaryFolder = ApplicationData.Current.TemporaryFolder;
+        StorageFolder logFolder = await temporaryFolder.CreateFolderAsync("Log", CreationCollisionOption.OpenIfExists);
+        await Launcher.LaunchFolderAsync(logFolder);
     }
 
-    private static bool IsCommonEncoder(string encoderGuid)
+    [RelayCommand]
+    private static async Task OpenCodecsInfoDialog()
     {
-        return encoderGuid == CodecSubtypes.AudioFormatFlac || encoderGuid == CodecSubtypes.AudioFormatMP3;
+        CodecQuery codecQuery = new();
+        IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
+        IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
+
+        List<CodecInfo> codecs = [.. encoders, .. decoders];
+
+        CodecInfoDialog dialog = new(codecs);
+        _ = await dialog.ShowAsync();
     }
 }

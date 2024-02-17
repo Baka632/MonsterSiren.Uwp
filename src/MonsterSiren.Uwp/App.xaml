@@ -6,6 +6,7 @@
     xmlns:local="using:MonsterSiren.Uwp">
     <Application.Resources>
         <ResourceDictionary>
+            <!--#region Converters-->
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
             <converters:DownloadItemStateToStringConverter x:Key="DownloadItemStateToStringConverter" />
             <converters:AudioGuidToStringConverter x:Key="AudioGuidToStringConverter" />
@@ -13,6 +14,9 @@
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
             <converters:AppBackgroundModeToStringConverter x:Key="AppBackgroundModeToStringConverter" />
             <converters:NewsCategoryToStringConverter x:Key="NewsCategoryToStringConverter" />
+            <converters:AppColorThemeToStringConverter x:Key="AppColorThemeToStringConverter" />
+            <converters:CodecCategoryToStringConverter x:Key="CodecCategoryToStringConverter" />
+            <!--#endregion-->
 
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />

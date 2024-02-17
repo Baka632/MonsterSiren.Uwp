@@ -1,7 +1,9 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.UI.Xaml.Controls;
+using Windows.Foundation.Metadata;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Notifications;
+using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp;
 
@@ -33,6 +35,22 @@ sealed partial class App : Application
 
         UnhandledException += App_UnhandledException;
         this.Suspending += OnSuspending;
+
+        if (SettingsHelper.TryGet(CommonValues.AppColorThemeSettingsKey, out string colorThemeString) && Enum.TryParse(colorThemeString, out AppColorTheme colorTheme))
+        {
+            switch (colorTheme)
+            {
+                case AppColorTheme.Light:
+                    Current.RequestedTheme = ApplicationTheme.Light;
+                    break;
+                case AppColorTheme.Dark:
+                    Current.RequestedTheme = ApplicationTheme.Dark;
+                    break;
+                case AppColorTheme.Default:
+                default:
+                    break;
+            }
+        }
     }
 
     private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -132,6 +150,17 @@ sealed partial class App : Application
             }
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
+        }
+
+        if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
+        {
+            StatusBar statusBar = StatusBar.GetForCurrentView();
+            statusBar.ForegroundColor = Current.RequestedTheme switch
+            {
+                ApplicationTheme.Light => Colors.Black,
+                ApplicationTheme.Dark => Colors.White,
+                _ => throw new NotImplementedException(),
+            };
         }
     }
 
