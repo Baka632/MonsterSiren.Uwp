@@ -11,6 +11,7 @@ public partial class SettingsViewModel : ObservableObject
     public readonly IReadOnlyList<CodecInfo> AvailableCommonEncoders;
     public readonly IReadOnlyList<AudioEncodingQuality> AudioEncodingQualities;
     public readonly IReadOnlyList<AppBackgroundMode> AppBackgroundModes;
+    public readonly IReadOnlyList<AppColorTheme> AppColorThemes;
 
     [ObservableProperty]
     private string downloadPath = DownloadService.DownloadPath;
@@ -28,9 +29,12 @@ public partial class SettingsViewModel : ObservableObject
     private bool preserveWavAfterTranscode = DownloadService.KeepWavFileAfterTranscode;
     [ObservableProperty]
     private int selectedAppBackgroundModeIndex;
+    [ObservableProperty]
+    private int selectedAppColorThemeIndex;
 
     public SettingsViewModel()
     {
+        #region Transcoding
         if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> infos))
         {
             List<CodecInfo> codecInfos = infos.ToList();
@@ -42,7 +46,9 @@ public partial class SettingsViewModel : ObservableObject
         List<AudioEncodingQuality> qualities = [AudioEncodingQuality.High, AudioEncodingQuality.Medium, AudioEncodingQuality.Low];
         AudioEncodingQualities = qualities;
         selectedTranscodeQualityIndex = qualities.IndexOf(DownloadService.TranscodeQuality);
+        #endregion
 
+        #region Background
         List<AppBackgroundMode> bgModes = new(3);
 
         bool isSupportMica = MicaHelper.IsSupported();
@@ -84,6 +90,23 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         selectedAppBackgroundModeIndex = bgModes.IndexOf(backgroundMode);
+        #endregion
+
+        #region Color Theme
+        List<AppColorTheme> appColorThemes = [AppColorTheme.Default, AppColorTheme.Light, AppColorTheme.Dark];
+        AppColorThemes = appColorThemes;
+
+        if (SettingsHelper.TryGet(CommonValues.AppColorThemeSettingsKey, out string colorThemeString) && Enum.TryParse(colorThemeString, out AppColorTheme colorTheme))
+        {
+            // ;-)
+        }
+        else
+        {
+            colorTheme = AppColorTheme.Default;
+        }
+
+        selectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
+        #endregion
     }
 
     partial void OnDownloadLyricChanged(bool value)
@@ -126,6 +149,16 @@ public partial class SettingsViewModel : ObservableObject
             SettingsHelper.Set(CommonValues.AppBackgroundModeSettingsKey, bgModeString);
 
             WeakReferenceMessenger.Default.Send(bgModeString, CommonValues.NotifyAppBackgroundChangedMessageToken);
+        }
+    }
+
+    partial void OnSelectedAppColorThemeIndexChanged(int value)
+    {
+        if (value >= 0)
+        {
+            AppColorTheme theme = AppColorThemes[value];
+            string themeString = theme.ToString();
+            SettingsHelper.Set(CommonValues.AppColorThemeSettingsKey, themeString);
         }
     }
 

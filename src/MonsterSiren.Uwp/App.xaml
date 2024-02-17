@@ -13,6 +13,7 @@
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
             <converters:AppBackgroundModeToStringConverter x:Key="AppBackgroundModeToStringConverter" />
             <converters:NewsCategoryToStringConverter x:Key="NewsCategoryToStringConverter" />
+            <converters:AppColorThemeToStringConverter x:Key="AppColorThemeToStringConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />

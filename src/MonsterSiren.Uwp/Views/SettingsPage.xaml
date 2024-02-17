@@ -61,7 +61,7 @@
                             </muxc:Expander.Header>
 
                             <StackPanel>
-                                <Grid>
+                                <Grid Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition />
@@ -81,6 +81,31 @@
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="models:AppBackgroundMode">
                                                 <TextBlock Text="{x:Bind Converter={StaticResource AppBackgroundModeToStringConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        x:Uid="SettingsPage_AppColorTheme"
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center" />
+
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        ItemsSource="{x:Bind ViewModel.AppColorThemes}"
+                                        SelectedIndex="{x:Bind ViewModel.SelectedAppColorThemeIndex, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="models:AppColorTheme">
+                                                <TextBlock Text="{x:Bind Converter={StaticResource AppColorThemeToStringConverter}}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>

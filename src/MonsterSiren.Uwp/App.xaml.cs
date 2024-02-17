@@ -33,6 +33,22 @@ sealed partial class App : Application
 
         UnhandledException += App_UnhandledException;
         this.Suspending += OnSuspending;
+
+        if (SettingsHelper.TryGet(CommonValues.AppColorThemeSettingsKey, out string colorThemeString) && Enum.TryParse(colorThemeString, out AppColorTheme colorTheme))
+        {
+            switch (colorTheme)
+            {
+                case AppColorTheme.Light:
+                    Current.RequestedTheme = ApplicationTheme.Light;
+                    break;
+                case AppColorTheme.Dark:
+                    Current.RequestedTheme = ApplicationTheme.Dark;
+                    break;
+                case AppColorTheme.Default:
+                default:
+                    break;
+            }
+        }
     }
 
     private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
