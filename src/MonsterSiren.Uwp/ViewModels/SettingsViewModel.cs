@@ -196,7 +196,7 @@ public partial class SettingsViewModel : ObservableObject
         IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
         IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
 
-        IEnumerable<CodecInfo> codecs = encoders.Concat(decoders);
+        List<CodecInfo> codecs = [.. encoders, .. decoders];
 
         CodecInfoDialog dialog = new(codecs);
         _ = await dialog.ShowAsync();
