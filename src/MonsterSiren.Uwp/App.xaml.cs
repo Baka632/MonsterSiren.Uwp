@@ -1,6 +1,9 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.Foundation.Metadata;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Notifications;
+using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp;
 
@@ -147,6 +150,17 @@ sealed partial class App : Application
             }
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
+        }
+
+        if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
+        {
+            StatusBar statusBar = StatusBar.GetForCurrentView();
+            statusBar.ForegroundColor = Current.RequestedTheme switch
+            {
+                ApplicationTheme.Light => Colors.Black,
+                ApplicationTheme.Dark => Colors.White,
+                _ => throw new NotImplementedException(),
+            };
         }
     }
 
