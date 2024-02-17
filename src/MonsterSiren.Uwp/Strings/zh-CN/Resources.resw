@@ -396,4 +396,22 @@
   <data name="ColorTheme_Dark" xml:space="preserve">
     <value>暗色</value>
   </data>
+  <data name="SettingsPage_OpenLogFolder.Text" xml:space="preserve">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="CodecInfoDialog.Title" xml:space="preserve">
+    <value>音频编解码器信息</value>
+  </data>
+  <data name="CodecInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="SettingsPage_OpenCodecInfoDialog.Text" xml:space="preserve">
+    <value>音频编解码器信息</value>
+  </data>
+  <data name="CodecInfo_Encoder" xml:space="preserve">
+    <value>编码器</value>
+  </data>
+  <data name="CodecInfo_Decoder" xml:space="preserve">
+    <value>解码器</value>
+  </data>
 </root>

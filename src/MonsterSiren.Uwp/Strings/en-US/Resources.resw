@@ -318,4 +318,22 @@
   <data name="ColorTheme_Dark" xml:space="preserve">
     <value>Dark</value>
   </data>
+  <data name="SettingsPage_OpenLogFolder.Text" xml:space="preserve">
+    <value>Open log folder</value>
+  </data>
+  <data name="CodecInfoDialog.Title" xml:space="preserve">
+    <value>Audio codec infomation</value>
+  </data>
+  <data name="CodecInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsPage_OpenCodecInfoDialog.Text" xml:space="preserve">
+    <value>Audio codec infomation</value>
+  </data>
+  <data name="CodecInfo_Encoder" xml:space="preserve">
+    <value>Encoder</value>
+  </data>
+  <data name="CodecInfo_Decoder" xml:space="preserve">
+    <value>Decoder</value>
+  </data>
 </root>

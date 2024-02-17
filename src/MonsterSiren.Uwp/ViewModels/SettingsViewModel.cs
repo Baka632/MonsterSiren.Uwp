@@ -3,6 +3,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.AccessCache;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;
+using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -180,13 +181,24 @@ public partial class SettingsViewModel : ObservableObject
         IsFolderRedirected = false;
     }
 
-    private static bool HasCommonEncoders(CodecInfo info)
+    [RelayCommand]
+    private static async Task OpenLogFolder()
     {
-        return info.Subtypes.Any(IsCommonEncoder);
+        StorageFolder temporaryFolder = ApplicationData.Current.TemporaryFolder;
+        StorageFolder logFolder = await temporaryFolder.CreateFolderAsync("Log", CreationCollisionOption.OpenIfExists);
+        await Launcher.LaunchFolderAsync(logFolder);
     }
 
-    private static bool IsCommonEncoder(string encoderGuid)
+    [RelayCommand]
+    private static async Task OpenCodecsInfoDialog()
     {
-        return encoderGuid == CodecSubtypes.AudioFormatFlac || encoderGuid == CodecSubtypes.AudioFormatMP3;
+        CodecQuery codecQuery = new();
+        IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
+        IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
+
+        IEnumerable<CodecInfo> codecs = encoders.Concat(decoders);
+
+        CodecInfoDialog dialog = new(codecs);
+        _ = await dialog.ShowAsync();
     }
 }

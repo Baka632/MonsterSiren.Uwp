@@ -70,7 +70,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static async Task OpenDownloadFolder()
     {
-        StorageFolder asyncOperation = await StorageFolder.GetFolderFromPathAsync(DownloadService.DownloadPath);
-        await Launcher.LaunchFolderAsync(asyncOperation);
+        StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadService.DownloadPath);
+        await Launcher.LaunchFolderAsync(downloadFolder);
     }
 }

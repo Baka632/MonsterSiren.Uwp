@@ -140,6 +140,7 @@
     <Compile Include="Helpers\Converters\AppColorThemeToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioEncodingQualityToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioGuidToStringConverter.cs" />
+    <Compile Include="Helpers\Converters\CodecCategoryToStringConverter.cs" />
     <Compile Include="Helpers\Converters\DownloadItemStateToStringConverter.cs" />
     <Compile Include="Helpers\Converters\NewsCategoryToStringConverter.cs" />
     <Compile Include="Helpers\FileCacheHelper.cs" />
@@ -178,6 +179,9 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\AlbumDetailPage.xaml.cs">
       <DependentUpon>AlbumDetailPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CodecInfoDialog.xaml.cs">
+      <DependentUpon>CodecInfoDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
@@ -297,6 +301,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\AlbumDetailPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CodecInfoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
