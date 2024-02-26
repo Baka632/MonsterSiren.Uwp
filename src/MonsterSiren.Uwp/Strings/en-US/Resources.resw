@@ -336,4 +336,7 @@
   <data name="CodecInfo_Decoder" xml:space="preserve">
     <value>Decoder</value>
   </data>
+  <data name="EnterGlanceMode.Text" xml:space="preserve">
+    <value>Enter "Glance" mode</value>
+  </data>
 </root>

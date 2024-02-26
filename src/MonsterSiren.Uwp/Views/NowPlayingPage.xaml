@@ -359,7 +359,15 @@
                                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE158;" />
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
-                                    <MenuFlyoutSeparator Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}" />
+                                    <MenuFlyoutItem
+                                        x:Uid="EnterGlanceMode"
+                                        AccessKey="GL"
+                                        Command="{x:Bind ViewModel.ToGlanceViewPageCommand}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE052;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
                                         x:Uid="ClearPlaybackList"
                                         AccessKey="CL"
