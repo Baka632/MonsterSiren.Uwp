@@ -1,8 +1,9 @@
 ﻿namespace MonsterSiren.Uwp.ViewModels;
 
-public sealed class GlanceViewViewModel : ObservableObject
+public sealed partial class GlanceViewViewModel : ObservableObject
 {
-    private readonly DispatcherTimer _timer = new();
-
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
+
+    [ObservableProperty]
+    private double _contentOffset;
 }

@@ -13,30 +13,53 @@
     mc:Ignorable="d">
 
     <Grid Padding="25,0,0,60">
-        <StackPanel VerticalAlignment="Bottom">
-            <TextBlock
-                d:Text="特里蒙的天空"
-                FontSize="40"
-                FontWeight="SemiBold"
-                Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}" />
-            <TextBlock
-                d:Text="塞壬唱片MSR"
-                FontSize="30"
-                FontWeight="Light"
-                Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
-            <TextBlock
-                d:Text="孤星OST"
-                FontSize="30"
-                FontWeight="Light"
-                Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle, Mode=OneWay}" />
-            <TextBlock
-                Margin="0,10,0,0"
-                FontSize="18"
-                FontWeight="ExtraLight">
-                <Run d:Text="0:00" Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}" />
-                <Run Text="/" />
-                <Run d:Text="1:40" Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}" />
-            </TextBlock>
-        </StackPanel>
+        <Canvas
+            x:Name="ContentCanvas"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+            <StackPanel
+                x:Name="ContentStackPanel"
+                Canvas.Top="{x:Bind Mode=OneWay, Path=ViewModel.ContentOffset}"
+                Loaded="OnContentLoaded">
+                <TextBlock
+                    x:Name="musicTitleTextBlock"
+                    d:Text="特里蒙的天空"
+                    FontSize="46"
+                    FontWeight="SemiBold"
+                    OpticalMarginAlignment="TrimSideBearings"
+                    Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.Title}" />
+                <TextBlock
+                    x:Name="artistAlbumTextBlock"
+                    Margin="0,10,0,15"
+                    d:Text="塞壬唱片MSR · 孤星OST"
+                    FontSize="24"
+                    FontWeight="Thin"
+                    OpticalMarginAlignment="TrimSideBearings"><Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist}" /><Run Text=" " /><Run FontWeight="Bold" Text="·" /><Run Text=" " /><Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle}" /></TextBlock>
+                <TextBlock FontWeight="SemiBold"><Run d:Text="0:00" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicPosition}" /><Run Text=" " /><Run Text="/" /><Run Text=" " /><Run d:Text="1:40" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicDuration}" /></TextBlock>
+            </StackPanel>
+        </Canvas>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="VisualStateGroup">
+                <VisualState x:Name="Narrow">
+                    <VisualState.Setters>
+                        <Setter Target="musicTitleTextBlock.(TextBlock.FontSize)" Value="30" />
+                        <Setter Target="artistAlbumTextBlock.(TextBlock.FontSize)" Value="16" />
+                    </VisualState.Setters>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+                
+                <VisualState x:Name="Wide">
+                    <VisualState.Setters>
+                        <Setter Target="musicTitleTextBlock.(TextBlock.FontSize)" Value="46" />
+                        <Setter Target="artistAlbumTextBlock.(TextBlock.FontSize)" Value="24" />
+                    </VisualState.Setters>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="600" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>
