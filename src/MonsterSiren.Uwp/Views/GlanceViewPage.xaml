@@ -34,8 +34,16 @@
                     d:Text="塞壬唱片MSR · 孤星OST"
                     FontSize="24"
                     FontWeight="Thin"
-                    OpticalMarginAlignment="TrimSideBearings"><Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist}" /><Run Text=" " /><Run FontWeight="Bold" Text="·" /><Run Text=" " /><Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle}" /></TextBlock>
-                <TextBlock FontWeight="SemiBold"><Run d:Text="0:00" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicPosition}" /><Run Text=" " /><Run Text="/" /><Run Text=" " /><Run d:Text="1:40" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicDuration}" /></TextBlock>
+                    OpticalMarginAlignment="TrimSideBearings">
+                    <Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist}" />
+                    <Run FontWeight="Bold" Text="·" />
+                    <Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle}" />
+                </TextBlock>
+                <TextBlock FontWeight="SemiBold">
+                    <Run d:Text="0:00" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicPosition}" />
+                    <Run Text="/" />
+                    <Run d:Text="1:40" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicDuration}" />
+                </TextBlock>
             </StackPanel>
         </Canvas>
         <VisualStateManager.VisualStateGroups>
@@ -49,7 +57,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                 </VisualState>
-                
+
                 <VisualState x:Name="Wide">
                     <VisualState.Setters>
                         <Setter Target="musicTitleTextBlock.(TextBlock.FontSize)" Value="46" />
