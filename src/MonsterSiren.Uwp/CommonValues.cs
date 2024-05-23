@@ -40,6 +40,8 @@ internal static class CommonValues
 
     public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
     public const string AppColorThemeSettingsKey = "App_ColorTheme_SettingsKey";
+
+    public const string AppGlanceModeBurnProtectionSettingsKey = "App_GlanceMode_BurnProtection_SettingsKey";
     #endregion
 
     #region Data Package Type

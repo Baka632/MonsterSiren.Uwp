@@ -417,4 +417,10 @@
   <data name="EnterGlanceMode.Text" xml:space="preserve">
     <value>进入“概览模式”</value>
   </data>
+  <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
+    <value>概览模式</value>
+  </data>
+  <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
+    <value>启动烧屏保护</value>
+  </data>
 </root>

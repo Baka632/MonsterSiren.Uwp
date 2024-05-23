@@ -32,6 +32,8 @@ public partial class SettingsViewModel : ObservableObject
     private int selectedAppBackgroundModeIndex;
     [ObservableProperty]
     private int selectedAppColorThemeIndex;
+    [ObservableProperty]
+    private bool enableGlanceBurnProtection = true;
 
     public SettingsViewModel()
     {
@@ -108,6 +110,22 @@ public partial class SettingsViewModel : ObservableObject
 
         selectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
         #endregion
+
+        #region Glance
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool enableBurnProtection))
+        {
+            EnableGlanceBurnProtection = enableBurnProtection;
+        }
+        else
+        {
+            EnableGlanceBurnProtection = true;
+        }
+        #endregion
+    }
+
+    partial void OnEnableGlanceBurnProtectionChanged(bool value)
+    {
+        SettingsHelper.Set(CommonValues.AppGlanceModeBurnProtectionSettingsKey, value);
     }
 
     partial void OnDownloadLyricChanged(bool value)

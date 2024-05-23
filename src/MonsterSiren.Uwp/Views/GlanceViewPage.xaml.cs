@@ -17,9 +17,14 @@ public sealed partial class GlanceViewPage : Page
     public GlanceViewPage()
     {
         this.InitializeComponent();
-        _timer.Interval = TimeSpan.FromSeconds(60d);
-        _timer.Tick += OnTimerTick;
-        _timer.Start();
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection == true)
+        {
+            _timer.Interval = TimeSpan.FromSeconds(60d);
+            _timer.Tick += OnTimerTick;
+            _timer.Start();
+        }
+
         SizeChanged += OnPageSizeChanged;
     }
 

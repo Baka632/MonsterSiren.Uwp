@@ -339,4 +339,10 @@
   <data name="EnterGlanceMode.Text" xml:space="preserve">
     <value>Enter "Glance" mode</value>
   </data>
+  <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
+    <value>Glance mode</value>
+  </data>
+  <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
+    <value>Enable screen burn protection</value>
+  </data>
 </root>
