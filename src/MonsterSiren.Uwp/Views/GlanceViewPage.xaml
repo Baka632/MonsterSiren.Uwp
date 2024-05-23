@@ -8,7 +8,6 @@
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:GlanceViewViewModel}"
     Background="Black"
-    DoubleTapped="OnDoubleTapped"
     RequestedTheme="Dark"
     mc:Ignorable="d">
 
