@@ -38,11 +38,19 @@
                     <Run FontWeight="Bold" Text="·" />
                     <Run Text="{x:Bind Mode=OneWay, Path=ViewModel.MusicInfo.CurrentMusicProperties.AlbumTitle}" />
                 </TextBlock>
-                <TextBlock FontWeight="SemiBold">
-                    <Run d:Text="0:00" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicPosition}" />
-                    <Run Text="/" />
-                    <Run d:Text="1:40" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicDuration}" />
-                </TextBlock>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" FontWeight="SemiBold">
+                        <Run d:Text="0:00" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicPosition}" />
+                        <Run Text="/" />
+                        <Run d:Text="1:40" Text="{x:Bind Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay, Path=ViewModel.MusicInfo.MusicDuration}" />
+                    </TextBlock>
+
+                    <FontIcon
+                        Margin="0,0,5,0"
+                        FontSize="22"
+                        Glyph="{x:Bind ViewModel.PowerStateGlyph, Mode=OneWay}" />
+                </StackPanel>
             </StackPanel>
         </Canvas>
         <VisualStateManager.VisualStateGroups>
