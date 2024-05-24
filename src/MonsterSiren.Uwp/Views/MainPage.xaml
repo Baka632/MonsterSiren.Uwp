@@ -433,6 +433,22 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,5"
+                                    HorizontalAlignment="Stretch"
+                                    AccessKey="GL"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="&#xE052;" />
+                                        <TextBlock x:Uid="EnterGlanceMode" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CL"
                                     Background="Transparent"
@@ -572,6 +588,15 @@
                     FontSize="16">
                     <Button.Flyout>
                         <muxc:MenuBarItemFlyout>
+                            <MenuFlyoutItem
+                                x:Uid="EnterGlanceMode"
+                                AccessKey="GL"
+                                Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE052;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem
                                 x:Uid="ClearPlaybackList"
                                 AccessKey="CL"

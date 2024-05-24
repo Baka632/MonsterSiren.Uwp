@@ -32,6 +32,10 @@ public partial class SettingsViewModel : ObservableObject
     private int selectedAppBackgroundModeIndex;
     [ObservableProperty]
     private int selectedAppColorThemeIndex;
+    [ObservableProperty]
+    private bool enableGlanceBurnProtection = true;
+    [ObservableProperty]
+    private bool glanceModeUseLowerBrightness = true;
 
     public SettingsViewModel()
     {
@@ -108,6 +112,38 @@ public partial class SettingsViewModel : ObservableObject
 
         selectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
         #endregion
+
+        #region Glance
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool enableBurnProtection))
+        {
+            enableGlanceBurnProtection = enableBurnProtection;
+        }
+        else
+        {
+            enableGlanceBurnProtection = true;
+            SettingsHelper.Set(CommonValues.AppGlanceModeBurnProtectionSettingsKey, true);
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness))
+        {
+            glanceModeUseLowerBrightness = useLowerBrightness;
+        }
+        else
+        {
+            glanceModeUseLowerBrightness = true;
+            SettingsHelper.Set(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, true);
+        }
+        #endregion
+    }
+
+    partial void OnGlanceModeUseLowerBrightnessChanged(bool value)
+    {
+        SettingsHelper.Set(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, value);
+    }
+    
+    partial void OnEnableGlanceBurnProtectionChanged(bool value)
+    {
+        SettingsHelper.Set(CommonValues.AppGlanceModeBurnProtectionSettingsKey, value);
     }
 
     partial void OnDownloadLyricChanged(bool value)

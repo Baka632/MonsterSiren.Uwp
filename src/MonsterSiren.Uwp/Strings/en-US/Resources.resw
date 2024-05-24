@@ -336,4 +336,16 @@
   <data name="CodecInfo_Decoder" xml:space="preserve">
     <value>Decoder</value>
   </data>
+  <data name="EnterGlanceMode.Text" xml:space="preserve">
+    <value>Enter "Glance" mode</value>
+  </data>
+  <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
+    <value>Glance mode</value>
+  </data>
+  <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
+    <value>Enable screen burn protection</value>
+  </data>
+  <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
+    <value>Lower brightness</value>
+  </data>
 </root>

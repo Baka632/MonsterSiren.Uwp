@@ -41,6 +41,12 @@ public partial class NowPlayingViewModel(NowPlayingPage nowPlaying) : Observable
     }
 
     [RelayCommand]
+    private static void ToGlanceViewPage()
+    {
+        MainPageNavigationHelper.Navigate(typeof(GlanceViewPage), null, new SuppressNavigationTransitionInfo());
+    }
+
+    [RelayCommand]
     private void MoveToIndex(MediaPlaybackItem playbackItem)
     {
         int index = view.NowPlayingListView.Items.IndexOf(playbackItem);
