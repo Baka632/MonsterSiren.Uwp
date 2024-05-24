@@ -50,7 +50,7 @@ public sealed partial class GlanceViewPage : Page
         {
             double randomValue = _random.NextDouble();
 
-            if (randomValue > 0.5)
+            if (randomValue > 0.65)
             {
                 ViewModel.ContentOffset -= _random.NextDouble() * (height / 5d);
             }
@@ -58,7 +58,7 @@ public sealed partial class GlanceViewPage : Page
             {
                 double delta = _random.NextDouble() * (height / 5d);
 
-                if (delta > height)
+                if (ViewModel.ContentOffset + delta > height)
                 {
                     ViewModel.ContentOffset = height;
                 }
