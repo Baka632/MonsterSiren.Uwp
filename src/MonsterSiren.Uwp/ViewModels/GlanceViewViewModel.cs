@@ -1,27 +1,53 @@
-﻿using Windows.System.Power;
+﻿using Windows.Media.Playback;
+using Windows.Networking.Connectivity;
+using Windows.System.Power;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 public sealed partial class GlanceViewViewModel : ObservableObject
 {
+    public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
+    public bool ShowPowerState { get => PowerStateGlyph != string.Empty; }
+
+    [NotifyPropertyChangedFor(nameof(ShowPowerState))]
     [ObservableProperty]
     private string powerStateGlyph = "\uEBAA";
-
-    public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
-
     [ObservableProperty]
     private double _contentOffset;
+    [ObservableProperty]
+    private bool showPausedState = MusicService.PlayerPlayBackState == MediaPlaybackState.Paused;
+    [ObservableProperty]
+    private bool showMuteState = MusicService.IsPlayerMuted;
+    [ObservableProperty]
+    private bool showMeteredInternet = false;
 
     public GlanceViewViewModel()
     {
         ChangePowerStateGlyph();
+        OnNetworkStatusChanged();
+        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        MusicService.PlayerMuteStateChanged += OnMusicServicePlayerMuteStateChanged;
+        MusicService.PlayerPlaybackStateChanged += OnMusicServicePlayerPlaybackStateChanged;
         PowerManager.BatteryStatusChanged += OnPowerStatusChanged;
         PowerManager.EnergySaverStatusChanged += OnPowerStatusChanged;
         PowerManager.RemainingChargePercentChanged += OnPowerStatusChanged;
     }
 
+    private void OnMusicServicePlayerMuteStateChanged(bool state)
+    {
+        ShowMuteState = state;
+    }
+
+    private void OnMusicServicePlayerPlaybackStateChanged(MediaPlaybackState state)
+    {
+        ShowPausedState = state == MediaPlaybackState.Paused;
+    }
+
     ~GlanceViewViewModel()
     {
+        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        MusicService.PlayerMuteStateChanged -= OnMusicServicePlayerMuteStateChanged;
+        MusicService.PlayerPlaybackStateChanged -= OnMusicServicePlayerPlaybackStateChanged;
         PowerManager.BatteryStatusChanged -= OnPowerStatusChanged;
         PowerManager.EnergySaverStatusChanged -= OnPowerStatusChanged;
         PowerManager.RemainingChargePercentChanged -= OnPowerStatusChanged;
@@ -100,6 +126,15 @@ public sealed partial class GlanceViewViewModel : ObservableObject
                     };
                 }
             }
+        });
+    }
+
+    private async void OnNetworkStatusChanged(object sender = null)
+    {
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
+            ShowMeteredInternet = costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable;
         });
     }
 }

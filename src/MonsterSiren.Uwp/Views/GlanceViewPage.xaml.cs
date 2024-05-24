@@ -70,7 +70,7 @@ public sealed partial class GlanceViewPage : Page
             }
             else
             {
-                double delta = randomValue * (height / 5d);
+                double delta = (randomValue + 0.1) * (height / 5d);
 
                 if (ViewModel.ContentOffset + delta > height)
                 {

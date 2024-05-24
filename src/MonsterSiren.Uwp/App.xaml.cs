@@ -139,8 +139,8 @@ sealed partial class App : Application
             LoadResourceDictionaries();
 
             // 初始化设置
-            _ = new SettingsViewModel();
             await DownloadService.Initialize();
+            _ = new SettingsViewModel();
         }
 
         if (e.PrelaunchActivated == false)
