@@ -14,7 +14,7 @@ public sealed partial class GlanceViewPage : Page
 {
     private readonly DispatcherTimer _timer = new();
     private readonly Random _random = new();
-    private readonly BrightnessOverride _brightnessOverride;
+    private BrightnessOverride _brightnessOverride;
 
     public GlanceViewViewModel ViewModel { get; } = new GlanceViewViewModel();
 
@@ -33,12 +33,16 @@ public sealed partial class GlanceViewPage : Page
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
         {
-            _brightnessOverride = BrightnessOverride.GetForCurrentView();
-            if (_brightnessOverride.IsSupported)
+            Task brightnessTask = UIThreadHelper.RunOnUIThread(() =>
             {
-                _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
-                _brightnessOverride.StartOverride();
-            }
+                _brightnessOverride = BrightnessOverride.GetForCurrentView();
+                if (_brightnessOverride.IsSupported)
+                {
+                    _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
+                    _brightnessOverride.StartOverride();
+                }
+            });
+            brightnessTask.Wait(300);
         }
     }
 
