@@ -12,7 +12,7 @@
     RequestedTheme="Dark"
     mc:Ignorable="d">
 
-    <Grid Padding="25,0,0,60">
+    <Grid Padding="25,10,0,60">
         <Canvas
             x:Name="ContentCanvas"
             HorizontalAlignment="Stretch"
