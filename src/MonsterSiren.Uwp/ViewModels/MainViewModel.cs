@@ -75,6 +75,14 @@ public partial class MainViewModel : ObservableRecipient
         MainPageNavigationHelper.Navigate(typeof(NowPlayingCompactPage), null, new SuppressNavigationTransitionInfo());
     }
 
+    [RelayCommand]
+    private static void ToGlanceViewPage()
+    {
+        SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
+        navigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+        MainPageNavigationHelper.Navigate(typeof(GlanceViewPage), null, new SuppressNavigationTransitionInfo());
+    }
+
     public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
     {
         try
