@@ -1,5 +1,8 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
+using Microsoft.Graphics.Canvas.Text;
+using Microsoft.Graphics.Canvas;
+using Windows.Graphics.Display;
 using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp.Views;
@@ -11,6 +14,7 @@ public sealed partial class GlanceViewPage : Page
 {
     private readonly DispatcherTimer _timer = new();
     private readonly Random _random = new();
+    private readonly BrightnessOverride _brightnessOverride;
 
     public GlanceViewViewModel ViewModel { get; } = new GlanceViewViewModel();
 
@@ -18,7 +22,7 @@ public sealed partial class GlanceViewPage : Page
     {
         this.InitializeComponent();
 
-        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection == true)
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection)
         {
             _timer.Interval = TimeSpan.FromSeconds(40d);
             _timer.Tick += OnTimerTick;
@@ -26,6 +30,16 @@ public sealed partial class GlanceViewPage : Page
         }
 
         SizeChanged += OnPageSizeChanged;
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
+        {
+            _brightnessOverride = BrightnessOverride.GetForCurrentView();
+            if (_brightnessOverride.IsSupported)
+            {
+                _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
+                _brightnessOverride.StartOverride();
+            }
+        }
     }
 
     private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
@@ -94,15 +108,31 @@ public sealed partial class GlanceViewPage : Page
         {
             view.ExitFullScreenMode();
         }
-    }
 
-    private void OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        Frame.GoBack();
+        if (_brightnessOverride is not null && _brightnessOverride.IsSupported)
+        {
+            _brightnessOverride.StopOverride();
+        }
     }
 
     private void OnContentLoaded(object sender, RoutedEventArgs e)
     {
         ViewModel.ContentOffset = ContentCanvas.ActualHeight - ContentStackPanel.ActualHeight;
+    }
+
+    private double MeasureTextSize(TextBlock textBlock)
+    {
+        using CanvasTextFormat textFormat = new()
+        {
+            FontSize = (float)FontSize,
+            FontFamily = FontFamily.Source,
+            Direction = CanvasTextDirection.LeftToRightThenTopToBottom,
+            WordWrapping = CanvasWordWrapping.NoWrap
+        };
+        CanvasDevice device = CanvasDevice.GetSharedDevice();
+
+        double width = (double.IsNaN(textBlock.ActualWidth) || textBlock.ActualWidth < 0) ? 0 : textBlock.ActualWidth;
+        using CanvasTextLayout layout = new(device, textBlock.Text, textFormat, (float)width, 0);
+        return layout.LayoutBounds.Width;
     }
 }

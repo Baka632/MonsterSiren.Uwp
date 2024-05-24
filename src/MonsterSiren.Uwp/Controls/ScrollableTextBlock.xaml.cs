@@ -68,7 +68,7 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
 
     private double MeasureTextSize()
     {
-        CanvasTextFormat textFormat = new()
+        using CanvasTextFormat textFormat = new()
         {
             FontSize = (float)FontSize,
             FontFamily = FontFamily.Source,

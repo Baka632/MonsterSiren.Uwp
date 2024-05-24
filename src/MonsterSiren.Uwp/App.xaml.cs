@@ -138,6 +138,8 @@ sealed partial class App : Application
             TitleBarHelper.SetTitleBarAppearance();
             LoadResourceDictionaries();
 
+            // 初始化设置
+            _ = new SettingsViewModel();
             await DownloadService.Initialize();
         }
 

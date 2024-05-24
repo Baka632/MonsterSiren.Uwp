@@ -345,4 +345,7 @@
   <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
     <value>Enable screen burn protection</value>
   </data>
+  <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
+    <value>Lower brightness</value>
+  </data>
 </root>

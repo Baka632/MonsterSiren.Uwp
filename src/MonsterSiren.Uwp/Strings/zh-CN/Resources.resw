@@ -423,4 +423,7 @@
   <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
     <value>启动烧屏保护</value>
   </data>
+  <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
+    <value>调低亮度</value>
+  </data>
 </root>
