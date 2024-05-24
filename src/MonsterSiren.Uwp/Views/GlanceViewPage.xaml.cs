@@ -20,7 +20,7 @@ public sealed partial class GlanceViewPage : Page
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection == true)
         {
-            _timer.Interval = TimeSpan.FromSeconds(60d);
+            _timer.Interval = TimeSpan.FromSeconds(40d);
             _timer.Tick += OnTimerTick;
             _timer.Start();
         }
@@ -52,11 +52,11 @@ public sealed partial class GlanceViewPage : Page
 
             if (randomValue > 0.65)
             {
-                ViewModel.ContentOffset -= _random.NextDouble() * (height / 5d);
+                ViewModel.ContentOffset -= randomValue * (height / 5d);
             }
             else
             {
-                double delta = _random.NextDouble() * (height / 5d);
+                double delta = randomValue * (height / 5d);
 
                 if (ViewModel.ContentOffset + delta > height)
                 {
