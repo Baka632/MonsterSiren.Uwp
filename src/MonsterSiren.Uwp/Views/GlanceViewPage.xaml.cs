@@ -30,20 +30,6 @@ public sealed partial class GlanceViewPage : Page
         }
 
         SizeChanged += OnPageSizeChanged;
-
-        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
-        {
-            Task brightnessTask = UIThreadHelper.RunOnUIThread(() =>
-            {
-                _brightnessOverride = BrightnessOverride.GetForCurrentView();
-                if (_brightnessOverride.IsSupported)
-                {
-                    _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
-                    _brightnessOverride.StartOverride();
-                }
-            });
-            brightnessTask.Wait(300);
-        }
     }
 
     private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
@@ -92,7 +78,7 @@ public sealed partial class GlanceViewPage : Page
         }
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
@@ -100,6 +86,19 @@ public sealed partial class GlanceViewPage : Page
         if (view.IsFullScreenMode != true)
         {
             view.TryEnterFullScreenMode();
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
+        {
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                _brightnessOverride = BrightnessOverride.GetForCurrentView();
+                if (_brightnessOverride.IsSupported)
+                {
+                    _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
+                    _brightnessOverride.StartOverride();
+                }
+            });
         }
     }
 

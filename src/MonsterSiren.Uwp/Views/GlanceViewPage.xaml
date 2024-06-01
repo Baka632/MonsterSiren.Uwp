@@ -66,11 +66,11 @@
                         x:Load="{x:Bind ViewModel.ShowMeteredInternet, Mode=OneWay}"
                         Symbol="FourBars" />
                     <FontIcon
-                        x:Name="PausedStateIcon"
+                        x:Name="PlayStateIcon"
                         Margin="0,0,10,0"
-                        x:Load="{x:Bind ViewModel.ShowPausedState, Mode=OneWay}"
+                        x:Load="{x:Bind ViewModel.ShowPlayState, Mode=OneWay}"
                         FontSize="18"
-                        Glyph="&#xE102;" />
+                        Glyph="{x:Bind ViewModel.MusicInfo.PlayIconGlyph, Mode=OneWay}" />
                     <FontIcon
                         x:Name="MuteStateIcon"
                         Margin="0,0,10,0"
