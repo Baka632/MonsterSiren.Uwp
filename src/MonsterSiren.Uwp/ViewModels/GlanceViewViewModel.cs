@@ -15,7 +15,7 @@ public sealed partial class GlanceViewViewModel : ObservableObject
     [ObservableProperty]
     private double _contentOffset;
     [ObservableProperty]
-    private bool showPausedState = MusicService.PlayerPlayBackState == MediaPlaybackState.Paused;
+    private bool showPlayState = MusicService.PlayerPlayBackState is MediaPlaybackState.Paused or MediaPlaybackState.Buffering or MediaPlaybackState.Opening;
     [ObservableProperty]
     private bool showMuteState = MusicService.IsPlayerMuted;
     [ObservableProperty]
@@ -40,7 +40,7 @@ public sealed partial class GlanceViewViewModel : ObservableObject
 
     private void OnMusicServicePlayerPlaybackStateChanged(MediaPlaybackState state)
     {
-        ShowPausedState = state == MediaPlaybackState.Paused;
+        ShowPlayState = state is MediaPlaybackState.Paused or MediaPlaybackState.Buffering or MediaPlaybackState.Opening;
     }
 
     ~GlanceViewViewModel()

@@ -209,7 +209,7 @@ public static class MusicService
         mediaPlayer.Source = mediaPlaybackList;
         CurrentMediaPlaybackList = new NowPlayingList(mediaPlaybackList.Items);
 
-        //下面的事件处理器在 UI 线程引发事件，这样可以让与 UI 相关的代码在处理这些事件时不会出错
+        // 下面的事件处理器在 UI 线程引发事件，这样可以让与 UI 相关的代码在处理这些事件时不会出错
         mediaPlayer.VolumeChanged += async (sender, arg) =>
         {
             double volume = sender.Volume;
