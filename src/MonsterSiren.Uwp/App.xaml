@@ -23,6 +23,7 @@
                 <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml" />
+				<ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <ResourceDictionary.ThemeDictionaries>

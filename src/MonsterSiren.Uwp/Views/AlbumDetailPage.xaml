@@ -173,7 +173,7 @@
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid.ContextFlyout>
@@ -235,12 +235,6 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-
-                <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
             </ListView>
 
             <StackPanel
