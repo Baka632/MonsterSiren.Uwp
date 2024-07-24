@@ -15,12 +15,6 @@
         ScrollViewer.HorizontalScrollMode="Auto"
         ScrollViewer.VerticalScrollMode="Auto"
         SelectionMode="None">
-        <ListView.ItemContainerStyle>
-            <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            </Style>
-        </ListView.ItemContainerStyle>
-
         <ListView.ItemTemplate>
             <DataTemplate x:DataType="codec:CodecInfo">
                 <Grid HorizontalAlignment="Stretch">
