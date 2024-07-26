@@ -323,7 +323,7 @@
                 <Button
                     Width="51"
                     Height="51"
-                    AccessKey="S"
+                    AccessKey="Z"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
                     IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">

@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -163,10 +163,12 @@
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
+    <Compile Include="Models\Playlist.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicInfoService.Tile.cs" />
     <Compile Include="Services\MusicService.cs" />
+    <Compile Include="Services\PlaylistService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\DownloadViewModel.cs" />
     <Compile Include="ViewModels\GlanceViewViewModel.cs" />

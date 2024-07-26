@@ -21,6 +21,13 @@ public partial class MusicInfoService : IDisposable
         isUpdatingTile = true;
         AdaptiveTileBuilder builder = new();
 
+        if (IsLoadingMedia)
+        {
+            return;
+        }
+
+        MusicDisplayProperties currentMusicProperty = CurrentMusicProperties;
+
         if (MusicService.CurrentMediaPlaybackItem is not null)
         {
             await tileFileSemaphore.WaitAsync();
@@ -50,23 +57,23 @@ public partial class MusicInfoService : IDisposable
         }
 
         builder.TileMedium
-            .AddAdaptiveText(CurrentMusicProperties.Title, true, hintMaxLines: 2)
-            .AddAdaptiveText(CurrentMusicProperties.Artist, true, hintMaxLines: 1)
-            .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true);
+            .AddAdaptiveText(currentMusicProperty.Title, true, hintMaxLines: 2)
+            .AddAdaptiveText(currentMusicProperty.Artist, true, hintMaxLines: 1)
+            .AddAdaptiveText(currentMusicProperty.AlbumTitle, true);
 
         builder.TileWide
-            .AddAdaptiveText(CurrentMusicProperties.Title, true, AdaptiveTextStyle.Body)
-            .AddAdaptiveText(CurrentMusicProperties.Artist, true)
-            .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true);
+            .AddAdaptiveText(currentMusicProperty.Title, true, AdaptiveTextStyle.Body)
+            .AddAdaptiveText(currentMusicProperty.Artist, true)
+            .AddAdaptiveText(currentMusicProperty.AlbumTitle, true);
 
         if (EnvironmentHelper.IsWindowsMobile != true)
         {
             // Windows 10 Mobile 不支持大型磁贴，所以在 Win10M 上不需要添加大型磁贴特定的元素
 
             builder.TileLarge
-                .AddAdaptiveText(CurrentMusicProperties.Title, true, AdaptiveTextStyle.Title, hintMaxLines: 2)
-                .AddAdaptiveText(CurrentMusicProperties.Artist, true, hintMaxLines: 1)
-                .AddAdaptiveText(CurrentMusicProperties.AlbumTitle, true, hintMaxLines: 1);
+                .AddAdaptiveText(currentMusicProperty.Title, true, AdaptiveTextStyle.Title, hintMaxLines: 2)
+                .AddAdaptiveText(currentMusicProperty.Artist, true, hintMaxLines: 1)
+                .AddAdaptiveText(currentMusicProperty.AlbumTitle, true, hintMaxLines: 1);
 
             MusicDisplayProperties nextMusicProps = null;
 
