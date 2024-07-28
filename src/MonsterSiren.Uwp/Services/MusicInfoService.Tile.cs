@@ -30,10 +30,11 @@ public partial class MusicInfoService : IDisposable
 
         if (MusicService.CurrentMediaPlaybackItem is not null)
         {
+            MediaPlaybackItem currentMediaItem = MusicService.CurrentMediaPlaybackItem;
             await tileFileSemaphore.WaitAsync();
             try
             {
-                RandomAccessStreamReference cover = MusicService.CurrentMediaPlaybackItem.GetDisplayProperties().Thumbnail;
+                RandomAccessStreamReference cover = currentMediaItem.GetDisplayProperties().Thumbnail;
                 using IRandomAccessStreamWithContentType coverStream = await cover.OpenReadAsync();
 
                 StorageFolder tileFolder = await tempFolder.CreateFolderAsync(DefaultTileImageFolderName, CreationCollisionOption.OpenIfExists);

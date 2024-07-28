@@ -329,11 +329,54 @@ public sealed partial class MainPage : Page
                     Glyph = "\uEC4F"
                 },
                 IsRightTapEnabled = true,
+                AllowDrop = true,
             };
+
             item.RightTapped += (s, e) =>
             {
                 ViewModel.SelectedPlaylist = playlist;
             };
+
+            item.DragOver += (s, e) =>
+            {
+                if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId) || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+                {
+                    e.AcceptedOperation = DataPackageOperation.Link;
+                    e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+                }
+                else
+                {
+                    e.AcceptedOperation = DataPackageOperation.None;
+                }
+            };
+
+            item.Drop += async (s, e) =>
+            {
+                if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+                {
+                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+                    AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+                    AlbumDetail albumDetail = await MainViewModel.GetAlbumDetail(albumInfo).ConfigureAwait(false);
+
+                    foreach (SongInfo songInfo in albumDetail.Songs)
+                    {
+                        SongDetail songDetail = await MainViewModel.GetSongDetail(songInfo).ConfigureAwait(false);
+                        PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                    }
+                }
+                else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+                {
+                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId);
+
+                    (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
+                    SongDetail songDetail = await MainViewModel.GetSongDetail(songInfo).ConfigureAwait(false);
+
+                    PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                }
+            };
+
             PlaylistPageItem.MenuItems.Add(item);
         }
     }

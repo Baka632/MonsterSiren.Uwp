@@ -130,7 +130,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    private static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
+    internal static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
     {
         AlbumDetail albumDetail;
         if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
@@ -175,7 +175,7 @@ public partial class MainViewModel : ObservableRecipient
         return albumDetail;
     }
 
-    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
+    internal static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
     {
         if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
         {

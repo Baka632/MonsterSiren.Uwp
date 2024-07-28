@@ -111,6 +111,11 @@ public static class PlaylistService
     /// <param name="playlist">要播放的播放列表</param>
     public static async Task PlayForPlaylist(Playlist playlist)
     {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
         WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
         await Task.Run(() =>
@@ -130,6 +135,91 @@ public static class PlaylistService
                 WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
             }
         });
+    }
+
+
+    /// <summary>
+    /// 向指定的播放列表添加歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="songDetail">表示歌曲详细信息的 <see cref="SongDetail"/> 实例</param>
+    /// <param name="albumDetail">表示歌曲所属专辑详细信息的 <see cref="AlbumDetail"/> 实例</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="ArgumentException"><paramref name="songDetail"/> 中所属专辑的 CID 和 <paramref name="albumDetail"/> 中的 CID 不符。</exception>
+    public static void AddItemForPlaylist(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (songDetail.AlbumCid != albumDetail.Cid)
+        {
+            throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
+        }
+
+        SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
+        AddItemForPlaylist(playlist, pack);
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="pack">一个 <see cref="SongDetailAndAlbumDetailPack"/> 实例</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="ArgumentException">歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。</exception>
+    public static void AddItemForPlaylist(Playlist playlist, SongDetailAndAlbumDetailPack pack)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (pack.SongDetail.AlbumCid != pack.AlbumDetail.Cid)
+        {
+            throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
+        }
+
+        if (playlist.Items.Contains(pack))
+        {
+            return;
+        }
+
+        playlist.Items.Add(pack);
+    }
+
+    /// <summary>
+    /// 在指定的播放列表中移除歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="pack">一个 <see cref="SongDetailAndAlbumDetailPack"/> 实例</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    public static void RemoveItemForPlaylist(Playlist playlist, SongDetailAndAlbumDetailPack pack)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        playlist.Items.Remove(pack);
+    }
+
+    /// <summary>
+    /// 在指定的播放列表中移除歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    public static void RemoveItemForPlaylist(Playlist playlist, SongDetail songDetail)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        SongDetailAndAlbumDetailPack targetItem = playlist.Items.FirstOrDefault(pack => pack.SongDetail == songDetail);
+        playlist.Items.Remove(targetItem);
     }
 
     private static async Task<bool> IsFolderExist(string path)
