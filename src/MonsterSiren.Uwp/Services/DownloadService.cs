@@ -39,6 +39,7 @@ public static class DownloadService
         {
             SettingsHelper.Set(CommonValues.MusicDownloadPathSettingsKey, value);
             _downloadPath = value;
+            DownloadPathRedirected = false;
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
-using MonsterSiren.Api.Models.Song;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -21,6 +20,8 @@ public partial class MainViewModel : ObservableRecipient
     private bool isMediaInfoVisible;
     [ObservableProperty]
     private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
+    [ObservableProperty]
+    private Playlist selectedPlaylist;
 
     public MainViewModel(MainPage mainPage)
     {
@@ -81,6 +82,12 @@ public partial class MainViewModel : ObservableRecipient
         SystemNavigationManager navigationManager = SystemNavigationManager.GetForCurrentView();
         navigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
         MainPageNavigationHelper.Navigate(typeof(GlanceViewPage), null, new SuppressNavigationTransitionInfo());
+    }
+
+    [RelayCommand]
+    private static async Task PlayForPlaylist(Playlist playlist)
+    {
+        await PlaylistService.PlayForPlaylist(playlist);
     }
 
     public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)

@@ -11,6 +11,7 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.UI.Xaml.Media"
+    xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:msrControls="using:MonsterSiren.Uwp.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
@@ -53,6 +54,26 @@
                 </SplineDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
+        <MenuFlyout x:Name="PlaylistItemFlyout">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="AddToPlaylistCommandButton"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Add" />
+            <MenuFlyoutItem
+                x:Uid="RenameCommandButton"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Rename" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DeleteCommandButton"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Delete" />
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>
@@ -138,6 +159,7 @@
                     AllowDrop="True"
                     DragOver="OnAlbumInfoDataPackageDragOver"
                     Drop="OnDropAlbumInfoDataPackage"
+                    SelectsOnInvoked="False"
                     Tag="NowPlayingPage">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="MusicInfo" />
@@ -154,6 +176,20 @@
                     Tag="NewsPage">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE90A;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+
+                <muxc:NavigationViewItemSeparator />
+
+                <muxc:NavigationViewItem
+                    x:Name="PlaylistPageItem"
+                    x:Uid="PlaylistNavViewItem"
+                    AccessKey="LS"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    IsExpanded="True"
+                    Tag="PlaylistPage">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE14C;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
@@ -173,10 +209,6 @@
                     </muxc:NavigationViewItem.InfoBadge>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.FooterMenuItems>
-
-            <muxc:NavigationView.PaneFooter>
-                <muxc:NavigationViewItemSeparator />
-            </muxc:NavigationView.PaneFooter>
 
             <Frame
                 x:Name="ContentFrame"

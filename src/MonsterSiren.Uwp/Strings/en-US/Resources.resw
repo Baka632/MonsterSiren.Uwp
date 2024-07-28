@@ -337,15 +337,30 @@
     <value>Decoder</value>
   </data>
   <data name="EnterGlanceMode.Text" xml:space="preserve">
-    <value>Enter "Glance" mode</value>
+    <value>Enter "Glance Mode"</value>
   </data>
   <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
-    <value>Glance mode</value>
+    <value>Glance Mode</value>
   </data>
   <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
     <value>Enable screen burn protection</value>
   </data>
   <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
     <value>Lower brightness</value>
+  </data>
+  <data name="PlaylistNavViewItem.Content" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="RenameCommandButton.Text" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="DeleteCommandButton.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="SettingsPage_PlaylistFolderRedirected.Message" xml:space="preserve">
+    <value>App cannot use the folder selected before, so the playlist path was set to default path.</value>
+  </data>
+  <data name="SettingsPage_PlaylistSavePath.Text" xml:space="preserve">
+    <value>Playlist save path</value>
   </data>
 </root>

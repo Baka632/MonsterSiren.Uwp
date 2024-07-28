@@ -188,10 +188,15 @@
                                 <muxc:InfoBar
                                     x:Uid="SettingsPage_DownloadFolderRedirected"
                                     IsClosable="False"
-                                    IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
+                                    IsOpen="{x:Bind ViewModel.IsDownloadFolderRedirected, Mode=OneWay}"
+                                    Severity="Warning" />
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_PlaylistFolderRedirected"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind ViewModel.IsPlaylistFolderRedirected, Mode=OneWay}"
                                     Severity="Warning" />
 
-                                <Grid>
+                                <Grid Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition />
@@ -199,7 +204,7 @@
 
                                     <StackPanel Grid.Column="0">
                                         <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
-                                        <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
                                     </StackPanel>
 
                                     <Button
@@ -207,6 +212,23 @@
                                         Grid.Column="1"
                                         HorizontalAlignment="Right"
                                         Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Uid="SettingsPage_PlaylistSavePath" Style="{StaticResource BaseTextBlockStyle}" />
+                                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.PlaylistSavePath, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button
+                                        x:Uid="SettingsPage_PickButton"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.PickPlaylistFolderCommand}" />
                                 </Grid>
                             </StackPanel>
                         </muxc:Expander>

@@ -38,6 +38,8 @@ internal static class CommonValues
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
 
+    public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
+
     public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
     public const string AppColorThemeSettingsKey = "App_ColorTheme_SettingsKey";
 

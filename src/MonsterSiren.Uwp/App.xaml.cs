@@ -141,6 +141,7 @@ sealed partial class App : Application
             // 初始化设置
             await DownloadService.Initialize();
             _ = new SettingsViewModel();
+            await PlaylistService.Initialize();
         }
 
         if (e.PrelaunchActivated == false)

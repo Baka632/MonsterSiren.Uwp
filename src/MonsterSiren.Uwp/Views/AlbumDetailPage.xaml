@@ -57,10 +57,12 @@
                         Grid.Row="0"
                         FontSize="20"
                         FontWeight="SemiBold"
+                        IsTextSelectionEnabled="True"
                         Text="{x:Bind ViewModel.CurrentAlbumInfo.Name, Mode=OneWay}" />
                     <TextBlock
                         x:Name="AlbumArtists"
                         Grid.Row="1"
+                        IsTextSelectionEnabled="True"
                         Text="{x:Bind x:String.Join(' / ', ViewModel.CurrentAlbumInfo.Artistes), Mode=OneWay}" />
                     <StackPanel
                         x:Name="SeparatorStackPanel"
@@ -173,7 +175,7 @@
                         <Grid Background="Transparent">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <Grid.ContextFlyout>
@@ -201,6 +203,7 @@
                                 Grid.Column="0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
+                                IsTextSelectionEnabled="True"
                                 Text="{x:Bind Name}" />
 
                             <Button

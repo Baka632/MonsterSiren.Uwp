@@ -36,6 +36,7 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
+        LoadPlaylistForNavigationView();
 
         //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
@@ -207,6 +208,10 @@ public sealed partial class MainPage : Page
         {
             ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
+        else if (tag == "PlaylistPage" && ContentFrame.CurrentSourcePageType != typeof(PlaylistPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
     }
 
     private void NavigateToNowPlayingPage(bool expandNowPlayingList = false)
@@ -241,6 +246,10 @@ public sealed partial class MainPage : Page
         else if (currentSourcePageType == typeof(DownloadPage))
         {
             NavigationView.SelectedItem = DownloadPageItem;
+        }
+        else if (currentSourcePageType == typeof(PlaylistPage))
+        {
+            NavigationView.SelectedItem = PlaylistPageItem;
         }
         else if (currentSourcePageType == typeof(NewsPage) || currentSourcePageType == typeof(NewsDetailPage))
         {
@@ -303,6 +312,30 @@ public sealed partial class MainPage : Page
     private void OnMediaInfoButtonClick(object sender, RoutedEventArgs e)
     {
         NavigateToNowPlayingPage();
+    }
+
+    private void LoadPlaylistForNavigationView()
+    {
+        PlaylistPageItem.MenuItems.Clear();
+        foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+        {
+            Microsoft.UI.Xaml.Controls.NavigationViewItem item = new()
+            {
+                Content = playlist.Title,
+                ContextFlyout = PlaylistItemFlyout,
+                Tag = playlist,
+                Icon = new FontIcon()
+                {
+                    Glyph = "\uEC4F"
+                },
+                IsRightTapEnabled = true,
+            };
+            item.RightTapped += (s, e) =>
+            {
+                ViewModel.SelectedPlaylist = playlist;
+            };
+            PlaylistPageItem.MenuItems.Add(item);
+        }
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
