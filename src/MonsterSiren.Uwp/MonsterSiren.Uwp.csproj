@@ -147,7 +147,7 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
-    <Compile Include="Helpers\SongDetailExtensions.cs" />
+    <Compile Include="Helpers\SongDetailHelper.cs" />
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />

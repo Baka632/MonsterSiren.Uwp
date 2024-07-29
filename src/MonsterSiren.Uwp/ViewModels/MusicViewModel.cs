@@ -229,7 +229,7 @@ public sealed partial class MusicViewModel : ObservableObject
                     SongInfo songInfo = songs[i];
                     if (songInfo.Artists is null || songInfo.Artists.Any() != true)
                     {
-                        songs[i] = songInfo with { Artists = new string[] { "MSR".GetLocalized() } };
+                        songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
                     }
                 }
 
