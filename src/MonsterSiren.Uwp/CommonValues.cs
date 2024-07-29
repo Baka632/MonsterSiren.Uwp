@@ -59,18 +59,23 @@ internal static class CommonValues
 
     static CommonValues()
     {
-        MSRString = "MSR".GetLocalized();
+        NavigationTransitionInfo transitionInfo = null;
 
-        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
+        UIThreadHelper.RunOnUIThread(() =>
         {
-            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
             {
-                Effect = SlideNavigationTransitionEffect.FromRight
-            };
-        }
-        else
-        {
-            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
-        }
+                transitionInfo = new SlideNavigationTransitionInfo()
+                {
+                    Effect = SlideNavigationTransitionEffect.FromRight
+                };
+            }
+            else
+            {
+                transitionInfo = new DrillInNavigationTransitionInfo();
+            }
+        }).Wait();
+
+        DefaultTransitionInfo = transitionInfo;
     }
 }
