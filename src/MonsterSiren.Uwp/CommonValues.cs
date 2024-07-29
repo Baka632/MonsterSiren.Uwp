@@ -53,29 +53,21 @@ internal static class CommonValues
     #endregion
 
     #region Other Common Things
-    public static readonly NavigationTransitionInfo DefaultTransitionInfo;
-    public static readonly string MSRString;
+    public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
     #endregion
 
     static CommonValues()
     {
-        NavigationTransitionInfo transitionInfo = null;
-
-        UIThreadHelper.RunOnUIThread(() =>
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
         {
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
+            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
             {
-                transitionInfo = new SlideNavigationTransitionInfo()
-                {
-                    Effect = SlideNavigationTransitionEffect.FromRight
-                };
-            }
-            else
-            {
-                transitionInfo = new DrillInNavigationTransitionInfo();
-            }
-        }).Wait();
-
-        DefaultTransitionInfo = transitionInfo;
+                Effect = SlideNavigationTransitionEffect.FromRight
+            };
+        }
+        else
+        {
+            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
+        }
     }
 }

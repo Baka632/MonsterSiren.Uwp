@@ -134,6 +134,12 @@ sealed partial class App : Application
             // 将框架放在当前窗口中
             Window.Current.Content = rootFrame;
             UIThreadHelper.Initialize(rootFrame.Dispatcher);
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                // 这里我们在 UI 线程间接调用了 CommonValues 的静态构造器
+                // 防止非 UI 线程第一次访问 CommonValues 时出错
+                _ = CommonValues.DefaultTransitionInfo.ToString().Trim();
+            });
 
             TitleBarHelper.SetTitleBarAppearance();
             LoadResourceDictionaries();
