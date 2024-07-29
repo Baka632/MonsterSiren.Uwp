@@ -40,10 +40,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Monster Siren Records (UWP)</value>
-  </data>
-  <data name="AppDescription" xml:space="preserve">
-    <value>Monster Siren Records (MSR), one of the world's largest music publishers in the eleventh century in Terra</value>
+    <value>Sora Records</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -362,5 +359,8 @@
   </data>
   <data name="SettingsPage_PlaylistSavePath.Text" xml:space="preserve">
     <value>Playlist save path</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Sora Records is a third-party client for Monster Siren Records.</value>
   </data>
 </root>

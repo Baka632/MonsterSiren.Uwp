@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>塞壬唱片 UWP</value>
+    <value>Sora 唱片</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>塞壬唱片MSR (Monster Siren Records)，泰拉世界十一世纪最大的音乐发行商之一</value>
+    <value>Sora 唱片是一个塞壬唱片的第三方客户端。</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
