@@ -101,7 +101,7 @@ public partial class MainViewModel : ObservableRecipient
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
@@ -120,7 +120,7 @@ public partial class MainViewModel : ObservableRecipient
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
             });
         }
@@ -173,21 +173,6 @@ public partial class MainViewModel : ObservableRecipient
         }
 
         return albumDetail;
-    }
-
-    internal static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
-    {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
-        {
-            return detail;
-        }
-        else
-        {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
-
-            return songDetail;
-        }
     }
 
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)

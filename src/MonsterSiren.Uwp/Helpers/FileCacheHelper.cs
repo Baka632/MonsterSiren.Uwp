@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
@@ -15,6 +14,7 @@ internal static class FileCacheHelper
 {
     private const string DefaultAlbumCoverCacheFolderName = "AlbumCover";
     private const string DefaultMusicInfoCacheFolderName = "MusicInfo";
+    private const string DefaultSongDurationCacheFolderName = "SongDuration";
     private static readonly StorageFolder tempFolder = ApplicationData.Current.TemporaryFolder;
 
     /// <summary>
@@ -157,6 +157,51 @@ internal static class FileCacheHelper
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// 从缓存中获取歌曲时长
+    /// </summary>
+    /// <param name="songCid">歌曲 CID</param>
+    /// <returns>表示歌曲时长的 <see cref="System.TimeSpan"/>。如果缓存中不存在指定项的时长信息，则返回 <see langword="null"/></returns>
+    public static async Task<TimeSpan?> GetSongDurationAsync(string songCid)
+    {
+        StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+        string fileName = $"{songCid}.json";
+        if (durationFolder != null && await durationFolder.FileExistsAsync(fileName))
+        {
+            try
+            {
+                StorageFile file = await durationFolder.GetFileAsync(fileName);
+                using Stream utf8Json = await file.OpenStreamForReadAsync();
+
+                TimeSpan duration = JsonSerializer.Deserialize<TimeSpan>(utf8Json);
+                return duration;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 通过指定的参数，将歌曲的时长信息保存在缓存文件夹中
+    /// </summary>
+    /// <param name="songCid">歌曲的 CID</param>
+    /// <param name="timeSpan">歌曲时长</param>
+    public static async Task StoreSongDurationAsync(string songCid, TimeSpan timeSpan)
+    {
+        StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFile file = await durationFolder.CreateFileAsync($"{songCid}.json", CreationCollisionOption.ReplaceExisting);
+
+        using Stream stream = await file.OpenStreamForWriteAsync();
+        await JsonSerializer.SerializeAsync(stream, timeSpan);
     }
 
     public static async Task StoreAlbumInfoAsync(AlbumInfo info)

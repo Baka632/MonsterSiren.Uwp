@@ -41,6 +41,8 @@ public sealed partial class SearchViewModel : ObservableObject
                 return;
             }
 
+            //TODO: Fix missing artist name...
+
             SearchAlbumAndNewsResult albumAndNewsWarpper = await SearchService.SearchAlbumAndNewsAsync(keyword);
 
             NewsList = new MsrIncrementalCollection<NewsInfo>(albumAndNewsWarpper.News, async lastInfo => await SearchService.SearchNewsAsync(keyword, lastInfo.Cid));

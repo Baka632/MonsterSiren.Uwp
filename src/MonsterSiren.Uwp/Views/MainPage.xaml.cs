@@ -362,7 +362,7 @@ public sealed partial class MainPage : Page
 
                     foreach (SongInfo songInfo in albumDetail.Songs)
                     {
-                        SongDetail songDetail = await MainViewModel.GetSongDetail(songInfo).ConfigureAwait(false);
+                        SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                         PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
                     }
                 }
@@ -371,7 +371,7 @@ public sealed partial class MainPage : Page
                     string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId);
 
                     (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
-                    SongDetail songDetail = await MainViewModel.GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
 
                     PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
                 }

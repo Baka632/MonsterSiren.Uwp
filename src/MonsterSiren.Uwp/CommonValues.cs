@@ -54,10 +54,13 @@ internal static class CommonValues
 
     #region Other Common Things
     public static readonly NavigationTransitionInfo DefaultTransitionInfo;
+    public static readonly string MSRString;
     #endregion
 
     static CommonValues()
     {
+        MSRString = "MSR".GetLocalized();
+
         if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
         {
             DefaultTransitionInfo = new SlideNavigationTransitionInfo()

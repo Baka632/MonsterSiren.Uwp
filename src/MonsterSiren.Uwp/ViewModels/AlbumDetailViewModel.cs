@@ -110,7 +110,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
                     items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
 
@@ -146,7 +146,7 @@ public partial class AlbumDetailViewModel : ObservableObject
                 List<MediaPlaybackItem> playbackItems = new(CurrentAlbumDetail.Songs.Count());
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
 
@@ -173,7 +173,7 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(item).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
                     _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
                 }
             });
@@ -192,7 +192,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             });
         }
@@ -210,7 +210,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             });
         }
@@ -227,28 +227,13 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
             });
         }
         catch (HttpRequestException)
         {
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-    }
-
-    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
-    {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
-        {
-            return detail;
-        }
-        else
-        {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
-
-            return songDetail;
         }
     }
 

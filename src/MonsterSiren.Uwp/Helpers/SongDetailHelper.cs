@@ -47,13 +47,17 @@ public static class SongDetailHelper
 
         return playbackItem;
 
-        void TryCacheSongDuration(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs e)
+        async void TryCacheSongDuration(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs e)
         {
-            if (sender.State == MediaSourceState.Opened
-                && sender.Duration.HasValue
-                && !MemoryCacheHelper<TimeSpan>.Default.TryGetData(songDetail.Cid, out _))
+            if (sender.State == MediaSourceState.Opened && sender.Duration.HasValue)
             {
-                MemoryCacheHelper<TimeSpan>.Default.Store(songDetail.Cid, sender.Duration.Value);
+                TimeSpan currentSpan = sender.Duration.Value;
+                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+                
+                if (span != currentSpan)
+                {
+                    await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                }
             }
 
             sender.OpenOperationCompleted -= TryCacheSongDuration;
@@ -64,30 +68,48 @@ public static class SongDetailHelper
     /// 获取歌曲的时长
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例</param>
-    /// <returns>一个可空的 <see cref="System.TimeSpan"/> 实例</returns>
+    /// <returns>一个 <see cref="System.TimeSpan"/> 实例</returns>
     public static async Task<TimeSpan?> GetSongDurationAsync(SongDetail songDetail)
     {
-        if (MemoryCacheHelper<TimeSpan>.Default.TryGetData(songDetail.Cid, out TimeSpan span))
+        TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+        if (span.HasValue)
         {
             return span;
         }
         else
         {
-            return await Task.Run(async () =>
+            Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
+            using MediaSource source = MediaSource.CreateFromUri(musicUri);
+            await source.OpenAsync();
+
+            TimeSpan? duration = source.Duration;
+
+            if (duration.HasValue)
             {
-                Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-                MediaSource source = MediaSource.CreateFromUri(musicUri);
-                await source.OpenAsync();
+                await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, duration.Value);
+            }
 
-                TimeSpan? duration = source.Duration;
+            return duration;
+        }
+    }
 
-                if (duration.HasValue)
-                {
-                    MemoryCacheHelper<TimeSpan>.Default.Store(songDetail.Cid, duration.Value);
-                }
+    /// <summary>
+    /// 通过 <see cref="SongInfo"/> 实例获得一个 <see cref="SongDetail"/> 实例
+    /// </summary>
+    /// <param name="songInfo">一个 <see cref="SongInfo"/> 实例</param>
+    /// <returns>一个 <see cref="SongDetail"/> 实例</returns>
+    public static async Task<SongDetail> GetSongDetailAsync(SongInfo songInfo)
+    {
+        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        {
+            return detail;
+        }
+        else
+        {
+            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
+            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
 
-                return duration;
-            });
+            return songDetail;
         }
     }
 }

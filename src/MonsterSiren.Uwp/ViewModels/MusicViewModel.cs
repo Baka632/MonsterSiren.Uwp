@@ -133,7 +133,7 @@ public sealed partial class MusicViewModel : ObservableObject
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
@@ -166,7 +166,7 @@ public sealed partial class MusicViewModel : ObservableObject
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
@@ -190,7 +190,7 @@ public sealed partial class MusicViewModel : ObservableObject
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                     _ = DownloadService.DownloadSong(albumDetail, songDetail);
                 }
             });
@@ -243,21 +243,6 @@ public sealed partial class MusicViewModel : ObservableObject
         }
 
         return albumDetail;
-    }
-
-    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
-    {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
-        {
-            return detail;
-        }
-        else
-        {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
-
-            return songDetail;
-        }
     }
 
     public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")

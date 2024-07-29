@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http;
+using System.Text.Json;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -23,14 +24,14 @@ public sealed partial class AlbumDetailPage : Page
 
         ConnectedAnimation animation =
                 ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.AlbumInfoForwardConnectedAnimationKeyForMusicPage);
-        animation?.TryStart(AlbumCover, new UIElement[]
-        {
+        animation?.TryStart(AlbumCover,
+        [
                 AlbumName,
                 AlbumArtists,
                 SeparatorStackPanel,
                 DetailScrollViewer,
                 ControlBarStackPanel
-        });
+        ]);
 
         if (e.Parameter is AlbumInfo albumInfo)
         {
@@ -63,5 +64,31 @@ public sealed partial class AlbumDetailPage : Page
         string json = JsonSerializer.Serialize(pack);
 
         e.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
+    }
+
+    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        SongInfo songInfo = (SongInfo)textBlock.DataContext;
+        textBlock.Text = "-:-";
+
+        try
+        {
+            SongDetail detail = await SongDetailHelper.GetSongDetailAsync(songInfo);
+            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(detail);
+
+            if (span.HasValue)
+            {
+                textBlock.Text = span.Value.ToString(@"m\:ss");
+            }
+            else
+            {
+                textBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            textBlock.Visibility = Visibility.Collapsed;
+        }
     }
 }
