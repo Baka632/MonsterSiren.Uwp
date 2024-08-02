@@ -363,4 +363,13 @@
   <data name="AppDescription" xml:space="preserve">
     <value>Sora Records is a third-party client for Monster Siren Records.</value>
   </data>
+  <data name="PlaylistTextBlock.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="PlaylistPage_NewPlaylist.Text" xml:space="preserve">
+    <value>Create new playlist</value>
+  </data>
+  <data name="SongsCount" xml:space="preserve">
+    <value>{0} songs</value>
+  </data>
 </root>

@@ -3,6 +3,8 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.Models;
 
@@ -17,6 +19,7 @@ public partial class Playlist : INotifyPropertyChanged
     public event PropertyChangedEventHandler PropertyChanged;
     private string _title;
     private string _description;
+    private BitmapImage _playlistCoverImage;
 
     /// <summary>
     /// 播放列表的标题
@@ -44,11 +47,31 @@ public partial class Playlist : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// 播放列表的封面图
+    /// </summary>
+    [JsonIgnore]
+    public BitmapImage PlaylistCoverImage
+    {
+        get => _playlistCoverImage;
+        set
+        {
+            _playlistCoverImage = value;
+            OnPropertiesChanged();
+        }
+    }
+
     // HACK: How to count it...
     /// <summary>
     /// 播放列表的总时长（以毫秒为单位）
     /// </summary>
     public int TotalDurationInMillisecond { get; private set; }
+
+    /// <summary>
+    /// 当前播放列表的歌曲个数
+    /// </summary>
+    [JsonIgnore]
+    public int SongCount { get => Items.Count; }
 
     /// <summary>
     /// 播放列表的歌曲列表
@@ -62,9 +85,26 @@ public partial class Playlist : INotifyPropertyChanged
         Items.CollectionChanged += OnItemCollectionChanged;
     }
 
-    private void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertiesChanged(nameof(TotalDurationInMillisecond));
+        OnPropertiesChanged(nameof(SongCount));
+
+        if (Items.Count > 0)
+        {
+            SongDetailAndAlbumDetailPack pack = Items[0];
+            Uri uri = await FileCacheHelper.GetAlbumCoverUriAsync(pack.AlbumDetail)
+                ?? new(pack.AlbumDetail.CoverUrl, UriKind.Absolute);
+
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlaylistCoverImage = new(uri);
+            });
+        }
+        else
+        {
+            PlaylistCoverImage = null;
+        }
     }
 
     public IEnumerator<SongDetailAndAlbumDetailPack> GetEnumerator()
