@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿#define SONG_FOR_PEPE
+
+using System.Collections.Specialized;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using Windows.Media;
 using Windows.Media.Playback;
@@ -372,6 +374,10 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
+#if SONG_FOR_PEPE
+    private int countForPepe = 0;
+#endif
+
     private async void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
         if (args.NewItem is not null)
@@ -381,6 +387,79 @@ public sealed partial class MusicInfoService : ObservableRecipient
             MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
+
+#if SONG_FOR_PEPE
+            if (props.MusicProperties.Title == "Mystic Light Quest")
+            {
+                countForPepe++;
+            }
+            else
+            {
+                countForPepe = 0;
+            }
+
+            if (countForPepe >= 5)
+            {
+                Microsoft.Toolkit.Uwp.Notifications.ToastContent toastContent = null;
+
+                if (countForPepe == 5)
+                {
+                    toastContent = new()
+                    {
+                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
+                        {
+                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "佩佩佩佩佩佩佩佩！"
+                                    },
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "循环播放《Mystic Light Quest》达到 5 次！"
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+                else if (countForPepe == 10)
+                {
+                    toastContent = new Microsoft.Toolkit.Uwp.Notifications.ToastContent()
+                    {
+                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
+                        {
+                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "已进入年代👉希望年代·扩张期🥰"
+                                    },
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "在这个年代，美好茁壮成长，二次元从不消逝，溜佩佩EP是无害的病症，猫冰满足了一切需求😋"
+                                    }
+                                },
+                                Attribution = new Microsoft.Toolkit.Uwp.Notifications.ToastGenericAttributionText()
+                                {
+                                    Text = "来自 B 站 PV 评论区"
+                                }
+                            }
+                        }
+                    };
+                }
+
+                if (toastContent is not null)
+                {
+                    Windows.UI.Notifications.ToastNotification toastNotif = new(toastContent.GetXml());
+                    Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
+                }
+            }
+#endif
 
             if (MemoryCacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
             {
