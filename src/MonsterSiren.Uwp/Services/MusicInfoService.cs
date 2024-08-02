@@ -437,7 +437,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
                                 {
                                     new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
                                     {
-                                        Text = "已进入年代👉希望年代·扩张期🥰"
+                                        Text = EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362)
+                                        ? "已进入年代👉希望年代·扩张期🥰"
+                                        : "已进入年代👉希望年代·扩张期💖"
                                     },
                                     new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
                                     {
