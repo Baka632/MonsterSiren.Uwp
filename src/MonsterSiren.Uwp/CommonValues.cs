@@ -54,6 +54,7 @@ internal static class CommonValues
 
     #region Other Common Things
     public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
+    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     #endregion
 
     static CommonValues()

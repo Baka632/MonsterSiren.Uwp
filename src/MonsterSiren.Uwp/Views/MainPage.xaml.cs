@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Specialized;
+using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -247,7 +248,7 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = DownloadPageItem;
         }
-        else if (currentSourcePageType == typeof(PlaylistPage))
+        else if (currentSourcePageType == typeof(PlaylistPage) || currentSourcePageType == typeof(PlaylistDetailPage))
         {
             NavigationView.SelectedItem = PlaylistPageItem;
         }
@@ -330,6 +331,15 @@ public sealed partial class MainPage : Page
                 },
                 IsRightTapEnabled = true,
                 AllowDrop = true,
+                SelectsOnInvoked = false,
+            };
+
+            item.Tapped += (s, e) =>
+            {
+                // TODO: 避免重复导航到相同的播放列表详细页中
+                ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
+
+                ChangeSelectedItemOfNavigationView();
             };
 
             item.RightTapped += (s, e) =>
@@ -363,7 +373,7 @@ public sealed partial class MainPage : Page
                     foreach (SongInfo songInfo in albumDetail.Songs)
                     {
                         SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
-                        PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                        await PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
                     }
                 }
                 else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
@@ -373,7 +383,7 @@ public sealed partial class MainPage : Page
                     (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
                     SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
 
-                    PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                    await PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
                 }
             };
 
@@ -391,6 +401,8 @@ public sealed partial class MainPage : Page
 
         NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
         OnNetworkStatusChanged();
+
+        PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -402,6 +414,12 @@ public sealed partial class MainPage : Page
             settings.AccessKeyInvoked -= OnNavigationViewItemAccessKeyInvoked;
         }
         NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+    }
+
+    private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        LoadPlaylistForNavigationView();
     }
 
     private async void OnNetworkStatusChanged(object sender = null)

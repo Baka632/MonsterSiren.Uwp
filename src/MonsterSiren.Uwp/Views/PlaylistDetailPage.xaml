@@ -1,0 +1,204 @@
+﻿<Page
+    x:Class="MonsterSiren.Uwp.Views.PlaylistDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:app="using:MonsterSiren.Uwp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
+    xmlns:local="using:MonsterSiren.Uwp.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:MonsterSiren.Uwp.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistDetailViewModel}"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <Grid Margin="0,0,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Image
+                    x:Name="PlaylistCover"
+                    Height="250"
+                    Width="250"
+                    Grid.Column="0"
+                    VerticalAlignment="Top"
+                    Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
+                    Stretch="UniformToFill" />
+
+                <Grid x:Name="PlaylistInfoGrid" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        x:Name="PlaylistTitle"
+                        Grid.Row="0"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        IsTextSelectionEnabled="True"
+                        Text="{x:Bind ViewModel.CurrentPlaylist.Title, Mode=OneWay}" />
+                    <TextBlock
+                        x:Name="SongCountText"
+                        Grid.Row="1"
+                        IsTextSelectionEnabled="True"
+                        Text="{x:Bind x:String.Format(app:CommonValues.SongCountFormat, ViewModel.CurrentPlaylist.SongCount), Mode=OneWay}" />
+                    <StackPanel
+                        x:Name="SeparatorStackPanel"
+                        Grid.Row="2"
+                        Margin="0,10,10,10"
+                        BorderBrush="Gray"
+                        BorderThickness="0.6" />
+                    <ScrollViewer
+                        x:Name="DescriptionScrollViewer"
+                        Grid.Row="3"
+                        MaxHeight="130"
+                        Margin="0,0,10,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top">
+                        <TextBlock
+                            x:Name="AlbumDetailTextBlock"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.CurrentPlaylist.Description, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </ScrollViewer>
+
+                    <StackPanel
+                        x:Name="ControlBarStackPanel"
+                        Grid.Row="4"
+                        Margin="0,10,0,0"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal">
+                        <Button
+                            x:Name="PlayAlbumButton"
+                            Margin="0,0,5,0"
+                            AccessKey="0"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.PlayForCurrentPlaylistCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Center"
+                                    Symbol="Play" />
+                                <TextBlock x:Uid="PlayMusicTextBlock" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <ListView
+                x:Name="SongList"
+                Grid.Row="1"
+                CanDragItems="True"
+                DragItemsStarting="OnSongListViewItemsDragStarting"
+                ItemsSource="{x:Bind ViewModel.CurrentPlaylist.Items, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsPlaylistEmpty), Mode=OneWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:SongDetailAndAlbumDetailPack">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.ContextFlyout>
+                                <muxc:MenuBarItemFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="PlayMusicTextBlock"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Play" />
+                                    <MenuFlyoutItem
+                                        x:Uid="AddToPlaylistTextBlock"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Add" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadTextBlock"
+                                        CommandParameter="{x:Bind}"
+                                        Icon="Download" />
+                                </muxc:MenuBarItemFlyout>
+                            </Grid.ContextFlyout>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsTextSelectionEnabled="True"
+                                Text="{x:Bind SongDetail.Name}" />
+
+                            <StackPanel
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <TextBlock
+                                    Margin="0,0,5,0"
+                                    VerticalAlignment="Center"
+                                    DataContext="{x:Bind SongDetail}"
+                                    Loaded="OnSongDurationTextBlockLoaded" />
+
+                                <Button
+                                    VerticalAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                    <Button.Flyout>
+                                        <muxc:MenuBarItemFlyout>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayMusicTextBlock"
+                                                CommandParameter="{x:Bind}"
+                                                Icon="Play" />
+                                            <MenuFlyoutItem
+                                                x:Uid="AddToPlaylistTextBlock"
+                                                CommandParameter="{x:Bind}"
+                                                Icon="Add" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem
+                                                x:Uid="DownloadTextBlock"
+                                                CommandParameter="{x:Bind}"
+                                                Icon="Download" />
+                                        </muxc:MenuBarItemFlyout>
+                                    </Button.Flyout>
+
+                                    <SymbolIcon Symbol="More" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <StackPanel
+                Grid.Row="1"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsPlaylistEmpty), Mode=OneWay}">
+                <FontIcon
+                    Margin="0,0,0,5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="40"
+                    Glyph="&#xEA91;" />
+                <TextBlock x:Uid="NoSongsInAlbum" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

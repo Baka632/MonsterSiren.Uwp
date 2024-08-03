@@ -7,12 +7,18 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class PlaylistPage : Page
 {
-    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
-
     public PlaylistViewModel ViewModel { get; } = new PlaylistViewModel();
 
     public PlaylistPage()
     {
         this.InitializeComponent();
+    }
+
+    private void OnPlaylistItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is Playlist playlist)
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
+        }
     }
 }

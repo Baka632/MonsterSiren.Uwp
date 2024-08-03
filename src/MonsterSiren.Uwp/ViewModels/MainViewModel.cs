@@ -87,7 +87,7 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task PlayForPlaylist(Playlist playlist)
     {
-        await PlaylistService.PlayForPlaylist(playlist);
+        await PlaylistService.PlayForPlaylistAsync(playlist);
     }
 
     public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)

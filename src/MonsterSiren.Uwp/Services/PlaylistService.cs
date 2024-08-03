@@ -109,7 +109,7 @@ public static class PlaylistService
     /// 播放指定的播放列表
     /// </summary>
     /// <param name="playlist">要播放的播放列表</param>
-    public static async Task PlayForPlaylist(Playlist playlist)
+    public static async Task PlayForPlaylistAsync(Playlist playlist)
     {
         if (playlist is null)
         {
@@ -146,7 +146,7 @@ public static class PlaylistService
     /// <param name="albumDetail">表示歌曲所属专辑详细信息的 <see cref="AlbumDetail"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     /// <exception cref="ArgumentException"><paramref name="songDetail"/> 中所属专辑的 CID 和 <paramref name="albumDetail"/> 中的 CID 不符。</exception>
-    public static void AddItemForPlaylist(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
+    public static async Task AddItemForPlaylist(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
     {
         if (playlist is null)
         {
@@ -159,7 +159,7 @@ public static class PlaylistService
         }
 
         SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
-        AddItemForPlaylist(playlist, pack);
+        await AddItemForPlaylistAsync(playlist, pack);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public static class PlaylistService
     /// <param name="pack">一个 <see cref="SongDetailAndAlbumDetailPack"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     /// <exception cref="ArgumentException">歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。</exception>
-    public static void AddItemForPlaylist(Playlist playlist, SongDetailAndAlbumDetailPack pack)
+    public static async Task AddItemForPlaylistAsync(Playlist playlist, SongDetailAndAlbumDetailPack pack)
     {
         if (playlist is null)
         {
@@ -186,7 +186,10 @@ public static class PlaylistService
             return;
         }
 
-        playlist.Items.Add(pack);
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            playlist.Items.Add(pack);
+        });
     }
 
     /// <summary>

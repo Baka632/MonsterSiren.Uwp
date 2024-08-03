@@ -348,8 +348,8 @@
   <data name="PlaylistNavViewItem.Content" xml:space="preserve">
     <value>Playlist</value>
   </data>
-  <data name="RenameCommandButton.Text" xml:space="preserve">
-    <value>Rename</value>
+  <data name="ModifyCommandButton.Text" xml:space="preserve">
+    <value>Modify</value>
   </data>
   <data name="DeleteCommandButton.Text" xml:space="preserve">
     <value>Delete</value>
@@ -371,5 +371,32 @@
   </data>
   <data name="SongsCount" xml:space="preserve">
     <value>{0} songs</value>
+  </data>
+  <data name="PlaylistCreationDialog.Title" xml:space="preserve">
+    <value>Create new playlist</value>
+  </data>
+  <data name="PlaylistCreationDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="PlaylistCreationDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="PlaylistTitle.Header" xml:space="preserve">
+    <value>Playlist Title</value>
+  </data>
+  <data name="PlaylistDescription.Header" xml:space="preserve">
+    <value>Playlist Description (Optional)</value>
+  </data>
+  <data name="PlaylistTitleEmptyTitle" xml:space="preserve">
+    <value>Title is empty</value>
+  </data>
+  <data name="PlaylistTitleEmptyMessage" xml:space="preserve">
+    <value>Please enter title.</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsTitle" xml:space="preserve">
+    <value>Please change title</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsMessage" xml:space="preserve">
+    <value>A playlist with the same name already exists.</value>
   </data>
 </root>

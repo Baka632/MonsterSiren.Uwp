@@ -65,9 +65,9 @@
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Add" />
             <MenuFlyoutItem
-                x:Uid="RenameCommandButton"
+                x:Uid="ModifyCommandButton"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Rename" />
+                Icon="Edit" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DeleteCommandButton"

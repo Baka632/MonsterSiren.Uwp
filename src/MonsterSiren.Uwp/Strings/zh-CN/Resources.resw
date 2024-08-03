@@ -429,8 +429,8 @@
   <data name="PlaylistNavViewItem.Content" xml:space="preserve">
     <value>播放列表</value>
   </data>
-  <data name="RenameCommandButton.Text" xml:space="preserve">
-    <value>重命名</value>
+  <data name="ModifyCommandButton.Text" xml:space="preserve">
+    <value>修改</value>
   </data>
   <data name="DeleteCommandButton.Text" xml:space="preserve">
     <value>删除</value>
@@ -449,5 +449,32 @@
   </data>
   <data name="SongsCount" xml:space="preserve">
     <value>{0} 首歌曲</value>
+  </data>
+  <data name="PlaylistCreationDialog.Title" xml:space="preserve">
+    <value>创建新的播放列表</value>
+  </data>
+  <data name="PlaylistCreationDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="PlaylistCreationDialog.PrimaryButtonText" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="PlaylistTitle.Header" xml:space="preserve">
+    <value>播放列表标题</value>
+  </data>
+  <data name="PlaylistDescription.Header" xml:space="preserve">
+    <value>播放列表描述（可选）</value>
+  </data>
+  <data name="PlaylistTitleEmptyTitle" xml:space="preserve">
+    <value>标题为空</value>
+  </data>
+  <data name="PlaylistTitleEmptyMessage" xml:space="preserve">
+    <value>请输入标题。</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsTitle" xml:space="preserve">
+    <value>请更改标题</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsMessage" xml:space="preserve">
+    <value>已存在同名的播放列表。</value>
   </data>
 </root>

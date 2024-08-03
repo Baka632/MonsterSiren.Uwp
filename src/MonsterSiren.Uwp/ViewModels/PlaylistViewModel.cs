@@ -1,25 +1,16 @@
-﻿using System.Collections.ObjectModel;
-using Windows.UI.Xaml.Media.Imaging;
+﻿namespace MonsterSiren.Uwp.ViewModels;
 
-namespace MonsterSiren.Uwp.ViewModels;
-
-public sealed class PlaylistViewModel : ObservableObject
+public sealed partial class PlaylistViewModel : ObservableObject
 {
-    public static ImageSource GetCoverImageForPlaylist(ObservableCollection<SongDetailAndAlbumDetailPack> items, int count = 0)
+    [RelayCommand]
+    private static async Task CreateNewPlaylist()
     {
-        if (count <= 0)
-        {
-            //TODO
-            return null;
-        }
-        else
-        {
-            SongDetailAndAlbumDetailPack pack = items.First();
+        PlaylistCreationDialog dialog = new();
+        ContentDialogResult result = await dialog.ShowAsync();
 
-            Uri uri = FileCacheHelper.GetAlbumCoverUriAsync(pack.AlbumDetail).Result
-                ?? new(pack.AlbumDetail.CoverUrl, UriKind.Absolute);
-
-            return new BitmapImage(uri);
+        if (result == ContentDialogResult.Primary)
+        {
+            PlaylistService.CreateNewPlaylist(dialog.PlaylistTitle, dialog.PlaylistDescription);
         }
     }
 }
