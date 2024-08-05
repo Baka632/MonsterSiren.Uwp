@@ -5,6 +5,8 @@ namespace MonsterSiren.Uwp.Views;
 [INotifyPropertyChanged]
 public sealed partial class PlaylistInfoDialog : ContentDialog
 {
+    private readonly char[] invalidChars = Path.GetInvalidFileNameChars();
+
     [ObservableProperty]
     private string playlistTitle;
     [ObservableProperty]
@@ -15,12 +17,33 @@ public sealed partial class PlaylistInfoDialog : ContentDialog
     private string infoBarTitle;
     [ObservableProperty]
     private string infoBarMessage;
+    [ObservableProperty]
+    private bool showRenameInFileSystemWarning;
 
     public bool CheckDuplicatePlaylist { get; set; } = true;
 
     public PlaylistInfoDialog()
     {
         this.InitializeComponent();
+    }
+
+    partial void OnPlaylistTitleChanging(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(PlaylistTitle))
+        {
+            ShowInfoBar = false;
+        }
+
+        foreach (char item in invalidChars)
+        {
+            if (value.Contains(item))
+            {
+                ShowRenameInFileSystemWarning = true;
+                return;
+            }
+        }
+
+        ShowRenameInFileSystemWarning = false;
     }
 
     private void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

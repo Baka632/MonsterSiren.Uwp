@@ -411,4 +411,10 @@
   <data name="NoPlaylistTextBlock.Text" xml:space="preserve">
     <value>There is no playlist now</value>
   </data>
+  <data name="MayRenameInFileSystemWarning.Title" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MayRenameInFileSystemWarning.Message" xml:space="preserve">
+    <value>Title contains characters that cannot be used in filename</value>
+  </data>
 </root>
