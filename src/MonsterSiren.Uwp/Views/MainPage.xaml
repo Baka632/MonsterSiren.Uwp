@@ -62,15 +62,18 @@
                 Icon="Play" />
             <MenuFlyoutItem
                 x:Uid="AddToPlaylistCommandButton"
+                Command="{x:Bind ViewModel.AddPlaylistToNowPlayingCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Add" />
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"
+                Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Edit" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DeleteCommandButton"
+                Command="{x:Bind ViewModel.RemovePlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Delete" />
         </MenuFlyout>
@@ -157,8 +160,8 @@
                     AccessKey="NP"
                     AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     AllowDrop="True"
-                    DragOver="OnAlbumInfoDataPackageDragOver"
-                    Drop="OnDropAlbumInfoDataPackage"
+                    DragOver="OnMusicDataPackageDragOver"
+                    Drop="OnDropMusicDataPackage"
                     SelectsOnInvoked="False"
                     Tag="NowPlayingPage">
                     <muxc:NavigationViewItem.Icon>
@@ -221,8 +224,8 @@
             Grid.Row="2"
             HorizontalAlignment="Stretch"
             AllowDrop="True"
-            DragOver="OnAlbumInfoDataPackageDragOver"
-            Drop="OnDropAlbumInfoDataPackage"
+            DragOver="OnMusicDataPackageDragOver"
+            Drop="OnDropMusicDataPackage"
             RequestedTheme="Dark">
             <Grid.Background>
                 <media:AcrylicBrush

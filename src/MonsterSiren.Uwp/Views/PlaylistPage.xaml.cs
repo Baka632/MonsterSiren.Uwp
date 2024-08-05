@@ -1,5 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
+using System.Text.Json;
+
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
@@ -20,5 +22,19 @@ public sealed partial class PlaylistPage : Page
         {
             ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
         }
+    }
+
+    private void OnPlaylistItemsDragStarting(object sender, DragItemsStartingEventArgs e)
+    {
+        object dataContext = e.Items.FirstOrDefault();
+
+        if (dataContext is null)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        string json = JsonSerializer.Serialize((Playlist)dataContext);
+        e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
     }
 }

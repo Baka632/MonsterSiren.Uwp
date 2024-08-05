@@ -85,6 +85,15 @@ public partial class Playlist : INotifyPropertyChanged
         Items.CollectionChanged += OnItemCollectionChanged;
     }
 
+    [JsonConstructor]
+    public Playlist(string title, string description, ObservableCollection<SongDetailAndAlbumDetailPack> items)
+    {
+        _title = title;
+        _description = description;
+        Items = items;
+        Items.CollectionChanged += OnItemCollectionChanged;
+    }
+
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertiesChanged(nameof(TotalDurationInMillisecond));

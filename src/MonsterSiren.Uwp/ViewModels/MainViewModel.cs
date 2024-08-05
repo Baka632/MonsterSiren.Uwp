@@ -90,6 +90,45 @@ public partial class MainViewModel : ObservableRecipient
         await PlaylistService.PlayForPlaylistAsync(playlist);
     }
 
+    [RelayCommand]
+    private static async Task AddPlaylistToNowPlaying(Playlist playlist)
+    {
+        await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+    }
+
+    [RelayCommand]
+    private static async Task ModifyPlaylist(Playlist playlist)
+    {
+        PlaylistInfoDialog dialog = new()
+        {
+            Title = "PlaylistModifyTitle".GetLocalized(),
+            PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
+            PlaylistTitle = playlist.Title,
+            PlaylistDescription = playlist.Description,
+            CheckDuplicatePlaylist = false,
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            playlist.Title = dialog.PlaylistTitle;
+            playlist.Description = dialog.PlaylistDescription;
+        }
+    }
+
+    [RelayCommand]
+    private static async Task RemovePlaylist(Playlist playlist)
+    {
+        ContentDialogResult result = await CommonValues.DisplayContentDialog("EnsureDelete".GetLocalized(), "",
+            "OK".GetLocalized(), "Cancel".GetLocalized());
+
+        if (result == ContentDialogResult.Primary)
+        {
+            PlaylistService.RemovePlaylist(playlist);
+        }
+    }
+
     public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
     {
         try
@@ -110,7 +149,7 @@ public partial class MainViewModel : ObservableRecipient
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -126,7 +165,7 @@ public partial class MainViewModel : ObservableRecipient
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -192,21 +231,5 @@ public partial class MainViewModel : ObservableRecipient
         {
             // Just ignore it...
         }
-    }
-
-    private static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        await UIThreadHelper.RunOnUIThread(async () =>
-        {
-            ContentDialog contentDialog = new()
-            {
-                Title = title,
-                Content = message,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText
-            };
-
-            await contentDialog.ShowAsync();
-        });
     }
 }

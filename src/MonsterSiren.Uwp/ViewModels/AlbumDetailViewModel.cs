@@ -127,7 +127,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         catch (HttpRequestException)
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -155,7 +155,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
     
@@ -199,7 +199,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         catch (HttpRequestException)
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -216,7 +216,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -233,20 +233,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
-    }
-
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        ContentDialog contentDialog = new()
-        {
-            Title = title,
-            Content = message,
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = closeButtonText
-        };
-
-        await contentDialog.ShowAsync();
     }
 }

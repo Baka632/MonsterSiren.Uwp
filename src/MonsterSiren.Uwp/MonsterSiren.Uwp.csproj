@@ -213,8 +213,8 @@
     <Compile Include="Views\NowPlayingPage.xaml.cs">
       <DependentUpon>NowPlayingPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlaylistCreationDialog.xaml.cs">
-      <DependentUpon>PlaylistCreationDialog.xaml</DependentUpon>
+    <Compile Include="Views\PlaylistInfoDialog.xaml.cs">
+      <DependentUpon>PlaylistInfoDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlaylistDetailPage.xaml.cs">
       <DependentUpon>PlaylistDetailPage.xaml</DependentUpon>
@@ -360,7 +360,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PlaylistCreationDialog.xaml">
+    <Page Include="Views\PlaylistInfoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -383,7 +383,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
-      <Version>1.0.3</Version>
+      <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.2</Version>

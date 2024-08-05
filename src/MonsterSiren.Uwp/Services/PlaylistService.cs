@@ -14,11 +14,11 @@ public static class PlaylistService
     /// </summary>
     public static ObservableCollection<Playlist> TotalPlaylists { get; } =
     [
-        new Playlist("偶像空的专属播放列表✨", ""),
-        new Playlist("霜叶的播放列表❄️", ""),
+        new Playlist("偶像空的专属播放列表✨", "闪闪发光！"),
+        new Playlist("霜叶的播放列表❄️", "“哼——哼哼♪哼......哼哼......♪”"),
         new Playlist("阿米娅的小提琴合集🎻", ""),
-        new Playlist("小刻de画图写话🎨", ""),
-        new Playlist("音律联觉合集📀", ""),
+        new Playlist("小刻de画图写话🎨", "来一起玩耍！"),
+        new Playlist("音律联觉合集📀", "曲调无限延伸，风格变幻多样，\n从经典到新锐，将大地的旋律倾情奉上。"),
     ];
 
     /// <summary>
@@ -43,7 +43,6 @@ public static class PlaylistService
     /// <summary>
     /// 初始化播放列表服务
     /// </summary>
-    /// <returns></returns>
     public static async Task Initialize()
     {
         if (_isInitialized)
@@ -106,9 +105,19 @@ public static class PlaylistService
     }
 
     /// <summary>
+    /// 移除指定的播放列表
+    /// </summary>
+    /// <param name="playlist">一个 <see cref="Playlist"/> 实例</param>
+    public static void RemovePlaylist(Playlist playlist)
+    {
+        TotalPlaylists.Remove(playlist);
+    }
+
+    /// <summary>
     /// 播放指定的播放列表
     /// </summary>
     /// <param name="playlist">要播放的播放列表</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     public static async Task PlayForPlaylistAsync(Playlist playlist)
     {
         if (playlist is null)
@@ -137,6 +146,29 @@ public static class PlaylistService
         });
     }
 
+    /// <summary>
+    /// 将指定的播放列表添加到正在播放列表中
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddPlaylistToNowPlayingAsync(Playlist playlist)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        await Task.Run(() =>
+        {
+            List<MediaPlaybackItem> list = new(playlist.Items.Count);
+            foreach (SongDetailAndAlbumDetailPack item in playlist)
+            {
+                list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+            }
+
+            MusicService.AddMusic(list);
+        });
+    }
 
     /// <summary>
     /// 向指定的播放列表添加歌曲

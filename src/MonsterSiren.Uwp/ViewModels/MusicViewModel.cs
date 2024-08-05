@@ -150,7 +150,7 @@ public sealed partial class MusicViewModel : ObservableObject
         catch (HttpRequestException)
         {
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -175,7 +175,7 @@ public sealed partial class MusicViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
     
@@ -243,22 +243,6 @@ public sealed partial class MusicViewModel : ObservableObject
         }
 
         return albumDetail;
-    }
-
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        await UIThreadHelper.RunOnUIThread(async () =>
-        {
-            ContentDialog contentDialog = new()
-            {
-                Title = title,
-                Content = message,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText
-            };
-
-            await contentDialog.ShowAsync();
-        });
     }
 }
 

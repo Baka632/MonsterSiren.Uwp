@@ -66,6 +66,7 @@
                 Grid.Row="1"
                 animations:ReorderGridAnimation.Duration="500"
                 CanDragItems="True"
+                DragItemsStarting="OnPlaylistItemsDragStarting"
                 IsItemClickEnabled="True"
                 ItemClick="OnPlaylistItemClick"
                 ItemsSource="{x:Bind services:PlaylistService.TotalPlaylists}"
@@ -94,19 +95,23 @@
                                 <muxc:MenuBarItemFlyout>
                                     <MenuFlyoutItem
                                         x:Uid="PlayCommandButton"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayPlaylistCommand}"
                                         CommandParameter="{x:Bind}"
                                         Icon="Play" />
                                     <MenuFlyoutItem
                                         x:Uid="AddToPlaylistCommandButton"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToNowPlayingCommand}"
                                         CommandParameter="{x:Bind}"
                                         Icon="Add" />
                                     <MenuFlyoutItem
                                         x:Uid="ModifyCommandButton"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.ModifyPlaylistCommand}"
                                         CommandParameter="{x:Bind}"
                                         Icon="Edit" />
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
                                         x:Uid="DeleteCommandButton"
+                                        Command="{Binding ElementName=Self, Path=ViewModel.RemovePlaylistCommand}"
                                         CommandParameter="{x:Bind}"
                                         Icon="Delete" />
                                 </muxc:MenuBarItemFlyout>

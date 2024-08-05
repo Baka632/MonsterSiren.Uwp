@@ -3,7 +3,7 @@
 namespace MonsterSiren.Uwp.Views;
 
 [INotifyPropertyChanged]
-public sealed partial class PlaylistCreationDialog : ContentDialog
+public sealed partial class PlaylistInfoDialog : ContentDialog
 {
     [ObservableProperty]
     private string playlistTitle;
@@ -16,7 +16,9 @@ public sealed partial class PlaylistCreationDialog : ContentDialog
     [ObservableProperty]
     private string infoBarMessage;
 
-    public PlaylistCreationDialog()
+    public bool CheckDuplicatePlaylist { get; set; } = true;
+
+    public PlaylistInfoDialog()
     {
         this.InitializeComponent();
     }
@@ -30,7 +32,7 @@ public sealed partial class PlaylistCreationDialog : ContentDialog
             InfoBarMessage = "PlaylistTitleEmptyMessage".GetLocalized();
             args.Cancel = true;
         }
-        else if (PlaylistService.TotalPlaylists.Any(item => item.Title == PlaylistTitle))
+        else if (CheckDuplicatePlaylist && PlaylistService.TotalPlaylists.Any(item => item.Title == PlaylistTitle))
         {
             ShowInfoBar = true;
             InfoBarTitle = "PlaylistTitleAlreadyExistsTitle".GetLocalized();

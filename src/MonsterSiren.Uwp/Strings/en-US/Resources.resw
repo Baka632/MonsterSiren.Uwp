@@ -372,13 +372,13 @@
   <data name="SongsCount" xml:space="preserve">
     <value>{0} songs</value>
   </data>
-  <data name="PlaylistCreationDialog.Title" xml:space="preserve">
+  <data name="PlaylistCreationTitle" xml:space="preserve">
     <value>Create new playlist</value>
   </data>
   <data name="PlaylistCreationDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="PlaylistCreationDialog.PrimaryButtonText" xml:space="preserve">
+  <data name="PlaylistCreationPrimaryButtonText" xml:space="preserve">
     <value>Create</value>
   </data>
   <data name="PlaylistTitle.Header" xml:space="preserve">
@@ -398,5 +398,14 @@
   </data>
   <data name="PlaylistTitleAlreadyExistsMessage" xml:space="preserve">
     <value>A playlist with the same name already exists.</value>
+  </data>
+  <data name="EnsureDelete" xml:space="preserve">
+    <value>Are you sure you want to delete this playlist?</value>
+  </data>
+  <data name="PlaylistModifyTitle" xml:space="preserve">
+    <value>Modify playlist infomation</value>
+  </data>
+  <data name="PlaylistModifyPrimaryButtonText" xml:space="preserve">
+    <value>Modify</value>
   </data>
 </root>
