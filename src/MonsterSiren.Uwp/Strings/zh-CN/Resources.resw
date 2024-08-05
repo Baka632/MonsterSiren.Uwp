@@ -490,7 +490,7 @@
     <value>目前没有播放列表</value>
   </data>
   <data name="MayRenameInFileSystemWarning.Message" xml:space="preserve">
-    <value>标题包含不能在文件名中使用的字符</value>
+    <value>标题包含不能在文件名中使用的字符（但不影响应用内显示）</value>
   </data>
   <data name="MayRenameInFileSystemWarning.Title" xml:space="preserve">
     <value>警告</value>

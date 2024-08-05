@@ -415,6 +415,6 @@
     <value>Warning</value>
   </data>
   <data name="MayRenameInFileSystemWarning.Message" xml:space="preserve">
-    <value>Title contains characters that cannot be used in filename</value>
+    <value>Title contains characters that cannot be used in filename (but doesn't affect display in app)</value>
   </data>
 </root>
