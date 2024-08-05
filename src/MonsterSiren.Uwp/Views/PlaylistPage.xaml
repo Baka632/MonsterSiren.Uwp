@@ -70,7 +70,8 @@
                 IsItemClickEnabled="True"
                 ItemClick="OnPlaylistItemClick"
                 ItemsSource="{x:Bind services:PlaylistService.TotalPlaylists}"
-                SelectionMode="None">
+                SelectionMode="None"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsTotalPlaylistEmpty), Mode=OneWay}">
                 <GridView.Resources>
                     <SolidColorBrush x:Key="SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
                     <SolidColorBrush x:Key="SystemControlTransparentRevealBorderBrush" Color="Transparent" />
@@ -161,6 +162,15 @@
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
+
+            <StackPanel
+                Grid.Row="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsTotalPlaylistEmpty), Mode=OneWay}">
+                <FontIcon FontSize="60" Glyph="&#xE955;" />
+                <TextBlock x:Uid="NoPlaylistTextBlock" FontSize="20" />
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

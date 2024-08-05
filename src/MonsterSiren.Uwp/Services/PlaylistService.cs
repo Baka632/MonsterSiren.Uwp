@@ -12,14 +12,7 @@ public static class PlaylistService
     /// <summary>
     /// 当前可用的播放列表集合
     /// </summary>
-    public static ObservableCollection<Playlist> TotalPlaylists { get; } =
-    [
-        new Playlist("偶像空的专属播放列表✨", "闪闪发光！"),
-        new Playlist("霜叶的播放列表❄️", "“哼——哼哼♪哼......哼哼......♪”"),
-        new Playlist("阿米娅的小提琴合集🎻", ""),
-        new Playlist("小刻de画图写话🎨", "来一起玩耍！"),
-        new Playlist("音律联觉合集📀", "曲调无限延伸，风格变幻多样，\n从经典到新锐，将大地的旋律倾情奉上。"),
-    ];
+    public static ObservableCollection<Playlist> TotalPlaylists { get; } = [];
 
     /// <summary>
     /// 指示应用是否因某种原因而改变播放列表文件夹的默认路径

@@ -486,4 +486,7 @@
   <data name="PlaylistModifyPrimaryButtonText" xml:space="preserve">
     <value>修改</value>
   </data>
+  <data name="NoPlaylistTextBlock.Text" xml:space="preserve">
+    <value>目前没有播放列表</value>
+  </data>
 </root>

@@ -408,4 +408,7 @@
   <data name="PlaylistModifyPrimaryButtonText" xml:space="preserve">
     <value>Modify</value>
   </data>
+  <data name="NoPlaylistTextBlock.Text" xml:space="preserve">
+    <value>There is no playlist now</value>
+  </data>
 </root>

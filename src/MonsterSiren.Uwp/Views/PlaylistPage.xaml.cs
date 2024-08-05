@@ -1,5 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace MonsterSiren.Uwp.Views;
@@ -7,8 +9,11 @@ namespace MonsterSiren.Uwp.Views;
 /// <summary>
 /// 可用于自身或导航至 Frame 内部的空白页。
 /// </summary>
-public sealed partial class PlaylistPage : Page
+public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public bool IsTotalPlaylistEmpty => PlaylistService.TotalPlaylists.Count <= 0;
     public PlaylistViewModel ViewModel { get; } = new PlaylistViewModel();
 
     public PlaylistPage()
@@ -36,5 +41,24 @@ public sealed partial class PlaylistPage : Page
 
         string json = JsonSerializer.Serialize((Playlist)dataContext);
         e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+
+        PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+    }
+
+    private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(IsTotalPlaylistEmpty)));
     }
 }
