@@ -12,6 +12,32 @@
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <muxc:MenuBarItemFlyout x:Name="SongContextFlyout">
+            <MenuFlyoutItem
+                x:Uid="PlayMusicTextBlock"
+                Command="{x:Bind ViewModel.PlayForSongInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
+                <MenuFlyoutItem
+                    x:Uid="AddToNowPlaying"
+                    Command="{x:Bind ViewModel.AddToNowPlayingForSongInfoCommand}"
+                    CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                    Icon="MusicInfo" />
+                <MenuFlyoutSubItem
+                    x:Uid="AddToPlaylistCommand"
+                    Icon="List"
+                    Loaded="OnAddSongInfoToPlaylistSubItemLoaded" />
+            </MenuFlyoutSubItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DownloadTextBlock"
+                Command="{x:Bind ViewModel.DownloadForSongInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="Download" />
+        </muxc:MenuBarItemFlyout>
+    </Page.Resources>
 
     <ScrollViewer>
         <Grid Margin="0,0,0,20">
@@ -135,15 +161,26 @@
                             Margin="0,0,5,0"
                             AccessKey="1"
                             Background="Transparent"
-                            Command="{x:Bind ViewModel.AddToPlaylistForCurrentAlbumDetailCommand}"
                             IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
                             <StackPanel Orientation="Horizontal">
                                 <SymbolIcon
                                     Margin="0,0,5,0"
                                     HorizontalAlignment="Center"
                                     Symbol="Add" />
-                                <TextBlock x:Uid="AddToPlaylistTextBlock" HorizontalAlignment="Center" />
+                                <TextBlock x:Uid="AddToPlaylistOrNowPlayingTextBlock" HorizontalAlignment="Center" />
                             </StackPanel>
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="AddToNowPlaying"
+                                        Command="{x:Bind ViewModel.AddToNowPlayingForCurrentAlbumDetailCommand}"
+                                        Icon="MusicInfo" />
+                                    <MenuFlyoutSubItem
+                                        x:Uid="AddToPlaylistCommand"
+                                        Icon="List"
+                                        Loaded="OnAddAlbumDetailToPlaylistSubItemLoaded" />
+                                </MenuFlyout>
+                            </Button.Flyout>
                         </Button>
 
                         <Button
@@ -172,32 +209,15 @@
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSongsEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">
-                        <Grid Background="Transparent">
+                        <Grid
+                            Background="Transparent"
+                            ContextFlyout="{StaticResource SongContextFlyout}"
+                            DataContext="{x:Bind}"
+                            RightTapped="OnListViewItemGridRightTapped">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
-                            <Grid.ContextFlyout>
-                                <muxc:MenuBarItemFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="PlayMusicTextBlock"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToPlaylistTextBlock"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        x:Uid="DownloadTextBlock"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.DownloadForSongInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Download" />
-                                </muxc:MenuBarItemFlyout>
-                            </Grid.ContextFlyout>
 
                             <TextBlock
                                 Grid.Column="0"
@@ -212,36 +232,18 @@
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <TextBlock
-                                    DataContext="{x:Bind}"
                                     Margin="0,0,5,0"
                                     VerticalAlignment="Center"
+                                    DataContext="{x:Bind}"
                                     Loaded="OnSongDurationTextBlockLoaded" />
 
                                 <Button
                                     VerticalAlignment="Center"
                                     Background="Transparent"
-                                    BorderThickness="0">
-                                    <Button.Flyout>
-                                        <muxc:MenuBarItemFlyout>
-                                            <MenuFlyoutItem
-                                                x:Uid="PlayMusicTextBlock"
-                                                Command="{Binding ElementName=Self, Path=ViewModel.PlayForSongInfoCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Play" />
-                                            <MenuFlyoutItem
-                                                x:Uid="AddToPlaylistTextBlock"
-                                                Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForSongInfoCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Add" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem
-                                                x:Uid="DownloadTextBlock"
-                                                Command="{Binding ElementName=Self, Path=ViewModel.DownloadForSongInfoCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Download" />
-                                        </muxc:MenuBarItemFlyout>
-                                    </Button.Flyout>
-
+                                    BorderThickness="0"
+                                    DataContext="{x:Bind}"
+                                    Flyout="{StaticResource SongContextFlyout}"
+                                    Tapped="OnMoreOptionButtonTapped">
                                     <SymbolIcon Symbol="More" />
                                 </Button>
                             </StackPanel>

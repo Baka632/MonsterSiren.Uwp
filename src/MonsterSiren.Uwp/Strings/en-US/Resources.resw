@@ -84,14 +84,8 @@
   <data name="MSR" xml:space="preserve">
     <value>Monster Siren Records</value>
   </data>
-  <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
-    <value>Add to playlist</value>
-  </data>
   <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>Play</value>
-  </data>
-  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
-    <value>Add to playlist</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
     <value>Repeat: Off</value>
@@ -123,7 +117,7 @@
   <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>Remove</value>
   </data>
-  <data name="AddToPlaylist" xml:space="preserve">
+  <data name="AddToPlaylistLiteral" xml:space="preserve">
     <value>Add to playlist</value>
   </data>
   <data name="UsingMeteredInternet" xml:space="preserve">
@@ -416,5 +410,23 @@
   </data>
   <data name="MayRenameInFileSystemWarning.Message" xml:space="preserve">
     <value>Title contains characters that cannot be used in filename (but doesn't affect display in app)</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlaying.Text" xml:space="preserve">
+    <value>Add to</value>
+  </data>
+  <data name="AddToNowPlaying.Text" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="AddToPlaylistCommand.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlayingTextBlock.Text" xml:space="preserve">
+    <value>Add to...</value>
+  </data>
+  <data name="DeleteFromPlaylist.Text" xml:space="preserve">
+    <value>Remove from playlist</value>
+  </data>
+  <data name="AddToNowPlayingLiteral" xml:space="preserve">
+    <value>Add to now playing</value>
   </data>
 </root>

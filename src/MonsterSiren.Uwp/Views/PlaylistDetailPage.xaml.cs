@@ -1,6 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Net.Http;
+using System.Windows.Input;
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -51,6 +52,54 @@ public sealed partial class PlaylistDetailPage : Page
         catch (HttpRequestException)
         {
             textBlock.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        ViewModel.SelectedPack = (SongDetailAndAlbumDetailPack)element.DataContext;
+    }
+
+    private void OnMoreOptionButtonTapped(object sender, TappedRoutedEventArgs e)
+    {
+        Button button = (Button)sender;
+        ViewModel.SelectedPack = (SongDetailAndAlbumDetailPack)button.DataContext;
+    }
+
+    private void OnAddSongToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
+        FillSubItemWithCommand(subItem, ViewModel.AddPackToAnotherPlaylistCommand);
+    }
+
+    private void FillSubItemWithCommand(MenuFlyoutSubItem subItem, ICommand command)
+    {
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            subItem.Items.Clear();
+            subItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = new()
+                {
+                    DataContext = playlist,
+                    Text = playlist.Title,
+                    Icon = new FontIcon()
+                    {
+                        Glyph = "\uEC4F"
+                    },
+                    Command = command,
+                    CommandParameter = playlist,
+                    IsEnabled = ViewModel.CurrentPlaylist != playlist
+                };
+                subItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            subItem.IsEnabled = false;
         }
     }
 }

@@ -20,6 +20,8 @@ public partial class AlbumDetailViewModel : ObservableObject
     private AlbumDetail _currentAlbumDetail;
     [ObservableProperty]
     private bool isSongsEmpty;
+    [ObservableProperty]
+    private SongInfo selectedSongInfo;
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -132,7 +134,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task AddToPlaylistForCurrentAlbumDetail()
+    public async Task AddToNowPlayingForCurrentAlbumDetail()
     {
         if (CurrentAlbumDetail.Songs is null)
         {
@@ -158,7 +160,32 @@ public partial class AlbumDetailViewModel : ObservableObject
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
-    
+
+    [RelayCommand]
+    public async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
+    {
+        if (CurrentAlbumDetail.Songs is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                foreach (SongInfo item in CurrentAlbumDetail.Songs)
+                {
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
+                    await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
+                }
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
     [RelayCommand]
     public async Task DownloadForCurrentAlbumDetail()
     {
@@ -204,7 +231,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task AddToPlaylistForSongInfo(SongInfo songInfo)
+    public async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
     {
         try
         {
@@ -212,6 +239,23 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddToPlaylistForSongInfo(Playlist playlist)
+    {
+        try
+        {
+            await Task.Run(async () =>
+            {
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(SelectedSongInfo).ConfigureAwait(false);
+                await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
             });
         }
         catch (HttpRequestException)

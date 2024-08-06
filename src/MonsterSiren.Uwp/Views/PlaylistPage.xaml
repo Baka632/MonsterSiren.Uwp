@@ -15,6 +15,38 @@
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistViewModel}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <muxc:MenuBarItemFlyout x:Name="PlaylistContextFlyout">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
+                <MenuFlyoutItem
+                    x:Uid="AddToNowPlaying"
+                    Command="{x:Bind ViewModel.AddToNowPlayingCommand}"
+                    CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                    Icon="MusicInfo" />
+                <MenuFlyoutSubItem
+                    x:Name="AddToPlaylistSubItem"
+                    x:Uid="AddToPlaylistCommand"
+                    Icon="List"
+                    Loaded="OnAddToPlaylistSubItemLoaded" />
+            </MenuFlyoutSubItem>
+            <MenuFlyoutItem
+                x:Uid="ModifyCommandButton"
+                Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Edit" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DeleteCommandButton"
+                Command="{x:Bind ViewModel.RemovePlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Delete" />
+        </muxc:MenuBarItemFlyout>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -91,32 +123,12 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="models:Playlist">
-                        <Grid Padding="5" Background="Transparent">
-                            <Grid.ContextFlyout>
-                                <muxc:MenuBarItemFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayPlaylistCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToPlaylistCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToNowPlayingCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                    <MenuFlyoutItem
-                                        x:Uid="ModifyCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.ModifyPlaylistCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Edit" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        x:Uid="DeleteCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.RemovePlaylistCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Delete" />
-                                </muxc:MenuBarItemFlyout>
-                            </Grid.ContextFlyout>
+                        <Grid
+                            Padding="5"
+                            Background="Transparent"
+                            ContextFlyout="{StaticResource PlaylistContextFlyout}"
+                            DataContext="{x:Bind}"
+                            RightTapped="OnGridViewItemRightTapped">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />

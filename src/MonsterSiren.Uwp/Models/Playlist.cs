@@ -14,7 +14,7 @@ namespace MonsterSiren.Uwp.Models;
 /// <param name="title">播放列表标题</param>
 /// <param name="description">播放列表描述</param>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-public partial class Playlist : INotifyPropertyChanged
+public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 {
     public event PropertyChangedEventHandler PropertyChanged;
     private string _title;
@@ -134,4 +134,40 @@ public partial class Playlist : INotifyPropertyChanged
     }
 
     private string GetDebuggerDisplay() => Title;
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as Playlist);
+    }
+
+    public bool Equals(Playlist other)
+    {
+        return other is not null &&
+               Title == other.Title &&
+               Description == other.Description &&
+               TotalDurationInMillisecond == other.TotalDurationInMillisecond &&
+               SongCount == other.SongCount &&
+               Items.SequenceEqual(other.Items);
+    }
+
+    public override int GetHashCode()
+    {
+        int hashCode = 991927638;
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
+        hashCode = hashCode * -1521134295 + TotalDurationInMillisecond.GetHashCode();
+        hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
+        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongDetailAndAlbumDetailPack>>.Default.GetHashCode(Items);
+        return hashCode;
+    }
+
+    public static bool operator ==(Playlist left, Playlist right)
+    {
+        return EqualityComparer<Playlist>.Default.Equals(left, right);
+    }
+
+    public static bool operator !=(Playlist left, Playlist right)
+    {
+        return !(left == right);
+    }
 }

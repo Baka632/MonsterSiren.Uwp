@@ -14,6 +14,34 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:MusicViewModel}"
     Loaded="OnMusicPageLoaded"
     mc:Ignorable="d">
+    <Page.Resources>
+        <muxc:MenuBarItemFlyout x:Name="AlbumContextFlyout">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
+                <MenuFlyoutItem
+                    x:Uid="AddToNowPlaying"
+                    Command="{x:Bind ViewModel.AddToNowPlayingForAlbumInfoCommand}"
+                    CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                    Icon="MusicInfo" />
+                <MenuFlyoutSubItem
+                    x:Name="AddToPlaylistSubItem"
+                    x:Uid="AddToPlaylistCommand"
+                    Icon="List"
+                    Loaded="OnAddToPlaylistSubItemLoaded" />
+            </MenuFlyoutSubItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DownloadAlbumCommandButton"
+                Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Download" />
+        </muxc:MenuBarItemFlyout>
+    </Page.Resources>
+
 
     <muxc:RefreshContainer x:Name="RefreshActionContainer" RefreshRequested="OnRefreshRequested">
         <Grid>
@@ -84,27 +112,12 @@
                 </GridView.Resources>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="albumModels:AlbumInfo">
-                        <Grid Padding="5" Background="Transparent">
-                            <Grid.ContextFlyout>
-                                <muxc:MenuBarItemFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToPlaylistCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        x:Uid="DownloadAlbumCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.DownloadForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Download" />
-                                </muxc:MenuBarItemFlyout>
-                            </Grid.ContextFlyout>
+                        <Grid
+                            Padding="5"
+                            Background="Transparent"
+                            ContextFlyout="{StaticResource AlbumContextFlyout}"
+                            DataContext="{x:Bind}"
+                            RightTapped="OnGridViewItemGridRightTapped">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />

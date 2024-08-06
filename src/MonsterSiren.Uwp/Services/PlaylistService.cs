@@ -171,7 +171,7 @@ public static class PlaylistService
     /// <param name="albumDetail">表示歌曲所属专辑详细信息的 <see cref="AlbumDetail"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     /// <exception cref="ArgumentException"><paramref name="songDetail"/> 中所属专辑的 CID 和 <paramref name="albumDetail"/> 中的 CID 不符。</exception>
-    public static async Task AddItemForPlaylist(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
+    public static async Task AddItemForPlaylistAsync(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
     {
         if (playlist is null)
         {
@@ -215,6 +215,30 @@ public static class PlaylistService
         {
             playlist.Items.Add(pack);
         });
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加另一个播放列表内的歌曲
+    /// </summary>
+    /// <param name="target">要添加歌曲的播放列表</param>
+    /// <param name="source">提供歌曲的播放列表</param>
+    /// <exception cref="ArgumentNullException"><paramref name="target"/> 或 <paramref name="source"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemForPlaylistAsync(Playlist target, Playlist source)
+    {
+        if (target is null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        if (source is null)
+        {
+            throw new ArgumentNullException(nameof(source));
+        }
+
+        foreach (SongDetailAndAlbumDetailPack item in source.Items)
+        {
+            await AddItemForPlaylistAsync(target, item);
+        }
     }
 
     /// <summary>

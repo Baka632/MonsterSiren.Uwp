@@ -366,7 +366,7 @@ public sealed partial class MainPage : Page
             if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId) || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
             {
                 e.AcceptedOperation = DataPackageOperation.Link;
-                e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+                e.DragUIOverride.Caption = "AddToPlaylistLiteral".GetLocalized();
             }
             else
             {
@@ -387,7 +387,7 @@ public sealed partial class MainPage : Page
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
                     SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
-                    await PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                    await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
                 }
             }
             else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
@@ -397,7 +397,7 @@ public sealed partial class MainPage : Page
                 (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
                 SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
 
-                await PlaylistService.AddItemForPlaylist(playlist, songDetail, albumDetail);
+                await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
             }
         };
         return item;
@@ -493,7 +493,7 @@ public sealed partial class MainPage : Page
             || e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
         {
             e.AcceptedOperation = DataPackageOperation.Link;
-            e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+            e.DragUIOverride.Caption = "AddToNowPlayingLiteral".GetLocalized();
         }
         else
         {
@@ -629,5 +629,35 @@ public sealed partial class MainPage : Page
 
         NotifyNoEmptyStringTeachingTip.IsOpen = false;
         ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
+    }
+
+    private void OnAddToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            AddToPlaylistSubItem.Items.Clear();
+            AddToPlaylistSubItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = new()
+                {
+                    DataContext = playlist,
+                    Text = playlist.Title,
+                    Icon = new FontIcon()
+                    {
+                        Glyph = "\uEC4F"
+                    },
+                    Command = ViewModel.AddPlaylistToAnotherPlaylistCommand,
+                    CommandParameter = playlist,
+                    IsEnabled = ViewModel.SelectedPlaylist != playlist
+                };
+                AddToPlaylistSubItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            AddToPlaylistSubItem.IsEnabled = false;
+        }
     }
 }

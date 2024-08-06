@@ -97,6 +97,12 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
+    {
+        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
+    }
+
+    [RelayCommand]
     private static async Task ModifyPlaylist(Playlist playlist)
     {
         PlaylistInfoDialog dialog = new()

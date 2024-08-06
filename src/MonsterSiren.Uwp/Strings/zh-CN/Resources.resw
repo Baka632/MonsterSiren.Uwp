@@ -165,14 +165,8 @@
   <data name="MSR" xml:space="preserve">
     <value>塞壬唱片-MSR</value>
   </data>
-  <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
-    <value>添加到播放列表</value>
-  </data>
   <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>播放</value>
-  </data>
-  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
-    <value>添加到播放列表</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
     <value>重复播放：关闭</value>
@@ -204,7 +198,7 @@
   <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>移除</value>
   </data>
-  <data name="AddToPlaylist" xml:space="preserve">
+  <data name="AddToPlaylistLiteral" xml:space="preserve">
     <value>添加到播放列表</value>
   </data>
   <data name="UsingMeteredInternet" xml:space="preserve">
@@ -494,5 +488,23 @@
   </data>
   <data name="MayRenameInFileSystemWarning.Title" xml:space="preserve">
     <value>警告</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlaying.Text" xml:space="preserve">
+    <value>添加到</value>
+  </data>
+  <data name="AddToNowPlaying.Text" xml:space="preserve">
+    <value>正在播放</value>
+  </data>
+  <data name="AddToPlaylistCommand.Text" xml:space="preserve">
+    <value>播放列表</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlayingTextBlock.Text" xml:space="preserve">
+    <value>添加到...</value>
+  </data>
+  <data name="DeleteFromPlaylist.Text" xml:space="preserve">
+    <value>从播放列表中移除</value>
+  </data>
+  <data name="AddToNowPlayingLiteral" xml:space="preserve">
+    <value>添加到正在播放</value>
   </data>
 </root>

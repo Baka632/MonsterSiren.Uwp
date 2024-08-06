@@ -2,6 +2,9 @@
 
 public sealed partial class PlaylistViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private Playlist selectedPlaylist;
+
     [RelayCommand]
     private static async Task CreateNewPlaylist()
     {
@@ -29,6 +32,12 @@ public sealed partial class PlaylistViewModel : ObservableObject
     private static async Task AddToNowPlaying(Playlist playlist)
     {
         await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+    }
+
+    [RelayCommand]
+    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
+    {
+        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
     }
 
     [RelayCommand]

@@ -60,11 +60,18 @@
                 Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="AddToPlaylistCommandButton"
-                Command="{x:Bind ViewModel.AddPlaylistToNowPlayingCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Add" />
+            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
+                <MenuFlyoutItem
+                    x:Uid="AddToNowPlaying"
+                    Command="{x:Bind ViewModel.AddPlaylistToNowPlayingCommand}"
+                    CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                    Icon="MusicInfo" />
+                <MenuFlyoutSubItem
+                    x:Name="AddToPlaylistSubItem"
+                    x:Uid="AddToPlaylistCommand"
+                    Icon="List"
+                    Loaded="OnAddToPlaylistSubItemLoaded" />
+            </MenuFlyoutSubItem>
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"
                 Command="{x:Bind ViewModel.ModifyPlaylistCommand}"

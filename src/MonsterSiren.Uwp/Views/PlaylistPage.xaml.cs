@@ -61,4 +61,40 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     {
         PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(IsTotalPlaylistEmpty)));
     }
+
+    private void OnGridViewItemRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        ViewModel.SelectedPlaylist = (Playlist)element.DataContext;
+    }
+
+    private void OnAddToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            AddToPlaylistSubItem.Items.Clear();
+            AddToPlaylistSubItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = new()
+                {
+                    DataContext = playlist,
+                    Text = playlist.Title,
+                    Icon = new FontIcon()
+                    {
+                        Glyph = "\uEC4F"
+                    },
+                    Command = ViewModel.AddPlaylistToAnotherPlaylistCommand,
+                    CommandParameter = playlist,
+                    IsEnabled = ViewModel.SelectedPlaylist != playlist
+                };
+                AddToPlaylistSubItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            AddToPlaylistSubItem.IsEnabled = false;
+        }
+    }
 }

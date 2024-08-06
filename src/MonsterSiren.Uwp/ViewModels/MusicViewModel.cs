@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
+using MonsterSiren.Api.Models.Album;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -20,6 +21,8 @@ public sealed partial class MusicViewModel : ObservableObject
     private ErrorInfo errorInfo;
     [ObservableProperty]
     private CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums;
+    [ObservableProperty]
+    private AlbumInfo selectedAlbumInfo;
 
     public async Task Initialize()
     {
@@ -155,7 +158,7 @@ public sealed partial class MusicViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
+    private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
         try
         {
@@ -178,7 +181,29 @@ public sealed partial class MusicViewModel : ObservableObject
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
-    
+
+    [RelayCommand]
+    private async Task AddAlbumInfoToPlaylist(Playlist playlist)
+    {
+        try
+        {
+            await Task.Run(async () =>
+            {
+                AlbumDetail albumDetail = await GetAlbumDetail(SelectedAlbumInfo).ConfigureAwait(false);
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                    await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
+                }
+            });
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
     [RelayCommand]
     private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
     {

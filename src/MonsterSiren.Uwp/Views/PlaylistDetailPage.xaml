@@ -12,6 +12,38 @@
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistDetailViewModel}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <muxc:MenuBarItemFlyout x:Name="SongContextFlyout">
+            <MenuFlyoutItem
+                x:Uid="PlayMusicTextBlock"
+                Command="{x:Bind ViewModel.PlayForPackCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
+                <MenuFlyoutItem
+                    x:Uid="AddToNowPlaying"
+                    Command="{x:Bind ViewModel.AddPackToNowPlayingCommand}"
+                    CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                    Icon="MusicInfo" />
+                <MenuFlyoutSubItem
+                    x:Uid="AddToPlaylistCommand"
+                    Icon="List"
+                    Loaded="OnAddSongToAnotherPlaylistSubItemLoaded" />
+            </MenuFlyoutSubItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DownloadTextBlock"
+                Command="{x:Bind ViewModel.DownloadForPackCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                Icon="Download" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DeleteFromPlaylist"
+                Command="{x:Bind ViewModel.RemovePackFromPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                Icon="Delete" />
+        </muxc:MenuBarItemFlyout>
+    </Page.Resources>
 
     <ScrollViewer>
         <Grid Margin="0,0,0,20">
@@ -32,9 +64,9 @@
 
                 <Image
                     x:Name="PlaylistCover"
-                    Height="250"
-                    Width="250"
                     Grid.Column="0"
+                    Width="250"
+                    Height="250"
                     VerticalAlignment="Top"
                     Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
                     Stretch="UniformToFill" />
@@ -107,35 +139,23 @@
             <ListView
                 x:Name="SongList"
                 Grid.Row="1"
+                AllowDrop="True"
                 CanDragItems="True"
+                CanReorderItems="True"
                 DragItemsStarting="OnSongListViewItemsDragStarting"
                 ItemsSource="{x:Bind ViewModel.CurrentPlaylist.Items, Mode=OneWay}"
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsPlaylistEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:SongDetailAndAlbumDetailPack">
-                        <Grid Background="Transparent">
+                        <Grid
+                            Background="Transparent"
+                            ContextFlyout="{StaticResource SongContextFlyout}"
+                            DataContext="{x:Bind}"
+                            RightTapped="OnListViewItemGridRightTapped">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
-                            <Grid.ContextFlyout>
-                                <muxc:MenuBarItemFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="PlayMusicTextBlock"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToPlaylistTextBlock"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        x:Uid="DownloadTextBlock"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Download" />
-                                </muxc:MenuBarItemFlyout>
-                            </Grid.ContextFlyout>
 
                             <TextBlock
                                 Grid.Column="0"
@@ -158,25 +178,10 @@
                                 <Button
                                     VerticalAlignment="Center"
                                     Background="Transparent"
-                                    BorderThickness="0">
-                                    <Button.Flyout>
-                                        <muxc:MenuBarItemFlyout>
-                                            <MenuFlyoutItem
-                                                x:Uid="PlayMusicTextBlock"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Play" />
-                                            <MenuFlyoutItem
-                                                x:Uid="AddToPlaylistTextBlock"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Add" />
-                                            <MenuFlyoutSeparator />
-                                            <MenuFlyoutItem
-                                                x:Uid="DownloadTextBlock"
-                                                CommandParameter="{x:Bind}"
-                                                Icon="Download" />
-                                        </muxc:MenuBarItemFlyout>
-                                    </Button.Flyout>
-
+                                    BorderThickness="0"
+                                    DataContext="{x:Bind}"
+                                    Flyout="{StaticResource SongContextFlyout}"
+                                    Tapped="OnMoreOptionButtonTapped">
                                     <SymbolIcon Symbol="More" />
                                 </Button>
                             </StackPanel>
