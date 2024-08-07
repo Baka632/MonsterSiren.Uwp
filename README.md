@@ -1,8 +1,8 @@
 <img src="./assets/icon.png" width="100px"/>
 
-# Monster Siren - UWP
+# Sora 音乐
 
-一个基于 UWP 的塞壬唱片第三方客户端
+Sora 音乐是一个基于 UWP 的塞壬唱片第三方客户端。
 
 ## 最低支持平台
 Windows 10 1703 (15063)

@@ -17,7 +17,11 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string downloadPath = DownloadService.DownloadPath;
     [ObservableProperty]
-    private bool isFolderRedirected = DownloadService.DownloadPathRedirected;
+    private string playlistSavePath = PlaylistService.PlaylistSavePath;
+    [ObservableProperty]
+    private bool isDownloadFolderRedirected = DownloadService.DownloadPathRedirected;
+    [ObservableProperty]
+    private bool isPlaylistFolderRedirected = PlaylistService.PlaylistPathRedirected;
     [ObservableProperty]
     private bool downloadLyric = DownloadService.DownloadLyric;
     [ObservableProperty]
@@ -200,6 +204,24 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task PickPlaylistFolderAsync()
+    {
+        FolderPicker folderPicker = new();
+        folderPicker.FileTypeFilter.Add("*");
+        StorageFolder playlistFolder = await folderPicker.PickSingleFolderAsync();
+
+        if (playlistFolder is null)
+        {
+            // 用户取消了文件夹选择
+            return;
+        }
+
+        StorageApplicationPermissions.FutureAccessList.AddOrReplace(CommonValues.PlaylistSavePathSettingsKey, playlistFolder);
+        PlaylistService.PlaylistSavePath = PlaylistSavePath = playlistFolder.Path;
+        IsPlaylistFolderRedirected = false;
+    }
+
+    [RelayCommand]
     private async Task PickDownloadFolderAsync()
     {
         FolderPicker folderPicker = new();
@@ -214,7 +236,7 @@ public partial class SettingsViewModel : ObservableObject
 
         StorageApplicationPermissions.FutureAccessList.AddOrReplace(CommonValues.MusicDownloadPathSettingsKey, downloadFolder);
         DownloadService.DownloadPath = DownloadPath = downloadFolder.Path;
-        IsFolderRedirected = false;
+        IsDownloadFolderRedirected = false;
     }
 
     [RelayCommand]

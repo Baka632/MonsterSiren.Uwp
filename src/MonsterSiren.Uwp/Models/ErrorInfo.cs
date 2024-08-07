@@ -1,7 +1,7 @@
 ﻿namespace MonsterSiren.Uwp.Models;
 
 /// <summary>
-/// 表示应用内错误信息的结构
+/// 表示应用内错误信息的类
 /// </summary>
 public record class ErrorInfo
 {

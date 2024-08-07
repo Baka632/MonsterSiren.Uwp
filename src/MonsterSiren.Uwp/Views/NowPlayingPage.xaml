@@ -416,7 +416,10 @@
             Visibility="Collapsed">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
-                    <controls:NowPlayingItemGrid Name="NowPlayingItemGrid" Background="Transparent">
+                    <controls:NowPlayingItemGrid
+                        Name="NowPlayingItemGrid"
+                        Padding="0,0,10,0"
+                        Background="Transparent">
                         <controls:NowPlayingItemGrid.ContextFlyout>
                             <muxc:MenuBarItemFlyout>
                                 <MenuFlyoutItem
@@ -437,7 +440,7 @@
                         <controls:NowPlayingItemGrid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
-                            <!--<ColumnDefinition />-->
+                            <ColumnDefinition MaxWidth="40" />
                         </controls:NowPlayingItemGrid.ColumnDefinitions>
 
                         <StackPanel
@@ -466,7 +469,13 @@
                             Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                             Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
                             TextTrimming="CharacterEllipsis" />
-                        <!--<TextBlock Grid.Column="2" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='AlbumArtist'}" />-->
+                        <TextBlock
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            DataContext="{x:Bind}"
+                            Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
+                            Loaded="OnSongDurationTextBlockLoaded" />
                     </controls:NowPlayingItemGrid>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -41,6 +41,8 @@ public sealed partial class SearchViewModel : ObservableObject
                 return;
             }
 
+            //TODO: Fix missing artist name...
+
             SearchAlbumAndNewsResult albumAndNewsWarpper = await SearchService.SearchAlbumAndNewsAsync(keyword);
 
             NewsList = new MsrIncrementalCollection<NewsInfo>(albumAndNewsWarpper.News, async lastInfo => await SearchService.SearchNewsAsync(keyword, lastInfo.Cid));
@@ -67,18 +69,5 @@ public sealed partial class SearchViewModel : ObservableObject
             Message = "InternetErrorMessage".GetLocalized(),
             Exception = ex
         };
-    }
-
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        ContentDialog contentDialog = new()
-        {
-            Title = title,
-            Content = message,
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = closeButtonText
-        };
-
-        await contentDialog.ShowAsync();
     }
 }

@@ -4,12 +4,12 @@ namespace MonsterSiren.Uwp.Controls;
 
 public sealed class ThemedToggleButton : ToggleButton
 {
-    public Brush ThemeBackground
+    public SolidColorBrush ThemeBackground
     {
-        get => (Brush)GetValue(ThemeBackgroundProperty);
+        get => (SolidColorBrush)GetValue(ThemeBackgroundProperty);
         set => SetValue(ThemeBackgroundProperty, value);
     }
 
     public static readonly DependencyProperty ThemeBackgroundProperty =
-        DependencyProperty.Register("ThemeBackground", typeof(Brush), typeof(ThemedToggleButton), new PropertyMetadata(new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorLight1"])));
+        DependencyProperty.Register("ThemeBackground", typeof(SolidColorBrush), typeof(ThemedToggleButton), new PropertyMetadata(new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColorLight1"])));
 }

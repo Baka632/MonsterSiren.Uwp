@@ -70,7 +70,7 @@ public sealed partial class SearchPage : Page
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -86,18 +86,5 @@ public sealed partial class SearchPage : Page
 
         string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
         e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
-    }
-
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        ContentDialog contentDialog = new()
-        {
-            Title = title,
-            Content = message,
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = closeButtonText
-        };
-
-        await contentDialog.ShowAsync();
     }
 }

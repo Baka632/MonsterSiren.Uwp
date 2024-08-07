@@ -1,4 +1,7 @@
-﻿using Windows.Media.Playback;
+﻿using System.Net.Http;
+using MonsterSiren.Api.Models.Song;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.Input;
 
@@ -154,6 +157,46 @@ public sealed partial class NowPlayingPage : Page
             else
             {
                 MusicInfoService.Default.Volume -= addDelta;
+            }
+        }
+    }
+
+    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
+        MediaSource source = playbackItem.Source;
+
+        textBlock.Text = "-:-";
+
+        if (source.Duration.HasValue)
+        {
+            textBlock.Text = source.Duration.Value.ToString(@"m\:ss");
+        }
+        else
+        {
+            if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
+            {
+                SongDetail songDetail = details.FirstOrDefault();
+                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+
+                if (span.HasValue)
+                {
+                    textBlock.Text = span.Value.ToString(@"m\:ss");
+                    return;
+                }
+            }
+
+            await source.OpenAsync();
+            TimeSpan? duration = source.Duration;
+
+            if (duration.HasValue)
+            {
+                textBlock.Text = duration.Value.ToString(@"m\:ss");
+            }
+            else
+            {
+                textBlock.Text = "-:-";
             }
         }
     }

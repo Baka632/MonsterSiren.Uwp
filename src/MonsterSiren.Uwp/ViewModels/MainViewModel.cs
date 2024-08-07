@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
-using MonsterSiren.Api.Models.Song;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -21,6 +20,8 @@ public partial class MainViewModel : ObservableRecipient
     private bool isMediaInfoVisible;
     [ObservableProperty]
     private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
+    [ObservableProperty]
+    private Playlist selectedPlaylist;
 
     public MainViewModel(MainPage mainPage)
     {
@@ -83,6 +84,57 @@ public partial class MainViewModel : ObservableRecipient
         MainPageNavigationHelper.Navigate(typeof(GlanceViewPage), null, new SuppressNavigationTransitionInfo());
     }
 
+    [RelayCommand]
+    private static async Task PlayForPlaylist(Playlist playlist)
+    {
+        await PlaylistService.PlayForPlaylistAsync(playlist);
+    }
+
+    [RelayCommand]
+    private static async Task AddPlaylistToNowPlaying(Playlist playlist)
+    {
+        await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+    }
+
+    [RelayCommand]
+    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
+    {
+        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
+    }
+
+    [RelayCommand]
+    private static async Task ModifyPlaylist(Playlist playlist)
+    {
+        PlaylistInfoDialog dialog = new()
+        {
+            Title = "PlaylistModifyTitle".GetLocalized(),
+            PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
+            PlaylistTitle = playlist.Title,
+            PlaylistDescription = playlist.Description,
+            CheckDuplicatePlaylist = false,
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            playlist.Title = dialog.PlaylistTitle;
+            playlist.Description = dialog.PlaylistDescription;
+        }
+    }
+
+    [RelayCommand]
+    private static async Task RemovePlaylist(Playlist playlist)
+    {
+        ContentDialogResult result = await CommonValues.DisplayContentDialog("EnsureDelete".GetLocalized(), "",
+            "OK".GetLocalized(), "Cancel".GetLocalized());
+
+        if (result == ContentDialogResult.Primary)
+        {
+            PlaylistService.RemovePlaylist(playlist);
+        }
+    }
+
     public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
     {
         try
@@ -94,7 +146,7 @@ public partial class MainViewModel : ObservableRecipient
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
@@ -103,7 +155,7 @@ public partial class MainViewModel : ObservableRecipient
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -113,17 +165,17 @@ public partial class MainViewModel : ObservableRecipient
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
             });
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
-    private static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
+    internal static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
     {
         AlbumDetail albumDetail;
         if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
@@ -168,21 +220,6 @@ public partial class MainViewModel : ObservableRecipient
         return albumDetail;
     }
 
-    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
-    {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
-        {
-            return detail;
-        }
-        else
-        {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
-
-            return songDetail;
-        }
-    }
-
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)
     {
         try
@@ -200,21 +237,5 @@ public partial class MainViewModel : ObservableRecipient
         {
             // Just ignore it...
         }
-    }
-
-    private static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        await UIThreadHelper.RunOnUIThread(async () =>
-        {
-            ContentDialog contentDialog = new()
-            {
-                Title = title,
-                Content = message,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText
-            };
-
-            await contentDialog.ShowAsync();
-        });
     }
 }

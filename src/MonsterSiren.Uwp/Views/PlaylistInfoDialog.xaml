@@ -1,0 +1,58 @@
+﻿<ContentDialog
+    x:Class="MonsterSiren.Uwp.Views.PlaylistInfoDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contract5Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MonsterSiren.Uwp.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    x:Uid="PlaylistCreationDialog"
+    contract5Present:Style="{StaticResource DefaultContentDialogStyle}"
+    d:DataContext="{d:DesignInstance Type=local:PlaylistInfoDialog}"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryButtonClick"
+    mc:Ignorable="d">
+
+    <StackPanel>
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <FontIcon
+                Grid.Column="0"
+                FontSize="45"
+                Glyph="&#xE955;" />
+            <TextBox
+                x:Uid="PlaylistTitle"
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                Text="{x:Bind PlaylistTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+
+        <TextBox
+            x:Uid="PlaylistDescription"
+            MaxHeight="100"
+            AcceptsReturn="True"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            Text="{x:Bind PlaylistDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <muxc:InfoBar
+            Title="{x:Bind InfoBarTitle, Mode=OneWay}"
+            Margin="0,5,0,0"
+            IsClosable="False"
+            IsOpen="{x:Bind ShowInfoBar, Mode=OneWay}"
+            Message="{x:Bind InfoBarMessage, Mode=OneWay}"
+            Severity="Error" />
+
+        <muxc:InfoBar
+            x:Uid="MayRenameInFileSystemWarning"
+            Margin="0,5,0,0"
+            IsClosable="False"
+            IsOpen="{x:Bind ShowRenameInFileSystemWarning, Mode=OneWay}"
+            Severity="Warning" />
+    </StackPanel>
+</ContentDialog>

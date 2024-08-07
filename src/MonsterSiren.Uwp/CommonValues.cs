@@ -38,6 +38,8 @@ internal static class CommonValues
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
 
+    public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
+
     public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
     public const string AppColorThemeSettingsKey = "App_ColorTheme_SettingsKey";
 
@@ -48,10 +50,12 @@ internal static class CommonValues
     #region Data Package Type
     public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
     public const string MusicSongInfoAndAlbumPackDetailFormatId = "Music_SongInfoAndAlbumDetailPack_DataPackage_FormatId";
+    public const string MusicPlaylistFormatId = "Music_Playlist_DataPackage_FormatId";
     #endregion
 
     #region Other Common Things
-    public static readonly NavigationTransitionInfo DefaultTransitionInfo;
+    public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
+    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     #endregion
 
     static CommonValues()
@@ -67,5 +71,37 @@ internal static class CommonValues
         {
             DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
         }
+    }
+
+    /// <summary>
+    /// 显示一个对话框
+    /// </summary>
+    /// <param name="title">对话框的标题</param>
+    /// <param name="message">对话框的消息</param>
+    /// <param name="primaryButtonText">主按钮文本</param>
+    /// <param name="closeButtonText">关闭按钮文本</param>
+    /// <param name="secondaryButtonText">第二按钮文本</param>
+    /// <param name="defaultButton">默认按钮</param>
+    /// <returns>记录结果的 <see cref="ContentDialogResult"/></returns>
+    public static async Task<ContentDialogResult> DisplayContentDialog(
+        string title, string message, string primaryButtonText = "", string closeButtonText = "",
+        string secondaryButtonText = "", ContentDialogButton defaultButton = ContentDialogButton.None)
+    {
+        ContentDialogResult result = await UIThreadHelper.RunOnUIThread(async () =>
+        {
+            ContentDialog contentDialog = new()
+            {
+                Title = title,
+                Content = message,
+                PrimaryButtonText = primaryButtonText,
+                CloseButtonText = closeButtonText,
+                SecondaryButtonText = secondaryButtonText,
+                DefaultButton = defaultButton
+            };
+
+            return await contentDialog.ShowAsync();
+        });
+
+        return result;
     }
 }

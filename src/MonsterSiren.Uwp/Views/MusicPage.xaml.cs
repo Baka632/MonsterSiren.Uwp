@@ -98,4 +98,48 @@ public sealed partial class MusicPage : Page
     {
         RefreshActionContainer.RequestRefresh();
     }
+
+    private void OnAddToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            AddToPlaylistSubItem.Items.Clear();
+            AddToPlaylistSubItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist);
+                AddToPlaylistSubItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            AddToPlaylistSubItem.IsEnabled = false;
+        }
+    }
+
+    private MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist)
+    {
+        MenuFlyoutItem flyoutItem = new()
+        {
+            DataContext = playlist,
+            Text = playlist.Title,
+            Icon = new FontIcon()
+            {
+                Glyph = "\uEC4F"
+            },
+            Command = ViewModel.AddAlbumInfoToPlaylistCommand,
+            CommandParameter = playlist,
+        };
+
+        return flyoutItem;
+    }
+
+    private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
+
+        ViewModel.SelectedAlbumInfo = albumInfo;
+    }
 }

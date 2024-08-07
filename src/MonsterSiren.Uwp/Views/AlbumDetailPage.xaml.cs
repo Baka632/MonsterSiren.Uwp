@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http;
+using System.Text.Json;
+using System.Windows.Input;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -23,14 +25,14 @@ public sealed partial class AlbumDetailPage : Page
 
         ConnectedAnimation animation =
                 ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.AlbumInfoForwardConnectedAnimationKeyForMusicPage);
-        animation?.TryStart(AlbumCover, new UIElement[]
-        {
+        animation?.TryStart(AlbumCover,
+        [
                 AlbumName,
                 AlbumArtists,
                 SeparatorStackPanel,
                 DetailScrollViewer,
                 ControlBarStackPanel
-        });
+        ]);
 
         if (e.Parameter is AlbumInfo albumInfo)
         {
@@ -63,5 +65,84 @@ public sealed partial class AlbumDetailPage : Page
         string json = JsonSerializer.Serialize(pack);
 
         e.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
+    }
+
+    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        SongInfo songInfo = (SongInfo)textBlock.DataContext;
+        textBlock.Text = "-:-";
+
+        try
+        {
+            SongDetail detail = await SongDetailHelper.GetSongDetailAsync(songInfo);
+            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(detail);
+
+            if (span.HasValue)
+            {
+                textBlock.Text = span.Value.ToString(@"m\:ss");
+            }
+            else
+            {
+                textBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            textBlock.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        ViewModel.SelectedSongInfo = (SongInfo)element.DataContext;
+    }
+
+    private void OnMoreOptionButtonTapped(object sender, TappedRoutedEventArgs e)
+    {
+        Button button = (Button)sender;
+        ViewModel.SelectedSongInfo = (SongInfo)button.DataContext;
+    }
+
+    private void OnAddSongInfoToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
+        FillSubItemWithCommand(subItem, ViewModel.AddToPlaylistForSongInfoCommand);
+    }
+
+    private void OnAddAlbumDetailToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
+        FillSubItemWithCommand(subItem, ViewModel.AddToPlaylistForCurrentAlbumDetailCommand);
+    }
+
+    private static void FillSubItemWithCommand(MenuFlyoutSubItem subItem, ICommand command)
+    {
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            subItem.Items.Clear();
+            subItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = new()
+                {
+                    DataContext = playlist,
+                    Text = playlist.Title,
+                    Icon = new FontIcon()
+                    {
+                        Glyph = "\uEC4F"
+                    },
+                    Command = command,
+                    CommandParameter = playlist,
+                };
+                subItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            subItem.IsEnabled = false;
+        }
     }
 }
