@@ -59,7 +59,7 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(IsTotalPlaylistEmpty)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTotalPlaylistEmpty)));
     }
 
     private void OnGridViewItemRightTapped(object sender, RightTappedRoutedEventArgs e)

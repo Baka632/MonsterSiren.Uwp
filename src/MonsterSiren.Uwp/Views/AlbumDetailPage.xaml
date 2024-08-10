@@ -206,6 +206,7 @@
                 CanDragItems="True"
                 DragItemsStarting="OnSongListViewItemsDragStarting"
                 ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}"
+                ScrollViewer.VerticalScrollMode="Disabled"
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSongsEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="song:SongInfo">

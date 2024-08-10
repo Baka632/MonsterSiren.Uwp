@@ -85,6 +85,23 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private static async Task CreateNewPlaylist()
+    {
+        PlaylistInfoDialog dialog = new()
+        {
+            Title = "PlaylistCreationTitle".GetLocalized(),
+            PrimaryButtonText = "PlaylistCreationPrimaryButtonText".GetLocalized()
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            PlaylistService.CreateNewPlaylist(dialog.PlaylistTitle, dialog.PlaylistDescription);
+        }
+    }
+
+    [RelayCommand]
     private static async Task PlayForPlaylist(Playlist playlist)
     {
         await PlaylistService.PlayForPlaylistAsync(playlist);

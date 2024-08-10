@@ -201,6 +201,14 @@
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE14C;" />
                     </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem
+                                x:Uid="PlaylistPage_NewPlaylist"
+                                Command="{x:Bind ViewModel.CreateNewPlaylistCommand}"
+                                Icon="Add" />
+                        </MenuFlyout>
+                    </muxc:NavigationViewItem.ContextFlyout>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
 

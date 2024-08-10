@@ -41,7 +41,7 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(IsPlaylistEmpty)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPlaylistEmpty)));
     }
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
