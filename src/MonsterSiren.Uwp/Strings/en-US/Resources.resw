@@ -429,4 +429,7 @@
   <data name="AddToNowPlayingLiteral" xml:space="preserve">
     <value>Add to now playing</value>
   </data>
+  <data name="NoSongsInPlaylist.Text" xml:space="preserve">
+    <value>There is no song in playlist, please add some</value>
+  </data>
 </root>

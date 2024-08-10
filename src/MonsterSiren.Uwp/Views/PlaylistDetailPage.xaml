@@ -62,14 +62,24 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Image
-                    x:Name="PlaylistCover"
-                    Grid.Column="0"
-                    Width="250"
-                    Height="250"
-                    VerticalAlignment="Top"
-                    Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
-                    Stretch="UniformToFill" />
+                <Grid x:Name="CoverGrid">
+                    <Image
+                        x:Name="PlaylistCover"
+                        Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
+                        Stretch="UniformToFill"
+                        Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPlaylistEmpty), Mode=OneWay}" />
+                    <Grid
+                        x:Name="PlaylistNoItemCover"
+                        Background="#4b4b4b"
+                        Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPlaylistEmpty), Mode=OneWay}">
+                        <FontIcon
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="50"
+                            Foreground="White"
+                            Glyph="&#xE955;" />
+                    </Grid>
+                </Grid>
 
                 <Grid x:Name="PlaylistInfoGrid" Grid.Column="1">
                     <Grid.RowDefinitions>
@@ -102,11 +112,11 @@
                         x:Name="DescriptionScrollViewer"
                         Grid.Row="3"
                         MaxHeight="130"
-                        Margin="0,0,10,0"
                         HorizontalAlignment="Stretch"
-                        VerticalAlignment="Top">
+                        VerticalAlignment="Top"
+                        Visibility="{x:Bind helpers:XamlHelper.IsStringNullOrEmptyReverseVisibility(ViewModel.CurrentPlaylist.Description), Mode=OneWay}">
                         <TextBlock
-                            x:Name="AlbumDetailTextBlock"
+                            x:Name="PlaylistDetailDescriptionTextBlock"
                             IsTextSelectionEnabled="True"
                             Text="{x:Bind ViewModel.CurrentPlaylist.Description, Mode=OneWay}"
                             TextWrapping="Wrap" />
@@ -123,7 +133,8 @@
                             Margin="0,0,5,0"
                             AccessKey="0"
                             Background="Transparent"
-                            Command="{x:Bind ViewModel.PlayForCurrentPlaylistCommand}">
+                            Command="{x:Bind ViewModel.PlayForCurrentPlaylistCommand}"
+                            IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(IsPlaylistEmpty), Mode=OneWay}">
                             <StackPanel Orientation="Horizontal">
                                 <SymbolIcon
                                     Margin="0,0,5,0"
@@ -144,7 +155,8 @@
                 CanReorderItems="True"
                 DragItemsStarting="OnSongListViewItemsDragStarting"
                 ItemsSource="{x:Bind ViewModel.CurrentPlaylist.Items, Mode=OneWay}"
-                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsPlaylistEmpty), Mode=OneWay}">
+                ScrollViewer.VerticalScrollMode="Disabled"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPlaylistEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:SongDetailAndAlbumDetailPack">
                         <Grid
@@ -195,15 +207,78 @@
                 Margin="0,20,0,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsPlaylistEmpty), Mode=OneWay}">
+                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPlaylistEmpty), Mode=OneWay}">
                 <FontIcon
                     Margin="0,0,0,5"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    FontSize="40"
-                    Glyph="&#xEA91;" />
-                <TextBlock x:Uid="NoSongsInAlbum" />
+                    FontSize="35"
+                    Glyph="&#xE10C;" />
+                <TextBlock x:Uid="NoSongsInPlaylist" />
             </StackPanel>
         </Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlaylistCover.Height" Value="200" />
+                        <Setter Target="PlaylistCover.Width" Value="200" />
+                        <Setter Target="PlaylistNoItemCover.Height" Value="200" />
+                        <Setter Target="PlaylistNoItemCover.Width" Value="200" />
+                        <Setter Target="CoverGrid.Margin" Value="0,6,0,0" />
+
+                        <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Center" />
+
+                        <Setter Target="PlaylistDetailDescriptionTextBlock.HorizontalAlignment" Value="Center" />
+                        <Setter Target="DescriptionScrollViewer.Margin" Value="25,0,25,0" />
+
+                        <Setter Target="SongList.Margin" Value="25,20,25,0" />
+
+                        <Setter Target="SeparatorStackPanel.Margin" Value="25,10,25,10" />
+
+                        <Setter Target="PlaylistTitle.HorizontalAlignment" Value="Center" />
+                        <Setter Target="SongCountText.HorizontalAlignment" Value="Center" />
+
+                        <Setter Target="PlaylistInfoGrid.(Grid.Row)" Value="1" />
+                        <Setter Target="PlaylistInfoGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="CoverGrid.(Grid.Row)" Value="0" />
+                        <Setter Target="CoverGrid.(Grid.Column)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlaylistCover.Height" Value="250" />
+                        <Setter Target="PlaylistCover.Width" Value="250" />
+                        <Setter Target="PlaylistNoItemCover.Height" Value="250" />
+                        <Setter Target="PlaylistNoItemCover.Width" Value="250" />
+                        <Setter Target="CoverGrid.Margin" Value="0,6,20,0" />
+
+                        <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="SongList.Margin" Value="0,20,11,0" />
+
+                        <Setter Target="PlaylistDetailDescriptionTextBlock.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="DescriptionScrollViewer.Margin" Value="0,0,10,0" />
+
+                        <Setter Target="SeparatorStackPanel.Margin" Value="0,10,10,10" />
+
+                        <Setter Target="PlaylistTitle.HorizontalAlignment" Value="Stretch" />
+                        <Setter Target="SongCountText.HorizontalAlignment" Value="Stretch" />
+
+                        <Setter Target="PlaylistInfoGrid.(Grid.Row)" Value="1" />
+                        <Setter Target="PlaylistInfoGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="CoverGrid.(Grid.Row)" Value="1" />
+                        <Setter Target="CoverGrid.(Grid.Column)" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </ScrollViewer>
 </Page>

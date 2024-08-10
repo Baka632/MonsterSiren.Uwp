@@ -507,4 +507,7 @@
   <data name="AddToNowPlayingLiteral" xml:space="preserve">
     <value>添加到正在播放</value>
   </data>
+  <data name="NoSongsInPlaylist.Text" xml:space="preserve">
+    <value>播放列表内没有歌曲，请添加一些</value>
+  </data>
 </root>

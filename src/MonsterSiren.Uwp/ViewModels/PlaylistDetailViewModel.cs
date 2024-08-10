@@ -7,15 +7,11 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [ObservableProperty]
     private Playlist currentPlaylist;
     [ObservableProperty]
-    private bool isPlaylistEmpty;
-    [ObservableProperty]
     private SongDetailAndAlbumDetailPack selectedPack;
 
     public void Initialize(Playlist model)
     {
         CurrentPlaylist = model ?? throw new ArgumentNullException(nameof(model));
-
-        IsPlaylistEmpty = CurrentPlaylist.Items.Count <= 0;
     }
 
     [RelayCommand]
