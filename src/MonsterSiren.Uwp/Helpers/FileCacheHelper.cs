@@ -70,10 +70,13 @@ internal static class FileCacheHelper
     {
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
-        StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-        await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-        await transaction.CommitAsync();
+        if (await coverFolder.FileExistsAsync(fileName) != true)
+        {
+            StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+            await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+            await transaction.CommitAsync();
+        }
     }
 
     /// <summary>
@@ -151,12 +154,16 @@ internal static class FileCacheHelper
 
         if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
         {
-            return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+            StorageFile file = await coverFolder.GetFileAsync(fileName);
+            using IRandomAccessStreamWithContentType stream = await file.OpenReadAsync();
+
+            if (stream.Size != 0)
+            {
+                return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+            }
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     /// <summary>

@@ -69,15 +69,15 @@ public sealed partial class MusicPage : Page
 
     private async void OnAlbumImageLoaded(object sender, RoutedEventArgs e)
     {
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile().GetConnectionCost();
+        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
 
-        if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
         {
             return;
         }
 
-        Image image = (Image)sender;
-        if (image.DataContext is AlbumInfo info)
+        Image image = sender as Image;
+        if (image?.DataContext is AlbumInfo info)
         {
             Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
             if (fileCoverUri is null)
