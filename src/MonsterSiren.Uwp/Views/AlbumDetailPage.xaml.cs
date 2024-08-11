@@ -64,7 +64,7 @@ public sealed partial class AlbumDetailPage : Page
 
         string json = JsonSerializer.Serialize(pack);
 
-        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId, json);
+        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId, json);
     }
 
     private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)

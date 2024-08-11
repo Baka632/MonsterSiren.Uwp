@@ -95,7 +95,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task PlayForCurrentAlbumDetail()
+    private async Task PlayForCurrentAlbumDetail()
     {
         if (CurrentAlbumDetail.Songs is null)
         {
@@ -134,7 +134,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task AddToNowPlayingForCurrentAlbumDetail()
+    private async Task AddToNowPlayingForCurrentAlbumDetail()
     {
         if (CurrentAlbumDetail.Songs is null)
         {
@@ -162,7 +162,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
+    private async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
     {
         if (CurrentAlbumDetail.Songs is null)
         {
@@ -187,7 +187,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task DownloadForCurrentAlbumDetail()
+    private async Task DownloadForCurrentAlbumDetail()
     {
         if (CurrentAlbumDetail.Songs is null)
         {
@@ -211,7 +211,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task PlayForSongInfo(SongInfo songInfo)
+    private async Task PlayForSongInfo(SongInfo songInfo)
     {
         try
         {
@@ -231,7 +231,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
+    private async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
     {
         try
         {
@@ -265,7 +265,7 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task DownloadForSongInfo(SongInfo songInfo)
+    private async Task DownloadForSongInfo(SongInfo songInfo)
     {
         try
         {

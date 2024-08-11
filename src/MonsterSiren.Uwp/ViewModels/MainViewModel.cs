@@ -152,7 +152,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
+    public static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
         try
         {
@@ -176,7 +176,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    public static async Task AddToPlaylistForSongInfo(SongInfo songInfo, AlbumDetail albumDetail)
+    public static async Task AddToNowPlayingForSongInfo(SongInfo songInfo, AlbumDetail albumDetail)
     {
         try
         {
@@ -185,6 +185,18 @@ public partial class MainViewModel : ObservableRecipient
                 SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
             });
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+    
+    public static async Task AddToNowPlayingForSongDetail(SongDetail songDetail, AlbumDetail albumDetail)
+    {
+        try
+        {
+            await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
         }
         catch (HttpRequestException)
         {

@@ -3,6 +3,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Net.Http;
+using System.Text.Json;
 using System.Windows.Input;
 
 namespace MonsterSiren.Uwp.Views;
@@ -46,7 +47,19 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        // TODO: 
+        object dataContext = e.Items.FirstOrDefault();
+
+        if (dataContext is null)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        SongDetailAndAlbumDetailPack pack = (SongDetailAndAlbumDetailPack)dataContext;
+
+        string json = JsonSerializer.Serialize(pack);
+
+        e.Data.SetData(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId, json);
     }
 
     private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
