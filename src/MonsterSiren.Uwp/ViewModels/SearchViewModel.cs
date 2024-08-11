@@ -41,12 +41,28 @@ public sealed partial class SearchViewModel : ObservableObject
                 return;
             }
 
-            //TODO: Fix missing artist name...
-
             SearchAlbumAndNewsResult albumAndNewsWarpper = await SearchService.SearchAlbumAndNewsAsync(keyword);
 
+            List<AlbumInfo> albumList = albumAndNewsWarpper.Albums.List.ToList();
+
+            if (await TryFillArtistAndReplaceCachedAlbumCover(albumList))
+            {
+                albumAndNewsWarpper = albumAndNewsWarpper with
+                {
+                    Albums = albumAndNewsWarpper.Albums with { List = albumList }
+                };
+            }
+
             NewsList = new MsrIncrementalCollection<NewsInfo>(albumAndNewsWarpper.News, async lastInfo => await SearchService.SearchNewsAsync(keyword, lastInfo.Cid));
-            AlbumList = new MsrIncrementalCollection<AlbumInfo>(albumAndNewsWarpper.Albums, async lastInfo => await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid));
+            AlbumList = new MsrIncrementalCollection<AlbumInfo>(albumAndNewsWarpper.Albums, async lastInfo =>
+            {
+                ListPackage<AlbumInfo> listPackage = await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid);
+                List<AlbumInfo> list = listPackage.List.ToList();
+
+                return await TryFillArtistAndReplaceCachedAlbumCover(list)
+                ? listPackage with { List = list }
+                : listPackage;
+            });
 
             ErrorVisibility = Visibility.Collapsed;
         }
@@ -57,6 +73,29 @@ public sealed partial class SearchViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+
+        static async Task<bool> TryFillArtistAndReplaceCachedAlbumCover(List<AlbumInfo> albumList)
+        {
+            bool isModify = false;
+
+            for (int i = 0; i < albumList.Count; i++)
+            {
+                if (albumList[i].Artistes is null || albumList[i].Artistes.Any() != true)
+                {
+                    albumList[i] = albumList[i] with { Artistes = ["MSR".GetLocalized()] };
+                    isModify = true;
+                }
+
+                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumList[i]);
+                if (fileCoverUri != null)
+                {
+                    albumList[i] = albumList[i] with { CoverUrl = fileCoverUri.ToString() };
+                    isModify = true;
+                }
+            }
+
+            return isModify;
         }
     }
 
