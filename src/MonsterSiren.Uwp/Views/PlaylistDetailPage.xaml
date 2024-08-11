@@ -143,6 +143,47 @@
                                 <TextBlock x:Uid="PlayMusicTextBlock" HorizontalAlignment="Center" />
                             </StackPanel>
                         </Button>
+
+                        <Button
+                            x:Name="AddToPlayListButton"
+                            Margin="0,0,5,0"
+                            AccessKey="1"
+                            Background="Transparent"
+                            IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(IsPlaylistEmpty), Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Center"
+                                    Symbol="Add" />
+                                <TextBlock x:Uid="AddToPlaylistOrNowPlayingTextBlock" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="AddToNowPlaying"
+                                        Command="{x:Bind ViewModel.AddCurrentPlaylistToNowPlayingCommand}"
+                                        Icon="MusicInfo" />
+                                    <MenuFlyoutSubItem
+                                        x:Uid="AddToPlaylistCommand"
+                                        Icon="List"
+                                        Loaded="OnAddPlaylistToAnotherPlaylistSubItemLoaded" />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+
+                        <Button
+                            AccessKey="2"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.DownloadForCurrentPlaylistCommand}"
+                            IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(IsPlaylistEmpty), Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Center"
+                                    Symbol="Download" />
+                                <TextBlock x:Uid="DownloadTextBlock" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>

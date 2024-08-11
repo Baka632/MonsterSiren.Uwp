@@ -45,9 +45,21 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AddCurrentPlaylistToNowPlaying()
+    {
+        await PlaylistService.AddPlaylistToNowPlayingAsync(CurrentPlaylist);
+    }
+
+    [RelayCommand]
     private async Task AddPackToAnotherPlaylist(Playlist target)
     {
         await PlaylistService.AddItemForPlaylistAsync(target, SelectedPack);
+    }
+
+    [RelayCommand]
+    private async Task AddCurrentPlaylistToAnotherPlaylistCommand(Playlist target)
+    {
+        await PlaylistService.AddItemForPlaylistAsync(target, CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -55,6 +67,15 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     {
         (SongDetail songDetail, AlbumDetail albumDetail) = pack;
         _ = DownloadService.DownloadSong(albumDetail, songDetail);
+    }
+
+    [RelayCommand]
+    private void DownloadForCurrentPlaylist()
+    {
+        foreach (SongDetailAndAlbumDetailPack item in CurrentPlaylist.Items)
+        {
+            DownloadForPack(item);
+        }
     }
 
     [RelayCommand]

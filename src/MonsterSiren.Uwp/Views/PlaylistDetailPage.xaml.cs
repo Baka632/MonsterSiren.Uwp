@@ -92,6 +92,12 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         FillSubItemWithCommand(subItem, ViewModel.AddPackToAnotherPlaylistCommand);
     }
 
+    private void OnAddPlaylistToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    {
+        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
+        FillSubItemWithCommand(subItem, ViewModel.AddCurrentPlaylistToAnotherPlaylistCommandCommand);
+    }
+
     private void FillSubItemWithCommand(MenuFlyoutSubItem subItem, ICommand command)
     {
         if (PlaylistService.TotalPlaylists.Count > 0)
