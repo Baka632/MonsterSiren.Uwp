@@ -510,4 +510,10 @@
   <data name="NoSongsInPlaylist.Text" xml:space="preserve">
     <value>播放列表内没有歌曲，请添加一些</value>
   </data>
+  <data name="HoursAndMinutesFormat" xml:space="preserve">
+    <value>{0} 小时 {1} 分钟</value>
+  </data>
+  <data name="MinutesAndSecondsFormat" xml:space="preserve">
+    <value>{0} 分钟 {1} 秒</value>
+  </data>
 </root>

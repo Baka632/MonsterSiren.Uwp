@@ -61,11 +61,11 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         }
     }
 
-    // HACK: How to count it...
     /// <summary>
-    /// 播放列表的总时长（以毫秒为单位）
+    /// 播放列表的总时长
     /// </summary>
-    public int TotalDurationInMillisecond { get; private set; }
+    [JsonIgnore]
+    public TimeSpan? TotalDuration { get; private set; }
 
     /// <summary>
     /// 当前播放列表的歌曲个数
@@ -96,7 +96,33 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        OnPropertiesChanged(nameof(TotalDurationInMillisecond));
+        //if (e.Action is not NotifyCollectionChangedAction.Move)
+        //{
+        //    TimeSpan duration = TotalDuration ?? TimeSpan.Zero;
+
+        //    switch (e.Action)
+        //    {
+        //        case NotifyCollectionChangedAction.Add:
+        //            duration = await AddDuration(e.NewItems, duration);
+        //            break;
+        //        case NotifyCollectionChangedAction.Remove:
+        //            duration = await SubtractDuration(e.OldItems, duration);
+        //            break;
+        //        case NotifyCollectionChangedAction.Replace:
+        //            duration = await SubtractDuration(e.OldItems, duration);
+        //            duration = await AddDuration(e.NewItems, duration);
+        //            break;
+        //        case NotifyCollectionChangedAction.Reset:
+        //            duration = TimeSpan.Zero;
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    TotalDuration = duration;
+        //    OnPropertiesChanged(nameof(TotalDuration));
+        //}
+
         OnPropertiesChanged(nameof(SongCount));
 
         if (Items.Count > 0)
@@ -114,6 +140,42 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         {
             PlaylistCoverImage = null;
         }
+
+        //static async Task<TimeSpan> AddDuration(System.Collections.IList list, TimeSpan originalDuration)
+        //{
+        //    foreach (object obj in list)
+        //    {
+        //        if (obj is SongDetailAndAlbumDetailPack(SongDetail songDetail, _))
+        //        {
+        //            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(songDetail);
+
+        //            if (span.HasValue)
+        //            {
+        //                originalDuration += span.Value;
+        //            }
+        //        }
+        //    }
+
+        //    return originalDuration;
+        //}
+
+        //static async Task<TimeSpan> SubtractDuration(System.Collections.IList list, TimeSpan originalDuration)
+        //{
+        //    foreach (object obj in list)
+        //    {
+        //        if (obj is SongDetailAndAlbumDetailPack(SongDetail songDetail, _))
+        //        {
+        //            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(songDetail);
+
+        //            if (span.HasValue)
+        //            {
+        //                originalDuration -= span.Value;
+        //            }
+        //        }
+        //    }
+
+        //    return originalDuration;
+        //}
     }
 
     public IEnumerator<SongDetailAndAlbumDetailPack> GetEnumerator()
@@ -145,7 +207,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         return other is not null &&
                Title == other.Title &&
                Description == other.Description &&
-               TotalDurationInMillisecond == other.TotalDurationInMillisecond &&
+               TotalDuration == other.TotalDuration &&
                SongCount == other.SongCount &&
                Items.SequenceEqual(other.Items);
     }
@@ -155,7 +217,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         int hashCode = 991927638;
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
-        hashCode = hashCode * -1521134295 + TotalDurationInMillisecond.GetHashCode();
+        hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
         hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongDetailAndAlbumDetailPack>>.Default.GetHashCode(Items);
         return hashCode;

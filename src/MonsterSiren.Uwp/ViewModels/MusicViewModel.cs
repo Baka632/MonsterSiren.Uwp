@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
-using MonsterSiren.Api.Models.Album;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;

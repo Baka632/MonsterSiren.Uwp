@@ -24,6 +24,30 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         this.InitializeComponent();
     }
 
+    public static string PlaylistTotalDurationToString(TimeSpan? timeSpan)
+    {
+        if (timeSpan.HasValue)
+        {
+            TimeSpan span = timeSpan.Value;
+            if (span.Hours == 0)
+            {
+                return string.Format("MinutesAndSecondsFormat".GetLocalized(),
+                                     span.Minutes,
+                                     span.Seconds);
+            }
+            else
+            {
+                return string.Format("HoursAndMinutesFormat".GetLocalized(),
+                                     (span.Days * 24) + span.Hours,
+                                     span.Minutes);
+            }
+        }
+        else
+        {
+            return string.Format("MinutesAndSecondsFormat".GetLocalized(), 0, 0);
+        }
+    }
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);

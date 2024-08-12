@@ -180,6 +180,11 @@ public sealed partial class MainPage : Page
 
     private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
+        if (args.InvokedItemContainer is null)
+        {
+            return;
+        }
+
         string tag = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
