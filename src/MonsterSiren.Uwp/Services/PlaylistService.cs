@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
-using MonsterSiren.Uwp.Models;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -205,12 +204,15 @@ public static class PlaylistService
 
         WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             List<MediaPlaybackItem> list = new(playlist.Items.Count);
-            foreach (SongDetailAndAlbumDetailPack item in playlist)
+            foreach (PlaylistItem item in playlist)
             {
-                list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+                list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
             }
 
             if (list.Count != 0)
@@ -238,14 +240,17 @@ public static class PlaylistService
 
         WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             List<MediaPlaybackItem> list = new(playlists.Count() * 2);
             foreach (Playlist playlist in playlists)
             {
-                foreach (SongDetailAndAlbumDetailPack item in playlist)
+                foreach (PlaylistItem item in playlist)
                 {
-                    list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+                    list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
             }
 
@@ -272,12 +277,15 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             List<MediaPlaybackItem> list = new(playlist.Items.Count);
-            foreach (SongDetailAndAlbumDetailPack item in playlist)
+            foreach (PlaylistItem item in playlist)
             {
-                list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+                list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
             }
 
             MusicService.AddMusic(list);
@@ -304,37 +312,32 @@ public static class PlaylistService
             throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
         }
 
-        SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
-        await AddItemForPlaylistAsync(playlist, pack);
+        TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
+        PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+        await AddItemForPlaylistAsync(playlist, item);
     }
 
     /// <summary>
     /// 向指定的播放列表添加歌曲
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
-    /// <param name="pack">一个 <see cref="SongDetailAndAlbumDetailPack"/> 实例</param>
+    /// <param name="item">一个 <see cref="PlaylistItem"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="ArgumentException">歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。</exception>
-    public static async Task AddItemForPlaylistAsync(Playlist playlist, SongDetailAndAlbumDetailPack pack)
+    public static async Task AddItemForPlaylistAsync(Playlist playlist, PlaylistItem item)
     {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        if (pack.SongDetail.AlbumCid != pack.AlbumDetail.Cid)
-        {
-            throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
-        }
-
-        if (playlist.Items.Contains(pack))
+        if (playlist.Items.Contains(item))
         {
             return;
         }
 
         await UIThreadHelper.RunOnUIThread(() =>
         {
-            playlist.Items.Add(pack);
+            playlist.Items.Add(item);
         });
     }
 
@@ -356,7 +359,7 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(source));
         }
 
-        foreach (SongDetailAndAlbumDetailPack item in source.Items)
+        foreach (PlaylistItem item in source)
         {
             await AddItemForPlaylistAsync(target, item);
         }
@@ -366,32 +369,32 @@ public static class PlaylistService
     /// 在指定的播放列表中移除歌曲
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
-    /// <param name="pack">一个 <see cref="SongDetailAndAlbumDetailPack"/> 实例</param>
+    /// <param name="item">一个 <see cref="PlaylistItem"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    public static void RemoveItemForPlaylist(Playlist playlist, SongDetailAndAlbumDetailPack pack)
+    public static void RemoveItemForPlaylist(Playlist playlist, PlaylistItem item)
     {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        playlist.Items.Remove(pack);
+        playlist.Items.Remove(item);
     }
 
     /// <summary>
     /// 在指定的播放列表中移除歌曲
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
-    /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例</param>
+    /// <param name="songCid">歌曲 CID</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    public static void RemoveItemForPlaylist(Playlist playlist, SongDetail songDetail)
+    public static void RemoveItemForPlaylist(Playlist playlist, string songCid)
     {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        SongDetailAndAlbumDetailPack targetItem = playlist.Items.FirstOrDefault(pack => pack.SongDetail == songDetail);
+        PlaylistItem targetItem = playlist.Items.FirstOrDefault(item => item.SongCid == songCid);
         playlist.Items.Remove(targetItem);
     }
 

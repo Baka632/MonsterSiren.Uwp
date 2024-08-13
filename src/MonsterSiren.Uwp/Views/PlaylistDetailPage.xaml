@@ -17,13 +17,13 @@
             <MenuFlyoutItem
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlayForPackCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Play" />
             <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
                 <MenuFlyoutItem
                     x:Uid="AddToNowPlaying"
                     Command="{x:Bind ViewModel.AddPackToNowPlayingCommand}"
-                    CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                    CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                     Icon="MusicInfo" />
                 <MenuFlyoutSubItem
                     x:Uid="AddToPlaylistCommand"
@@ -34,13 +34,13 @@
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForPackCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Download" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DeleteFromPlaylist"
                 Command="{x:Bind ViewModel.RemovePackFromPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPack, Mode=OneWay}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Delete" />
         </muxc:MenuBarItemFlyout>
     </Page.Resources>
@@ -100,8 +100,11 @@
                     <TextBlock
                         x:Name="SongCountText"
                         Grid.Row="1"
-                        IsTextSelectionEnabled="True"
-                        Text="{x:Bind x:String.Format(app:CommonValues.SongCountFormat, ViewModel.CurrentPlaylist.SongCount), Mode=OneWay}" />
+                        IsTextSelectionEnabled="True">
+                        <Run Text="{x:Bind x:String.Format(app:CommonValues.SongCountFormat, ViewModel.CurrentPlaylist.SongCount), Mode=OneWay}" />
+                        <Run FontWeight="Bold" Text="·" />
+                        <Run Text="{x:Bind local:PlaylistDetailPage.PlaylistTotalDurationToString(ViewModel.CurrentPlaylist.TotalDuration), Mode=OneWay}" />
+                    </TextBlock>
                     <StackPanel
                         x:Name="SeparatorStackPanel"
                         Grid.Row="2"
@@ -199,7 +202,7 @@
                 ScrollViewer.VerticalScrollMode="Disabled"
                 Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPlaylistEmpty), Mode=OneWay}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:SongDetailAndAlbumDetailPack">
+                    <DataTemplate x:DataType="models:PlaylistItem">
                         <Grid
                             Background="Transparent"
                             ContextFlyout="{StaticResource SongContextFlyout}"
@@ -215,7 +218,7 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 IsTextSelectionEnabled="True"
-                                Text="{x:Bind SongDetail.Name}" />
+                                Text="{x:Bind SongTitle}" />
 
                             <StackPanel
                                 Grid.Column="1"
@@ -225,8 +228,7 @@
                                 <TextBlock
                                     Margin="0,0,5,0"
                                     VerticalAlignment="Center"
-                                    DataContext="{x:Bind SongDetail}"
-                                    Loaded="OnSongDurationTextBlockLoaded" />
+                                    Text="{x:Bind SongDuration, Converter={StaticResource TimeSpanToStringConverter}}" />
 
                                 <Button
                                     VerticalAlignment="Center"

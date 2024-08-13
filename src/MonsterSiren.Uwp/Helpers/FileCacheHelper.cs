@@ -128,8 +128,7 @@ internal static class FileCacheHelper
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
     public static async Task<Uri> GetAlbumCoverUriAsync(AlbumDetail albumDetail)
     {
-        string fileName = $"{albumDetail.Cid}.jpg";
-        return await GetAlbumCoverUriAsync(fileName);
+        return await GetAlbumCoverUriAsync(albumDetail.Cid);
     }
 
     /// <summary>
@@ -139,17 +138,18 @@ internal static class FileCacheHelper
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
     public static async Task<Uri> GetAlbumCoverUriAsync(AlbumInfo albumInfo)
     {
-        string fileName = $"{albumInfo.Cid}.jpg";
-        return await GetAlbumCoverUriAsync(fileName);
+        return await GetAlbumCoverUriAsync(albumInfo.Cid);
     }
 
     /// <summary>
-    /// 通过指定的文件名获取指向专辑封面的 Uri
+    /// 通过指定的专辑 CID 获取指向专辑封面的 Uri
     /// </summary>
-    /// <param name="fileName">专辑封面的文件名</param>
+    /// <param name="cid">专辑的 CID</param>
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
-    private static async Task<Uri> GetAlbumCoverUriAsync(string fileName)
+    public static async Task<Uri> GetAlbumCoverUriAsync(string cid)
     {
+        string fileName = $"{cid}.jpg";
+
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
         if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))

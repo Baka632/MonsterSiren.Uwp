@@ -24,27 +24,20 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         this.InitializeComponent();
     }
 
-    public static string PlaylistTotalDurationToString(TimeSpan? timeSpan)
+    public static string PlaylistTotalDurationToString(TimeSpan timeSpan)
     {
-        if (timeSpan.HasValue)
+        TimeSpan span = timeSpan;
+        if (span.Hours == 0)
         {
-            TimeSpan span = timeSpan.Value;
-            if (span.Hours == 0)
-            {
-                return string.Format("MinutesAndSecondsFormat".GetLocalized(),
-                                     span.Minutes,
-                                     span.Seconds);
-            }
-            else
-            {
-                return string.Format("HoursAndMinutesFormat".GetLocalized(),
-                                     (span.Days * 24) + span.Hours,
-                                     span.Minutes);
-            }
+            return string.Format("MinutesAndSecondsFormat".GetLocalized(),
+                                 span.Minutes,
+                                 span.Seconds);
         }
         else
         {
-            return string.Format("MinutesAndSecondsFormat".GetLocalized(), 0, 0);
+            return string.Format("HoursAndMinutesFormat".GetLocalized(),
+                                 (span.Days * 24) + span.Hours,
+                                 span.Minutes);
         }
     }
 
@@ -79,48 +72,23 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
             return;
         }
 
-        SongDetailAndAlbumDetailPack pack = (SongDetailAndAlbumDetailPack)dataContext;
+        PlaylistItem pack = (PlaylistItem)dataContext;
 
         string json = JsonSerializer.Serialize(pack);
 
-        e.Data.SetData(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId, json);
-    }
-
-    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
-    {
-        TextBlock textBlock = (TextBlock)sender;
-        SongDetail detail = (SongDetail)textBlock.DataContext;
-        textBlock.Text = "-:-";
-
-        try
-        {
-            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(detail);
-
-            if (span.HasValue)
-            {
-                textBlock.Text = span.Value.ToString(@"m\:ss");
-            }
-            else
-            {
-                textBlock.Visibility = Visibility.Collapsed;
-            }
-        }
-        catch (HttpRequestException)
-        {
-            textBlock.Visibility = Visibility.Collapsed;
-        }
+        e.Data.SetData(CommonValues.MusicPlaylistItemFormatId, json);
     }
 
     private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
         FrameworkElement element = (FrameworkElement)sender;
-        ViewModel.SelectedPack = (SongDetailAndAlbumDetailPack)element.DataContext;
+        ViewModel.SelectedItem = (PlaylistItem)element.DataContext;
     }
 
     private void OnMoreOptionButtonTapped(object sender, TappedRoutedEventArgs e)
     {
         Button button = (Button)sender;
-        ViewModel.SelectedPack = (SongDetailAndAlbumDetailPack)button.DataContext;
+        ViewModel.SelectedItem = (PlaylistItem)button.DataContext;
     }
 
     private void OnAddSongToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)

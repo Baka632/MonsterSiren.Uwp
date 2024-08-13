@@ -1,4 +1,5 @@
-﻿using Windows.Media;
+﻿using System.Net.Http;
+using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -6,9 +7,9 @@ using Windows.Storage.Streams;
 namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为 <see cref="SongDetail"/> 提供实用方法的类
+/// 为 MonsterSiren.Api 库中模型提供实用方法的类
 /// </summary>
-public static class SongDetailHelper
+public static partial class MsrModelsHelper
 {
     /// <summary>
     /// 使用 <see cref="AlbumDetail"/> 和 <see cref="SongDetail"/> 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
@@ -94,20 +95,21 @@ public static class SongDetailHelper
     }
 
     /// <summary>
-    /// 通过 <see cref="SongInfo"/> 实例获得一个 <see cref="SongDetail"/> 实例
+    /// 通过歌曲 CID 获得一个 <see cref="SongDetail"/> 实例
     /// </summary>
-    /// <param name="songInfo">一个 <see cref="SongInfo"/> 实例</param>
+    /// <param name="cid">歌曲 CID</param>
     /// <returns>一个 <see cref="SongDetail"/> 实例</returns>
-    public static async Task<SongDetail> GetSongDetailAsync(SongInfo songInfo)
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    public static async Task<SongDetail> GetSongDetailAsync(string cid)
     {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
+        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(cid, out SongDetail detail))
         {
             return detail;
         }
         else
         {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(cid);
+            MemoryCacheHelper<SongDetail>.Default.Store(cid, songDetail);
 
             return songDetail;
         }

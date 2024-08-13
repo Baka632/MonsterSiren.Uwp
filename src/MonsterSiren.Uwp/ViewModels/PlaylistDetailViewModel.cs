@@ -7,7 +7,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [ObservableProperty]
     private Playlist currentPlaylist;
     [ObservableProperty]
-    private SongDetailAndAlbumDetailPack selectedPack;
+    private PlaylistItem selectedItem;
 
     public void Initialize(Playlist model)
     {
@@ -21,11 +21,12 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task PlayForPack(SongDetailAndAlbumDetailPack pack)
+    private static async Task PlayForPack(PlaylistItem item)
     {
         try
         {
-            (SongDetail songDetail, AlbumDetail albumDetail) = pack;
+            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
 
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
             await Task.Run(() => MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
@@ -38,9 +39,11 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task AddPackToNowPlaying(SongDetailAndAlbumDetailPack pack)
+    private static async Task AddPackToNowPlaying(PlaylistItem item)
     {
-        (SongDetail songDetail, AlbumDetail albumDetail) = pack;
+        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
         await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
     }
 
@@ -53,7 +56,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task AddPackToAnotherPlaylist(Playlist target)
     {
-        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPack);
+        await PlaylistService.AddItemForPlaylistAsync(target, SelectedItem);
     }
 
     [RelayCommand]
@@ -63,24 +66,25 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static void DownloadForPack(SongDetailAndAlbumDetailPack pack)
+    private static async Task DownloadForPack(PlaylistItem item)
     {
-        (SongDetail songDetail, AlbumDetail albumDetail) = pack;
+        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
         _ = DownloadService.DownloadSong(albumDetail, songDetail);
     }
 
     [RelayCommand]
-    private void DownloadForCurrentPlaylist()
+    private async Task DownloadForCurrentPlaylist()
     {
-        foreach (SongDetailAndAlbumDetailPack item in CurrentPlaylist.Items)
+        foreach (PlaylistItem item in CurrentPlaylist)
         {
-            DownloadForPack(item);
+            await DownloadForPack(item);
         }
     }
 
     [RelayCommand]
-    private void RemovePackFromPlaylist(SongDetailAndAlbumDetailPack pack)
+    private void RemovePackFromPlaylist(PlaylistItem item)
     {
-        PlaylistService.RemoveItemForPlaylist(CurrentPlaylist, pack);
+        PlaylistService.RemoveItemForPlaylist(CurrentPlaylist, item);
     }
 }

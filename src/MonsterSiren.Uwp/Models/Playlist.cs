@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Windows.UI.Xaml.Media.Imaging;
@@ -64,8 +65,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     /// <summary>
     /// 播放列表的总时长
     /// </summary>
-    [JsonIgnore]
-    public TimeSpan? TotalDuration { get; private set; }
+    public TimeSpan TotalDuration { get; private set; }
 
     /// <summary>
     /// 当前播放列表的歌曲个数
@@ -76,7 +76,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     /// <summary>
     /// 播放列表的歌曲列表
     /// </summary>
-    public ObservableCollection<SongDetailAndAlbumDetailPack> Items { get; private set; } = [];
+    public ObservableCollection<PlaylistItem> Items { get; private set; } = [];
 
     public Playlist(string title, string description)
     {
@@ -86,10 +86,11 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     }
 
     [JsonConstructor]
-    public Playlist(string title, string description, ObservableCollection<SongDetailAndAlbumDetailPack> items)
+    public Playlist(string title, string description, ObservableCollection<PlaylistItem> items, TimeSpan totalDuration)
     {
         _title = title;
         _description = description;
+        TotalDuration = totalDuration;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;
         _ = SelectCoverImage();
@@ -97,87 +98,46 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        //if (e.Action is not NotifyCollectionChangedAction.Move)
-        //{
-        //    TimeSpan duration = TotalDuration ?? TimeSpan.Zero;
-
-        //    switch (e.Action)
-        //    {
-        //        case NotifyCollectionChangedAction.Add:
-        //            duration = await AddDuration(e.NewItems, duration);
-        //            break;
-        //        case NotifyCollectionChangedAction.Remove:
-        //            duration = await SubtractDuration(e.OldItems, duration);
-        //            break;
-        //        case NotifyCollectionChangedAction.Replace:
-        //            duration = await SubtractDuration(e.OldItems, duration);
-        //            duration = await AddDuration(e.NewItems, duration);
-        //            break;
-        //        case NotifyCollectionChangedAction.Reset:
-        //            duration = TimeSpan.Zero;
-        //            break;
-        //        default:
-        //            break;
-        //    }
-
-        //    TotalDuration = duration;
-        //    OnPropertiesChanged(nameof(TotalDuration));
-        //}
+        if (e.Action is not NotifyCollectionChangedAction.Move)
+        {
+            TotalDuration = CalculateTotalTimeSpan();
+            OnPropertiesChanged(nameof(TotalDuration));
+        }
 
         OnPropertiesChanged(nameof(SongCount));
 
         await SelectCoverImage();
         await PlaylistService.SavePlaylistAsync(this);
+    }
 
-        //static async Task<TimeSpan> AddDuration(System.Collections.IList list, TimeSpan originalDuration)
-        //{
-        //    foreach (object obj in list)
-        //    {
-        //        if (obj is SongDetailAndAlbumDetailPack(SongDetail songDetail, _))
-        //        {
-        //            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(songDetail);
-
-        //            if (span.HasValue)
-        //            {
-        //                originalDuration += span.Value;
-        //            }
-        //        }
-        //    }
-
-        //    return originalDuration;
-        //}
-
-        //static async Task<TimeSpan> SubtractDuration(System.Collections.IList list, TimeSpan originalDuration)
-        //{
-        //    foreach (object obj in list)
-        //    {
-        //        if (obj is SongDetailAndAlbumDetailPack(SongDetail songDetail, _))
-        //        {
-        //            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(songDetail);
-
-        //            if (span.HasValue)
-        //            {
-        //                originalDuration -= span.Value;
-        //            }
-        //        }
-        //    }
-
-        //    return originalDuration;
-        //}
+    private TimeSpan CalculateTotalTimeSpan()
+    {
+        TimeSpan span = TimeSpan.Zero;
+        foreach (PlaylistItem item in Items)
+        {
+            span += item.SongDuration;
+        }
+        return span;
     }
 
     private async Task SelectCoverImage()
     {
         if (Items.Count > 0)
         {
-            SongDetailAndAlbumDetailPack pack = Items[0];
-            Uri uri = await FileCacheHelper.GetAlbumCoverUriAsync(pack.AlbumDetail)
-                ?? new(pack.AlbumDetail.CoverUrl, UriKind.Absolute);
-
-            await UIThreadHelper.RunOnUIThread(() =>
+            try
             {
-                PlaylistCoverImage = new(uri);
-            });
+                PlaylistItem item = Items[0];
+                Uri uri = await MsrModelsHelper.GetAlbumCoverAsync(item.AlbumCid);
+
+                await UIThreadHelper.RunOnUIThread(() =>
+                {
+                    PlaylistCoverImage = new(uri);
+                });
+            }
+            catch (HttpRequestException)
+            {
+                PlaylistCoverImage = null;
+            }
         }
         else
         {
@@ -185,7 +145,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         }
     }
 
-    public IEnumerator<SongDetailAndAlbumDetailPack> GetEnumerator()
+    public IEnumerator<PlaylistItem> GetEnumerator()
     {
         return Items.GetEnumerator();
     }
@@ -226,7 +186,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
-        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongDetailAndAlbumDetailPack>>.Default.GetHashCode(Items);
+        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<PlaylistItem>>.Default.GetHashCode(Items);
         return hashCode;
     }
 

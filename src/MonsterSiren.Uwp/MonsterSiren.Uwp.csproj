@@ -147,7 +147,8 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
-    <Compile Include="Helpers\SongDetailHelper.cs" />
+    <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
+    <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Models\PlayerRepeatingState.cs" />
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Models\Playlist.cs" />
+    <Compile Include="Models\PlaylistItem.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicInfoService.Tile.cs" />

@@ -31,47 +31,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
         try
         {
-            if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
-            {
-                albumDetail = detail;
-            }
-            else
-            {
-                await Task.Run(async () =>
-                {
-                    albumDetail = await AlbumService.GetAlbumDetailedInfoAsync(albumInfo.Cid);
-
-                    bool shouldUpdate = false;
-                    foreach (SongInfo item in albumDetail.Songs)
-                    {
-                        if (item.Artists is null || item.Artists.Any() != true)
-                        {
-                            shouldUpdate = true;
-                            break;
-                        }
-                    }
-
-                    if (shouldUpdate)
-                    {
-                        List<SongInfo> songs = albumDetail.Songs.ToList();
-                        for (int i = 0; i < songs.Count; i++)
-                        {
-                            SongInfo songInfo = songs[i];
-                            if (songInfo.Artists is null || songInfo.Artists.Any() != true)
-                            {
-                                songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
-                            }
-                        }
-
-                        albumDetail = albumDetail with { Songs = songs };
-                    }
-                });
-
-                if (albumDetail.Songs.Any())
-                {
-                    MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
-                }
-            }
+            albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
 
             CurrentAlbumDetail = albumDetail;
             ErrorVisibility = Visibility.Collapsed;
@@ -112,7 +72,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid).ConfigureAwait(false);
                     items.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
 
@@ -148,7 +108,7 @@ public partial class AlbumDetailViewModel : ObservableObject
                 List<MediaPlaybackItem> playbackItems = new(CurrentAlbumDetail.Songs.Count());
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
                 }
 
@@ -175,7 +135,7 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid).ConfigureAwait(false);
                     await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
                 }
             });
@@ -200,7 +160,7 @@ public partial class AlbumDetailViewModel : ObservableObject
             {
                 foreach (SongInfo item in CurrentAlbumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(item).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid).ConfigureAwait(false);
                     _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
                 }
             });
@@ -219,7 +179,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                 MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             });
         }
@@ -237,7 +197,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
             });
         }
@@ -254,7 +214,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(SelectedSongInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(SelectedSongInfo.Cid).ConfigureAwait(false);
                 await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
             });
         }
@@ -271,7 +231,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                 _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
             });
         }

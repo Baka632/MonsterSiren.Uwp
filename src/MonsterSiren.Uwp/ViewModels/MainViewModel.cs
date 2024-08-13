@@ -157,12 +157,12 @@ public partial class MainViewModel : ObservableRecipient
         {
             await Task.Run(async () =>
             {
-                AlbumDetail albumDetail = await GetAlbumDetail(albumInfo).ConfigureAwait(false);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
                 List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                     playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
                 }
 
@@ -181,7 +181,7 @@ public partial class MainViewModel : ObservableRecipient
         {
             await Task.Run(async () =>
             {
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                 MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
             });
         }
@@ -201,51 +201,6 @@ public partial class MainViewModel : ObservableRecipient
         {
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
-    }
-
-    internal static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
-    {
-        AlbumDetail albumDetail;
-        if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
-        {
-            albumDetail = detail;
-        }
-        else
-        {
-            albumDetail = await AlbumService.GetAlbumDetailedInfoAsync(albumInfo.Cid);
-
-            bool shouldUpdate = false;
-            foreach (SongInfo item in albumDetail.Songs)
-            {
-                if (item.Artists is null || item.Artists.Any() != true)
-                {
-                    shouldUpdate = true;
-                    break;
-                }
-            }
-
-            if (shouldUpdate)
-            {
-                List<SongInfo> songs = albumDetail.Songs.ToList();
-                for (int i = 0; i < songs.Count; i++)
-                {
-                    SongInfo songInfo = songs[i];
-                    if (songInfo.Artists is null || songInfo.Artists.Any() != true)
-                    {
-                        songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
-                    }
-                }
-
-                albumDetail = albumDetail with { Songs = songs };
-            }
-
-            if (albumDetail.Songs.Any())
-            {
-                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
-            }
-        }
-
-        return albumDetail;
     }
 
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)

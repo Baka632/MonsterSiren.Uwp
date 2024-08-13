@@ -370,7 +370,7 @@ public sealed partial class MainPage : Page
         {
             if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
                 || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId)
-                || e.DataView.Contains(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId))
+                || e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId))
             {
                 e.AcceptedOperation = DataPackageOperation.Link;
                 e.DragUIOverride.Caption = "AddToPlaylistLiteral".GetLocalized();
@@ -389,11 +389,11 @@ public sealed partial class MainPage : Page
 
                 AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-                AlbumDetail albumDetail = await MainViewModel.GetAlbumDetail(albumInfo).ConfigureAwait(false);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
 
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
-                    SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
                     await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
                 }
             }
@@ -402,16 +402,16 @@ public sealed partial class MainPage : Page
                 string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId);
 
                 (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
-                SongDetail songDetail = await SongDetailHelper.GetSongDetailAsync(songInfo).ConfigureAwait(false);
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
 
                 await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
             }
-            else if (e.DataView.Contains(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId))
+            else if (e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId))
             {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId);
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemFormatId);
 
-                SongDetailAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongDetailAndAlbumDetailPack>(json);
-                await PlaylistService.AddItemForPlaylistAsync(playlist, pack);
+                PlaylistItem item = JsonSerializer.Deserialize<PlaylistItem>(json);
+                await PlaylistService.AddItemForPlaylistAsync(playlist, item);
             }
         };
         return item;
@@ -504,7 +504,7 @@ public sealed partial class MainPage : Page
     {
         if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
             || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId)
-            || e.DataView.Contains(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId)
+            || e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId)
             || e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
         {
             e.AcceptedOperation = DataPackageOperation.Link;
@@ -534,13 +534,14 @@ public sealed partial class MainPage : Page
 
             await MainViewModel.AddToNowPlayingForSongInfo(pack.SongInfo, pack.AlbumDetail);
         }
-        else if (e.DataView.Contains(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId))
+        else if (e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId))
         {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongDetailAndAlbumDetailPackFormatId);
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemFormatId);
+            PlaylistItem item = JsonSerializer.Deserialize<PlaylistItem>(json);
+            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
 
-            SongDetailAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongDetailAndAlbumDetailPack>(json);
-
-            await MainViewModel.AddToNowPlayingForSongDetail(pack.SongDetail, pack.AlbumDetail);
+            await MainViewModel.AddToNowPlayingForSongDetail(songDetail, albumDetail);
         }
         else if (e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
         {

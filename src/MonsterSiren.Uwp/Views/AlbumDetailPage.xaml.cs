@@ -75,8 +75,8 @@ public sealed partial class AlbumDetailPage : Page
 
         try
         {
-            SongDetail detail = await SongDetailHelper.GetSongDetailAsync(songInfo);
-            TimeSpan? span = await SongDetailHelper.GetSongDurationAsync(detail);
+            SongDetail detail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+            TimeSpan? span = await MsrModelsHelper.GetSongDurationAsync(detail);
 
             if (span.HasValue)
             {
