@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
+using MonsterSiren.Uwp.Models;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -210,6 +211,42 @@ public static class PlaylistService
             foreach (SongDetailAndAlbumDetailPack item in playlist)
             {
                 list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+            }
+
+            if (list.Count != 0)
+            {
+                MusicService.ReplaceMusic(list);
+            }
+            else
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 播放指定的播放列表序列
+    /// </summary>
+    /// <param name="playlists">要播放的播放列表序列</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlists"/> 为 <see langword="null"/>。</exception>
+    public static async Task PlayForPlaylistsAsync(IEnumerable<Playlist> playlists)
+    {
+        if (playlists is null)
+        {
+            throw new ArgumentNullException(nameof(playlists));
+        }
+
+        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+        await Task.Run(() =>
+        {
+            List<MediaPlaybackItem> list = new(playlists.Count() * 2);
+            foreach (Playlist playlist in playlists)
+            {
+                foreach (SongDetailAndAlbumDetailPack item in playlist)
+                {
+                    list.Add(item.SongDetail.ToMediaPlaybackItem(item.AlbumDetail));
+                }
             }
 
             if (list.Count != 0)

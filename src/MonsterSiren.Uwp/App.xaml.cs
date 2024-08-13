@@ -1,4 +1,6 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using System.Text.Json;
+using Microsoft.Toolkit.Uwp.Notifications;
+using MonsterSiren.Uwp.Models;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
 using Windows.UI;
@@ -12,6 +14,8 @@ namespace MonsterSiren.Uwp;
 /// </summary>
 sealed partial class App : Application
 {
+    private bool isInitialized = false;
+
     /// <summary>
     /// 获取应用程序名
     /// </summary>
@@ -133,21 +137,7 @@ sealed partial class App : Application
 
             // 将框架放在当前窗口中
             Window.Current.Content = rootFrame;
-            UIThreadHelper.Initialize(rootFrame.Dispatcher);
-            await UIThreadHelper.RunOnUIThread(() =>
-            {
-                // 这里我们在 UI 线程间接调用了 CommonValues 的静态构造器
-                // 防止非 UI 线程第一次访问 CommonValues 时出错
-                _ = CommonValues.DefaultTransitionInfo.ToString().Trim();
-            });
-
-            TitleBarHelper.SetTitleBarAppearance();
-            LoadResourceDictionaries();
-
-            // 初始化设置
-            await DownloadService.Initialize();
-            _ = new SettingsViewModel();
-            await PlaylistService.Initialize();
+            await InitializeApp();
         }
 
         if (e.PrelaunchActivated == false)
@@ -160,6 +150,69 @@ sealed partial class App : Application
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
         }
+    }
+
+    protected override async void OnFileActivated(FileActivatedEventArgs args)
+    {
+        if (Window.Current.Content is not Frame frame)
+        {
+            frame = new Frame();
+            Window.Current.Content = frame;
+            await InitializeApp();
+        }
+
+        if (frame.Content == null)
+        {
+            frame.Navigate(typeof(MainPage));
+        }
+
+        Window.Current.Activate();
+
+        List<Playlist> playlists = new(args.Files.Count);
+        foreach (IStorageItem item in args.Files)
+        {
+            if (item.IsOfType(StorageItemTypes.File))
+            {
+                try
+                {
+                    StorageFile file = (StorageFile)item;
+                    using Stream stream = await file.OpenStreamForReadAsync();
+                    Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(stream);
+
+                    playlists.Add(playlist);
+                }
+                catch (JsonException)
+                {
+                    // Ignore it, just a bad file
+                }
+            }
+        }
+        
+        await PlaylistService.PlayForPlaylistsAsync(playlists);
+    }
+
+    private async Task InitializeApp()
+    {
+        if (isInitialized)
+        {
+            return;
+        }
+
+        UIThreadHelper.Initialize(Window.Current.Content.Dispatcher);
+        await UIThreadHelper.RunOnUIThread(() =>
+        {
+            // 这里我们在 UI 线程间接调用了 CommonValues 的静态构造器
+            // 防止非 UI 线程第一次访问 CommonValues 时出错
+            _ = CommonValues.DefaultTransitionInfo.ToString().Trim();
+        });
+
+        TitleBarHelper.SetTitleBarAppearance();
+        LoadResourceDictionaries();
+
+        // 初始化设置
+        await DownloadService.Initialize();
+        _ = new SettingsViewModel();
+        await PlaylistService.Initialize();
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {
@@ -171,6 +224,8 @@ sealed partial class App : Application
                 _ => throw new NotImplementedException(),
             };
         }
+
+        isInitialized = true;
     }
 
     /// <summary>
@@ -178,7 +233,7 @@ sealed partial class App : Application
     /// </summary>
     ///<param name="sender">导航失败的框架</param>
     ///<param name="e">有关导航失败的详细信息</param>
-    void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+    private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
         throw new Exception($"Failed to load Page {e.SourcePageType.FullName}");
     }

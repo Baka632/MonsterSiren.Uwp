@@ -53,6 +53,18 @@
           <uap:Rotation Preference="landscapeFlipped"/>
           <uap:Rotation Preference="portraitFlipped"/></uap:InitialRotationPreference>
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="sora-playlist">
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="application/json">.sora-playlist</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>ms-resource:PlaylistFileDisplayName</uap:DisplayName>
+            <uap:InfoTip>ms-resource:PlaylistFileSystemTip</uap:InfoTip>
+            <uap:EditFlags OpenIsSafe="true"/>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

@@ -432,6 +432,7 @@ public static class MusicService
         {
             case MediaPlaybackState.None:
             case MediaPlaybackState.Paused:
+            case MediaPlaybackState.Opening:
                 mediaPlayer.Play();
                 break;
             case MediaPlaybackState.Playing:

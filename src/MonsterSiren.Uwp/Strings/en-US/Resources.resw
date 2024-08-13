@@ -438,4 +438,10 @@
   <data name="MinutesAndSecondsFormat" xml:space="preserve">
     <value>{0} hours and {1} seconds</value>
   </data>
+  <data name="PlaylistFileSystemTip" xml:space="preserve">
+    <value>Playlist file for Sora Records</value>
+  </data>
+  <data name="PlaylistFileDisplayName" xml:space="preserve">
+    <value>Playlist for Sora Records</value>
+  </data>
 </root>

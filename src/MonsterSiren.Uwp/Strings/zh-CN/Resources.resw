@@ -516,4 +516,10 @@
   <data name="MinutesAndSecondsFormat" xml:space="preserve">
     <value>{0} 分钟 {1} 秒</value>
   </data>
+  <data name="PlaylistFileSystemTip" xml:space="preserve">
+    <value>Sora 唱片的播放列表文件</value>
+  </data>
+  <data name="PlaylistFileDisplayName" xml:space="preserve">
+    <value>Sora 唱片播放列表</value>
+  </data>
 </root>
