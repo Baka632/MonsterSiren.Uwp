@@ -21,7 +21,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task PlayForPack(PlaylistItem item)
+    private static async Task PlayForItem(PlaylistItem item)
     {
         try
         {
@@ -39,7 +39,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task AddPackToNowPlaying(PlaylistItem item)
+    private static async Task AddItemToNowPlaying(PlaylistItem item)
     {
         SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
         AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
@@ -54,7 +54,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddPackToAnotherPlaylist(Playlist target)
+    private async Task AddItemToAnotherPlaylist(Playlist target)
     {
         await PlaylistService.AddItemForPlaylistAsync(target, SelectedItem);
     }
@@ -66,7 +66,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task DownloadForPack(PlaylistItem item)
+    private static async Task DownloadForItem(PlaylistItem item)
     {
         SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
         AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
@@ -78,13 +78,46 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     {
         foreach (PlaylistItem item in CurrentPlaylist)
         {
-            await DownloadForPack(item);
+            await DownloadForItem(item);
         }
     }
 
     [RelayCommand]
-    private void RemovePackFromPlaylist(PlaylistItem item)
+    private void RemoveItemFromPlaylist(PlaylistItem item)
     {
         PlaylistService.RemoveItemForPlaylist(CurrentPlaylist, item);
+    }
+
+    [RelayCommand]
+    private async Task ModifyPlaylist()
+    {
+        PlaylistInfoDialog dialog = new()
+        {
+            Title = "PlaylistModifyTitle".GetLocalized(),
+            PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
+            PlaylistTitle = CurrentPlaylist.Title,
+            PlaylistDescription = CurrentPlaylist.Description,
+            CheckDuplicatePlaylist = false,
+        };
+
+        ContentDialogResult result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            await PlaylistService.ModifyPlaylistAsync(CurrentPlaylist, dialog.PlaylistTitle, dialog.PlaylistDescription);
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemovePlaylist()
+    {
+        ContentDialogResult result = await CommonValues.DisplayContentDialog("EnsureDelete".GetLocalized(), "",
+            "OK".GetLocalized(), "Cancel".GetLocalized());
+
+        if (result == ContentDialogResult.Primary)
+        {
+            await PlaylistService.RemovePlaylistAsync(CurrentPlaylist);
+            ContentFrameNavigationHelper.GoBack();
+        }
     }
 }

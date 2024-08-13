@@ -94,7 +94,7 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
     private void OnAddSongToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
     {
         MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
-        FillSubItemWithCommand(subItem, ViewModel.AddPackToAnotherPlaylistCommand);
+        FillSubItemWithCommand(subItem, ViewModel.AddItemToAnotherPlaylistCommand);
     }
 
     private void OnAddPlaylistToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
