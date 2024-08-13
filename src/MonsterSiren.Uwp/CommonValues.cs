@@ -1,4 +1,8 @@
-﻿using Windows.Foundation.Metadata;
+﻿using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp;
@@ -57,6 +61,11 @@ internal static class CommonValues
     #region Other Common Things
     public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
+    public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+    };
     #endregion
 
     static CommonValues()
@@ -104,5 +113,25 @@ internal static class CommonValues
         });
 
         return result;
+    }
+
+    /// <summary>
+    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符
+    /// </summary>
+    /// <param name="fileName">文件名字符串</param>
+    /// <returns>新的字符串</returns>
+    public static string ReplaceInvaildFileNameChars(string fileName)
+    {
+        StringBuilder stringBuilder = new(fileName);
+        stringBuilder.Replace('"', '\'');
+        stringBuilder.Replace('<', '[');
+        stringBuilder.Replace('>', ']');
+        stringBuilder.Replace('|', 'I');
+        stringBuilder.Replace(':', '：');
+        stringBuilder.Replace('*', '★');
+        stringBuilder.Replace('?', '？');
+        stringBuilder.Replace('/', '↗');
+        stringBuilder.Replace('\\', '↘');
+        return stringBuilder.ToString();
     }
 }

@@ -18,7 +18,7 @@ public sealed partial class PlaylistViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
         {
-            PlaylistService.CreateNewPlaylist(dialog.PlaylistTitle, dialog.PlaylistDescription);
+            await PlaylistService.CreateNewPlaylistAsync(dialog.PlaylistTitle, dialog.PlaylistDescription);
         }
     }
 
@@ -56,8 +56,7 @@ public sealed partial class PlaylistViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
         {
-            playlist.Title = dialog.PlaylistTitle;
-            playlist.Description = dialog.PlaylistDescription;
+            await PlaylistService.ModifyPlaylistAsync(playlist, dialog.PlaylistTitle, dialog.PlaylistDescription);
         }
     }
 
@@ -69,7 +68,7 @@ public sealed partial class PlaylistViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
         {
-            PlaylistService.RemovePlaylist(playlist);
+            await PlaylistService.RemovePlaylistAsync(playlist);
         }
     }
 }

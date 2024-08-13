@@ -92,6 +92,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         _description = description;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;
+        _ = SelectCoverImage();
     }
 
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -125,21 +126,8 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
         OnPropertiesChanged(nameof(SongCount));
 
-        if (Items.Count > 0)
-        {
-            SongDetailAndAlbumDetailPack pack = Items[0];
-            Uri uri = await FileCacheHelper.GetAlbumCoverUriAsync(pack.AlbumDetail)
-                ?? new(pack.AlbumDetail.CoverUrl, UriKind.Absolute);
-
-            await UIThreadHelper.RunOnUIThread(() =>
-            {
-                PlaylistCoverImage = new(uri);
-            });
-        }
-        else
-        {
-            PlaylistCoverImage = null;
-        }
+        await SelectCoverImage();
+        await PlaylistService.SavePlaylistAsync(this);
 
         //static async Task<TimeSpan> AddDuration(System.Collections.IList list, TimeSpan originalDuration)
         //{
@@ -176,6 +164,25 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
         //    return originalDuration;
         //}
+    }
+
+    private async Task SelectCoverImage()
+    {
+        if (Items.Count > 0)
+        {
+            SongDetailAndAlbumDetailPack pack = Items[0];
+            Uri uri = await FileCacheHelper.GetAlbumCoverUriAsync(pack.AlbumDetail)
+                ?? new(pack.AlbumDetail.CoverUrl, UriKind.Absolute);
+
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlaylistCoverImage = new(uri);
+            });
+        }
+        else
+        {
+            PlaylistCoverImage = null;
+        }
     }
 
     public IEnumerator<SongDetailAndAlbumDetailPack> GetEnumerator()

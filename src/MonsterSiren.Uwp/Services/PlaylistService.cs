@@ -1,4 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json;
+using System.Threading;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -6,6 +9,8 @@ namespace MonsterSiren.Uwp.Services;
 
 public static class PlaylistService
 {
+    private const string PlaylistFileExtension = ".sora-playlist";
+    private static readonly SemaphoreSlim playlistFileSemaphore = new(1);
     private static bool _isInitialized;
     private static string _playlistSavePath;
 
@@ -71,6 +76,15 @@ public static class PlaylistService
             PlaylistSavePath = path;
         }
 
+        StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
+        foreach (StorageFile item in (await folder.GetFilesAsync())
+            .Where(file => file.Name.EndsWith(PlaylistFileExtension, StringComparison.OrdinalIgnoreCase)))
+        {
+            using Stream utf8Json = await item.OpenStreamForReadAsync();
+            Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(utf8Json);
+            TotalPlaylists.Add(playlist);
+        }
+
         _isInitialized = true;
     }
 
@@ -81,7 +95,7 @@ public static class PlaylistService
     /// <param name="description">播放列表描述</param>
     /// <exception cref="ArgumentException"><paramref name="title"/> 为 null 或空白。</exception>
     /// <exception cref="InvalidOperationException">已经包含了一个名称相同的播放列表。</exception>
-    public static void CreateNewPlaylist(string title, string description)
+    public static async Task CreateNewPlaylistAsync(string title, string description)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -94,6 +108,7 @@ public static class PlaylistService
             throw new InvalidOperationException("已经包含了一个名称相同的播放列表。");
         }
 
+        await SavePlaylistAsync(playlist);
         TotalPlaylists.Add(playlist);
     }
 
@@ -101,9 +116,78 @@ public static class PlaylistService
     /// 移除指定的播放列表
     /// </summary>
     /// <param name="playlist">一个 <see cref="Playlist"/> 实例</param>
-    public static void RemovePlaylist(Playlist playlist)
+    public static async Task RemovePlaylistAsync(Playlist playlist)
     {
-        TotalPlaylists.Remove(playlist);
+        if (playlist is not null)
+        {
+            TotalPlaylists.Remove(playlist);
+            await RemovePlaylistFile(playlist, StorageDeleteOption.Default);
+        }
+    }
+
+    /// <summary>
+    /// 将播放列表保存为文件
+    /// </summary>
+    /// <param name="playlist">播放列表实例</param>
+    /// <param name="formerTitle">播放列表实例的先前标题</param>
+    public static async Task SavePlaylistAsync(Playlist playlist, string formerTitle = null)
+    {
+        await playlistFileSemaphore.WaitAsync();
+
+        try
+        {
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
+
+            if (formerTitle is not null)
+            {
+                string formerPlaylistFileName = GetPlaylistFileName(formerTitle);
+                if (await folder.FileExistsAsync(formerPlaylistFileName))
+                {
+                    StorageFile formerFile = await folder.GetFileAsync(formerPlaylistFileName);
+                    await formerFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
+            }
+
+            string playlistSaveName = GetPlaylistFileName(playlist);
+            StorageFile playlistFile = await folder.CreateFileAsync(playlistSaveName, CreationCollisionOption.OpenIfExists);
+            using Stream stream = await playlistFile.OpenStreamForWriteAsync();
+            stream.SetLength(0);
+
+            await JsonSerializer.SerializeAsync(stream, playlist, CommonValues.DefaultJsonSerializerOptions);
+        }
+        finally
+        {
+            playlistFileSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// 更改播放列表信息
+    /// </summary>
+    /// <param name="playlist">播放列表实例</param>
+    /// <param name="newTitle">播放列表的新标题</param>
+    /// <param name="newDescription">播放列表的新描述</param>
+    public static async Task ModifyPlaylistAsync(Playlist playlist, string newTitle, string newDescription)
+    {
+        bool isModify = false;
+        string formerTitle = null;
+        if (newTitle is not null)
+        {
+            formerTitle = playlist.Title;
+            playlist.Title = newTitle;
+            isModify = true;
+        }
+
+        if (newDescription is not null)
+        {
+            playlist.Description = newDescription;
+            isModify = true;
+        }
+
+        if (isModify)
+        {
+            await SavePlaylistAsync(playlist, formerTitle);
+        }
     }
 
     /// <summary>
@@ -272,6 +356,33 @@ public static class PlaylistService
 
         SongDetailAndAlbumDetailPack targetItem = playlist.Items.FirstOrDefault(pack => pack.SongDetail == songDetail);
         playlist.Items.Remove(targetItem);
+    }
+
+    private static async Task RemovePlaylistFile(Playlist playlist, StorageDeleteOption deleteOption = StorageDeleteOption.PermanentDelete)
+    {
+        StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
+        string playlistSaveName = GetPlaylistFileName(playlist);
+        if (await folder.FileExistsAsync(playlistSaveName))
+        {
+            StorageFile formerFile = await folder.GetFileAsync(playlistSaveName);
+            await formerFile?.DeleteAsync(deleteOption);
+        }
+    }
+
+    private static string GetPlaylistFileName(Playlist playlist)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        return GetPlaylistFileName(playlist.Title);
+    }
+
+    private static string GetPlaylistFileName(string playlistTitle)
+    {
+        string vaildName = CommonValues.ReplaceInvaildFileNameChars(playlistTitle);
+        return $"{vaildName}{PlaylistFileExtension}";
     }
 
     private static async Task<bool> IsFolderExist(string path)
