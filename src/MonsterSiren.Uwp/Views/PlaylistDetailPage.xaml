@@ -115,14 +115,30 @@
                         x:Name="DescriptionScrollViewer"
                         Grid.Row="3"
                         MaxHeight="130"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Top"
-                        Visibility="{x:Bind helpers:XamlHelper.IsStringNullOrEmptyReverseVisibility(ViewModel.CurrentPlaylist.Description), Mode=OneWay}">
-                        <TextBlock
-                            x:Name="PlaylistDetailDescriptionTextBlock"
-                            IsTextSelectionEnabled="True"
-                            Text="{x:Bind ViewModel.CurrentPlaylist.Description, Mode=OneWay}"
-                            TextWrapping="Wrap" />
+                        HorizontalAlignment="Stretch">
+                        <Grid>
+                            <TextBlock
+                                x:Name="PlaylistDetailDescriptionTextBlock"
+                                IsTextSelectionEnabled="True"
+                                Text="{x:Bind ViewModel.CurrentPlaylist.Description, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind helpers:XamlHelper.IsStringNullOrEmptyReverseVisibility(ViewModel.CurrentPlaylist.Description), Mode=OneWay}" />
+
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind helpers:XamlHelper.IsStringNullOrEmptyToVisibility(ViewModel.CurrentPlaylist.Description), Mode=OneWay}">
+                                <FontIcon
+                                    VerticalAlignment="Center"
+                                    FontSize="30"
+                                    Foreground="#8f8f8f"
+                                    Glyph="&#xED59;" />
+                                <TextBlock
+                                    x:Uid="PlaylistNoDescription"
+                                    VerticalAlignment="Center"
+                                    Foreground="#8f8f8f" />
+                            </StackPanel>
+                        </Grid>
                     </ScrollViewer>
 
                     <StackPanel

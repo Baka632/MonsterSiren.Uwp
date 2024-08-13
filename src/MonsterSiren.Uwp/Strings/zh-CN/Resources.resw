@@ -522,4 +522,7 @@
   <data name="PlaylistFileDisplayName" xml:space="preserve">
     <value>Sora 唱片播放列表</value>
   </data>
+  <data name="PlaylistNoDescription.Text" xml:space="preserve">
+    <value>尚未添加描述</value>
+  </data>
 </root>

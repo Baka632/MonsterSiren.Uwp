@@ -444,4 +444,7 @@
   <data name="PlaylistFileDisplayName" xml:space="preserve">
     <value>Playlist for Sora Records</value>
   </data>
+  <data name="PlaylistNoDescription.Text" xml:space="preserve">
+    <value>No description now</value>
+  </data>
 </root>
