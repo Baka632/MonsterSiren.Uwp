@@ -5,7 +5,7 @@ namespace MonsterSiren.Api.Test;
 public class AlbumServiceTest
 {
     [Fact]
-    public async void GetAllAlbum()
+    public async Task GetAllAlbum()
     {
         AlbumInfo defaultAlbumInfo = default;
 
@@ -19,21 +19,21 @@ public class AlbumServiceTest
     }
 
     [Fact]
-    public async void GetAlbumInfo()
+    public async Task GetAlbumInfo()
     {
         AlbumInfo defaultAlbumInfo = default;
 
-        //8930 - 登临意OST
+        // 8930 - 登临意OST
         AlbumInfo result = await AlbumService.GetAlbumInfoAsync("8930");
         Assert.NotEqual(defaultAlbumInfo, result);
     }
     
     [Fact]
-    public async void GetAlbumDetail()
+    public async Task GetAlbumDetail()
     {
         AlbumDetail defaultAlbumInfo = default;
 
-        //8930 - 登临意OST
+        // 8930 - 登临意OST
         AlbumDetail result = await AlbumService.GetAlbumDetailedInfoAsync("8930");
         Assert.NotEqual(defaultAlbumInfo, result);
     }

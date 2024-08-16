@@ -447,4 +447,10 @@
   <data name="PlaylistNoDescription.Text" xml:space="preserve">
     <value>No description now</value>
   </data>
+  <data name="NoSongPlayed_Title" xml:space="preserve">
+    <value>No song played</value>
+  </data>
+  <data name="NoSongPlayed_PlaylistEmpty" xml:space="preserve">
+    <value>Playlist is empty.</value>
+  </data>
 </root>

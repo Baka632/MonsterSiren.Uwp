@@ -104,7 +104,16 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task PlayForPlaylist(Playlist playlist)
     {
-        await PlaylistService.PlayForPlaylistAsync(playlist);
+        if (playlist.SongCount == 0)
+        {
+            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+        }
+        else
+        {
+            await PlaylistService.PlayForPlaylistAsync(playlist);
+        }
     }
 
     [RelayCommand]

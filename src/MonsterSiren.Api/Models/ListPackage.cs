@@ -18,19 +18,19 @@ public struct ListPackage<T>
     public bool? IsEnd { get; set; } = null;
 
     /// <summary>
-    /// 指示列表中的歌曲是否自动播放的值
+    /// 指示要自动播放的歌曲 CID 的值
     /// </summary>
     [JsonPropertyName("autoplay")]
-    public bool? IsAutoplay { get; set; } = null;
+    public string? AutoplaySongCid { get; set; } = null;
 
     /// <summary>
     /// 使用指定的参数构造 <see cref="ListPackage{T}"/> 的新实例
     /// </summary>
-    public ListPackage(IEnumerable<T> list, bool? isEnd, bool? isAutoplay)
+    public ListPackage(IEnumerable<T> list, bool? isEnd, string? autoplaySongCid)
     {
         List = list;
         IsEnd = isEnd;
-        IsAutoplay = isAutoplay;
+        AutoplaySongCid = autoplaySongCid;
     }
 
     /// <summary>

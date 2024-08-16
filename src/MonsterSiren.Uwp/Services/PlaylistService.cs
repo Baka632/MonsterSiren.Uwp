@@ -130,7 +130,7 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">播放列表实例</param>
     /// <param name="formerTitle">播放列表实例的先前标题</param>
-    public static async Task SavePlaylistAsync(Playlist playlist, string formerTitle = null)
+    public static async Task SavePlaylistAsync(Playlist playlist, string formerSaveName = null)
     {
         await playlistFileSemaphore.WaitAsync();
 
@@ -138,18 +138,56 @@ public static class PlaylistService
         {
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
 
-            if (formerTitle is not null)
+            if (formerSaveName is not null)
             {
-                string formerPlaylistFileName = GetPlaylistFileName(formerTitle);
+                string formerPlaylistFileName = GetPlaylistFileName(formerSaveName);
                 if (await folder.FileExistsAsync(formerPlaylistFileName))
                 {
                     StorageFile formerFile = await folder.GetFileAsync(formerPlaylistFileName);
-                    await formerFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    try
+                    {
+                        using Stream formerFileStream = await formerFile.OpenStreamForReadAsync();
+                        Playlist formerPlaylist = await JsonSerializer.DeserializeAsync<Playlist>(formerFileStream);
+
+                        if (formerPlaylist.PlaylistId == playlist.PlaylistId)
+                        {
+                            await formerFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // ;-)
+                    }
                 }
             }
 
             string playlistSaveName = GetPlaylistFileName(playlist);
-            StorageFile playlistFile = await folder.CreateFileAsync(playlistSaveName, CreationCollisionOption.OpenIfExists);
+
+            CreationCollisionOption option;
+            if (await folder.FileExistsAsync(playlistSaveName))
+            {
+                StorageFile duplicateFile = await folder.GetFileAsync(playlistSaveName);
+                using Stream duplicateFileStream = await duplicateFile.OpenStreamForReadAsync();
+
+                try
+                {
+                    Playlist mayDuplicatePlaylist = await JsonSerializer.DeserializeAsync<Playlist>(duplicateFileStream);
+                    option = mayDuplicatePlaylist.PlaylistId == playlist.PlaylistId
+                        ? CreationCollisionOption.OpenIfExists
+                        : CreationCollisionOption.GenerateUniqueName;
+                }
+                catch (JsonException)
+                {
+                    option = CreationCollisionOption.OpenIfExists;
+                }
+            }
+            else
+            {
+                option = CreationCollisionOption.OpenIfExists;
+            }
+
+            StorageFile playlistFile = await folder.CreateFileAsync(playlistSaveName, option);
+            playlist.PlaylistSaveName = playlistFile.DisplayName;
             using Stream stream = await playlistFile.OpenStreamForWriteAsync();
             stream.SetLength(0);
 
@@ -169,24 +207,24 @@ public static class PlaylistService
     /// <param name="newDescription">播放列表的新描述</param>
     public static async Task ModifyPlaylistAsync(Playlist playlist, string newTitle, string newDescription)
     {
-        bool isModify = false;
-        string formerTitle = null;
+        bool isModifyTitle = false;
+        string formerSaveName = null;
         if (newTitle is not null)
         {
-            formerTitle = playlist.Title;
+            formerSaveName = playlist.PlaylistSaveName;
             playlist.Title = newTitle;
-            isModify = true;
+            playlist.PlaylistSaveName = CommonValues.ReplaceInvaildFileNameChars(newTitle);
+            isModifyTitle = true;
         }
 
         if (newDescription is not null)
         {
             playlist.Description = newDescription;
-            isModify = true;
         }
 
-        if (isModify)
+        if (isModifyTitle)
         {
-            await SavePlaylistAsync(playlist, formerTitle);
+            await SavePlaylistAsync(playlist, formerSaveName);
         }
     }
 
@@ -416,13 +454,12 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        return GetPlaylistFileName(playlist.Title);
+        return GetPlaylistFileName(playlist.PlaylistSaveName);
     }
 
-    private static string GetPlaylistFileName(string playlistTitle)
+    private static string GetPlaylistFileName(string title)
     {
-        string vaildName = CommonValues.ReplaceInvaildFileNameChars(playlistTitle);
-        return $"{vaildName}{PlaylistFileExtension}";
+        return $"{title}{PlaylistFileExtension}";
     }
 
     private static async Task<bool> IsFolderExist(string path)

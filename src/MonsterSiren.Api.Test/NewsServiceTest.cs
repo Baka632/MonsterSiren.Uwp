@@ -5,7 +5,7 @@ namespace MonsterSiren.Api.Test;
 public class NewsServiceTest
 {
     [Fact]
-    public async void GetRecommendedNews()
+    public async Task GetRecommendedNews()
     {
         RecommendedNewsInfo defaultRecommendedNewsInfo = default;
 
@@ -20,7 +20,7 @@ public class NewsServiceTest
     }
 
     [Fact]
-    public async void GetNewsList()
+    public async Task GetNewsList()
     {
         NewsInfo defaultNewsInfo = default;
 
@@ -44,11 +44,11 @@ public class NewsServiceTest
     }
 
     [Fact]
-    public async void GetDetailedNewsInfo()
+    public async Task GetDetailedNewsInfo()
     {
         NewsDetail defaultNewsDetail = default;
 
-        //605965 - #AUS小屋 - https://monster-siren.hypergryph.com/info/605965
+        // 605965 - #AUS小屋 - https://monster-siren.hypergryph.com/info/605965
         NewsDetail result = await NewsService.GetDetailedNewsInfoAsync("605965");
 
         Assert.NotEqual(defaultNewsDetail, result);

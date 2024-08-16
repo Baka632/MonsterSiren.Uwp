@@ -152,7 +152,58 @@ sealed partial class App : Application
         }
     }
 
+    protected override async void OnActivated(IActivatedEventArgs args)
+    {
+        await InitializeAppWhenActivate();
+
+        if (args.Kind == ActivationKind.Protocol)
+        {
+            // ;-)
+        }
+    }
+
     protected override async void OnFileActivated(FileActivatedEventArgs args)
+    {
+        await InitializeAppWhenActivate();
+
+        int playlistItemCount = 0;
+
+        IReadOnlyList<IStorageItem> files = args.Files;
+        List<Playlist> playlists = new(files.Count);
+        foreach (IStorageItem item in files)
+        {
+            if (item.IsOfType(StorageItemTypes.File))
+            {
+                try
+                {
+                    StorageFile file = (StorageFile)item;
+                    using Stream stream = await file.OpenStreamForReadAsync();
+                    Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(stream);
+
+                    playlistItemCount += playlist.SongCount;
+
+                    playlists.Add(playlist);
+                }
+                catch (JsonException)
+                {
+                    // Ignore it, just a bad file
+                }
+            }
+        }
+
+        if (playlistItemCount == 0)
+        {
+            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+        }
+        else
+        {
+            await PlaylistService.PlayForPlaylistsAsync(playlists);
+        }
+    }
+
+    private async Task InitializeAppWhenActivate()
     {
         if (Window.Current.Content is not Frame frame)
         {
@@ -167,28 +218,6 @@ sealed partial class App : Application
         }
 
         Window.Current.Activate();
-
-        List<Playlist> playlists = new(args.Files.Count);
-        foreach (IStorageItem item in args.Files)
-        {
-            if (item.IsOfType(StorageItemTypes.File))
-            {
-                try
-                {
-                    StorageFile file = (StorageFile)item;
-                    using Stream stream = await file.OpenStreamForReadAsync();
-                    Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(stream);
-
-                    playlists.Add(playlist);
-                }
-                catch (JsonException)
-                {
-                    // Ignore it, just a bad file
-                }
-            }
-        }
-        
-        await PlaylistService.PlayForPlaylistsAsync(playlists);
     }
 
     private async Task InitializeApp()

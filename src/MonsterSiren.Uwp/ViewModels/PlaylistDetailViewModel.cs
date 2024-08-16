@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -17,7 +18,16 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task PlayForCurrentPlaylist()
     {
-        await PlaylistService.PlayForPlaylistAsync(CurrentPlaylist);
+        if (CurrentPlaylist.SongCount == 0)
+        {
+            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+        }
+        else
+        {
+            await PlaylistService.PlayForPlaylistAsync(CurrentPlaylist);
+        }
     }
 
     [RelayCommand]

@@ -68,6 +68,16 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     public TimeSpan TotalDuration { get; private set; }
 
     /// <summary>
+    /// 播放列表的 ID
+    /// </summary>
+    public Guid PlaylistId { get; private set; }
+
+    /// <summary>
+    /// 播放列表的保存名称
+    /// </summary>
+    public string PlaylistSaveName { get; set; }
+
+    /// <summary>
     /// 当前播放列表的歌曲个数
     /// </summary>
     [JsonIgnore]
@@ -82,15 +92,26 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     {
         _title = title;
         _description = description;
+        PlaylistId = Guid.NewGuid();
+        PlaylistSaveName = CommonValues.ReplaceInvaildFileNameChars(title);
         Items.CollectionChanged += OnItemCollectionChanged;
     }
 
     [JsonConstructor]
-    public Playlist(string title, string description, ObservableCollection<PlaylistItem> items, TimeSpan totalDuration)
+    public Playlist(string title,
+                    string description,
+                    ObservableCollection<PlaylistItem> items,
+                    TimeSpan totalDuration,
+                    Guid playlistId,
+                    string playlistSaveName)
     {
         _title = title;
         _description = description;
         TotalDuration = totalDuration;
+        PlaylistId = playlistId == Guid.Empty ? Guid.NewGuid() : playlistId;
+        PlaylistSaveName = string.IsNullOrWhiteSpace(playlistSaveName)
+            ? CommonValues.ReplaceInvaildFileNameChars(title)
+            : playlistSaveName;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;
         _ = SelectCoverImage();
@@ -176,15 +197,20 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
                Description == other.Description &&
                TotalDuration == other.TotalDuration &&
                SongCount == other.SongCount &&
+               PlaylistId == other.PlaylistId &&
+               PlaylistSaveName == other.PlaylistSaveName &&
                Items.SequenceEqual(other.Items);
     }
 
     public override int GetHashCode()
     {
-        int hashCode = 991927638;
+        int hashCode = 1910073755;
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
+        hashCode = hashCode * -1521134295 + EqualityComparer<BitmapImage>.Default.GetHashCode(PlaylistCoverImage);
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
+        hashCode = hashCode * -1521134295 + PlaylistId.GetHashCode();
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PlaylistSaveName);
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
         hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<PlaylistItem>>.Default.GetHashCode(Items);
         return hashCode;

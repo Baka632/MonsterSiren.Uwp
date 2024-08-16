@@ -6,7 +6,7 @@ namespace MonsterSiren.Api.Test;
 public class SearchServiceTest
 {
     [Fact]
-    public async void SearchAlbumAndNews()
+    public async Task SearchAlbumAndNews()
     {
         SearchAlbumAndNewsResult result = await SearchService.SearchAlbumAndNewsAsync("Spark");
 
@@ -27,7 +27,7 @@ public class SearchServiceTest
     }
 
     [Fact]
-    public async void SearchAlbum()
+    public async Task SearchAlbum()
     {
         ListPackage<AlbumInfo> result = await SearchService.SearchAlbumAsync("OST");
 
@@ -49,7 +49,7 @@ public class SearchServiceTest
     }
     
     [Fact]
-    public async void SearchNews()
+    public async Task SearchNews()
     {
         ListPackage<NewsInfo> result = await SearchService.SearchNewsAsync("D.D.D");
 

@@ -525,4 +525,10 @@
   <data name="PlaylistNoDescription.Text" xml:space="preserve">
     <value>尚未添加描述</value>
   </data>
+  <data name="NoSongPlayed_Title" xml:space="preserve">
+    <value>歌曲未播放</value>
+  </data>
+  <data name="NoSongPlayed_PlaylistEmpty" xml:space="preserve">
+    <value>播放列表为空。</value>
+  </data>
 </root>
