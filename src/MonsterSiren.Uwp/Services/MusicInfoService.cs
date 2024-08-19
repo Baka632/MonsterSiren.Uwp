@@ -10,6 +10,9 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.Services;
 
+/// <summary>
+/// 应用程序音乐信息服务
+/// </summary>
 public sealed partial class MusicInfoService : ObservableRecipient
 {
     /// <summary>

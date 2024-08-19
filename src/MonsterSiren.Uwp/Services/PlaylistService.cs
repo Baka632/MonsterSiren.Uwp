@@ -7,6 +7,9 @@ using Windows.Storage;
 
 namespace MonsterSiren.Uwp.Services;
 
+/// <summary>
+/// 应用程序播放列表服务
+/// </summary>
 public static class PlaylistService
 {
     private const string PlaylistFileExtension = ".sora-playlist";
