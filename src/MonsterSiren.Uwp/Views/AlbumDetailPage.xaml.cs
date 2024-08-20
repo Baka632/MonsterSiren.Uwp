@@ -67,30 +67,36 @@ public sealed partial class AlbumDetailPage : Page
         e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId, json);
     }
 
-    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
+    private void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
     {
         TextBlock textBlock = (TextBlock)sender;
         SongInfo songInfo = (SongInfo)textBlock.DataContext;
         textBlock.Text = "-:-";
 
-        try
+        _ = Task.Run(async () =>
         {
-            SongDetail detail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-            TimeSpan? span = await MsrModelsHelper.GetSongDurationAsync(detail);
+            try
+            {
+                SongDetail detail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                TimeSpan? span = await MsrModelsHelper.GetSongDurationAsync(detail);
 
-            if (span.HasValue)
-            {
-                textBlock.Text = span.Value.ToString(@"m\:ss");
+                await UIThreadHelper.RunOnUIThread(() =>
+                {
+                    if (span.HasValue)
+                    {
+                        textBlock.Text = span.Value.ToString(@"m\:ss");
+                    }
+                    else
+                    {
+                        textBlock.Visibility = Visibility.Collapsed;
+                    }
+                });
             }
-            else
+            catch (HttpRequestException)
             {
-                textBlock.Visibility = Visibility.Collapsed;
+                await UIThreadHelper.RunOnUIThread(() => textBlock.Visibility = Visibility.Collapsed);
             }
-        }
-        catch (HttpRequestException)
-        {
-            textBlock.Visibility = Visibility.Collapsed;
-        }
+        });
     }
 
     private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)

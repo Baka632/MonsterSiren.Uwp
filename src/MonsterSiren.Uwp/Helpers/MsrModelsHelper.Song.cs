@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Threading;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -57,7 +58,18 @@ public static partial class MsrModelsHelper
                 
                 if (span != currentSpan)
                 {
-                    await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                    SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(songDetail.Cid);
+
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                        LockerHelper<string>.RevokeLocker(songDetail.Cid);
+                    }
                 }
             }
 
@@ -72,25 +84,36 @@ public static partial class MsrModelsHelper
     /// <returns>一个 <see cref="System.TimeSpan"/> 实例</returns>
     public static async Task<TimeSpan?> GetSongDurationAsync(SongDetail songDetail)
     {
-        TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-        if (span.HasValue)
-        {
-            return span;
-        }
-        else
-        {
-            Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-            using MediaSource source = MediaSource.CreateFromUri(musicUri);
-            await source.OpenAsync();
+        SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(songDetail.Cid);
 
-            TimeSpan? duration = source.Duration;
-
-            if (duration.HasValue)
+        await semaphore.WaitAsync();
+        try
+        {
+            TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+            if (span.HasValue)
             {
-                await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, duration.Value);
+                return span;
             }
+            else
+            {
+                Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
+                using MediaSource source = MediaSource.CreateFromUri(musicUri);
+                await source.OpenAsync();
 
-            return duration;
+                TimeSpan? duration = source.Duration;
+
+                if (duration.HasValue)
+                {
+                    await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, duration.Value);
+                }
+
+                return duration;
+            }
+        }
+        finally
+        {
+            semaphore.Release();
+            LockerHelper<string>.RevokeLocker(songDetail.Cid);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -44,40 +45,42 @@ internal static class FileCacheHelper
     /// <param name="cid">专辑的 CID</param>
     public static async Task StoreAlbumByUriAndCid(string uri, string cid)
     {
-        Uri coverUri = new(uri, UriKind.Absolute);
+        SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(cid);
 
         try
         {
-            using HttpClient httpClient = new();
-            using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+            await semaphore.WaitAsync();
+            Uri coverUri = new(uri, UriKind.Absolute);
 
-            using InMemoryRandomAccessStream stream = new();
-            await result.Content.WriteToStreamAsync(stream);
-            stream.Seek(0);
-            string fileName = $"{cid}.jpg";
-            await StoreAlbumCoverAsync(fileName, stream);
+            try
+            {
+                using HttpClient httpClient = new();
+                using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+                using InMemoryRandomAccessStream stream = new();
+                await result.Content.WriteToStreamAsync(stream);
+                stream.Seek(0);
+                string fileName = $"{cid}.jpg";
+
+                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+                if (await coverFolder.FileExistsAsync(fileName) != true)
+                {
+                    StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+                    using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                    await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+                    await transaction.CommitAsync();
+                }
+            }
+            catch (COMException)
+            {
+                return;
+            }
         }
-        catch (COMException)
+        finally
         {
-            return;
-        }
-    }
-
-    /// <summary>
-    /// 使用指定的文件名与随机访问流，在专辑封面缓存文件夹创建文件
-    /// </summary>
-    /// <param name="fileName">文件名</param>
-    /// <param name="stream">专辑封面的随机访问流</param>
-    private static async Task StoreAlbumCoverAsync(string fileName, IRandomAccessStream stream)
-    {
-        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-        if (await coverFolder.FileExistsAsync(fileName) != true)
-        {
-            StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-            using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-            await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-            await transaction.CommitAsync();
+            semaphore.Release();
+            LockerHelper<string>.RevokeLocker(cid);
         }
     }
 
