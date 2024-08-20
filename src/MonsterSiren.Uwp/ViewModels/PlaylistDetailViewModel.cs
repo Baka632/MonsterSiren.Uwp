@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp.ViewModels;
 

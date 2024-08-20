@@ -8,8 +8,6 @@ using Windows.Web.Http;
 
 namespace MonsterSiren.Uwp.Helpers;
 
-// TODO: 要加锁，不然会变得不幸！！！！
-
 /// <summary>
 /// 为应用程序数据提供文件中缓存的类
 /// </summary>

@@ -2,7 +2,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows.Input;
 
@@ -59,7 +59,7 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPlaylistEmpty)));
+        OnPropertiesChanged(nameof(IsPlaylistEmpty));
     }
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
@@ -131,5 +131,14 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         {
             subItem.IsEnabled = false;
         }
+    }
+
+    /// <summary>
+    /// 通知运行时属性已经发生更改
+    /// </summary>
+    /// <param name="propertyName">发生更改的属性名称,其填充是自动完成的</param>
+    public void OnPropertiesChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

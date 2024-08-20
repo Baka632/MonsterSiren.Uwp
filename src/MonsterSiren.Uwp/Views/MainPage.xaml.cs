@@ -355,7 +355,11 @@ public sealed partial class MainPage : Page
 
         item.Tapped += (s, e) =>
         {
-            // TODO: 避免重复导航到相同的播放列表详细页中
+            if (ContentFrame.Content is PlaylistDetailPage page && page.ViewModel?.CurrentPlaylist == playlist)
+            {
+                return;
+            }
+
             ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
 
             ChangeSelectedItemOfNavigationView();
