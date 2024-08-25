@@ -1,6 +1,5 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
-using System.Windows.Input;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -111,44 +110,31 @@ public sealed partial class AlbumDetailPage : Page
         ViewModel.SelectedSongInfo = (SongInfo)button.DataContext;
     }
 
-    private void OnAddSongInfoToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    private void OnSongContextFlyoutOpening(object sender, object e)
     {
-        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
-        FillSubItemWithCommand(subItem, ViewModel.AddToPlaylistForSongInfoCommand);
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSongInfoCommand,
+                                                                          ViewModel.SelectedSongInfo,
+                                                                          ViewModel.AddToPlaylistForSongInfoCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 
-    private void OnAddAlbumDetailToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
     {
-        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
-        FillSubItemWithCommand(subItem, ViewModel.AddToPlaylistForCurrentAlbumDetailCommand);
-    }
+        MenuFlyout flyout = (MenuFlyout)sender;
 
-    private static void FillSubItemWithCommand(MenuFlyoutSubItem subItem, ICommand command)
-    {
-        if (PlaylistService.TotalPlaylists.Count > 0)
-        {
-            subItem.Items.Clear();
-            subItem.IsEnabled = true;
+        flyout.Items.Clear();
 
-            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-            {
-                MenuFlyoutItem item = new()
-                {
-                    DataContext = playlist,
-                    Text = playlist.Title,
-                    Icon = new FontIcon()
-                    {
-                        Glyph = "\uEC4F"
-                    },
-                    Command = command,
-                    CommandParameter = playlist,
-                };
-                subItem.Items.Add(item);
-            }
-        }
-        else
-        {
-            subItem.IsEnabled = false;
-        }
+        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddToNowPlayingForCurrentAlbumDetailCommand, null);
+        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddToPlaylistForCurrentAlbumDetailCommand);
+
+        flyout.Items.Add(addToNowPlayingItem);
+        flyout.Items.Add(addToPlaylistSubItem);
     }
 }

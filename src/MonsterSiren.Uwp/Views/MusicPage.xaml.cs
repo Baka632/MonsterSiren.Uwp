@@ -1,6 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Text.Json;
+using Microsoft.UI.Xaml.Controls;
 using Windows.Networking.Connectivity;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -99,49 +100,26 @@ public sealed partial class MusicPage : Page
         RefreshActionContainer.RequestRefresh();
     }
 
-    private void OnAddToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
-    {
-        // TODO: 类似方法在 Windows 10 中不起效果
-
-        if (PlaylistService.TotalPlaylists.Count > 0)
-        {
-            AddToPlaylistSubItem.Items.Clear();
-            AddToPlaylistSubItem.IsEnabled = true;
-
-            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-            {
-                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist);
-                AddToPlaylistSubItem.Items.Add(item);
-            }
-        }
-        else
-        {
-            AddToPlaylistSubItem.IsEnabled = false;
-        }
-    }
-
-    private MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist)
-    {
-        MenuFlyoutItem flyoutItem = new()
-        {
-            DataContext = playlist,
-            Text = playlist.Title,
-            Icon = new FontIcon()
-            {
-                Glyph = "\uEC4F"
-            },
-            Command = ViewModel.AddAlbumInfoToPlaylistCommand,
-            CommandParameter = playlist,
-        };
-
-        return flyoutItem;
-    }
-
     private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
         FrameworkElement element = (FrameworkElement)sender;
         AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
 
         ViewModel.SelectedAlbumInfo = albumInfo;
+    }
+
+    private void OnAlbumContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
+                                                                          ViewModel.SelectedAlbumInfo,
+                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

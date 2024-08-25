@@ -1,4 +1,6 @@
 ﻿using System.Net.Http;
+using System.Security.Cryptography;
+using System.Threading;
 using MonsterSiren.Api.Models.Song;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -175,28 +177,40 @@ public sealed partial class NowPlayingPage : Page
         }
         else
         {
-            if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
-            {
-                SongDetail songDetail = details.FirstOrDefault();
-                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+            SemaphoreSlim semaphore = LockerHelper<Uri>.GetOrCreateLocker(source.Uri);
 
-                if (span.HasValue)
+            try
+            {
+                await semaphore.WaitAsync();
+
+                if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
                 {
-                    textBlock.Text = span.Value.ToString(@"m\:ss");
-                    return;
+                    SongDetail songDetail = details.FirstOrDefault();
+                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+
+                    if (span.HasValue)
+                    {
+                        textBlock.Text = span.Value.ToString(@"m\:ss");
+                        return;
+                    }
+                }
+
+                await source.OpenAsync();
+                TimeSpan? duration = source.Duration;
+
+                if (duration.HasValue)
+                {
+                    textBlock.Text = duration.Value.ToString(@"m\:ss");
+                }
+                else
+                {
+                    textBlock.Text = "-:-";
                 }
             }
-
-            await source.OpenAsync();
-            TimeSpan? duration = source.Duration;
-
-            if (duration.HasValue)
+            finally
             {
-                textBlock.Text = duration.Value.ToString(@"m\:ss");
-            }
-            else
-            {
-                textBlock.Text = "-:-";
+                semaphore.Release();
+                LockerHelper<Uri>.ReturnLocker(source.Uri);
             }
         }
     }

@@ -78,7 +78,7 @@ internal static class FileCacheHelper
         finally
         {
             semaphore.Release();
-            LockerHelper<string>.RevokeLocker(cid);
+            LockerHelper<string>.ReturnLocker(cid);
         }
     }
 

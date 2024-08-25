@@ -453,4 +453,13 @@
   <data name="NoSongPlayed_PlaylistEmpty" xml:space="preserve">
     <value>Playlist is empty.</value>
   </data>
+  <data name="AddToPlaylistTextLiteral" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlayingLiteral" xml:space="preserve">
+    <value>Add to</value>
+  </data>
+  <data name="NowPlayingLiteral" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
 </root>

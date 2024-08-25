@@ -68,7 +68,7 @@ public static partial class MsrModelsHelper
                     finally
                     {
                         semaphore.Release();
-                        LockerHelper<string>.RevokeLocker(songDetail.Cid);
+                        LockerHelper<string>.ReturnLocker(songDetail.Cid);
                     }
                 }
             }
@@ -113,7 +113,7 @@ public static partial class MsrModelsHelper
         finally
         {
             semaphore.Release();
-            LockerHelper<string>.RevokeLocker(songDetail.Cid);
+            LockerHelper<string>.ReturnLocker(songDetail.Cid);
         }
     }
 

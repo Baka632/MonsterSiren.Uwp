@@ -8,6 +8,8 @@ using System.Windows.Input;
 
 namespace MonsterSiren.Uwp.Views;
 
+// TODO: 优化一下性能
+
 /// <summary>
 /// 可用于自身或导航至 Frame 内部的空白页。
 /// </summary>
@@ -91,48 +93,6 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         ViewModel.SelectedItem = (PlaylistItem)button.DataContext;
     }
 
-    private void OnAddSongToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
-    {
-        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
-        FillSubItemWithCommand(subItem, ViewModel.AddItemToAnotherPlaylistCommand);
-    }
-
-    private void OnAddPlaylistToAnotherPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
-    {
-        MenuFlyoutSubItem subItem = (MenuFlyoutSubItem)sender;
-        FillSubItemWithCommand(subItem, ViewModel.AddCurrentPlaylistToAnotherPlaylistCommandCommand);
-    }
-
-    private void FillSubItemWithCommand(MenuFlyoutSubItem subItem, ICommand command)
-    {
-        if (PlaylistService.TotalPlaylists.Count > 0)
-        {
-            subItem.Items.Clear();
-            subItem.IsEnabled = true;
-
-            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-            {
-                MenuFlyoutItem item = new()
-                {
-                    DataContext = playlist,
-                    Text = playlist.Title,
-                    Icon = new FontIcon()
-                    {
-                        Glyph = "\uEC4F"
-                    },
-                    Command = command,
-                    CommandParameter = playlist,
-                    IsEnabled = ViewModel.CurrentPlaylist != playlist
-                };
-                subItem.Items.Add(item);
-            }
-        }
-        else
-        {
-            subItem.IsEnabled = false;
-        }
-    }
-
     /// <summary>
     /// 通知运行时属性已经发生更改
     /// </summary>
@@ -140,5 +100,34 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
     public void OnPropertiesChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void OnSongContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddItemToNowPlayingCommand,
+                                                                          ViewModel.SelectedItem,
+                                                                          ViewModel.AddItemToAnotherPlaylistCommand,
+                                                                          ViewModel.CurrentPlaylist);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+
+        flyout.Items.Clear();
+
+        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddCurrentPlaylistToNowPlayingCommand, null);
+        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddCurrentPlaylistToAnotherPlaylistCommandCommand, ViewModel.CurrentPlaylist);
+
+        flyout.Items.Add(addToNowPlayingItem);
+        flyout.Items.Add(addToPlaylistSubItem);
     }
 }

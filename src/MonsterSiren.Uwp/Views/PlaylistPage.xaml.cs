@@ -68,33 +68,19 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
         ViewModel.SelectedPlaylist = (Playlist)element.DataContext;
     }
 
-    private void OnAddToPlaylistSubItemLoaded(object sender, RoutedEventArgs e)
+    private void OnPlaylistContextFlyoutOpening(object sender, object e)
     {
-        if (PlaylistService.TotalPlaylists.Count > 0)
-        {
-            AddToPlaylistSubItem.Items.Clear();
-            AddToPlaylistSubItem.IsEnabled = true;
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
 
-            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-            {
-                MenuFlyoutItem item = new()
-                {
-                    DataContext = playlist,
-                    Text = playlist.Title,
-                    Icon = new FontIcon()
-                    {
-                        Glyph = "\uEC4F"
-                    },
-                    Command = ViewModel.AddPlaylistToAnotherPlaylistCommand,
-                    CommandParameter = playlist,
-                    IsEnabled = ViewModel.SelectedPlaylist != playlist
-                };
-                AddToPlaylistSubItem.Items.Add(item);
-            }
-        }
-        else
-        {
-            AddToPlaylistSubItem.IsEnabled = false;
-        }
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingCommand,
+                                                                          ViewModel.SelectedPlaylist,
+                                                                          ViewModel.AddPlaylistToAnotherPlaylistCommand,
+                                                                          ViewModel.SelectedPlaylist);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

@@ -54,24 +54,13 @@
                 </SplineDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
-        <MenuFlyout x:Name="PlaylistItemFlyout">
+        <MenuFlyout x:Name="PlaylistItemFlyout" Opening="OnPlaylistItemFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Play" />
-            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
-                <MenuFlyoutItem
-                    x:Uid="AddToNowPlaying"
-                    Command="{x:Bind ViewModel.AddPlaylistToNowPlayingCommand}"
-                    CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                    Icon="MusicInfo" />
-                <MenuFlyoutSubItem
-                    x:Name="AddToPlaylistSubItem"
-                    x:Uid="AddToPlaylistCommand"
-                    Icon="List"
-                    Loaded="OnAddToPlaylistSubItemLoaded" />
-            </MenuFlyoutSubItem>
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"
                 Command="{x:Bind ViewModel.ModifyPlaylistCommand}"

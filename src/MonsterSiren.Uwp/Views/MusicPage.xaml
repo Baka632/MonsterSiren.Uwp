@@ -15,31 +15,20 @@
     Loaded="OnMusicPageLoaded"
     mc:Ignorable="d">
     <Page.Resources>
-        <muxc:MenuBarItemFlyout x:Name="AlbumContextFlyout">
+        <MenuFlyout x:Name="AlbumContextFlyout" Opening="OnAlbumContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
                 Icon="Play" />
-            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
-                <MenuFlyoutItem
-                    x:Uid="AddToNowPlaying"
-                    Command="{x:Bind ViewModel.AddToNowPlayingForAlbumInfoCommand}"
-                    CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                    Icon="MusicInfo" />
-                <MenuFlyoutSubItem
-                    x:Name="AddToPlaylistSubItem"
-                    x:Uid="AddToPlaylistCommand"
-                    Icon="List"
-                    Loaded="OnAddToPlaylistSubItemLoaded" />
-            </MenuFlyoutSubItem>
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DownloadAlbumCommandButton"
                 Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
                 Icon="Download" />
-        </muxc:MenuBarItemFlyout>
+        </MenuFlyout>
     </Page.Resources>
 
 

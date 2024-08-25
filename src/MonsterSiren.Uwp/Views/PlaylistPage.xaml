@@ -16,24 +16,13 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <muxc:MenuBarItemFlyout x:Name="PlaylistContextFlyout">
+        <MenuFlyout x:Name="PlaylistContextFlyout" Opening="OnPlaylistContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Play" />
-            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
-                <MenuFlyoutItem
-                    x:Uid="AddToNowPlaying"
-                    Command="{x:Bind ViewModel.AddToNowPlayingCommand}"
-                    CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                    Icon="MusicInfo" />
-                <MenuFlyoutSubItem
-                    x:Name="AddToPlaylistSubItem"
-                    x:Uid="AddToPlaylistCommand"
-                    Icon="List"
-                    Loaded="OnAddToPlaylistSubItemLoaded" />
-            </MenuFlyoutSubItem>
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"
                 Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
@@ -45,7 +34,7 @@
                 Command="{x:Bind ViewModel.RemovePlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Delete" />
-        </muxc:MenuBarItemFlyout>
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>

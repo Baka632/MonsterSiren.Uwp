@@ -13,30 +13,20 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <muxc:MenuBarItemFlyout x:Name="SongContextFlyout">
+        <MenuFlyout x:Name="SongContextFlyout" Opening="OnSongContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlayForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Play" />
-            <MenuFlyoutSubItem x:Uid="AddToPlaylistOrNowPlaying" Icon="Add">
-                <MenuFlyoutItem
-                    x:Uid="AddToNowPlaying"
-                    Command="{x:Bind ViewModel.AddToNowPlayingForSongInfoCommand}"
-                    CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
-                    Icon="MusicInfo" />
-                <MenuFlyoutSubItem
-                    x:Uid="AddToPlaylistCommand"
-                    Icon="List"
-                    Loaded="OnAddSongInfoToPlaylistSubItemLoaded" />
-            </MenuFlyoutSubItem>
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Download" />
-        </muxc:MenuBarItemFlyout>
+        </MenuFlyout>
     </Page.Resources>
 
     <ScrollViewer>
@@ -170,16 +160,7 @@
                                 <TextBlock x:Uid="AddToPlaylistOrNowPlayingTextBlock" HorizontalAlignment="Center" />
                             </StackPanel>
                             <Button.Flyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToNowPlaying"
-                                        Command="{x:Bind ViewModel.AddToNowPlayingForCurrentAlbumDetailCommand}"
-                                        Icon="MusicInfo" />
-                                    <MenuFlyoutSubItem
-                                        x:Uid="AddToPlaylistCommand"
-                                        Icon="List"
-                                        Loaded="OnAddAlbumDetailToPlaylistSubItemLoaded" />
-                                </MenuFlyout>
+                                <MenuFlyout Opening="OnListViewItemSongContextFlyoutOpening" />
                             </Button.Flyout>
                         </Button>
 

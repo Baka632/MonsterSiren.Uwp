@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using System.Windows.Input;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -133,5 +134,96 @@ internal static class CommonValues
         stringBuilder.Replace('/', '↗');
         stringBuilder.Replace('\\', '↘');
         return stringBuilder.ToString();
+    }
+
+    /// <summary>
+    /// 创建“添加到”的 <see cref="MenuFlyoutSubItem"/>
+    /// </summary>
+    /// <param name="addToNowPlayingCommand">“添加到正在播放”命令</param>
+    /// <param name="addToNowPlayingCommandParameter">命令参数</param>
+    /// <param name="playlistCommand">添加到播放列表命令</param>
+    /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身</param>
+    /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例</returns>
+    public static MenuFlyoutSubItem CreateAddToFlyoutSubItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter, ICommand playlistCommand, Playlist optionalModel = null)
+    {
+        MenuFlyoutSubItem mainSubItem = new()
+        {
+            Icon = new SymbolIcon(Symbol.Add),
+            Text = "AddToPlaylistOrNowPlayingLiteral".GetLocalized()
+        };
+        MenuFlyoutItem addToNowPlayingItem = CreateAddToNowPlayingItem(addToNowPlayingCommand, addToNowPlayingCommandParameter);
+        MenuFlyoutSubItem playlistSubItem = CreateAddToPlaylistSubItem(playlistCommand, optionalModel);
+
+        mainSubItem.Items.Add(addToNowPlayingItem);
+        mainSubItem.Items.Add(playlistSubItem);
+
+        return mainSubItem;
+    }
+
+    /// <summary>
+    /// 创建一个“添加到正在播放”的 <see cref="MenuFlyoutItem"/>
+    /// </summary>
+    /// <param name="addToNowPlayingCommand">“添加到正在播放”命令</param>
+    /// <param name="addToNowPlayingCommandParameter">命令参数</param>
+    /// <returns>一个 <see cref="MenuFlyoutItem"/> 实例</returns>
+    public static MenuFlyoutItem CreateAddToNowPlayingItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter)
+    {
+        return new()
+        {
+            Text = "NowPlayingLiteral".GetLocalized(),
+            Icon = new SymbolIcon(Symbol.MusicInfo),
+            Command = addToNowPlayingCommand,
+            CommandParameter = addToNowPlayingCommandParameter
+        };
+    }
+
+    /// <summary>
+    /// 创建一个“添加到播放列表”的 <see cref="MenuFlyoutSubItem"/>
+    /// </summary>
+    /// <param name="playlistCommand">“添加到播放列表”命令</param>
+    /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身</param>
+    /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例</returns>
+    public static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Playlist optionalModel = null)
+    {
+        MenuFlyoutSubItem playlistSubItem = new()
+        {
+            Icon = new SymbolIcon(Symbol.List),
+            Text = "AddToPlaylistTextLiteral".GetLocalized(),
+        };
+
+        if (PlaylistService.TotalPlaylists.Count > 0)
+        {
+            playlistSubItem.IsEnabled = true;
+
+            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+            {
+                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist, playlistCommand, optionalModel);
+                playlistSubItem.Items.Add(item);
+            }
+        }
+        else
+        {
+            playlistSubItem.IsEnabled = false;
+        }
+
+        return playlistSubItem;
+    }
+
+    private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Playlist optionalModel)
+    {
+        MenuFlyoutItem flyoutItem = new()
+        {
+            DataContext = playlist,
+            Text = playlist.Title,
+            Icon = new FontIcon()
+            {
+                Glyph = "\uEC4F"
+            },
+            Command = playlistCommand,
+            CommandParameter = playlist,
+            IsEnabled = playlist != optionalModel,
+        };
+
+        return flyoutItem;
     }
 }
