@@ -9,7 +9,7 @@ public struct ListPackage<T>
     /// <summary>
     /// 响应中的列表
     /// </summary>
-    public IEnumerable<T> List { get; set; } = Enumerable.Empty<T>();
+    public IEnumerable<T> List { get; set; } = [];
 
     /// <summary>
     /// 指示列表是否结束的值

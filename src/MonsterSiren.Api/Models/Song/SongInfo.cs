@@ -26,7 +26,7 @@ public struct SongInfo : IEquatable<SongInfo>
     /// <summary>
     /// 歌曲艺术家
     /// </summary>
-    public IEnumerable<string> Artists { get; set; } = Enumerable.Empty<string>();
+    public IEnumerable<string> Artists { get; set; } = [];
 
     /// <summary>
     /// 使用指定的参数构造 <see cref="SongInfo"/> 的新实例

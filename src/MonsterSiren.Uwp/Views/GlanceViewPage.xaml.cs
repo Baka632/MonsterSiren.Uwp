@@ -122,20 +122,4 @@ public sealed partial class GlanceViewPage : Page
     {
         ViewModel.ContentOffset = ContentCanvas.ActualHeight - ContentStackPanel.ActualHeight;
     }
-
-    private double MeasureTextSize(TextBlock textBlock)
-    {
-        using CanvasTextFormat textFormat = new()
-        {
-            FontSize = (float)FontSize,
-            FontFamily = FontFamily.Source,
-            Direction = CanvasTextDirection.LeftToRightThenTopToBottom,
-            WordWrapping = CanvasWordWrapping.NoWrap
-        };
-        CanvasDevice device = CanvasDevice.GetSharedDevice();
-
-        double width = (double.IsNaN(textBlock.ActualWidth) || textBlock.ActualWidth < 0) ? 0 : textBlock.ActualWidth;
-        using CanvasTextLayout layout = new(device, textBlock.Text, textFormat, (float)width, 0);
-        return layout.LayoutBounds.Width;
-    }
 }
