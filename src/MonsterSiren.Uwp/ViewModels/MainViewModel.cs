@@ -137,7 +137,7 @@ public partial class MainViewModel : ObservableRecipient
             PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
             PlaylistTitle = playlist.Title,
             PlaylistDescription = playlist.Description,
-            CheckDuplicatePlaylist = false,
+            TargetPlaylist = playlist,
         };
 
         ContentDialogResult result = await dialog.ShowAsync();

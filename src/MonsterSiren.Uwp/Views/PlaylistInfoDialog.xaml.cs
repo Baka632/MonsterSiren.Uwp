@@ -20,7 +20,7 @@ public sealed partial class PlaylistInfoDialog : ContentDialog
     [ObservableProperty]
     private bool showRenameInFileSystemWarning;
 
-    public bool CheckDuplicatePlaylist { get; set; } = true;
+    public Playlist TargetPlaylist { get; set; }
 
     public PlaylistInfoDialog()
     {
@@ -55,9 +55,8 @@ public sealed partial class PlaylistInfoDialog : ContentDialog
             InfoBarMessage = "PlaylistTitleEmptyMessage".GetLocalized();
             args.Cancel = true;
         }
-        else if (CheckDuplicatePlaylist && PlaylistService.TotalPlaylists.Any(item => item.Title == PlaylistTitle))
+        else if (PlaylistService.TotalPlaylists.Any(item => item != TargetPlaylist && item.Title == PlaylistTitle))
         {
-            // TODO: 可能会有问题——如果改成别人的名称怎么办......
             ShowInfoBar = true;
             InfoBarTitle = "PlaylistTitleAlreadyExistsTitle".GetLocalized();
             InfoBarMessage = "PlaylistTitleAlreadyExistsMessage".GetLocalized();

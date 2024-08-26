@@ -106,7 +106,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
             PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
             PlaylistTitle = CurrentPlaylist.Title,
             PlaylistDescription = CurrentPlaylist.Description,
-            CheckDuplicatePlaylist = false,
+            TargetPlaylist = CurrentPlaylist,
         };
 
         ContentDialogResult result = await dialog.ShowAsync();
