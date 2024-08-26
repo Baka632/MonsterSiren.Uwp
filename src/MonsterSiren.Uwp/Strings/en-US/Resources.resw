@@ -462,4 +462,19 @@
   <data name="NowPlayingLiteral" xml:space="preserve">
     <value>Now playing</value>
   </data>
+  <data name="OriginalFolderContainsPlaylist_Title" xml:space="preserve">
+    <value>Original folder contains playlist files</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Message" xml:space="preserve">
+    <value>Move them to new folder?</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_DoNotMove" xml:space="preserve">
+    <value>Don't move</value>
+  </data>
+  <data name="DuplicateFile" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
 </root>

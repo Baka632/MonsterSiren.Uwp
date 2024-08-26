@@ -12,9 +12,8 @@ namespace MonsterSiren.Uwp.Services;
 /// </summary>
 public static class PlaylistService
 {
-    private const string PlaylistFileExtension = ".sora-playlist";
+    public const string PlaylistFileExtension = ".sora-playlist";
     private static readonly SemaphoreSlim playlistFileSemaphore = new(1);
-    private static bool _isInitialized;
     private static string _playlistSavePath;
 
     /// <summary>
@@ -46,11 +45,6 @@ public static class PlaylistService
     /// </summary>
     public static async Task Initialize()
     {
-        if (_isInitialized)
-        {
-            return;
-        }
-
         if (SettingsHelper.TryGet(CommonValues.PlaylistSavePathSettingsKey, out string path) && await IsFolderExist(path))
         {
             PlaylistSavePath = path;
@@ -79,16 +73,34 @@ public static class PlaylistService
             PlaylistSavePath = path;
         }
 
+        TotalPlaylists.Clear();
         StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
         foreach (StorageFile item in (await folder.GetFilesAsync())
             .Where(file => file.Name.EndsWith(PlaylistFileExtension, StringComparison.OrdinalIgnoreCase)))
         {
-            using Stream utf8Json = await item.OpenStreamForReadAsync();
-            Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(utf8Json);
-            TotalPlaylists.Add(playlist);
+            try
+            {
+                using Stream utf8Json = await item.OpenStreamForReadAsync();
+                Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(utf8Json);
+                TotalPlaylists.Add(playlist);
+            }
+            catch (JsonException)
+            {
+                // Just a bad file, ignore it.
+            }
         }
 
-        _isInitialized = true;
+        foreach (Playlist playlist in TotalPlaylists)
+        {
+            foreach (Playlist itemNoDuplicate in TotalPlaylists.Where(item => item != playlist))
+            {
+                if (playlist.Title == itemNoDuplicate.Title)
+                {
+                    playlist.Title = $"{playlist.Title} - {"DuplicateFile".GetLocalized()}";
+                    await SavePlaylistAsync(playlist);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -450,7 +462,13 @@ public static class PlaylistService
         }
     }
 
-    private static string GetPlaylistFileName(Playlist playlist)
+    /// <summary>
+    /// 获取播放列表的文件名称
+    /// </summary>
+    /// <param name="playlist">播放列表实例</param>
+    /// <returns>播放列表的文件名称</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/></exception>
+    public static string GetPlaylistFileName(Playlist playlist)
     {
         if (playlist is null)
         {

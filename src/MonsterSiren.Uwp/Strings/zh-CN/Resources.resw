@@ -540,4 +540,19 @@
   <data name="NowPlayingLiteral" xml:space="preserve">
     <value>正在播放</value>
   </data>
+  <data name="OriginalFolderContainsPlaylist_Title" xml:space="preserve">
+    <value>原文件夹包含有播放列表文件</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Message" xml:space="preserve">
+    <value>要迁移它们吗？</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Move" xml:space="preserve">
+    <value>迁移</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_DoNotMove" xml:space="preserve">
+    <value>不迁移</value>
+  </data>
+  <data name="DuplicateFile" xml:space="preserve">
+    <value>副本</value>
+  </data>
 </root>

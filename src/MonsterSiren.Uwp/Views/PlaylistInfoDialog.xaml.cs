@@ -5,7 +5,7 @@ namespace MonsterSiren.Uwp.Views;
 [INotifyPropertyChanged]
 public sealed partial class PlaylistInfoDialog : ContentDialog
 {
-    private readonly char[] invalidChars = Path.GetInvalidFileNameChars();
+    private static readonly char[] invalidChars = Path.GetInvalidFileNameChars();
 
     [ObservableProperty]
     private string playlistTitle;
@@ -57,6 +57,7 @@ public sealed partial class PlaylistInfoDialog : ContentDialog
         }
         else if (CheckDuplicatePlaylist && PlaylistService.TotalPlaylists.Any(item => item.Title == PlaylistTitle))
         {
+            // TODO: 可能会有问题——如果改成别人的名称怎么办......
             ShowInfoBar = true;
             InfoBarTitle = "PlaylistTitleAlreadyExistsTitle".GetLocalized();
             InfoBarMessage = "PlaylistTitleAlreadyExistsMessage".GetLocalized();
