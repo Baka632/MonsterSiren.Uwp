@@ -158,6 +158,7 @@ sealed partial class App : Application
 
         if (args.Kind == ActivationKind.Protocol)
         {
+            // TODO: 添加 URI 参数解析
             // ;-)
         }
     }

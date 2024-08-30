@@ -241,7 +241,7 @@
             </Grid.Background>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="MediaInfoButtonColumnDefinition" Width="2*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -265,10 +265,10 @@
                 Grid.RowSpan="2"
                 Grid.Column="0"
                 Width="Auto"
-                MaxWidth="300"
                 Padding="0"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
+                HorizontalContentAlignment="Left"
                 Background="Transparent"
                 BorderThickness="0"
                 Click="OnMediaInfoButtonClick"
@@ -277,14 +277,13 @@
                 <Grid Margin="0,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
                     <Grid
                         x:Name="SongTitleAndArtistNameContainerGrid"
                         Grid.Column="1"
-                        MaxWidth="150"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
                         <Grid.RowDefinitions>
@@ -676,6 +675,12 @@
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="5" />
                             </ObjectAnimationUsingKeyFrames>
                             <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButtonColumnDefinition"
+                                Storyboard.TargetProperty="Width"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2*" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaCoverImage"
                                 Storyboard.TargetProperty="Visibility"
                                 Duration="0">
@@ -788,6 +793,12 @@
                                 Storyboard.TargetProperty="Padding"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButtonColumnDefinition"
+                                Storyboard.TargetProperty="Width"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="*" />
                             </ObjectAnimationUsingKeyFrames>
                             <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaCoverImage"
