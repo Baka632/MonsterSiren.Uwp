@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
-using MonsterSiren.Uwp.Models;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
 using Windows.UI;
