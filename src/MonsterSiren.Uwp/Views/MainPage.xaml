@@ -251,6 +251,7 @@
             </Grid.RowDefinitions>
 
             <muxc:ProgressRing
+                x:Name="LoadingProgressRing"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
@@ -778,6 +779,13 @@
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
                             </ObjectAnimationUsingKeyFrames>
+
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRing"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState.Storyboard>
                 </VisualState>
@@ -894,6 +902,13 @@
 
                             <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRing"
                                 Storyboard.TargetProperty="(Grid.RowSpan)"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
