@@ -27,6 +27,7 @@ sealed partial class App : Application
     /// 获取带“版本”文字的应用程序版本字符串
     /// </summary>
     public static string AppVersionWithText => string.Format("AppVersion_WithPlaceholder".GetLocalized(), AppVersion);
+    public static bool IsGreaterThan18362 => EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362);
 
     /// <summary>
     /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，

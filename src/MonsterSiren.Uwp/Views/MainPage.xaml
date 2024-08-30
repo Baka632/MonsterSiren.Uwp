@@ -251,7 +251,7 @@
             </Grid.RowDefinitions>
 
             <muxc:ProgressRing
-                x:Name="LoadingProgressRing"
+                x:Name="LoadingProgressRingMUXC"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
@@ -259,7 +259,19 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}" />
+                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
+                Visibility="{x:Bind app:App.IsGreaterThan18362}" />
+            <ProgressRing
+                x:Name="LoadingProgressRingWUXC"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="0"
+                Margin="40,0,10,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
+                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(app:App.IsGreaterThan18362)}" />
             <Button
                 x:Name="MediaInfoButton"
                 Grid.Row="0"
@@ -781,7 +793,13 @@
                             </ObjectAnimationUsingKeyFrames>
 
                             <ObjectAnimationUsingKeyFrames
-                                Storyboard.TargetName="LoadingProgressRing"
+                                Storyboard.TargetName="LoadingProgressRingMUXC"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingWUXC"
                                 Storyboard.TargetProperty="(Grid.RowSpan)"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
@@ -908,7 +926,13 @@
                             </ObjectAnimationUsingKeyFrames>
 
                             <ObjectAnimationUsingKeyFrames
-                                Storyboard.TargetName="LoadingProgressRing"
+                                Storyboard.TargetName="LoadingProgressRingMUXC"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingWUXC"
                                 Storyboard.TargetProperty="(Grid.RowSpan)"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="2" />

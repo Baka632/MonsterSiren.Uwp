@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:albumModels="using:MonsterSiren.Api.Models.Album"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+    xmlns:app="using:MonsterSiren.Uwp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
@@ -150,13 +151,22 @@
             </GridView>
 
             <!--#region Loading & Error-->
+            <muxc:ProgressRing
+                Grid.Row="1"
+                Width="50"
+                Height="50"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind app:App.IsGreaterThan18362}" />
             <ProgressRing
                 Grid.Row="1"
                 Width="50"
                 Height="50"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(app:App.IsGreaterThan18362)}" />
 
             <StackPanel
                 Grid.Row="1"
