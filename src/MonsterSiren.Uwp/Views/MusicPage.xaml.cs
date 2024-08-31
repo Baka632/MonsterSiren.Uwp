@@ -19,7 +19,7 @@ public sealed partial class MusicPage : Page
     public MusicPage()
     {
         this.InitializeComponent();
-        NavigationCacheMode = NavigationCacheMode.Enabled;
+        NavigationCacheMode = NavigationCacheMode.Required;
     }
 
     private void OnContentGridViewItemClicked(object sender, ItemClickEventArgs e)

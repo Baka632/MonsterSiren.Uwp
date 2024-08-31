@@ -136,6 +136,7 @@
                                 HorizontalAlignment="Left"
                                 FontWeight="SemiBold"
                                 Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis"
                                 ToolTipService.ToolTip="{x:Bind Name}" />
                             <TextBlock
                                 Grid.Row="2"
