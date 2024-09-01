@@ -82,6 +82,7 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
         else
         {
             isScrolling = false;
+            DefaultStoryboard.Begin();
         }
     }
 

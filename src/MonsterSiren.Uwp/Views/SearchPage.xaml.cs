@@ -1,9 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text.Json;
-using MonsterSiren.Api.Models.News;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -86,5 +84,28 @@ public sealed partial class SearchPage : Page
 
         string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
         e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
+    }
+
+    private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
+
+        ViewModel.SelectedAlbumInfo = albumInfo;
+    }
+
+    private void OnAlbumContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
+                                                                          ViewModel.SelectedAlbumInfo,
+                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

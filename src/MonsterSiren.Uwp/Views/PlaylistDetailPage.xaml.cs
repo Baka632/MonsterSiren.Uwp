@@ -9,6 +9,8 @@ namespace MonsterSiren.Uwp.Views;
 
 // TODO: 优化一下性能
 
+// TODO: 考虑加一个连接动画？
+
 /// <summary>
 /// 可用于自身或导航至 Frame 内部的空白页。
 /// </summary>

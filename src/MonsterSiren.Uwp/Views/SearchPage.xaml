@@ -14,6 +14,22 @@
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:SearchViewModel}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <MenuFlyout x:Name="AlbumContextFlyout" Opening="OnAlbumContextFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DownloadAlbumCommandButton"
+                Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Download" />
+        </MenuFlyout>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -53,7 +69,12 @@
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsAlbumListEmpty), Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="albumModels:AlbumInfo">
-                                <Grid Padding="5" Background="Transparent">
+                                <Grid
+                                    Padding="5"
+                                    Background="Transparent"
+                                    ContextFlyout="{StaticResource AlbumContextFlyout}"
+                                    DataContext="{x:Bind}"
+                                    RightTapped="OnGridViewItemGridRightTapped">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -72,14 +93,17 @@
                                         Grid.Row="1"
                                         HorizontalAlignment="Left"
                                         FontWeight="SemiBold"
-                                        Text="{x:Bind Name}" />
+                                        Text="{x:Bind Name}"
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTipService.ToolTip="{x:Bind Name}" />
                                     <TextBlock
                                         Grid.Row="2"
                                         Margin="0,0,0,5"
                                         HorizontalAlignment="Left"
                                         Foreground="#8f8f8f"
                                         Text="{x:Bind x:String.Join(' / ', Artistes)}"
-                                        TextTrimming="CharacterEllipsis" />
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTipService.ToolTip="{x:Bind x:String.Join(' / ', Artistes)}" />
                                 </Grid>
                             </DataTemplate>
                         </GridView.ItemTemplate>
