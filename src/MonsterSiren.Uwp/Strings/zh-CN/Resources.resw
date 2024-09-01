@@ -555,4 +555,16 @@
   <data name="DuplicateFile" xml:space="preserve">
     <value>副本</value>
   </data>
+  <data name="SelectForSongList.Text" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="DeselectForSongList.Text" xml:space="preserve">
+    <value>取消选择</value>
+  </data>
+  <data name="SelectAllForSongList.Text" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="DeselectAllForSongList.Text" xml:space="preserve">
+    <value>全不选</value>
+  </data>
 </root>

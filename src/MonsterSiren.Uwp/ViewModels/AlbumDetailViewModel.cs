@@ -6,7 +6,7 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// <summary>
 /// 为 <see cref="AlbumDetailPage"/> 提供视图模型
 /// </summary>
-public partial class AlbumDetailViewModel : ObservableObject
+public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObject
 {
     [ObservableProperty]
     private bool isLoading = false;
@@ -22,10 +22,13 @@ public partial class AlbumDetailViewModel : ObservableObject
     private bool isSongsEmpty;
     [ObservableProperty]
     private SongInfo selectedSongInfo;
+    [ObservableProperty]
+    private FlyoutBase selectedSongListItemContextFlyout;
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
         IsLoading = true;
+        SelectedSongListItemContextFlyout = view.SongContextFlyout;
         CurrentAlbumInfo = albumInfo;
         AlbumDetail albumDetail;
 
@@ -238,6 +241,167 @@ public partial class AlbumDetailViewModel : ObservableObject
         catch (HttpRequestException)
         {
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    private void StartMultipleSelection()
+    {
+        view.SongList.SelectionMode = ListViewSelectionMode.Multiple;
+        SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
+    }
+
+    [RelayCommand]
+    private void StopMultipleSelection()
+    {
+        view.SongList.SelectionMode = ListViewSelectionMode.Single;
+        SelectedSongListItemContextFlyout = view.SongContextFlyout;
+    }
+
+    [RelayCommand]
+    private void SelectAllSongList()
+    {
+        view.SongList.SelectAll();
+    }
+
+    [RelayCommand]
+    private void DeselectAllSongList()
+    {
+        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
+    }
+
+    [RelayCommand]
+    private async Task PlayForListViewSelectedItem()
+    {
+        IList<object> selectedItems = view.SongList.SelectedItems;
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+            List<MediaPlaybackItem> songs = new(selectedItems.Count);
+            foreach (object item in selectedItems)
+            {
+                if (item is SongInfo songInfo)
+                {
+                    await Task.Run(async () =>
+                    {
+                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                        songs.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                    });
+                }
+            }
+
+            await Task.Run(() => MusicService.ReplaceMusic(songs));
+
+            StopMultipleSelection();
+        }
+        catch (HttpRequestException)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddToNowPlayingForListViewSelectedItem()
+    {
+        IList<object> selectedItems = view.SongList.SelectedItems;
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            List<MediaPlaybackItem> songs = new(selectedItems.Count);
+
+            foreach (object item in selectedItems)
+            {
+                if (item is SongInfo songInfo)
+                {
+                    await Task.Run(async () =>
+                    {
+                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                        songs.Add(songDetail.ToMediaPlaybackItem(CurrentAlbumDetail));
+                    });
+                }
+            }
+
+            await Task.Run(() => MusicService.AddMusic(songs));
+
+            StopMultipleSelection();
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddToPlaylistForListViewSelectedItem(Playlist playlist)
+    {
+        IList<object> selectedItems = view.SongList.SelectedItems;
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is SongInfo songInfo)
+                {
+                    await Task.Run(async () =>
+                    {
+                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                        await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
+                    });
+                }
+            }
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadForListViewSelectedItem()
+    {
+        IList<object> selectedItems = view.SongList.SelectedItems;
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is SongInfo songInfo)
+                {
+                    await Task.Run(async () =>
+                    {
+                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                        _ = DownloadService.DownloadSong(CurrentAlbumDetail, songDetail);
+                    });
+                }
+            }
+
+            StopMultipleSelection();
+        }
+        catch (HttpRequestException)
+        {
         }
     }
 }

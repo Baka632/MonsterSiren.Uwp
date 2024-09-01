@@ -10,28 +10,71 @@
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistDetailViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout x:Name="SongContextFlyout" Opening="OnSongContextFlyoutOpening">
+        <MenuFlyout
+            x:Name="SongContextFlyout"
+            x:FieldModifier="Public"
+            Opening="OnSongContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlayForItemCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Play" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForItemCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Download" />
-            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DeleteFromPlaylist"
                 Command="{x:Bind ViewModel.RemoveItemFromPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Delete" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectForSongList"
+                Command="{x:Bind ViewModel.StartMultipleSelectionCommand}"
+                CommandParameter="{x:Bind SongList}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE762;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+
+        <MenuFlyout
+            x:Name="SongSelectionFlyout"
+            x:FieldModifier="Public"
+            Opening="OnSongSelectionFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayMusicTextBlock"
+                Command="{x:Bind ViewModel.PlaySongListSelectedItemCommand}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem
+                x:Uid="DownloadTextBlock"
+                Command="{x:Bind ViewModel.DownloadForSongListSelectedItemCommand}"
+                Icon="Download" />
+            <MenuFlyoutItem
+                x:Uid="DeleteFromPlaylist"
+                Command="{x:Bind ViewModel.RemoveSongListSelectedItemFromPlaylistCommand}"
+                Icon="Delete" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectAllForSongList"
+                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
+                Icon="SelectAll" />
+            <MenuFlyoutItem
+                x:Uid="DeselectAllForSongList"
+                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
+                Icon="ClearSelection" />
+            <MenuFlyoutItem
+                x:Uid="DeselectForSongList"
+                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+                Icon="Cancel" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -201,6 +244,7 @@
             <ListView
                 x:Name="SongList"
                 Grid.Row="1"
+                x:FieldModifier="Public"
                 AllowDrop="True"
                 CanDragItems="True"
                 CanReorderItems="True"
@@ -212,7 +256,7 @@
                     <DataTemplate x:DataType="models:PlaylistItem">
                         <Grid
                             Background="Transparent"
-                            ContextFlyout="{StaticResource SongContextFlyout}"
+                            ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"
                             DataContext="{x:Bind}"
                             RightTapped="OnListViewItemGridRightTapped">
                             <Grid.ColumnDefinitions>
@@ -245,7 +289,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     DataContext="{x:Bind}"
-                                    Flyout="{StaticResource SongContextFlyout}"
+                                    Flyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"
                                     Tapped="OnMoreOptionButtonTapped">
                                     <SymbolIcon Symbol="More" />
                                 </Button>

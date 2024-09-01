@@ -477,4 +477,16 @@
   <data name="DuplicateFile" xml:space="preserve">
     <value>Duplicate</value>
   </data>
+  <data name="SelectForSongList.Text" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="DeselectForSongList.Text" xml:space="preserve">
+    <value>Deselect</value>
+  </data>
+  <data name="SelectAllForSongList.Text" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="DeselectAllForSongList.Text" xml:space="preserve">
+    <value>Deselect all</value>
+  </data>
 </root>

@@ -14,19 +14,58 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout x:Name="SongContextFlyout" Opening="OnSongContextFlyoutOpening">
+        <MenuFlyout
+            x:Name="SongContextFlyout"
+            x:FieldModifier="Public"
+            Opening="OnSongContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlayForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Play" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Download" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectForSongList"
+                Command="{x:Bind ViewModel.StartMultipleSelectionCommand}"
+                CommandParameter="{x:Bind SongList}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE762;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+
+        <MenuFlyout
+            x:Name="SongSelectionFlyout"
+            x:FieldModifier="Public"
+            Opening="OnSongSelectionFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayMusicTextBlock"
+                Command="{x:Bind ViewModel.PlayForListViewSelectedItemCommand}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem
+                x:Uid="DownloadTextBlock"
+                Command="{x:Bind ViewModel.DownloadForListViewSelectedItemCommand}"
+                Icon="Download" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectAllForSongList"
+                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
+                Icon="SelectAll" />
+            <MenuFlyoutItem
+                x:Uid="DeselectAllForSongList"
+                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
+                Icon="ClearSelection" />
+            <MenuFlyoutItem
+                x:Uid="DeselectForSongList"
+                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+                Icon="Cancel" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -194,6 +233,7 @@
             <ListView
                 x:Name="SongList"
                 Grid.Row="1"
+                x:FieldModifier="Public"
                 CanDragItems="True"
                 DragItemsStarting="OnSongListViewItemsDragStarting"
                 ItemsSource="{x:Bind ViewModel.CurrentAlbumDetail.Songs, Mode=OneWay}"
@@ -203,7 +243,7 @@
                     <DataTemplate x:DataType="song:SongInfo">
                         <Grid
                             Background="Transparent"
-                            ContextFlyout="{StaticResource SongContextFlyout}"
+                            ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"
                             DataContext="{x:Bind}"
                             RightTapped="OnListViewItemGridRightTapped">
                             <Grid.ColumnDefinitions>
@@ -237,7 +277,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     DataContext="{x:Bind}"
-                                    Flyout="{StaticResource SongContextFlyout}"
+                                    Flyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"
                                     Tapped="OnMoreOptionButtonTapped">
                                     <SymbolIcon Symbol="More" />
                                 </Button>

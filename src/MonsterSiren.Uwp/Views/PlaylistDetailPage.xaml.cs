@@ -20,10 +20,11 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     public bool IsPlaylistEmpty { get => (ViewModel.CurrentPlaylist.Items.Count) <= 0; }
 
-    public PlaylistDetailViewModel ViewModel { get; } = new PlaylistDetailViewModel();
+    public PlaylistDetailViewModel ViewModel { get; }
 
     public PlaylistDetailPage()
     {
+        ViewModel = new PlaylistDetailViewModel(this);
         this.InitializeComponent();
     }
 
@@ -130,5 +131,21 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
         flyout.Items.Add(addToNowPlayingItem);
         flyout.Items.Add(addToPlaylistSubItem);
+    }
+
+    private void OnSongSelectionFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddSongListSelectedItemToNowPlayingCommand,
+                                                                          null,
+                                                                          ViewModel.AddSongListSelectedItemToAnotherPlaylistCommand,
+                                                                          ViewModel.CurrentPlaylist);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

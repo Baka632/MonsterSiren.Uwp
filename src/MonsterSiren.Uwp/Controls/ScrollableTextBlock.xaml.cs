@@ -67,7 +67,7 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
 
         double actualWidth = RelativeParent is null ? parent.ActualWidth : RelativeParent.ActualWidth;
 
-        //DefaultStoryboard.Begin();
+        DefaultStoryboard.Begin();
         await Task.Delay(300);
 
         double textSize = MeasureTextSize();

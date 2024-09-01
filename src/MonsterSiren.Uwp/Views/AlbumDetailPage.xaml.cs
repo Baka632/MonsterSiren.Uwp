@@ -13,10 +13,11 @@ public sealed partial class AlbumDetailPage : Page
 {
     private bool enableBackAnimation = true;
 
-    public AlbumDetailViewModel ViewModel { get; } = new AlbumDetailViewModel();
+    public AlbumDetailViewModel ViewModel { get; }
 
     public AlbumDetailPage()
     {
+        ViewModel = new AlbumDetailViewModel(this);
         this.InitializeComponent();
     }
 
@@ -145,5 +146,20 @@ public sealed partial class AlbumDetailPage : Page
 
         flyout.Items.Add(addToNowPlayingItem);
         flyout.Items.Add(addToPlaylistSubItem);
+    }
+
+    private void OnSongSelectionFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForListViewSelectedItemCommand,
+                                                                          null,
+                                                                          ViewModel.AddToPlaylistForListViewSelectedItemCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }
