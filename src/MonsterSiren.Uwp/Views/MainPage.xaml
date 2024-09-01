@@ -664,7 +664,11 @@
             x:Name="NotifyNoEmptyStringTeachingTip"
             x:Uid="EmptyStringInSearchBoxTeachingTip"
             Grid.RowSpan="3"
-            Target="{x:Bind SearchBox}" />
+            Target="{x:Bind SearchBox}">
+            <muxc:TeachingTip.IconSource>
+                <muxc:FontIconSource Glyph="&#xE946;" />
+            </muxc:TeachingTip.IconSource>
+        </muxc:TeachingTip>
 
         <controls:InAppNotification
             x:Name="appNotificationControl"

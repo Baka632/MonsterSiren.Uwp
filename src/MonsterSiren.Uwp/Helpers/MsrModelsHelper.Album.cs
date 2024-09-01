@@ -35,14 +35,7 @@ partial class MsrModelsHelper
                 if (shouldUpdate)
                 {
                     List<SongInfo> songs = detail.Songs.ToList();
-                    for (int i = 0; i < songs.Count; i++)
-                    {
-                        SongInfo songInfo = songs[i];
-                        if (songInfo.Artists is null || songInfo.Artists.Any() != true)
-                        {
-                            songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
-                        }
-                    }
+                    TryFillArtistForSongs(songs);
 
                     detail = detail with { Songs = songs };
                 }
@@ -74,5 +67,53 @@ partial class MsrModelsHelper
         }
 
         return uri;
+    }
+
+    /// <summary>
+    /// 尝试为 <see cref="AlbumInfo"/> 填充艺术家信息，并使用缓存的专辑 Uri
+    /// </summary>
+    /// <param name="albumInfo"><see cref="AlbumInfo"/> 的实例</param>
+    /// <returns>一个二元组，第一项是指示是否修改了 <see cref="AlbumInfo"/> 的布尔值，第二项是 <see cref="AlbumInfo"/> 实例。若第一项为 <see langword="false"/> ，则表示没有必要对 <see cref="AlbumInfo"/> 进行修改</returns>
+    public static async Task<ValueTuple<bool, AlbumInfo>> TryFillArtistAndCachedCoverForAlbum(AlbumInfo albumInfo)
+    {
+        bool isModify = false;
+
+        if (albumInfo.Artistes is null || albumInfo.Artistes.Any() != true)
+        {
+            albumInfo = albumInfo with { Artistes = ["MSR".GetLocalized()] };
+            isModify = true;
+        }
+
+        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumInfo);
+        if (fileCoverUri != null)
+        {
+            albumInfo = albumInfo with { CoverUrl = fileCoverUri.ToString() };
+            isModify = true;
+        }
+
+        return (isModify, albumInfo);
+    }
+
+    /// <summary>
+    /// 尝试为 <see cref="AlbumInfo"/> 列表填充艺术家信息，并使用缓存的专辑 Uri
+    /// </summary>
+    /// <param name="albumList"><see cref="AlbumInfo"/> 的列表</param>
+    /// <returns>指示是否修改了 <see cref="AlbumInfo"/> 的值。<see langword="false"/> 表示没有必要对 <see cref="AlbumInfo"/> 进行修改</returns>
+    public static async Task<bool> TryFillArtistAndCachedCoverForAlbum(IList<AlbumInfo> albumList)
+    {
+        bool isModify = false;
+
+        for (int i = 0; i < albumList.Count; i++)
+        {
+            (bool modifySuccess, AlbumInfo albumInfo) = await TryFillArtistAndCachedCoverForAlbum(albumList[i]);
+
+            if (modifySuccess)
+            {
+                albumList[i] = albumInfo;
+                isModify = true;
+            }
+        }
+
+        return isModify;
     }
 }

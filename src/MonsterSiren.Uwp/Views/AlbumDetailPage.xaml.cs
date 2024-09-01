@@ -11,6 +11,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class AlbumDetailPage : Page
 {
+    private bool enableBackAnimation = true;
+
     public AlbumDetailViewModel ViewModel { get; } = new AlbumDetailViewModel();
 
     public AlbumDetailPage()
@@ -37,13 +39,20 @@ public sealed partial class AlbumDetailPage : Page
         {
             await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
         }
+        else if (e.Parameter is ValueTuple<AlbumInfo, bool> tuple)
+        {
+            albumInfo = tuple.Item1;
+            enableBackAnimation = tuple.Item2;
+
+            await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+        }
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
         base.OnNavigatingFrom(e);
 
-        if (e.NavigationMode == NavigationMode.Back)
+        if (e.NavigationMode == NavigationMode.Back && enableBackAnimation)
         {
             ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage, AlbumCover);
         }

@@ -681,7 +681,16 @@ public sealed partial class MainPage : Page
         }
 
         NotifyNoEmptyStringTeachingTip.IsOpen = false;
-        ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
+
+        if (args.ChosenSuggestion is AlbumInfo albumInfo)
+        {
+            (AlbumInfo info, bool enableBackAnimation) parameter = (albumInfo, false);
+            ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), parameter, CommonValues.DefaultTransitionInfo);
+        }
+        else
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
+        }
     }
 
     private void OnPlaylistItemFlyoutOpening(object sender, object e)

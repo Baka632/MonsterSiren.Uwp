@@ -45,7 +45,7 @@ public sealed partial class SearchViewModel : ObservableObject
 
             List<AlbumInfo> albumList = albumAndNewsWarpper.Albums.List.ToList();
 
-            if (await TryFillArtistAndReplaceCachedAlbumCover(albumList))
+            if (await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList))
             {
                 albumAndNewsWarpper = albumAndNewsWarpper with
                 {
@@ -59,7 +59,7 @@ public sealed partial class SearchViewModel : ObservableObject
                 ListPackage<AlbumInfo> listPackage = await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid);
                 List<AlbumInfo> list = listPackage.List.ToList();
 
-                return await TryFillArtistAndReplaceCachedAlbumCover(list)
+                return await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(list)
                 ? listPackage with { List = list }
                 : listPackage;
             });
@@ -73,29 +73,6 @@ public sealed partial class SearchViewModel : ObservableObject
         finally
         {
             IsLoading = false;
-        }
-
-        static async Task<bool> TryFillArtistAndReplaceCachedAlbumCover(List<AlbumInfo> albumList)
-        {
-            bool isModify = false;
-
-            for (int i = 0; i < albumList.Count; i++)
-            {
-                if (albumList[i].Artistes is null || albumList[i].Artistes.Any() != true)
-                {
-                    albumList[i] = albumList[i] with { Artistes = ["MSR".GetLocalized()] };
-                    isModify = true;
-                }
-
-                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumList[i]);
-                if (fileCoverUri != null)
-                {
-                    albumList[i] = albumList[i] with { CoverUrl = fileCoverUri.ToString() };
-                    isModify = true;
-                }
-            }
-
-            return isModify;
         }
     }
 

@@ -100,20 +100,7 @@ public sealed partial class MusicViewModel : ObservableObject
         List<AlbumInfo> albums = await Task.Run(async () =>
         {
             List<AlbumInfo> albumList = (await AlbumService.GetAllAlbumsAsync()).ToList();
-
-            for (int i = 0; i < albumList.Count; i++)
-            {
-                if (albumList[i].Artistes is null || albumList[i].Artistes.Any() != true)
-                {
-                    albumList[i] = albumList[i] with { Artistes = ["MSR".GetLocalized()] };
-                }
-
-                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumList[i]);
-                if (fileCoverUri != null)
-                {
-                    albumList[i] = albumList[i] with { CoverUrl = fileCoverUri.ToString() };
-                }
-            }
+            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList);
 
             return albumList;
         });

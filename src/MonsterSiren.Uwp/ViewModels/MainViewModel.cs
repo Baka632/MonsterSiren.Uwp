@@ -223,7 +223,10 @@ public partial class MainViewModel : ObservableRecipient
             }
 
             ListPackage<AlbumInfo> searchedAlbums = await SearchService.SearchAlbumAsync(keyword);
-            AutoSuggestBoxSuggestion = searchedAlbums.List;
+            List<AlbumInfo> albums = searchedAlbums.List.ToList();
+            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albums);
+
+            AutoSuggestBoxSuggestion = albums;
         }
         catch (HttpRequestException)
         {

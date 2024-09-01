@@ -137,4 +137,60 @@ public static partial class MsrModelsHelper
             return songDetail;
         }
     }
+
+    /// <summary>
+    /// 尝试为 <see cref="SongInfo"/> 填充艺术家信息
+    /// </summary>
+    /// <param name="songInfo">一个 <see cref="SongInfo"/> 实例</param>
+    /// <returns>一个二元组，第一项是指示是否修改了 <see cref="SongInfo"/> 的布尔值，第二项是 <see cref="SongInfo"/> 实例。若第一项为 <see langword="false"/> ，则表示没有必要对 <see cref="SongInfo"/> 进行修改</returns>
+    public static ValueTuple<bool, SongInfo> TryFillArtistForSong(SongInfo songInfo)
+    {
+        if (songInfo.Artists is null || songInfo.Artists.Any() != true)
+        {
+            songInfo = songInfo with { Artists = ["MSR".GetLocalized()] };
+
+            return (true, songInfo);
+        }
+        else
+        {
+            return (false, songInfo);
+        }
+    }
+
+    public static bool TryFillArtistForSongs(IList<SongInfo> songs)
+    {
+        bool isModify = false;
+
+        for (int i = 0; i < songs.Count; i++)
+        {
+            (bool modifySuccess, SongInfo songInfo) = TryFillArtistForSong(songs[i]);
+
+            if (modifySuccess)
+            {
+                songs[i] = songInfo;
+                isModify = true;
+            }
+        }
+
+        return isModify;
+    }
+
+    /// <summary>
+    /// 尝试为 <see cref="SongDetail"/> 填充艺术家信息
+    /// </summary>
+    /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例</param>
+    /// <returns>一个二元组，第一项是指示是否修改了 <see cref="SongDetail"/> 的布尔值，第二项是 <see cref="SongDetail"/> 实例。若第一项为 <see langword="false"/> ，则表示没有必要对 <see cref="SongDetail"/> 进行修改</returns>
+    public static ValueTuple<bool, SongDetail> TryFillArtistForSong(SongDetail songDetail)
+    {
+        if (songDetail.Artists is null || songDetail.Artists.Any() != true)
+        {
+            songDetail = songDetail with { Artists = ["MSR".GetLocalized()] };
+
+            return (true, songDetail);
+        }
+        else
+        {
+            return (false, songDetail);
+        }
+    }
 }
