@@ -8,6 +8,7 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
+using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -22,6 +23,7 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
+    private long tokenForPlaylistPageItemIsExpandChangedEvent;
 
     public MainViewModel ViewModel { get; }
 
@@ -40,10 +42,6 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
         LoadPlaylistForNavigationView();
-
-        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
-        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
-        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
     }
 
     ~MainPage()
@@ -327,14 +325,14 @@ public sealed partial class MainPage : Page
         PlaylistPageItem.MenuItems.Clear();
         foreach (Playlist playlist in PlaylistService.TotalPlaylists)
         {
-            Microsoft.UI.Xaml.Controls.NavigationViewItem item = CreateNavItemByPlaylist(playlist);
+            MUXCNavigationViewItem item = CreateNavItemByPlaylist(playlist);
             PlaylistPageItem.MenuItems.Add(item);
         }
     }
 
-    private Microsoft.UI.Xaml.Controls.NavigationViewItem CreateNavItemByPlaylist(Playlist playlist)
+    private MUXCNavigationViewItem CreateNavItemByPlaylist(Playlist playlist)
     {
-        Microsoft.UI.Xaml.Controls.NavigationViewItem item = new()
+        MUXCNavigationViewItem item = new()
         {
             DataContext = playlist,
             ContextFlyout = PlaylistItemFlyout,
@@ -435,6 +433,13 @@ public sealed partial class MainPage : Page
         OnNetworkStatusChanged();
 
         PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+
+        // 当在 Code-behind 中添加事件处理器，且 handledEventsToo 设置为 true 时
+        // 我们才能捕获到 e.Handled 被设为 true 的事件
+        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
+        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+
+        tokenForPlaylistPageItemIsExpandChangedEvent = PlaylistPageItem.RegisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, OnPlaylistPageItemIsExpandedChanged);
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -447,6 +452,24 @@ public sealed partial class MainPage : Page
         }
         NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
         PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+
+        MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
+        MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
+
+        PlaylistPageItem.UnregisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, tokenForPlaylistPageItemIsExpandChangedEvent);
+    }
+
+    private void OnPlaylistPageItemIsExpandedChanged(DependencyObject sender, DependencyProperty dp)
+    {
+        if (dp == MUXCNavigationViewItem.IsExpandedProperty)
+        {
+            bool isExpanded = (bool)sender.GetValue(dp);
+
+            if (!isExpanded)
+            {
+                sender.SetValue(dp, true);
+            }
+        }
     }
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -461,7 +484,7 @@ public sealed partial class MainPage : Page
                     {
                         if (item is Playlist playlist)
                         {
-                            Microsoft.UI.Xaml.Controls.NavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                            MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
                             target.Add(navItem);
                         }
                     }
@@ -480,7 +503,7 @@ public sealed partial class MainPage : Page
                     object newPlaylist = e.NewItems[0];
                     if (newPlaylist is Playlist playlist)
                     {
-                        Microsoft.UI.Xaml.Controls.NavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                        MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
                         target[e.OldStartingIndex] = navItem;
                     }
                 }

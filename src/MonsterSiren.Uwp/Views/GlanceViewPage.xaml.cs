@@ -1,7 +1,5 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-using Microsoft.Graphics.Canvas.Text;
-using Microsoft.Graphics.Canvas;
 using Windows.Graphics.Display;
 using Windows.UI.ViewManagement;
 

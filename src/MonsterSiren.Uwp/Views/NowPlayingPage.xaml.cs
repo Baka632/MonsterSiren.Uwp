@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using System.Security.Cryptography;
-using System.Threading;
-using MonsterSiren.Api.Models.Song;
+﻿using System.Threading;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.UI.Core;
