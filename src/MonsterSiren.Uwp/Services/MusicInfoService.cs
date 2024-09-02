@@ -536,6 +536,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
     {
         if (isMediaChanging)
         {
+            // TODO: 优化一下？
             formerMusicDisplayProperties = CurrentMusicProperties;
             CurrentMusicProperties = null;
         }
@@ -594,8 +595,8 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayMusic();
         await UIThreadHelper.RunOnUIThread(() =>
         {
-            IsLoadingMedia = false;
             CurrentMusicProperties = formerMusicDisplayProperties;
+            IsLoadingMedia = false;
         });
     }
 

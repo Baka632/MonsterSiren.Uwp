@@ -1,4 +1,6 @@
-﻿namespace MonsterSiren.Uwp.ViewModels;
+﻿using System.Net.Http;
+
+namespace MonsterSiren.Uwp.ViewModels;
 
 public sealed partial class PlaylistViewModel : ObservableObject
 {
@@ -33,14 +35,42 @@ public sealed partial class PlaylistViewModel : ObservableObject
         }
         else
         {
-            await PlaylistService.PlayForPlaylistAsync(playlist);
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+            try
+            {
+                await PlaylistService.PlayForPlaylistAsync(playlist);
+            }
+            catch (HttpRequestException)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
     }
 
     [RelayCommand]
     private static async Task AddToNowPlaying(Playlist playlist)
     {
-        await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
+        try
+        {
+            await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+        }
+        catch (HttpRequestException)
+        {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]

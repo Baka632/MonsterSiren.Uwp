@@ -30,7 +30,16 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
         }
         else
         {
-            await PlaylistService.PlayForPlaylistAsync(CurrentPlaylist);
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+            try
+            {
+                await PlaylistService.PlayForPlaylistAsync(CurrentPlaylist);
+            }
+            catch (HttpRequestException)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
     }
 
@@ -55,16 +64,52 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private static async Task AddItemToNowPlaying(PlaylistItem item)
     {
-        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
 
-        await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
+        try
+        {
+            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+            await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
+        }
+        catch (HttpRequestException)
+        {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]
     private async Task AddCurrentPlaylistToNowPlaying()
     {
-        await PlaylistService.AddPlaylistToNowPlayingAsync(CurrentPlaylist);
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
+        try
+        {
+            await PlaylistService.AddPlaylistToNowPlayingAsync(CurrentPlaylist);
+        }
+        catch (HttpRequestException)
+        {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]
@@ -82,9 +127,16 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private static async Task DownloadForItem(PlaylistItem item)
     {
-        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-        _ = DownloadService.DownloadSong(albumDetail, songDetail);
+        try
+        {
+            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+            _ = DownloadService.DownloadSong(albumDetail, songDetail);
+        }
+        catch (HttpRequestException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]
@@ -211,6 +263,12 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
             return;
         }
 
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
         try
         {
             List<MediaPlaybackItem> songs = new(selectedItems.Count);
@@ -234,6 +292,10 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
         }
         catch (HttpRequestException)
         {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }

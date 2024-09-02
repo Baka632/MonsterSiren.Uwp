@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http;
+using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
@@ -204,7 +205,17 @@ sealed partial class App : Application
         }
         else
         {
-            await PlaylistService.PlayForPlaylistsAsync(playlists);
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+            try
+            {
+                await PlaylistService.PlayForPlaylistsAsync(playlists);
+            }
+            catch (HttpRequestException)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
     }
 

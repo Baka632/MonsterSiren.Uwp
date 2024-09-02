@@ -117,6 +117,12 @@ public sealed partial class SearchViewModel : ObservableObject
     [RelayCommand]
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
         try
         {
             await Task.Run(async () =>
@@ -135,6 +141,10 @@ public sealed partial class SearchViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
@@ -179,6 +189,7 @@ public sealed partial class SearchViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 

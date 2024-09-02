@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Net.Http;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
@@ -13,8 +14,6 @@ using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
 namespace MonsterSiren.Uwp.Views;
-
-// TODO: 优化一下播放控制区中歌曲名的布局
 
 /// <summary>
 /// 应用主页面
@@ -387,35 +386,42 @@ public sealed partial class MainPage : Page
 
         item.Drop += async (s, e) =>
         {
-            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+            try
             {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
-
-                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
-
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
+                if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
                 {
+                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+                    AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
+
+                    foreach (SongInfo songInfo in albumDetail.Songs)
+                    {
+                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                        await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
+                    }
+                }
+                else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId))
+                {
+                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId);
+
+                    (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
                     SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+
                     await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
                 }
+                else if (e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId))
+                {
+                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemFormatId);
+
+                    PlaylistItem item = JsonSerializer.Deserialize<PlaylistItem>(json);
+                    await PlaylistService.AddItemForPlaylistAsync(playlist, item);
+                }
             }
-            else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId))
+            catch (HttpRequestException)
             {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId);
-
-                (SongInfo songInfo, AlbumDetail albumDetail) = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-
-                await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
-            }
-            else if (e.DataView.Contains(CommonValues.MusicPlaylistItemFormatId))
-            {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemFormatId);
-
-                PlaylistItem item = JsonSerializer.Deserialize<PlaylistItem>(json);
-                await PlaylistService.AddItemForPlaylistAsync(playlist, item);
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
             }
         };
         return item;
@@ -578,7 +584,25 @@ public sealed partial class MainPage : Page
 
             Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
 
-            await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+            bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+            }
+
+            try
+            {
+                await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+            }
+            catch (HttpRequestException)
+            {
+                if (shouldSendUpdateMediaMessage)
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
+
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
     }
 

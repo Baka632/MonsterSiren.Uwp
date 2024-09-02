@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -248,14 +249,13 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">要播放的播放列表</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task PlayForPlaylistAsync(Playlist playlist)
     {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
         }
-
-        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
         await Task.Run(async () =>
         {
@@ -272,10 +272,6 @@ public static class PlaylistService
             {
                 MusicService.ReplaceMusic(list);
             }
-            else
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
         });
     }
 
@@ -284,14 +280,13 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlists">要播放的播放列表序列</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlists"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task PlayForPlaylistsAsync(IEnumerable<Playlist> playlists)
     {
         if (playlists is null)
         {
             throw new ArgumentNullException(nameof(playlists));
         }
-
-        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
 
         await Task.Run(async () =>
         {
@@ -311,10 +306,6 @@ public static class PlaylistService
             {
                 MusicService.ReplaceMusic(list);
             }
-            else
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
         });
     }
 
@@ -323,6 +314,7 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task AddPlaylistToNowPlayingAsync(Playlist playlist)
     {
         if (playlist is null)
@@ -353,6 +345,7 @@ public static class PlaylistService
     /// <param name="albumDetail">表示歌曲所属专辑详细信息的 <see cref="AlbumDetail"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     /// <exception cref="ArgumentException"><paramref name="songDetail"/> 中所属专辑的 CID 和 <paramref name="albumDetail"/> 中的 CID 不符。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task AddItemForPlaylistAsync(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
     {
         if (playlist is null)
