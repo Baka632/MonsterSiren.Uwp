@@ -156,10 +156,14 @@ sealed partial class App : Application
     {
         await InitializeAppWhenActivate();
 
-        if (args.Kind == ActivationKind.Protocol)
+        if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
             // TODO: 添加 URI 参数解析
-            // ;-)
+            Uri uri = protocol.Uri;
+            if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
         }
     }
 

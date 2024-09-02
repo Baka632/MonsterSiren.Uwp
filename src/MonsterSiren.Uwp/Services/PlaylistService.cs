@@ -412,10 +412,87 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(source));
         }
 
-        foreach (PlaylistItem item in source)
+        await AddItemsForPlaylistAsync(target, source.Items);
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="items">包含 <see cref="PlaylistItem"/> 项的集合</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<PlaylistItem> items)
+    {
+        if (playlist is null)
         {
-            await AddItemForPlaylistAsync(target, item);
+            throw new ArgumentNullException(nameof(playlist));
         }
+
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        if (!items.Any())
+        {
+            return;
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (PlaylistItem item in items)
+                {
+                    if (playlist.Items.Contains(item))
+                    {
+                        continue;
+                    }
+
+                    playlist.Items.Add(item);
+                }
+            });
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="tuples">包含 <see cref="SongDetail"/> 和 <see cref="AlbumDetail"/> 元组的集合</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="tuples"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<ValueTuple<SongDetail, AlbumDetail>> tuples)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (tuples is null)
+        {
+            throw new ArgumentNullException(nameof(tuples));
+        }
+
+        List<PlaylistItem> items = new(tuples.Count());
+
+        foreach ((SongDetail songDetail, AlbumDetail albumDetail) in tuples)
+        {
+            if (songDetail.AlbumCid != albumDetail.Cid)
+            {
+                throw new ArgumentException($"歌曲信息中，{songDetail.Name} 所属专辑的 CID 和专辑信息 {albumDetail.Name} 中的 CID 不符。");
+            }
+
+            TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
+            PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+            items.Add(item);
+        }
+
+        await AddItemsForPlaylistAsync(playlist, items);
     }
 
     /// <summary>
@@ -424,14 +501,45 @@ public static class PlaylistService
     /// <param name="playlist">指定的播放列表</param>
     /// <param name="item">一个 <see cref="PlaylistItem"/> 实例</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    public static void RemoveItemForPlaylist(Playlist playlist, PlaylistItem item)
+    public static async Task RemoveItemForPlaylistAsync(Playlist playlist, PlaylistItem item)
     {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        playlist.Items.Remove(item);
+        await UIThreadHelper.RunOnUIThread(() => playlist.Items.Remove(item));
+    }
+
+    /// <summary>
+    /// 在指定的播放列表中移除一组歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="items">包含 <see cref="PlaylistItem"/> 的集合</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task RemoveItemsForPlaylist(Playlist playlist, IEnumerable<PlaylistItem> items)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (PlaylistItem item in items)
+                {
+                    playlist.Items.Remove(item);
+                }
+            });
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
     }
 
     /// <summary>

@@ -356,6 +356,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
 
         try
         {
+            List<ValueTuple<SongDetail, AlbumDetail>> details = [];
             foreach (object item in selectedItems)
             {
                 if (item is SongInfo songInfo)
@@ -363,10 +364,12 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
                     await Task.Run(async () =>
                     {
                         SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                        await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, CurrentAlbumDetail);
+                        details.Add((songDetail, CurrentAlbumDetail));
                     });
                 }
             }
+
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, details);
         }
         catch (HttpRequestException)
         {

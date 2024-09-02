@@ -21,6 +21,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     private string _title;
     private string _description;
     private BitmapImage _playlistCoverImage;
+    private bool isBlocking = false;
 
     /// <summary>
     /// 播放列表的标题
@@ -119,6 +120,11 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        if (isBlocking)
+        {
+            return;
+        }
+
         if (e.Action is not NotifyCollectionChangedAction.Move)
         {
             TotalDuration = CalculateTotalTimeSpan();
@@ -127,7 +133,11 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
         OnPropertiesChanged(nameof(SongCount));
 
-        await SelectCoverImage();
+        if (e.NewStartingIndex == 0 || e.OldStartingIndex == 0)
+        {
+            await SelectCoverImage();
+        }
+        
         await PlaylistService.SavePlaylistAsync(this);
     }
 
@@ -152,6 +162,11 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 
                 await UIThreadHelper.RunOnUIThread(() =>
                 {
+                    if (PlaylistCoverImage?.UriSource == uri)
+                    {
+                        return;
+                    }
+
                     PlaylistCoverImage = new(uri);
                 });
             }
@@ -188,6 +203,28 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     public override bool Equals(object obj)
     {
         return Equals(obj as Playlist);
+    }
+
+    /// <summary>
+    /// 阻止播放列表在其集合更新时更新自身信息。请务必在完成操作后调用 <see cref="RestoreInfoUpdateAsync"/> 方法。
+    /// </summary>
+    public void BlockInfoUpdate()
+    {
+        isBlocking = true;
+    }
+
+    /// <summary>
+    /// 恢复播放列表更新自身信息的功能，并立刻无条件地进行一次信息更新。
+    /// </summary>
+    public async Task RestoreInfoUpdateAsync()
+    {
+        isBlocking = false;
+
+        TotalDuration = CalculateTotalTimeSpan();
+        OnPropertiesChanged(nameof(TotalDuration));
+        OnPropertiesChanged(nameof(SongCount));
+        await SelectCoverImage();
+        await PlaylistService.SavePlaylistAsync(this);
     }
 
     public bool Equals(Playlist other)

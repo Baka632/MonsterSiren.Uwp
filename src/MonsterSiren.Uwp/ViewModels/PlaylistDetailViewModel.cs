@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using MonsterSiren.Uwp.Models;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -96,9 +97,9 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
-    private void RemoveItemFromPlaylist(PlaylistItem item)
+    private async Task RemoveItemFromPlaylist(PlaylistItem item)
     {
-        PlaylistService.RemoveItemForPlaylist(CurrentPlaylist, item);
+        await PlaylistService.RemoveItemForPlaylistAsync(CurrentPlaylist, item);
     }
 
     [RelayCommand]
@@ -249,13 +250,8 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
 
         try
         {
-            foreach (object item in selectedItems)
-            {
-                if (item is PlaylistItem playlistItem)
-                {
-                    await PlaylistService.AddItemForPlaylistAsync(playlist, playlistItem);
-                }
-            }
+            PlaylistItem[] items = selectedItems.Where(item => item is PlaylistItem).Select(item => (PlaylistItem)item).ToArray();
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
         }
         catch (HttpRequestException)
         {
@@ -291,7 +287,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
-    private void RemoveSongListSelectedItemFromPlaylist()
+    private async Task RemoveSongListSelectedItemFromPlaylist()
     {
         IList<object> selectedItems = view.SongList.SelectedItems;
 
@@ -300,13 +296,8 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
             return;
         }
 
-        foreach (object item in selectedItems)
-        {
-            if (item is PlaylistItem playlistItem)
-            {
-                PlaylistService.RemoveItemForPlaylist(CurrentPlaylist, playlistItem);
-            }
-        }
+        PlaylistItem[] items = selectedItems.Where(item => item is PlaylistItem).Select(item => (PlaylistItem)item).ToArray();
+        await PlaylistService.RemoveItemsForPlaylist(CurrentPlaylist, items);
 
         StopMultipleSelection();
     }

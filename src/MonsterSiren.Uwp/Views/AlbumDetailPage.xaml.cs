@@ -61,6 +61,8 @@ public sealed partial class AlbumDetailPage : Page
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
+        // TODO: 不要只选一个嘛，多选拖拽怎么办？
+
         object dataContext = e.Items.FirstOrDefault();
 
         if (dataContext is null)
