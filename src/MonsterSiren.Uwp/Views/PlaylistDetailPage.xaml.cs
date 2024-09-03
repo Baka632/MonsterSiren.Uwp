@@ -68,21 +68,25 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        // TODO: 不要只选一个嘛，多选拖拽怎么办？
-
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
+        if (e.Items.Count <= 0)
         {
             e.Cancel = true;
             return;
         }
 
-        PlaylistItem pack = (PlaylistItem)dataContext;
+        List<PlaylistItem> items = new(e.Items.Count);
 
-        string json = JsonSerializer.Serialize(pack);
+        foreach (object item in e.Items)
+        {
+            if (item is PlaylistItem playlistItem)
+            {
+                items.Add(playlistItem);
+            }
+        }
 
-        e.Data.SetData(CommonValues.MusicPlaylistItemFormatId, json);
+        string json = JsonSerializer.Serialize(items);
+
+        e.Data.SetData(CommonValues.MusicPlaylistItemsFormatId, json);
     }
 
     private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)

@@ -61,21 +61,25 @@ public sealed partial class AlbumDetailPage : Page
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        // TODO: 不要只选一个嘛，多选拖拽怎么办？
-
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
+        if (e.Items.Count <= 0)
         {
             e.Cancel = true;
             return;
         }
 
-        SongInfoAndAlbumDetailPack pack = new((SongInfo)dataContext, ViewModel.CurrentAlbumDetail);
+        List<SongInfoAndAlbumDetailPack> packs = new(e.Items.Count);
 
-        string json = JsonSerializer.Serialize(pack);
+        foreach (object item in e.Items)
+        {
+            if (item is SongInfo songInfo)
+            {
+                packs.Add(new SongInfoAndAlbumDetailPack(songInfo, ViewModel.CurrentAlbumDetail));
+            }
+        }
 
-        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPackFormatId, json);
+        string json = JsonSerializer.Serialize(packs);
+
+        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId, json);
     }
 
     private void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)

@@ -247,6 +247,44 @@ public partial class MainViewModel : ObservableRecipient
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
+
+    public static async Task AddToNowPlayingForSongInfos(IEnumerable<SongInfoAndAlbumDetailPack> packs)
+    {
+        if (!packs.Any())
+        {
+            return;
+        }
+
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                List<MediaPlaybackItem> playbackItems = new(packs.Count());
+
+                foreach ((SongInfo songInfo, AlbumDetail albumDetail) in packs)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
+                }
+
+                MusicService.AddMusic(playbackItems);
+            });
+        }
+        catch (HttpRequestException)
+        {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
     
     public static async Task AddToNowPlayingForSongDetail(SongDetail songDetail, AlbumDetail albumDetail)
     {
@@ -259,6 +297,46 @@ public partial class MainViewModel : ObservableRecipient
         try
         {
             await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
+        }
+        catch (HttpRequestException)
+        {
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    public static async Task AddToNowPlayingForPlaylistItems(IEnumerable<PlaylistItem> items)
+    {
+        if (!items.Any())
+        {
+            return;
+        }
+
+        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
+        if (shouldSendUpdateMediaMessage)
+        {
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+        }
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                List<MediaPlaybackItem> playbackItems = new(items.Count());
+
+                foreach (PlaylistItem item in items)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
+                }
+
+                MusicService.AddMusic(playbackItems);
+            });
         }
         catch (HttpRequestException)
         {
