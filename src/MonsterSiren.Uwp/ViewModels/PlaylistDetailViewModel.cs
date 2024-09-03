@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using MonsterSiren.Uwp.Models;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -149,6 +150,17 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
+    private static void CopySongNameToClipboard(PlaylistItem item)
+    {
+        DataPackage package = new()
+        {
+            RequestedOperation = DataPackageOperation.Copy
+        };
+        package.SetText(item.SongTitle);
+        Clipboard.SetContent(package);
+    }
+
+    [RelayCommand]
     private async Task RemoveItemFromPlaylist(PlaylistItem item)
     {
         await PlaylistService.RemoveItemForPlaylistAsync(CurrentPlaylist, item);
@@ -190,7 +202,16 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private void StartMultipleSelection()
     {
+        // Single 模式只能选一个
+        ItemIndexRange range = view.SongList.SelectedRanges.FirstOrDefault();
+
         view.SongList.SelectionMode = ListViewSelectionMode.Multiple;
+
+        if (range is not null)
+        {
+            view.SongList.SelectRange(range);
+        }
+
         SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
     }
 

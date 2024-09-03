@@ -489,4 +489,7 @@
   <data name="DeselectAllForSongList.Text" xml:space="preserve">
     <value>Deselect all</value>
   </data>
+  <data name="CopySongName.Text" xml:space="preserve">
+    <value>Copy the song name</value>
+  </data>
 </root>

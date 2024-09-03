@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -266,9 +267,29 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     }
 
     [RelayCommand]
+    private static void CopySongNameToClipboard(SongInfo songInfo)
+    {
+        DataPackage package = new()
+        {
+            RequestedOperation = DataPackageOperation.Copy
+        };
+        package.SetText(songInfo.Name);
+        Clipboard.SetContent(package);
+    }
+
+    [RelayCommand]
     private void StartMultipleSelection()
     {
+        // Single 模式只能选一个
+        ItemIndexRange range = view.SongList.SelectedRanges.FirstOrDefault();
+
         view.SongList.SelectionMode = ListViewSelectionMode.Multiple;
+
+        if (range is not null)
+        {
+            view.SongList.SelectRange(range);
+        }
+
         SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
     }
 

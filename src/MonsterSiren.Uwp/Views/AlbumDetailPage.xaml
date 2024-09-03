@@ -29,6 +29,11 @@
                 Command="{x:Bind ViewModel.DownloadForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Download" />
+            <MenuFlyoutItem
+                x:Uid="CopySongName"
+                Command="{x:Bind ViewModel.CopySongNameToClipboardCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="Copy" />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="SelectForSongList"
@@ -256,7 +261,6 @@
                                 Margin="0,0,5,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
-                                IsTextSelectionEnabled="True"
                                 Text="{x:Bind Name}"
                                 TextTrimming="CharacterEllipsis"
                                 ToolTipService.ToolTip="{x:Bind Name}" />

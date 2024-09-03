@@ -567,4 +567,7 @@
   <data name="DeselectAllForSongList.Text" xml:space="preserve">
     <value>全不选</value>
   </data>
+  <data name="CopySongName.Text" xml:space="preserve">
+    <value>复制歌曲名称</value>
+  </data>
 </root>
