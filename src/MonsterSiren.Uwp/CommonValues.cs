@@ -28,6 +28,9 @@ internal static class CommonValues
     #region Animation Key
     public const string AlbumInfoForwardConnectedAnimationKeyForMusicPage = "MusicPage_AlbumInfo_ForwardConnectedAnimation";
     public const string AlbumInfoBackConnectedAnimationKeyForMusicPage = "MusicPage_AlbumInfo_BackConnectedAnimation";
+
+    public const string PlaylistDetailForwardConnectedAnimationKey = "PlaylistDetail_ForwardConnectedAnimation";
+    public const string PlaylistDetailBackConnectedAnimationKey = "PlaylistDetail_BackConnectedAnimation";
     #endregion
 
     #region Settings Key

@@ -3,6 +3,8 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.Json;
+using MonsterSiren.Uwp.Models;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -11,6 +13,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 {
+    private object _storedGridViewItem;
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     public bool IsTotalPlaylistEmpty => PlaylistService.TotalPlaylists.Count <= 0;
@@ -19,14 +23,14 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     public PlaylistPage()
     {
         this.InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Enabled;
     }
 
     private void OnPlaylistItemClick(object sender, ItemClickEventArgs e)
     {
-        if (e.ClickedItem is Playlist playlist)
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
-        }
+        _storedGridViewItem = e.ClickedItem;
+        PlaylistGridView.PrepareConnectedAnimation(CommonValues.PlaylistDetailForwardConnectedAnimationKey, e.ClickedItem, "PlaylistCoverGrid");
+        ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), e.ClickedItem, new SuppressNavigationTransitionInfo());
     }
 
     private void OnPlaylistItemsDragStarting(object sender, DragItemsStartingEventArgs e)
@@ -43,11 +47,26 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
         e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
         PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+
+        if (_storedGridViewItem is not null && e.NavigationMode == NavigationMode.Back)
+        {
+            PlaylistGridView.ScrollIntoView(_storedGridViewItem);
+            PlaylistGridView.UpdateLayout();
+
+            ConnectedAnimation animation =
+                ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.PlaylistDetailBackConnectedAnimationKey);
+            if (animation != null)
+            {
+                await PlaylistGridView.TryStartConnectedAnimationAsync(animation, _storedGridViewItem, "PlaylistCoverGrid");
+            }
+
+            PlaylistGridView.Focus(FocusState.Programmatic);
+        }
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)

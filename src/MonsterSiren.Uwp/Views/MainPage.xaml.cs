@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
-using MonsterSiren.Api.Models.Song;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
@@ -360,7 +359,7 @@ public sealed partial class MainPage : Page
                 return;
             }
 
-            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), (playlist, false), CommonValues.DefaultTransitionInfo);
 
             ChangeSelectedItemOfNavigationView();
         };

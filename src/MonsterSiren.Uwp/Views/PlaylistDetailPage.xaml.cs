@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -16,6 +17,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 {
+    private bool enableBackAnimation = true;
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     public bool IsPlaylistEmpty { get => (ViewModel.CurrentPlaylist.Items.Count) <= 0; }
@@ -49,9 +52,23 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
     {
         base.OnNavigatedTo(e);
 
-        Playlist model = (Playlist)e.Parameter;
-        ViewModel.Initialize(model);
-        ViewModel.CurrentPlaylist.Items.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+        ConnectedAnimation animation =
+                ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.PlaylistDetailForwardConnectedAnimationKey);
+        animation?.TryStart(CoverGrid, [PlaylistInfoGrid]);
+
+        if (e.Parameter is Playlist playlist)
+        {
+            ViewModel.Initialize(playlist);
+            ViewModel.CurrentPlaylist.Items.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+        }
+        else if (e.Parameter is ValueTuple<Playlist, bool> tuple)
+        {
+            playlist = tuple.Item1;
+            enableBackAnimation = tuple.Item2;
+
+            ViewModel.Initialize(playlist);
+            ViewModel.CurrentPlaylist.Items.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+        }
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -59,6 +76,11 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         base.OnNavigatedFrom(e);
 
         ViewModel.CurrentPlaylist.Items.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+
+        if (e.NavigationMode == NavigationMode.Back && enableBackAnimation && !ViewModel.IsToBeRemoved)
+        {
+            ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.PlaylistDetailBackConnectedAnimationKey, CoverGrid);
+        }
     }
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

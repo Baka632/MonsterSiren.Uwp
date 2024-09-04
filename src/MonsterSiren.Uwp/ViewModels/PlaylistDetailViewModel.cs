@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
-using MonsterSiren.Uwp.Models;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -13,6 +12,8 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private PlaylistItem selectedItem;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
+
+    public bool IsToBeRemoved { get; private set; }
 
     public void Initialize(Playlist model)
     {
@@ -195,6 +196,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
         if (result == ContentDialogResult.Primary)
         {
             await PlaylistService.RemovePlaylistAsync(CurrentPlaylist);
+            IsToBeRemoved = true;
             ContentFrameNavigationHelper.GoBack();
         }
     }

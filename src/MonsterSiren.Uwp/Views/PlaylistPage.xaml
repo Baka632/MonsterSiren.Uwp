@@ -84,6 +84,7 @@
             </StackPanel>
 
             <GridView
+                x:Name="PlaylistGridView"
                 Grid.Row="1"
                 animations:ReorderGridAnimation.Duration="500"
                 CanDragItems="True"
@@ -124,26 +125,23 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <Image
-                                x:Name="AlbumImage"
-                                Grid.Row="0"
-                                Width="170"
-                                Height="170"
-                                Source="{x:Bind PlaylistCoverImage, Mode=OneWay}"
-                                Stretch="UniformToFill"
-                                Visibility="{x:Bind helpers:XamlHelper.IsNullReverseVisibility(PlaylistCoverImage), Mode=OneWay}" />
                             <Grid
+                                x:Name="PlaylistCoverGrid"
                                 Grid.Row="0"
                                 Width="170"
-                                Height="170"
-                                Background="#4b4b4b"
-                                Visibility="{x:Bind helpers:XamlHelper.IsNullToVisibility(PlaylistCoverImage), Mode=OneWay}">
-                                <FontIcon
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontSize="50"
-                                    Foreground="White"
-                                    Glyph="&#xE955;" />
+                                Height="170">
+                                <Image
+                                    Source="{x:Bind PlaylistCoverImage, Mode=OneWay}"
+                                    Stretch="UniformToFill"
+                                    Visibility="{x:Bind helpers:XamlHelper.IsNullReverseVisibility(PlaylistCoverImage), Mode=OneWay}" />
+                                <Grid Background="#4b4b4b" Visibility="{x:Bind helpers:XamlHelper.IsNullToVisibility(PlaylistCoverImage), Mode=OneWay}">
+                                    <FontIcon
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="50"
+                                        Foreground="White"
+                                        Glyph="&#xE955;" />
+                                </Grid>
                             </Grid>
 
                             <TextBlock
