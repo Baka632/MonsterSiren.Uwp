@@ -129,6 +129,11 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task AddPlaylistToNowPlaying(Playlist playlist)
     {
+        if (playlist.Items.Count <= 0)
+        {
+            return;
+        }
+
         bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
         if (shouldSendUpdateMediaMessage)
         {

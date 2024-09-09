@@ -93,6 +93,11 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task AddCurrentPlaylistToNowPlaying()
     {
+        if (CurrentPlaylist.Items.Count <= 0)
+        {
+            return;
+        }
+
         bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
         if (shouldSendUpdateMediaMessage)
         {

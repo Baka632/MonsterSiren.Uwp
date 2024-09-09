@@ -92,8 +92,7 @@
             CanDragItems="True"
             CanReorderItems="True"
             DragItemsStarting="OnSongListViewItemsDragStarting"
-            ItemsSource="{x:Bind ViewModel.CurrentPlaylist.Items, Mode=OneWay}"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPlaylistEmpty), Mode=OneWay}">
+            ItemsSource="{x:Bind ViewModel.CurrentPlaylist.Items, Mode=OneWay}">
 
             <ListView.Header>
                 <Grid Margin="0,0,0,20">
@@ -104,6 +103,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid x:Name="CoverGrid">
@@ -250,6 +250,22 @@
                             </Button>
                         </StackPanel>
                     </Grid>
+
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.ColumnSpan="2"
+                        Margin="0,50,0,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPlaylistEmpty), Mode=OneWay}">
+                        <FontIcon
+                            Margin="0,0,0,5"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="35"
+                            Glyph="&#xE10C;" />
+                        <TextBlock x:Uid="NoSongsInPlaylist" />
+                    </StackPanel>
                 </Grid>
             </ListView.Header>
 
@@ -298,20 +314,6 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
-        <StackPanel
-            Margin="0,20,0,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPlaylistEmpty), Mode=OneWay}">
-            <FontIcon
-                Margin="0,0,0,5"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="35"
-                Glyph="&#xE10C;" />
-            <TextBlock x:Uid="NoSongsInPlaylist" />
-        </StackPanel>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>

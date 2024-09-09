@@ -34,9 +34,9 @@ public sealed partial class NewsPage : Page
         timer.Start();
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         if (timer is not null)
         {

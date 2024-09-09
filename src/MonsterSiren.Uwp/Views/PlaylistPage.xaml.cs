@@ -3,7 +3,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.Json;
-using MonsterSiren.Uwp.Models;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -69,9 +68,9 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
         }
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
     }

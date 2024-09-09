@@ -454,9 +454,9 @@ public sealed partial class MainPage : Page
         tokenForPlaylistPageItemIsExpandChangedEvent = PlaylistPageItem.RegisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, OnPlaylistPageItemIsExpandedChanged);
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         if (NavigationView?.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
         {
@@ -587,6 +587,11 @@ public sealed partial class MainPage : Page
             string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistFormatId);
 
             Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
+
+            if (playlist.Items.Count <= 0)
+            {
+                return;
+            }
 
             bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
             if (shouldSendUpdateMediaMessage)
