@@ -492,4 +492,7 @@
   <data name="CopySongName.Text" xml:space="preserve">
     <value>Copy the song name</value>
   </data>
+  <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
+    <value>The CID entered is incorrect, please enter the correct CID.</value>
+  </data>
 </root>

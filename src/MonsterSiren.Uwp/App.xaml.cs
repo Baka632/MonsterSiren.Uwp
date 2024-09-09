@@ -1,7 +1,9 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
+using TagLib.Ape;
 using Windows.Foundation.Metadata;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Notifications;
@@ -159,11 +161,73 @@ sealed partial class App : Application
 
         if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
-            // TODO: 添加 URI 参数解析
             Uri uri = protocol.Uri;
-            if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
+            if (uri.Segments.Length > 1)
             {
+                string argument = uri.Segments[1];
 
+                if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+                    try
+                    {
+                        await Task.Run(async () =>
+                        {
+                            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(argument);
+                            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
+                            MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(albumDetail));
+                        });
+                    }
+                    catch (HttpRequestException)
+                    {
+                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                }
+                else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
+
+                    try
+                    {
+                        await Task.Run(async () =>
+                        {
+                            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
+                            List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
+
+                            foreach (SongInfo songInfo in albumDetail.Songs)
+                            {
+                                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
+                                playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
+                            }
+
+                            if (playbackItems.Count != 0)
+                            {
+                                MusicService.ReplaceMusic(playbackItems);
+                            }
+                            else
+                            {
+                                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                            }
+                        });
+                    }
+                    catch (HttpRequestException)
+                    {
+                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                }
             }
         }
     }

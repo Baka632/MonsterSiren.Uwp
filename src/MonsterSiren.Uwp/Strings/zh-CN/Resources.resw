@@ -570,4 +570,7 @@
   <data name="CopySongName.Text" xml:space="preserve">
     <value>复制歌曲名称</value>
   </data>
+  <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
+    <value>输入的 CID 有误，请输入正确的 CID。</value>
+  </data>
 </root>
