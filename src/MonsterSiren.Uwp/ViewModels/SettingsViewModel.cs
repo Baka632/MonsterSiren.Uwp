@@ -342,4 +342,11 @@ public partial class SettingsViewModel : ObservableObject
         CodecInfoDialog dialog = new(codecs);
         _ = await dialog.ShowAsync();
     }
+
+    [RelayCommand]
+    private static async Task OpenCopyrightNoticeDialog()
+    {
+        CopyrightDialog copyrightDialog = new();
+        await copyrightDialog.ShowAsync();
+    }
 }

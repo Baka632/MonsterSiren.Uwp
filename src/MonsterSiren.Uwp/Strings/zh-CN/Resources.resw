@@ -573,4 +573,22 @@
   <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
     <value>输入的 CID 有误，请输入正确的 CID。</value>
   </data>
+  <data name="CopyrightNoticeMessage.Text" xml:space="preserve">
+    <value>本应用为同人作品，不代表官方。应用行为本身与官方无关。
+本应用中呈现的专辑封面、音乐音频等内容，版权属于上海鹰角网络科技有限公司。
+
+本应用的代码使用 MIT 许可证许可给你。</value>
+  </data>
+  <data name="OpenSourceLicenseMessage.Text" xml:space="preserve">
+    <value>本应用使用了以下开源库：</value>
+  </data>
+  <data name="CopyrightDialog.Title" xml:space="preserve">
+    <value>知识产权的表述</value>
+  </data>
+  <data name="SettingsPage_CopyrightStatement.Text" xml:space="preserve">
+    <value>知识产权的表述</value>
+  </data>
+  <data name="CopyrightDialog.CloseButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
 </root>

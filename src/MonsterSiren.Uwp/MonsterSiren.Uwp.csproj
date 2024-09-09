@@ -191,6 +191,9 @@
     <Compile Include="Views\CodecInfoDialog.xaml.cs">
       <DependentUpon>CodecInfoDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CopyrightDialog.xaml.cs">
+      <DependentUpon>CopyrightDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
     </Compile>
@@ -328,6 +331,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CodecInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CopyrightDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

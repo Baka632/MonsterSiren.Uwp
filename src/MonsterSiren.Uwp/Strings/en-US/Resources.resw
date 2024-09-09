@@ -495,4 +495,22 @@
   <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
     <value>The CID entered is incorrect, please enter the correct CID.</value>
   </data>
+  <data name="CopyrightNoticeMessage.Text" xml:space="preserve">
+    <value>This app is a fanwork and does not represent the official. The app behavior itself has nothing to do with the official.
+The copyright of the album art, music audio and other content presented in this application belongs to Shanghai Hypergryph Network Technology Co., Ltd.
+
+The code for this app is licensed to you under the MIT license.</value>
+  </data>
+  <data name="OpenSourceLicenseMessage.Text" xml:space="preserve">
+    <value>This app uses the following open-source libraries:</value>
+  </data>
+  <data name="CopyrightDialog.Title" xml:space="preserve">
+    <value>Statement on Intellectual Property</value>
+  </data>
+  <data name="CopyrightDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsPage_CopyrightStatement.Text" xml:space="preserve">
+    <value>Statement on Intellectual Property</value>
+  </data>
 </root>

@@ -405,7 +405,15 @@
                         <Button
                             Margin="0,0,0,5"
                             Background="Transparent"
-                            Command="{x:Bind ViewModel.OpenLogFolderCommand}">
+                            Command="{x:Bind ViewModel.OpenCopyrightNoticeDialogCommand}">
+                            <TextBlock x:Uid="SettingsPage_CopyrightStatement" />
+                        </Button>
+
+                        <Button
+                            Margin="0,0,0,5"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.OpenLogFolderCommand}"
+                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
                             <TextBlock x:Uid="SettingsPage_OpenLogFolder" />
                         </Button>
 

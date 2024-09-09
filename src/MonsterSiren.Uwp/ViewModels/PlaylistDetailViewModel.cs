@@ -239,7 +239,6 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task PlaySongListSelectedItem()
     {
-        // TODO: 对播放列表这种容易变大的东西来说，用 SelectedRanges 更好一些？
         IList<object> selectedItems = view.SongList.SelectedItems;
 
         if (selectedItems.Count == 0)
