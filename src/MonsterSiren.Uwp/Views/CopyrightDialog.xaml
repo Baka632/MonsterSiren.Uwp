@@ -23,7 +23,7 @@
                 TextWrapping="Wrap" />
             <HyperlinkButton Content="Microsoft.UI.Xaml" NavigateUri="https://github.com/microsoft/microsoft-ui-xaml" />
             <HyperlinkButton Content="Windows Community Toolkit" NavigateUri="https://github.com/CommunityToolkit/Windows" />
-            <HyperlinkButton Content=".NET CommunityToolkit" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
+            <HyperlinkButton Content=".NET Community Toolkit" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
             <HyperlinkButton Content="IsExternalInit" NavigateUri="https://github.com/manuelroemer/IsExternalInit" />
             <HyperlinkButton Content="TagLibSharp" NavigateUri="https://github.com/mono/taglib-sharp" />
             <HyperlinkButton Content="Win2D.uwp" NavigateUri="https://github.com/Microsoft/Win2D" />
