@@ -13,8 +13,6 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
-    public bool IsToBeRemoved { get; private set; }
-
     public void Initialize(Playlist model)
     {
         CurrentPlaylist = model ?? throw new ArgumentNullException(nameof(model));
@@ -201,7 +199,6 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
         if (result == ContentDialogResult.Primary)
         {
             await PlaylistService.RemovePlaylistAsync(CurrentPlaylist);
-            IsToBeRemoved = true;
             ContentFrameNavigationHelper.GoBack();
         }
     }

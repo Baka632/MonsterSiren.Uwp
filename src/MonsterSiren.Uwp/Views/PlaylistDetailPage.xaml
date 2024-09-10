@@ -2,6 +2,7 @@
     x:Class="MonsterSiren.Uwp.Views.PlaylistDetailPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:app="using:MonsterSiren.Uwp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
@@ -87,6 +88,7 @@
         <ListView
             x:Name="SongList"
             Margin="0,0,0,10"
+            animations:Connected.Key="PlaylistItemToDetailAnimationKey"
             x:FieldModifier="Public"
             AllowDrop="True"
             CanDragItems="True"

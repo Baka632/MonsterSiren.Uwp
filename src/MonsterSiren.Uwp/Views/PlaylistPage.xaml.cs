@@ -12,8 +12,6 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 {
-    private object _storedGridViewItem;
-
     public event PropertyChangedEventHandler PropertyChanged;
 
     public bool IsTotalPlaylistEmpty => PlaylistService.TotalPlaylists.Count <= 0;
@@ -22,13 +20,10 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     public PlaylistPage()
     {
         this.InitializeComponent();
-        NavigationCacheMode = NavigationCacheMode.Enabled;
     }
 
     private void OnPlaylistItemClick(object sender, ItemClickEventArgs e)
     {
-        _storedGridViewItem = e.ClickedItem;
-        PlaylistGridView.PrepareConnectedAnimation(CommonValues.PlaylistDetailForwardConnectedAnimationKey, e.ClickedItem, "PlaylistCoverGrid");
         ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), e.ClickedItem, new SuppressNavigationTransitionInfo());
     }
 
@@ -46,26 +41,11 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
         e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
         PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
-
-        if (_storedGridViewItem is not null && e.NavigationMode == NavigationMode.Back)
-        {
-            PlaylistGridView.ScrollIntoView(_storedGridViewItem);
-            PlaylistGridView.UpdateLayout();
-
-            ConnectedAnimation animation =
-                ConnectedAnimationService.GetForCurrentView().GetAnimation(CommonValues.PlaylistDetailBackConnectedAnimationKey);
-            if (animation != null)
-            {
-                await PlaylistGridView.TryStartConnectedAnimationAsync(animation, _storedGridViewItem, "PlaylistCoverGrid");
-            }
-
-            PlaylistGridView.Focus(FocusState.Programmatic);
-        }
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)

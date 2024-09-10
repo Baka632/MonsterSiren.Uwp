@@ -359,7 +359,7 @@ public sealed partial class MainPage : Page
                 return;
             }
 
-            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), (playlist, false), CommonValues.DefaultTransitionInfo);
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
 
             ChangeSelectedItemOfNavigationView();
         };

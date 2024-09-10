@@ -86,6 +86,8 @@
             <GridView
                 x:Name="PlaylistGridView"
                 Grid.Row="1"
+                animations:Connected.ListItemElementName="PlaylistCoverGrid"
+                animations:Connected.ListItemKey="PlaylistItemToDetailAnimationKey"
                 animations:ReorderGridAnimation.Duration="500"
                 CanDragItems="True"
                 DragItemsStarting="OnPlaylistItemsDragStarting"
