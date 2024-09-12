@@ -155,9 +155,10 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     {
         if (Items.Count > 0)
         {
+            PlaylistItem item = Items[0];
+
             try
             {
-                PlaylistItem item = Items[0];
                 Uri uri = await MsrModelsHelper.GetAlbumCoverAsync(item.AlbumCid);
 
                 await UIThreadHelper.RunOnUIThread(() =>
@@ -172,6 +173,13 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
             }
             catch (HttpRequestException)
             {
+                PlaylistCoverImage = null;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                isBlocking = true;
+                Items[0] = item with { IsCorruptedItem = true };
+                isBlocking = false;
                 PlaylistCoverImage = null;
             }
         }

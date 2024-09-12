@@ -1,4 +1,5 @@
-﻿using MonsterSiren.Api.Models.News;
+﻿using System.Security.Cryptography;
+using MonsterSiren.Api.Models.News;
 
 namespace MonsterSiren.Api.Service;
 
@@ -73,7 +74,13 @@ public static class NewsService
         }
         else
         {
-            throw new ArgumentOutOfRangeException($"出现错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"出现错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = lastCid
+                }
+            };
         }
     }
 
@@ -101,7 +108,13 @@ public static class NewsService
         }
         else
         {
-            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = cid
+                }
+            };
         }
     }
 }

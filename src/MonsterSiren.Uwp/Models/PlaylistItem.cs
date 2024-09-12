@@ -1,4 +1,6 @@
-﻿namespace MonsterSiren.Uwp.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace MonsterSiren.Uwp.Models;
 
 /// <summary>
 /// 表示播放列表的一个项目
@@ -7,4 +9,11 @@
 /// <param name="AlbumCid">专辑 CID</param>
 /// <param name="SongTitle">歌曲标题</param>
 /// <param name="SongDuration">歌曲时长</param>
-public record struct PlaylistItem(string SongCid, string AlbumCid, string SongTitle, TimeSpan SongDuration);
+public record struct PlaylistItem(string SongCid, string AlbumCid, string SongTitle, TimeSpan SongDuration)
+{
+    /// <summary>
+    /// 指示此播放列表项目是否损坏
+    /// </summary>
+    [JsonIgnore]
+    public bool IsCorruptedItem { get; init; }
+}

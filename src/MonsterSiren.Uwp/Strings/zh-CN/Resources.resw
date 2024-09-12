@@ -570,7 +570,7 @@
   <data name="CopySongName.Text" xml:space="preserve">
     <value>复制歌曲名称</value>
   </data>
-  <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
+  <data name="SongOrAlbumCidIncorrectInputMessage" xml:space="preserve">
     <value>输入的 CID 有误，请输入正确的 CID。</value>
   </data>
   <data name="CopyrightNoticeMessage.Text" xml:space="preserve">
@@ -590,5 +590,17 @@
   </data>
   <data name="CopyrightDialog.CloseButtonText" xml:space="preserve">
     <value>确定</value>
+  </data>
+  <data name="SongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>此项目可能已损坏。</value>
+  </data>
+  <data name="SomeSongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>一些项目可能损坏，因此未播放它们。</value>
+  </data>
+  <data name="WarningOccurred" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="InvaildItemTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>此项目可能已损坏</value>
   </data>
 </root>

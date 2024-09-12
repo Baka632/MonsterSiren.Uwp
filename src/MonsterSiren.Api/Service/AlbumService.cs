@@ -52,7 +52,13 @@ public static class AlbumService
         }
         else
         {
-            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = cid
+                }
+            };
         }
     }
 
@@ -80,7 +86,13 @@ public static class AlbumService
         }
         else
         {
-            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = cid
+                }
+            };
         }
     }
 }

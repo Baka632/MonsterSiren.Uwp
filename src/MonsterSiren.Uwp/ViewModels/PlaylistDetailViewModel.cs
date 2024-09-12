@@ -40,11 +40,31 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
                 WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                 await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
             }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                if (ex.Data["AllFailed"] is bool allFailed && allFailed)
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
+                else
+                {
+                    allFailed = false;
+                }
+
+                if (allFailed)
+                {
+                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
+                else
+                {
+                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
+            }
         }
     }
 
     [RelayCommand]
-    private static async Task PlayForItem(PlaylistItem item)
+    private async Task PlayForItem(PlaylistItem item)
     {
         try
         {
@@ -59,10 +79,21 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
             WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
+        catch (ArgumentOutOfRangeException)
+        {
+            int targetIndex = CurrentPlaylist.Items.IndexOf(item);
+            if (targetIndex != -1)
+            {
+                CurrentPlaylist.Items[targetIndex] = item with { IsCorruptedItem = true };
+            }
+
+            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]
-    private static async Task AddItemToNowPlaying(PlaylistItem item)
+    private async Task AddItemToNowPlaying(PlaylistItem item)
     {
         bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
         if (shouldSendUpdateMediaMessage)
@@ -85,6 +116,21 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
             }
 
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            int targetIndex = CurrentPlaylist.Items.IndexOf(item);
+            if (targetIndex != -1)
+            {
+                CurrentPlaylist.Items[targetIndex] = item with { IsCorruptedItem = true };
+            }
+
+            if (shouldSendUpdateMediaMessage)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -115,6 +161,26 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
 
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
+            {
+                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+            }
+            else
+            {
+                allFailed = false;
+            }
+
+            if (allFailed)
+            {
+                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            else
+            {
+                await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+        }
     }
 
     [RelayCommand]
@@ -141,6 +207,10 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
         catch (HttpRequestException)
         {
             await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 

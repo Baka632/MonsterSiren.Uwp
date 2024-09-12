@@ -492,7 +492,7 @@
   <data name="CopySongName.Text" xml:space="preserve">
     <value>Copy the song name</value>
   </data>
-  <data name="SongOrAlbumCidIncorrectMessage" xml:space="preserve">
+  <data name="SongOrAlbumCidIncorrectInputMessage" xml:space="preserve">
     <value>The CID entered is incorrect, please enter the correct CID.</value>
   </data>
   <data name="CopyrightNoticeMessage.Text" xml:space="preserve">
@@ -512,5 +512,17 @@ The code for this app is licensed to you under the MIT license.</value>
   </data>
   <data name="SettingsPage_CopyrightStatement.Text" xml:space="preserve">
     <value>Statement on Intellectual Property</value>
+  </data>
+  <data name="SongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>This item may corrupt.</value>
+  </data>
+  <data name="SomeSongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>Some items may corrupt, so they are not played.</value>
+  </data>
+  <data name="WarningOccurred" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="InvaildItemTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>This item may corrupt</value>
   </data>
 </root>

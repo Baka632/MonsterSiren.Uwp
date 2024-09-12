@@ -612,6 +612,26 @@ public sealed partial class MainPage : Page
 
                 await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
             }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
+                else
+                {
+                    allFailed = false;
+                }
+
+                if (allFailed)
+                {
+                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
+                else
+                {
+                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
+            }
         }
     }
 

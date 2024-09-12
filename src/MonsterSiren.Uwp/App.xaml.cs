@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
-using TagLib.Ape;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
 using Windows.Storage;
@@ -187,7 +186,7 @@ sealed partial class App : Application
                     catch (ArgumentOutOfRangeException)
                     {
                         WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }
                 else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
@@ -225,7 +224,7 @@ sealed partial class App : Application
                     catch (ArgumentOutOfRangeException)
                     {
                         WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }
             }
@@ -279,6 +278,26 @@ sealed partial class App : Application
             {
                 WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                 await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                if (ex.Data["AllFailed"] is bool allFailed && allFailed)
+                {
+                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
+                }
+                else
+                {
+                    allFailed = false;
+                }
+
+                if (allFailed)
+                {
+                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
+                else
+                {
+                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                }
             }
         }
     }

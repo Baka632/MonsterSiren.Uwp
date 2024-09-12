@@ -113,11 +113,11 @@
                             x:Name="PlaylistCover"
                             Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
                             Stretch="UniformToFill"
-                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsPlaylistEmpty), Mode=OneWay}" />
+                            Visibility="{x:Bind helpers:XamlHelper.IsNullReverseVisibility(ViewModel.CurrentPlaylist.PlaylistCoverImage), Mode=OneWay}" />
                         <Grid
                             x:Name="PlaylistNoItemCover"
                             Background="#4b4b4b"
-                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(IsPlaylistEmpty), Mode=OneWay}">
+                            Visibility="{x:Bind helpers:XamlHelper.IsNullToVisibility(ViewModel.CurrentPlaylist.PlaylistCoverImage), Mode=OneWay}">
                             <FontIcon
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
@@ -279,21 +279,41 @@
                         DataContext="{x:Bind}"
                         RightTapped="OnListViewItemGridRightTapped">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <Grid.Resources>
+                            <Style x:Key="SongDefaultTextStyle" TargetType="TextBlock">
+                                <Setter Property="Margin" Value="0,0,5,0" />
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Grid.Column" Value="1" />
+                            </Style>
+                        </Grid.Resources>
 
-                        <TextBlock
+                        <FontIcon
+                            x:Uid="InvaildItemTooltip"
                             Grid.Column="0"
                             Margin="0,0,5,0"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
+                            Glyph="&#xE7BA;"
+                            Visibility="{x:Bind IsCorruptedItem}" />
+
+                        <TextBlock
+                            Style="{StaticResource SongDefaultTextStyle}"
                             Text="{x:Bind SongTitle}"
-                            TextTrimming="CharacterEllipsis"
-                            ToolTipService.ToolTip="{x:Bind SongTitle}" />
+                            ToolTipService.ToolTip="{x:Bind SongTitle}"
+                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsCorruptedItem)}" />
+                        <TextBlock
+                            FontStyle="Italic"
+                            Style="{StaticResource SongDefaultTextStyle}"
+                            Text="{x:Bind SongTitle}"
+                            ToolTipService.ToolTip="{x:Bind SongTitle}"
+                            Visibility="{x:Bind IsCorruptedItem}" />
 
                         <StackPanel
-                            Grid.Column="1"
+                            Grid.Column="2"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
                             Orientation="Horizontal">
