@@ -24,8 +24,8 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|arm</AppxBundlePlatforms>
+    <AppxBundle>Never</AppxBundle>
+    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -129,6 +129,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CommonValues.cs" />
+    <Compile Include="CommonValues.Methods.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
@@ -160,6 +161,7 @@
     <Compile Include="Models\DownloadItemState.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
+    <Compile Include="Models\ExceptionBox.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
@@ -392,6 +394,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AsyncEnumerator">
+      <Version>4.0.2</Version>
+    </PackageReference>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
       <Version>1.0.4</Version>
     </PackageReference>

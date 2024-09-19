@@ -336,6 +336,25 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 添加要播放的音乐
+    /// </summary>
+    /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
+    public static async Task AddMusic(IAsyncEnumerable<MediaPlaybackItem> items)
+    {
+        bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
+
+        await foreach (MediaPlaybackItem item in items)
+        {
+            CurrentMediaPlaybackList.Add(item);
+        }
+
+        if (isNoMusicInPlaylistBefore)
+        {
+            PlayMusic();
+        }
+    }
+
+    /// <summary>
     /// 将当前的音乐替换为指定的音乐
     /// </summary>
     /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/></param>
@@ -378,6 +397,24 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 将当前的音乐列表替换为指定的音乐列表
+    /// </summary>
+    /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
+    public static async Task ReplaceMusic(IAsyncEnumerable<MediaPlaybackItem> items)
+    {
+        StopMusic();
+
+        await UIThreadHelper.RunOnUIThread(() => PlayerMediaReplacing?.Invoke());
+
+        await foreach (MediaPlaybackItem media in items)
+        {
+            CurrentMediaPlaybackList.Add(media);
+        }
+
+        PlayMusic();
+    }
+
+    /// <summary>
     /// 切换到上一个播放项
     /// </summary>
     public static void PreviousMusic()
@@ -394,7 +431,7 @@ public static class MusicService
     }
 
     /// <summary>
-    ///将正在播放的项目更改为索引指向的项目
+    /// 将正在播放的项目更改为索引指向的项目
     /// </summary>
     /// <param name="index">项目在正在播放列表的索引</param>
     /// <exception cref="ArgumentOutOfRangeException">索引指向不存在的项目</exception>

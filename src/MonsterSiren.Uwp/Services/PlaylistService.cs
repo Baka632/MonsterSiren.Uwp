@@ -257,51 +257,10 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        List<Exception> innerExceptions = new(5);
-
-        await Task.Run(async () =>
-        {
-            List<MediaPlaybackItem> list = new(playlist.Items.Count);
-
-            for (int i = 0; i < playlist.Items.Count; i++)
-            {
-                PlaylistItem item = playlist.Items[i];
-
-                try
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-
-                    list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-
-                    innerExceptions.Add(ex);
-                }
-            }
-
-            if (list.Count != 0)
-            {
-                MusicService.ReplaceMusic(list);
-            }
-
-            if (innerExceptions.Count > 0)
-            {
-                AggregateException aggregate = new(innerExceptions);
-
-                bool allFailed = playlist.Items.Count == innerExceptions.Count;
-
-                throw new ArgumentOutOfRangeException("一个或多个项目的 CID 无效。", aggregate)
-                {
-                    Data =
-                    {
-                        ["AllFailed"] = allFailed,
-                    }
-                };
-            }
-        });
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
+        await MusicService.ReplaceMusic(items);
+        box.Unbox();
     }
 
     /// <summary>
@@ -317,55 +276,10 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlists));
         }
 
-        List<Exception> innerExceptions = new(5);
-        int songCount = 0;
-
-        await Task.Run(async () =>
-        {
-            List<MediaPlaybackItem> list = new(playlists.Count() * 2);
-            foreach (Playlist playlist in playlists)
-            {
-                for (int i = 0; i < playlist.Items.Count; i++)
-                {
-                    PlaylistItem item = playlist.Items[i];
-                    songCount++;
-
-                    try
-                    {
-                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-
-                        list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                    }
-                    catch (ArgumentOutOfRangeException ex)
-                    {
-                        await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-
-                        innerExceptions.Add(ex);
-                    }
-                }
-            }
-
-            if (list.Count != 0)
-            {
-                MusicService.ReplaceMusic(list);
-            }
-
-            if (innerExceptions.Count > 0)
-            {
-                AggregateException aggregate = new(innerExceptions);
-
-                bool allFailed = songCount == innerExceptions.Count;
-
-                throw new ArgumentOutOfRangeException("一个或多个项目的 CID 无效。", aggregate)
-                {
-                    Data =
-                    {
-                        ["AllFailed"] = allFailed,
-                    }
-                };
-            }
-        });
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists, box);
+        await MusicService.ReplaceMusic(items);
+        box.Unbox();
     }
 
     /// <summary>
@@ -381,48 +295,10 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        List<Exception> innerExceptions = new(5);
-
-        await Task.Run(async () =>
-        {
-            List<MediaPlaybackItem> list = new(playlist.Items.Count);
-
-            for (int i = 0; i < playlist.Items.Count; i++)
-            {
-                PlaylistItem item = playlist.Items[i];
-
-                try
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-
-                    list.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-
-                    innerExceptions.Add(ex);
-                }
-            }
-
-            MusicService.AddMusic(list);
-        });
-
-        if (innerExceptions.Count > 0)
-        {
-            AggregateException aggregate = new(innerExceptions);
-
-            bool allFailed = playlist.Items.Count == innerExceptions.Count;
-
-            throw new ArgumentOutOfRangeException("一个或多个项目的 CID 无效。", aggregate)
-            {
-                Data =
-                {
-                    ["AllFailed"] = allFailed,
-                }   
-            };
-        }
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
+        await MusicService.AddMusic(items);
+        box.Unbox();
     }
 
     /// <summary>
@@ -577,6 +453,93 @@ public static class PlaylistService
     }
 
     /// <summary>
+    /// 向指定的播放列表添加一组歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="items">包含 <see cref="PlaylistItem"/> 项的集合</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<PlaylistItem> items)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(async () =>
+            {
+                await foreach (PlaylistItem item in items)
+                {
+                    if (playlist.Items.Contains(item))
+                    {
+                        continue;
+                    }
+
+                    playlist.Items.Add(item);
+                }
+            });
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组歌曲
+    /// </summary>
+    /// <param name="playlist">指定的播放列表</param>
+    /// <param name="tuples">包含 <see cref="SongDetail"/> 和 <see cref="AlbumDetail"/> 元组的集合</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="tuples"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> tuples)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (tuples is null)
+        {
+            throw new ArgumentNullException(nameof(tuples));
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+
+            await foreach ((SongDetail songDetail, AlbumDetail albumDetail) in tuples)
+            {
+                if (songDetail.AlbumCid != albumDetail.Cid)
+                {
+                    throw new ArgumentException($"歌曲信息中，{songDetail.Name} 所属专辑的 CID 和专辑信息 {albumDetail.Name} 中的 CID 不符。");
+                }
+
+                TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
+                PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+
+                await UIThreadHelper.RunOnUIThread(() =>
+                {
+                    if (!playlist.Items.Contains(item))
+                    {
+                        playlist.Items.Add(item);
+                    }
+                });
+            }
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
     /// 在指定的播放列表中移除歌曲
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
@@ -711,5 +674,13 @@ public static class PlaylistService
         {
             return false;
         }
+    }
+}
+
+public sealed class PlaylistServiceExceptionRecipient : IRecipient<Exception>
+{
+    public void Receive(Exception message)
+    {
+        throw message;
     }
 }

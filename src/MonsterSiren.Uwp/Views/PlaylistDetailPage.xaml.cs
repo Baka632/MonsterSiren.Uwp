@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
 

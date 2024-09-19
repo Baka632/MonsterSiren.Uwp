@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using Windows.Media.Playback;
-using Windows.ApplicationModel.DataTransfer;
+﻿using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -22,165 +20,25 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task PlayForCurrentPlaylist()
     {
-        if (CurrentPlaylist.SongCount == 0)
-        {
-            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
-                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
-                                                    "OK".GetLocalized());
-        }
-        else
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-            try
-            {
-                await PlaylistService.PlayForPlaylistAsync(CurrentPlaylist);
-            }
-            catch (HttpRequestException)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                if (ex.Data["AllFailed"] is bool allFailed && allFailed)
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                }
-                else
-                {
-                    allFailed = false;
-                }
-
-                if (allFailed)
-                {
-                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-                else
-                {
-                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-            }
-        }
+        await CommonValues.StartPlay(CurrentPlaylist);
     }
 
     [RelayCommand]
     private async Task PlayForItem(PlaylistItem item)
     {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-            await Task.Run(() => MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
-        }
-        catch (HttpRequestException)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            int targetIndex = CurrentPlaylist.Items.IndexOf(item);
-            if (targetIndex != -1)
-            {
-                CurrentPlaylist.Items[targetIndex] = item with { IsCorruptedItem = true };
-            }
-
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.StartPlay(item, CurrentPlaylist);
     }
 
     [RelayCommand]
     private async Task AddItemToNowPlaying(PlaylistItem item)
     {
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-        }
-
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-
-            await Task.Run(() => MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail)));
-        }
-        catch (HttpRequestException)
-        {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            int targetIndex = CurrentPlaylist.Items.IndexOf(item);
-            if (targetIndex != -1)
-            {
-                CurrentPlaylist.Items[targetIndex] = item with { IsCorruptedItem = true };
-            }
-
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.AddToNowPlaying(item, CurrentPlaylist);
     }
 
     [RelayCommand]
     private async Task AddCurrentPlaylistToNowPlaying()
     {
-        if (CurrentPlaylist.Items.Count <= 0)
-        {
-            return;
-        }
-
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-        }
-
-        try
-        {
-            await PlaylistService.AddPlaylistToNowPlayingAsync(CurrentPlaylist);
-        }
-        catch (HttpRequestException)
-        {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-            else
-            {
-                allFailed = false;
-            }
-
-            if (allFailed)
-            {
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            else
-            {
-                await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-        }
+        await CommonValues.AddToNowPlaying(CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -198,29 +56,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private static async Task DownloadForItem(PlaylistItem item)
     {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-            _ = DownloadService.DownloadSong(albumDetail, songDetail);
-        }
-        catch (HttpRequestException)
-        {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.StartDownload(item);
     }
 
     [RelayCommand]
     private async Task DownloadForCurrentPlaylist()
     {
-        foreach (PlaylistItem item in CurrentPlaylist)
-        {
-            await DownloadForItem(item);
-        }
+        await CommonValues.StartDownload(CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -243,34 +85,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task ModifyPlaylist()
     {
-        PlaylistInfoDialog dialog = new()
-        {
-            Title = "PlaylistModifyTitle".GetLocalized(),
-            PrimaryButtonText = "PlaylistModifyPrimaryButtonText".GetLocalized(),
-            PlaylistTitle = CurrentPlaylist.Title,
-            PlaylistDescription = CurrentPlaylist.Description,
-            TargetPlaylist = CurrentPlaylist,
-        };
-
-        ContentDialogResult result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            await PlaylistService.ModifyPlaylistAsync(CurrentPlaylist, dialog.PlaylistTitle, dialog.PlaylistDescription);
-        }
+        await CommonValues.ModifyPlaylist(CurrentPlaylist);
     }
 
     [RelayCommand]
     private async Task RemovePlaylist()
     {
-        ContentDialogResult result = await CommonValues.DisplayContentDialog("EnsureDelete".GetLocalized(), "",
-            "OK".GetLocalized(), "Cancel".GetLocalized());
-
-        if (result == ContentDialogResult.Primary)
-        {
-            await PlaylistService.RemovePlaylistAsync(CurrentPlaylist);
-            ContentFrameNavigationHelper.GoBack();
-        }
+        await CommonValues.RemovePlaylist(CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -313,37 +134,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     {
         IList<object> selectedItems = view.SongList.SelectedItems;
 
-        if (selectedItems.Count == 0)
+        IEnumerable<PlaylistItem> items = selectedItems.Where(obj => obj is PlaylistItem).Select(obj => (PlaylistItem)obj);
+
+        bool isSuccess = await CommonValues.StartPlay(items);
+
+        if (isSuccess)
         {
-            return;
-        }
-
-        try
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-
-            List<MediaPlaybackItem> songs = new(selectedItems.Count);
-            foreach (object item in selectedItems)
-            {
-                if (item is PlaylistItem playlistItem)
-                {
-                    await Task.Run(async () =>
-                    {
-                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
-                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                        songs.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                    });
-                }
-            }
-
-            await Task.Run(() => MusicService.ReplaceMusic(songs));
-
             StopMultipleSelection();
-        }
-        catch (HttpRequestException)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -352,45 +149,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     {
         IList<object> selectedItems = view.SongList.SelectedItems;
 
-        if (selectedItems.Count == 0)
+        IEnumerable<PlaylistItem> items = selectedItems.Where(obj => obj is PlaylistItem).Select(obj => (PlaylistItem)obj);
+
+        bool isSuccess = await CommonValues.AddToNowPlaying(items);
+
+        if (isSuccess)
         {
-            return;
-        }
-
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-        }
-
-        try
-        {
-            List<MediaPlaybackItem> songs = new(selectedItems.Count);
-
-            foreach (object item in selectedItems)
-            {
-                if (item is PlaylistItem playlistItem)
-                {
-                    await Task.Run(async () =>
-                    {
-                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
-                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                        songs.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                    });
-                }
-            }
-
-            await Task.Run(() => MusicService.AddMusic(songs));
-
             StopMultipleSelection();
-        }
-        catch (HttpRequestException)
-        {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -399,20 +164,8 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     {
         IList<object> selectedItems = view.SongList.SelectedItems;
 
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        try
-        {
-            PlaylistItem[] items = selectedItems.Where(item => item is PlaylistItem).Select(item => (PlaylistItem)item).ToArray();
-            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
-        }
-        catch (HttpRequestException)
-        {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        IEnumerable<PlaylistItem> items = selectedItems.Where(item => item is PlaylistItem).Select(item => (PlaylistItem)item);
+        await CommonValues.AddToPlaylist(playlist, items);
     }
 
     [RelayCommand]
@@ -420,25 +173,12 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     {
         IList<object> selectedItems = view.SongList.SelectedItems;
 
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
+        IEnumerable<PlaylistItem> items = selectedItems.Where(item => item is PlaylistItem).Select(item => (PlaylistItem)item);
+        bool isAllSuccess = await CommonValues.StartDownload(items);
 
-        try
+        if (isAllSuccess)
         {
-            foreach (object item in selectedItems)
-            {
-                if (item is PlaylistItem playlistItem)
-                {
-                    await DownloadForItem(playlistItem);
-                }
-            }
-
             StopMultipleSelection();
-        }
-        catch (HttpRequestException)
-        {
         }
     }
 

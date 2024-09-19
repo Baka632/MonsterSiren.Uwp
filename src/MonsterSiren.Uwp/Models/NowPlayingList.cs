@@ -1,4 +1,6 @@
-﻿using Windows.Media.Playback;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Models;
 
@@ -43,5 +45,15 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
         }
 
         base.RemoveItem(index);
+    }
+
+    protected override async void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    {
+        await UIThreadHelper.RunOnUIThread(() => base.OnCollectionChanged(e));
+    }
+
+    protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        await UIThreadHelper.RunOnUIThread(() => base.OnPropertyChanged(e));
     }
 }

@@ -82,115 +82,25 @@ public sealed partial class SearchViewModel : ObservableObject
     [RelayCommand]
     private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
     {
-        try
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-
-            await Task.Run(async () =>
-            {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
-                List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                }
-
-                if (playbackItems.Count != 0)
-                {
-                    MusicService.ReplaceMusic(playbackItems);
-                }
-                else
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                }
-            });
-        }
-        catch (HttpRequestException)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.StartPlay(albumInfo);
     }
 
     [RelayCommand]
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-        }
-
-        try
-        {
-            await Task.Run(async () =>
-            {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
-                List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                }
-
-                MusicService.AddMusic(playbackItems);
-            });
-        }
-        catch (HttpRequestException)
-        {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-            }
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.AddToNowPlaying(albumInfo);
     }
 
     [RelayCommand]
     private async Task AddAlbumInfoToPlaylist(Playlist playlist)
     {
-        try
-        {
-            await Task.Run(async () =>
-            {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(SelectedAlbumInfo.Cid).ConfigureAwait(false);
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                    await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
-                }
-            });
-        }
-        catch (HttpRequestException)
-        {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo);
     }
 
     [RelayCommand]
     private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
     {
-        try
-        {
-            await Task.Run(async () =>
-            {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
-                {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                    _ = DownloadService.DownloadSong(albumDetail, songDetail);
-                }
-            });
-        }
-        catch (HttpRequestException)
-        {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.StartDownload(albumInfo);
     }
 
     private void ShowInternetError(HttpRequestException ex)

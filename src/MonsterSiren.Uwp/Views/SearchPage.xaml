@@ -67,6 +67,22 @@
                         ItemsSource="{x:Bind ViewModel.AlbumList, Mode=OneWay}"
                         SelectionMode="None"
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsAlbumListEmpty), Mode=OneWay}">
+                        <GridView.Resources>
+                            <SolidColorBrush x:Key="SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
+                            <SolidColorBrush x:Key="SystemControlTransparentRevealBorderBrush" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBorderBrush" Color="Transparent" />
+                            <Thickness x:Key="ListViewItemRevealBorderThemeThickness">0</Thickness>
+                            <Thickness x:Key="GridViewItemRevealBorderThemeThickness">0</Thickness>
+                            <SolidColorBrush x:Key="ListViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
+                            <SolidColorBrush x:Key="ListViewItemRevealPlaceholderBackground" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackground" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackgroundPointerOver" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackgroundPressed" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelected" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPointerOver" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
+                            <SolidColorBrush x:Key="GridViewItemRevealPlaceholderBackground" Color="Transparent" />
+                        </GridView.Resources>
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="albumModels:AlbumInfo">
                                 <Grid

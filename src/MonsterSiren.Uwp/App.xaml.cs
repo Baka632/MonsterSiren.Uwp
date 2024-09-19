@@ -171,12 +171,8 @@ sealed partial class App : Application
 
                     try
                     {
-                        await Task.Run(async () =>
-                        {
-                            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(argument);
-                            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
-                            MusicService.ReplaceMusic(songDetail.ToMediaPlaybackItem(albumDetail));
-                        });
+                        MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(argument);
+                        MusicService.ReplaceMusic(item);
                     }
                     catch (HttpRequestException)
                     {
@@ -195,26 +191,13 @@ sealed partial class App : Application
 
                     try
                     {
-                        await Task.Run(async () =>
-                        {
-                            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
-                            List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
+                        ExceptionBox box = new();
+                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
+                        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
 
-                            foreach (SongInfo songInfo in albumDetail.Songs)
-                            {
-                                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                                playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                            }
+                        await MusicService.ReplaceMusic(items);
 
-                            if (playbackItems.Count != 0)
-                            {
-                                MusicService.ReplaceMusic(playbackItems);
-                            }
-                            else
-                            {
-                                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                            }
-                        });
+                        box.Unbox();
                     }
                     catch (HttpRequestException)
                     {

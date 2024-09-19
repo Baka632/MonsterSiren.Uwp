@@ -1,5 +1,4 @@
 ﻿using System.Collections.Specialized;
-using System.Net.Http;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
@@ -386,48 +385,28 @@ public sealed partial class MainPage : Page
 
         item.Drop += async (s, e) =>
         {
-            try
+            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
             {
-                if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
-                {
-                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
 
-                    AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid).ConfigureAwait(false);
-
-                    foreach (SongInfo songInfo in albumDetail.Songs)
-                    {
-                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid).ConfigureAwait(false);
-                        await PlaylistService.AddItemForPlaylistAsync(playlist, songDetail, albumDetail);
-                    }
-                }
-                else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
-                {
-                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
-
-                    List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
-                    List<(SongDetail, AlbumDetail)> tuples = new(packs.Count);
-
-                    foreach (SongInfoAndAlbumDetailPack pack in packs)
-                    {
-                        SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(pack.SongInfo.Cid).ConfigureAwait(false);
-                        tuples.Add((songDetail, pack.AlbumDetail));
-                    }
-
-                    await PlaylistService.AddItemsForPlaylistAsync(playlist, tuples);
-                }
-                else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-                {
-                    string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
-
-                    List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-                    await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
-                }
+                await CommonValues.AddToPlaylist(playlist, albumInfo);
             }
-            catch (HttpRequestException)
+            else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
             {
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+
+                List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
+
+                await CommonValues.AddToPlaylist(playlist, packs);
+            }
+            else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+            {
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
+
+                List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
+                await CommonValues.AddToPlaylist(playlist, items);
             }
         };
         return item;
@@ -565,7 +544,7 @@ public sealed partial class MainPage : Page
 
             AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-            await MainViewModel.AddToNowPlayingForAlbumInfo(albumInfo);
+            await CommonValues.AddToNowPlaying(albumInfo);
         }
         else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
         {
@@ -573,14 +552,14 @@ public sealed partial class MainPage : Page
 
             List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
 
-            await MainViewModel.AddToNowPlayingForSongInfos(packs);
+            await CommonValues.AddToNowPlaying(packs);
         }
         else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
         {
             string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
             List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
 
-            await MainViewModel.AddToNowPlayingForPlaylistItems(items);
+            await CommonValues.AddToNowPlaying(items);
         }
         else if (e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
         {
@@ -588,50 +567,7 @@ public sealed partial class MainPage : Page
 
             Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
 
-            if (playlist.Items.Count <= 0)
-            {
-                return;
-            }
-
-            bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-            }
-
-            try
-            {
-                await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
-            }
-            catch (HttpRequestException)
-            {
-                if (shouldSendUpdateMediaMessage)
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                }
-
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                }
-                else
-                {
-                    allFailed = false;
-                }
-
-                if (allFailed)
-                {
-                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-                else
-                {
-                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-            }
+            await CommonValues.AddToNowPlaying(playlist);
         }
     }
 

@@ -12,6 +12,7 @@ namespace MonsterSiren.Uwp.Helpers;
 /// </summary>
 public static partial class MsrModelsHelper
 {
+    [Obsolete("Replace to Async version")]
     /// <summary>
     /// 使用 <see cref="AlbumDetail"/> 和 <see cref="SongDetail"/> 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
     /// </summary>
@@ -78,6 +79,101 @@ public static partial class MsrModelsHelper
     }
 
     /// <summary>
+    /// 使用 <see cref="AlbumDetail"/> 和 <see cref="SongDetail"/> 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
+    /// </summary>
+    /// <param name="songDetail">一个 <see cref="SongDetail"/>，其中存储了音乐的关键信息</param>
+    /// <param name="albumDetail">一个 <see cref="AlbumDetail"/>，其中存储了音乐专辑的封面信息</param>
+    /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
+    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(SongDetail songDetail, AlbumDetail albumDetail)
+    {
+        Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
+
+        List<SongInfo> songs = albumDetail.Songs.ToList();
+        MediaSource source = MediaSource.CreateFromUri(musicUri);
+        MediaPlaybackItem playbackItem = new(source);
+
+        if (!MemoryCacheHelper<TimeSpan>.Default.TryGetData(songDetail.Cid, out _))
+        {
+            source.OpenOperationCompleted += TryCacheSongDuration;
+        }
+
+        MediaItemDisplayProperties displayProps = playbackItem.GetDisplayProperties();
+        displayProps.Type = MediaPlaybackType.Music;
+        displayProps.MusicProperties.Artist = songDetail.Artists.Any() ? string.Join('/', songDetail.Artists) : "MSR".GetLocalized();
+        displayProps.MusicProperties.Title = songDetail.Name;
+        displayProps.MusicProperties.TrackNumber = (uint)songs.FindIndex(songInfo => songInfo.Cid == songDetail.Cid) + 1;
+        displayProps.MusicProperties.AlbumTitle = albumDetail.Name;
+        displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
+        displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
+
+        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
+        displayProps.Thumbnail = fileCoverUri is not null
+            ? RandomAccessStreamReference.CreateFromUri(fileCoverUri)
+            : RandomAccessStreamReference.CreateFromUri(new(albumDetail.CoverUrl, UriKind.Absolute));
+
+        playbackItem.ApplyDisplayProperties(displayProps);
+
+        return playbackItem;
+
+        async void TryCacheSongDuration(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs e)
+        {
+            if (sender.State == MediaSourceState.Opened && sender.Duration.HasValue)
+            {
+                TimeSpan currentSpan = sender.Duration.Value;
+                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+
+                if (span != currentSpan)
+                {
+                    SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(songDetail.Cid);
+
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                        LockerHelper<string>.ReturnLocker(songDetail.Cid);
+                    }
+                }
+            }
+
+            sender.OpenOperationCompleted -= TryCacheSongDuration;
+        }
+    }
+
+    /// <summary>
+    /// 通过歌曲的 CID 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
+    /// </summary>
+    /// <param name="songCid">歌曲 CID</param>
+    /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
+    /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
+    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid)
+    {
+        SongDetail songDetail = await GetSongDetailAsync(songCid);
+        AlbumDetail albumDetail = await GetAlbumDetailAsync(songDetail.AlbumCid);
+        return await GetMediaPlaybackItemAsync(songDetail, albumDetail);
+    }
+
+    /// <summary>
+    /// 通过歌曲的 CID 和一个 <see cref="AlbumDetail"/> 实例来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
+    /// </summary>
+    /// <param name="songCid">歌曲 CID</param>
+    /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
+    /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
+    /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
+    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid, AlbumDetail albumDetail)
+    {
+        SongDetail songDetail = await GetSongDetailAsync(songCid);
+        return await GetMediaPlaybackItemAsync(songDetail, albumDetail);
+    }
+
+    /// <summary>
     /// 获取歌曲的时长
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例</param>
@@ -123,6 +219,8 @@ public static partial class MsrModelsHelper
     /// <param name="cid">歌曲 CID</param>
     /// <returns>一个 <see cref="SongDetail"/> 实例</returns>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
+    /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
     public static async Task<SongDetail> GetSongDetailAsync(string cid)
     {
         if (MemoryCacheHelper<SongDetail>.Default.TryGetData(cid, out SongDetail detail))
@@ -157,6 +255,11 @@ public static partial class MsrModelsHelper
         }
     }
 
+    /// <summary>
+    /// 尝试为 <see cref="SongInfo"/> 序列填充艺术家信息
+    /// </summary>
+    /// <param name="songInfo">一个 <see cref="SongInfo"/> 序列的实例</param>
+    /// <returns>指示是否修改了 <see cref="SongInfo"/> 的布尔值</returns>
     public static bool TryFillArtistForSongs(IList<SongInfo> songs)
     {
         bool isModify = false;
