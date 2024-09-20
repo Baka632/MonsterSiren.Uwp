@@ -57,6 +57,10 @@ public static class MusicService
     /// </summary>
     public static event Action MusicStopped;
     /// <summary>
+    /// 当音乐即将停止播放时引发
+    /// </summary>
+    public static event Action MusicStopping;
+    /// <summary>
     /// 当播放列表发生变化时引发
     /// </summary>
     public static event NotifyCollectionChangedEventHandler PlaylistChanged;
@@ -343,15 +347,25 @@ public static class MusicService
     {
         bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
 
+        bool isStopping = false;
+        MusicStopping += OnMusicStopping;
         await foreach (MediaPlaybackItem item in items)
         {
+            if (isStopping)
+            {
+                break;
+            }
+
             CurrentMediaPlaybackList.Add(item);
         }
 
+        MusicStopping -= OnMusicStopping;
         if (isNoMusicInPlaylistBefore)
         {
             PlayMusic();
         }
+
+        void OnMusicStopping() => isStopping = true;
     }
 
     /// <summary>
@@ -406,12 +420,23 @@ public static class MusicService
 
         await UIThreadHelper.RunOnUIThread(() => PlayerMediaReplacing?.Invoke());
 
+        bool isStopping = false;
+        MusicStopping += OnMusicStopping;
+
         await foreach (MediaPlaybackItem media in items)
         {
+            if (isStopping)
+            {
+                break;
+            }
+
             CurrentMediaPlaybackList.Add(media);
         }
 
         PlayMusic();
+        MusicStopping -= OnMusicStopping;
+
+        void OnMusicStopping() => isStopping = true;
     }
 
     /// <summary>
@@ -503,6 +528,7 @@ public static class MusicService
 
         await UIThreadHelper.RunOnUIThread(() =>
         {
+            MusicStopping?.Invoke();
             CurrentMediaPlaybackList.Clear();
             MusicStopped?.Invoke();
         });

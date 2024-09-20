@@ -676,11 +676,3 @@ public static class PlaylistService
         }
     }
 }
-
-public sealed class PlaylistServiceExceptionRecipient : IRecipient<Exception>
-{
-    public void Receive(Exception message)
-    {
-        throw message;
-    }
-}

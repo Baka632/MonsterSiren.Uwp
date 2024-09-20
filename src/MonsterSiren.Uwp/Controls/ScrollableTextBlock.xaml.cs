@@ -65,10 +65,9 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
             return;
         }
 
-        double actualWidth = RelativeParent is null ? parent.ActualWidth : RelativeParent.ActualWidth;
-
         DefaultStoryboard.Begin();
         await Task.Delay(300);
+        double actualWidth = RelativeParent is null ? parent.ActualWidth : RelativeParent.ActualWidth;
 
         double textSize = MeasureTextSize();
         if (textSize > actualWidth)
@@ -113,6 +112,12 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        if (ScrollStoryboard.GetCurrentState() != Windows.UI.Xaml.Media.Animation.ClockState.Stopped)
+        {
+            isScrolling = false;
+            ScrollStoryboard.Stop();
+        }
+
         TryStartScrollAnimation();
     }
 
