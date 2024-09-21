@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using System.ComponentModel;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -16,8 +15,6 @@ public partial class MainViewModel : ObservableRecipient
     private readonly MainPage view;
 
     [ObservableProperty]
-    private bool isMediaInfoVisible;
-    [ObservableProperty]
     private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
     [ObservableProperty]
     private Playlist selectedPlaylist;
@@ -25,17 +22,8 @@ public partial class MainViewModel : ObservableRecipient
     public MainViewModel(MainPage mainPage)
     {
         view = mainPage ?? throw new ArgumentNullException(nameof(mainPage));
-        MusicInfo.PropertyChanged += OnMusicInfoPropertyChanged;
 
         IsActive = true;
-    }
-
-    private void OnMusicInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(MusicInfo.CurrentMusicPropertiesExists))
-        {
-            IsMediaInfoVisible = MusicInfo.CurrentMusicPropertiesExists;
-        }
     }
 
     /// <summary>

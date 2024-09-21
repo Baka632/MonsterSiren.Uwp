@@ -167,8 +167,6 @@ sealed partial class App : Application
 
                 if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
                 {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-
                     try
                     {
                         MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(argument);
@@ -176,19 +174,15 @@ sealed partial class App : Application
                     }
                     catch (HttpRequestException)
                     {
-                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                     catch (ArgumentOutOfRangeException)
                     {
-                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }
                 else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
                 {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-
                     try
                     {
                         ExceptionBox box = new();
@@ -201,12 +195,10 @@ sealed partial class App : Application
                     }
                     catch (HttpRequestException)
                     {
-                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                     catch (ArgumentOutOfRangeException)
                     {
-                        WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }
@@ -251,15 +243,12 @@ sealed partial class App : Application
         }
         else
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyWillUpdateMediaMessageToken);
-
             try
             {
                 await PlaylistService.PlayForPlaylistsAsync(playlists);
             }
             catch (AggregateException ex)
             {
-                WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
                 await CommonValues.DisplayAggregateExceptionError(ex);
             }
         }

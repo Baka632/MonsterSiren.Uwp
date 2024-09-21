@@ -53,9 +53,9 @@ public static class MusicService
     /// </summary>
     public static event Action<TimeSpan> MusicDurationChanged;
     /// <summary>
-    /// 当准备播放音乐时引发
+    /// 当准备播放音乐的状态改变时引发
     /// </summary>
-    public static event Action MusicPreparing;
+    public static event Action MusicPrepareModeChanged;
     /// <summary>
     /// 当音乐停止播放时引发
     /// </summary>
@@ -175,7 +175,15 @@ public static class MusicService
     /// <summary>
     /// 获取是否准备播放音乐的值
     /// </summary>
-    public static bool IsMusicPreparing { get; private set; }
+    public static bool IsMusicPreparing
+    {
+        get => isMusicPreparing;
+        private set
+        {
+            isMusicPreparing = value;
+            _ = UIThreadHelper.RunOnUIThread(() => MusicPrepareModeChanged?.Invoke());
+        }
+    }
 
     /// <summary>
     /// 获取或设置播放器的循环播放状态
@@ -220,6 +228,7 @@ public static class MusicService
         AudioCategory = MediaPlayerAudioCategory.Media
     };
     private static readonly MediaPlaybackList mediaPlaybackList = new();
+    private static bool isMusicPreparing;
 
     static MusicService()
     {
@@ -328,7 +337,6 @@ public static class MusicService
             if (shouldStartPlaying)
             {
                 IsMusicPreparing = true;
-                await UIThreadHelper.RunOnUIThread(() => MusicPreparing?.Invoke());
             }
 
             await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
@@ -366,7 +374,6 @@ public static class MusicService
             if (isNoMusicInPlaylistBefore)
             {
                 IsMusicPreparing = true;
-                await UIThreadHelper.RunOnUIThread(() => MusicPreparing?.Invoke());
             }
 
             MusicStopping += OnMusicStopping;
@@ -412,7 +419,6 @@ public static class MusicService
 
             await UIThreadHelper.RunOnUIThread(() =>
             {
-                MusicPreparing?.Invoke();
                 PlayerMediaReplacing?.Invoke();
                 CurrentMediaPlaybackList.Add(media);
             });
@@ -445,7 +451,6 @@ public static class MusicService
             IsMusicPreparing = true;
             await UIThreadHelper.RunOnUIThread(() =>
             {
-                MusicPreparing?.Invoke();
                 PlayerMediaReplacing?.Invoke();
             });
 

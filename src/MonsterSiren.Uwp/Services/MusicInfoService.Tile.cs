@@ -18,15 +18,15 @@ public partial class MusicInfoService : IDisposable
 
     private async Task CreateNowPlayingTile()
     {
-        isUpdatingTile = true;
-        AdaptiveTileBuilder builder = new();
+        MusicDisplayProperties currentMusicProperty = CurrentMusicProperties;
 
-        if (IsLoadingMedia)
+        if (IsLoadingMedia || currentMusicProperty is null)
         {
             return;
         }
 
-        MusicDisplayProperties currentMusicProperty = CurrentMusicProperties;
+        isUpdatingTile = true;
+        AdaptiveTileBuilder builder = new();
 
         if (MusicService.CurrentMediaPlaybackItem is not null)
         {

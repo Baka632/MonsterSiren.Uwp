@@ -165,8 +165,6 @@ partial class CommonValues
     {
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             ExceptionBox box = new();
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
@@ -178,7 +176,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -199,8 +196,6 @@ partial class CommonValues
 
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             ExceptionBox box = new();
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
 
@@ -211,7 +206,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -228,8 +222,6 @@ partial class CommonValues
     {
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
             MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(songDetail, albumDetail);
 
@@ -239,7 +231,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -261,8 +252,6 @@ partial class CommonValues
 
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             ExceptionBox box = new();
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(songInfos.ToArray(), albumDetail, box);
             await MusicService.ReplaceMusic(items);
@@ -271,7 +260,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -288,8 +276,6 @@ partial class CommonValues
     {
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(playlistItem.SongCid);
             MusicService.ReplaceMusic(item);
 
@@ -297,7 +283,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
         catch (ArgumentOutOfRangeException)
@@ -308,7 +293,6 @@ partial class CommonValues
                 playlist.Items[targetIndex] = playlistItem with { IsCorruptedItem = true };
             }
 
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -329,8 +313,6 @@ partial class CommonValues
 
         try
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             ExceptionBox box = new();
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItems.ToArray(), box);
             await MusicService.ReplaceMusic(items);
@@ -340,7 +322,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -362,8 +343,6 @@ partial class CommonValues
         }
         else
         {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-
             try
             {
                 await PlaylistService.PlayForPlaylistAsync(playlist);
@@ -372,11 +351,6 @@ partial class CommonValues
             }
             catch (AggregateException ex)
             {
-                if (ex.Data["AllFailed"] is bool allFailed && allFailed)
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-                }
-
                 await DisplayAggregateExceptionError(ex);
             }
         }
@@ -391,12 +365,6 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(AlbumInfo albumInfo)
     {
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             ExceptionBox box = new();
@@ -410,10 +378,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -432,12 +396,6 @@ partial class CommonValues
             return false;
         }
 
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             ExceptionBox box = new();
@@ -449,10 +407,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -467,12 +421,6 @@ partial class CommonValues
     /// <returns>指示操作是否成功的布尔值</returns>
     public static async Task<bool> AddToNowPlaying(SongInfo songInfo, AlbumDetail albumDetail)
     {
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
@@ -484,10 +432,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -507,12 +451,6 @@ partial class CommonValues
             return false;
         }
 
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             ExceptionBox box = new();
@@ -523,10 +461,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -541,12 +475,6 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(PlaylistItem playlistItem, Playlist playlist)
     {
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(playlistItem.SongCid);
@@ -556,11 +484,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
-
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
         catch (ArgumentOutOfRangeException)
@@ -569,11 +492,6 @@ partial class CommonValues
             if (targetIndex != -1)
             {
                 playlist.Items[targetIndex] = playlistItem with { IsCorruptedItem = true };
-            }
-
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             }
 
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
@@ -597,12 +515,6 @@ partial class CommonValues
             return false;
         }
 
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
@@ -611,11 +523,6 @@ partial class CommonValues
         }
         catch (AggregateException ex)
         {
-            if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
-
             await DisplayAggregateExceptionError(ex);
         }
 
@@ -634,12 +541,6 @@ partial class CommonValues
             return false;
         }
 
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             ExceptionBox box = new();
@@ -650,10 +551,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -672,12 +569,6 @@ partial class CommonValues
             return false;
         }
 
-        bool shouldSendUpdateMediaMessage = MusicService.IsPlayerPlaylistHasMusic != true;
-        if (shouldSendUpdateMediaMessage)
-        {
-            WeakReferenceMessenger.Default.Send(string.Empty, NotifyWillUpdateMediaMessageToken);
-        }
-
         try
         {
             ExceptionBox box = new();
@@ -688,10 +579,6 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 

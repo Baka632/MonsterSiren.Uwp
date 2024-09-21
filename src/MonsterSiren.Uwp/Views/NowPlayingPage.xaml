@@ -121,7 +121,7 @@
             Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.ShowMusicInfo), Mode=OneWay}">
             <FontIcon
                 Margin="0,0,0,5"
                 FontSize="30"
@@ -135,7 +135,7 @@
             Margin="11,40,11,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
-            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            Visibility="{x:Bind ViewModel.MusicInfo.ShowMusicInfo, Mode=OneWay}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -207,7 +207,7 @@
                             VerticalAlignment="Center"
                             FontSize="12"
                             Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                            Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
                         <Slider
                             x:Name="MusicProcessSlider"
                             Grid.Column="1"
@@ -215,7 +215,7 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
                             Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}"
                             IsThumbToolTipEnabled="False"
                             Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                             Style="{StaticResource ThemedSlider}"
@@ -227,7 +227,7 @@
                             VerticalAlignment="Center"
                             FontSize="12"
                             Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                            Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
                     </Grid>
                     <muxc:ProgressBar
                         x:Name="MusicStatusProgressBar"
@@ -270,13 +270,13 @@
                             Margin="0,0,5,0"
                             AccessKey="P"
                             Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
                             <FontIcon Glyph="&#xE100;" />
                         </Button>
                         <Button
                             AccessKey="S"
                             Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
                             <FontIcon
                                 FontFamily="Segoe MDL2 Assets"
                                 FontSize="25"
@@ -289,7 +289,7 @@
                         <Button
                             AccessKey="X"
                             Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
                             <FontIcon Glyph="&#xE101;" />
                         </Button>
                         <msrControls:ThemedToggleButton
@@ -373,7 +373,7 @@
                                         AccessKey="CL"
                                         Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
                                         Icon="Cancel"
-                                        IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
                                 </muxc:MenuBarItemFlyout>
                             </Button.Flyout>
                         </Button>

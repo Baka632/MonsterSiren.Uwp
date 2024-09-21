@@ -42,7 +42,7 @@ public sealed partial class NowPlayingCompactPage : Page
 
     private void OnTimerTick(object sender, object e)
     {
-        if (IsActive != true && ViewModel.MusicInfo.CurrentMusicPropertiesExists)
+        if (IsActive != true && ViewModel.MusicInfo.EnableMusicControl)
         {
             HideContentStoryBoard.Begin();
             IsContentHide = true;

@@ -14,7 +14,7 @@ namespace MonsterSiren.Uwp.Services;
 /// <summary>
 /// 应用程序音乐信息服务
 /// </summary>
-public sealed partial class MusicInfoService : ObservableRecipient
+public sealed partial class MusicInfoService : ObservableObject
 {
     /// <summary>
     /// 获取 <see cref="MusicInfoService"/> 的默认实例
@@ -22,11 +22,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
     public static readonly MusicInfoService Default = new();
 
     private bool isPlaylistItemErrorDialogShowing;
-    private MusicDisplayProperties formerMusicDisplayProperties;
     private readonly ThemeListener themeListener = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CurrentMusicPropertiesExists))]
     [NotifyPropertyChangedFor(nameof(MusicDuration))]
     [NotifyPropertyChangedFor(nameof(MusicPosition))]
     private MusicDisplayProperties currentMusicProperties;
@@ -66,6 +64,10 @@ public sealed partial class MusicInfoService : ObservableRecipient
     [NotifyPropertyChangedFor(nameof(MusicThemeColorDark3))]
     [NotifyPropertyChangedFor(nameof(MusicThemeColorThemeAware))]
     private Color musicThemeColor;
+    [ObservableProperty]
+    private bool enableMusicControl;
+    [ObservableProperty]
+    private bool showMusicInfo;
 
     public Color MusicThemeColorLight1 { get => MusicThemeColor.LighterBy(0.3f); }
     public Color MusicThemeColorLight2 { get => MusicThemeColor.LighterBy(0.6f); }
@@ -150,11 +152,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     /// <summary>
-    /// 确定当前的音乐属性是否存在的值
-    /// </summary>
-    public bool CurrentMusicPropertiesExists => CurrentMusicProperties is not null;
-
-    /// <summary>
     /// 构造 <see cref="MusicInfoService"/> 的新实例
     /// </summary>
     public MusicInfoService()
@@ -168,7 +165,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
         MusicService.PlayerMediaFailed += OnPlayerMediaFailed;
-        MusicService.MusicPreparing += OnMediaPreparing;
+        MusicService.MusicPrepareModeChanged += OnMusicPrepareModeChanged;
         MusicService.MusicStopped += OnMusicStopped;
         MusicService.PlaylistChanged += OnPlaylistChanged;
         MusicService.PlaylistItemFailed += OnPlaylistItemFailed;
@@ -177,7 +174,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
         InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColor"];
-        IsActive = true;
     }
 
     private static void InitializeFromSettings()
@@ -272,19 +268,23 @@ public sealed partial class MusicInfoService : ObservableRecipient
 
     private async void OnPlaylistChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
+        if (isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
         {
             await CreateNowPlayingTile();
         }
     }
 
-    private void OnMediaPreparing()
+    private void OnMusicPrepareModeChanged()
     {
-        IsLoadingMedia = MusicService.IsMusicPreparing;
+        bool isMusicPreparing = MusicService.IsMusicPreparing;
+
+        IsLoadingMedia = isMusicPreparing;
+        EnableMusicControl = ShowMusicInfo = !isMusicPreparing;
     }
 
     private void OnMusicStopped()
     {
+        EnableMusicControl = ShowMusicInfo = false;
         if (CurrentMediaCover != null)
         {
             CurrentMediaCover = null;
@@ -308,10 +308,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             _ => "RepeatOffText".GetLocalized(),
         };
 
-        if (CurrentMusicPropertiesExists)
-        {
-            await CreateNowPlayingTile();
-        }
+        await CreateNowPlayingTile();
     }
 
     private async void OnPlayerShuffleStateChanged(bool value)
@@ -324,10 +321,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             false => "ShuffleOffText".GetLocalized()
         };
 
-        if (CurrentMusicPropertiesExists)
-        {
-            await CreateNowPlayingTile();
-        }
+        await CreateNowPlayingTile();
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
@@ -561,16 +555,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
-    partial void OnIsLoadingMediaChanging(bool isMediaChanging)
-    {
-        if (isMediaChanging)
-        {
-            // TODO: 优化一下？
-            formerMusicDisplayProperties = CurrentMusicProperties;
-            CurrentMusicProperties = null;
-        }
-    }
-
     [RelayCommand]
     private static void PlayOrPauseMusic()
     {
@@ -610,31 +594,5 @@ public sealed partial class MusicInfoService : ObservableRecipient
         {
             MusicService.PreviousMusic();
         }
-    }
-
-    protected override void OnActivated()
-    {
-        base.OnActivated();
-        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyWillUpdateMediaMessageToken, OnWillUpdateMedia);
-        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyUpdateMediaFailMessageToken, OnUpdateMediaFail);
-    }
-
-    private async void OnUpdateMediaFail(object recipient, string message)
-    {
-        MusicService.PlayMusic();
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            CurrentMusicProperties = formerMusicDisplayProperties;
-            IsLoadingMedia = false;
-        });
-    }
-
-    private async void OnWillUpdateMedia(object recipient, string message)
-    {
-        MusicService.PauseMusic();
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            IsLoadingMedia = true;
-        });
     }
 }

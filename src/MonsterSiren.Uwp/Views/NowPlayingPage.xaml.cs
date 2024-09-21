@@ -109,7 +109,7 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandOrFoldNowPlayingList()
     {
-        if (isNowPlayingListExpanded || ViewModel.MusicInfo.CurrentMusicPropertiesExists != true)
+        if (isNowPlayingListExpanded || ViewModel.MusicInfo.EnableMusicControl != true)
         {
             MusicListFoldStoryboard.Begin();
             isNowPlayingListExpanded = false;
