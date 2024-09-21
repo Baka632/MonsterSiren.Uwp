@@ -103,7 +103,8 @@ public sealed partial class NowPlayingPage : Page
         }
         else
         {
-            NowPlayingListView.ScrollIntoView(args.NewItem);
+            NowPlayingListView.ScrollIntoView(args.NewItem, ScrollIntoViewAlignment.Leading);
+            NowPlayingListView.SelectedItem = args.NewItem;
         }
     }
 
@@ -123,9 +124,11 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnMusicListExpandStoryboardCompleted(object sender, object e)
     {
-        if (MusicService.CurrentMediaPlaybackItem is not null && NowPlayingListView.Items.Contains(MusicService.CurrentMediaPlaybackItem))
+        MediaPlaybackItem currentItem = MusicService.CurrentMediaPlaybackItem;
+        if (currentItem is not null && NowPlayingListView.Items.Contains(currentItem))
         {
-            NowPlayingListView.ScrollIntoView(MusicService.CurrentMediaPlaybackItem);
+            NowPlayingListView.ScrollIntoView(currentItem, ScrollIntoViewAlignment.Leading);
+            NowPlayingListView.SelectedItem = currentItem;
         }
     }
 

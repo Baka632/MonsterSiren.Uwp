@@ -73,7 +73,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.EnableMusicControl), Mode=OneWay}">
+                Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
                 <Button
                     Win17763:CornerRadius="4"
                     AccessKey="P"
@@ -140,7 +140,7 @@
                 Foreground="White"
                 IsIndeterminate="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
                 Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.EnableMusicControl), Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}"
                 Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
         </Grid>
 
