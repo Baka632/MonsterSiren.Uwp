@@ -15,6 +15,7 @@ public sealed class ExceptionBox
     /// <summary>
     /// 盒子里面究竟有没有异常呢？嘿嘿......
     /// </summary>
+    /// <exception cref="Exception"><see cref="InboxException"/> 中的异常</exception>
     public void Unbox()
     {
         if (InboxException != null)

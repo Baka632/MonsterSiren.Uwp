@@ -603,4 +603,19 @@
   <data name="InvaildItemTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>此项目可能已损坏</value>
   </data>
+  <data name="PlaylistItemFailed_Title" xml:space="preserve">
+    <value>播放项目时出错</value>
+  </data>
+  <data name="PlaylistItemFailed_Message" xml:space="preserve">
+    <value>出现以下错误：{1}</value>
+  </data>
+  <data name="PlaylistCorruptMessage" xml:space="preserve">
+    <value>播放列表“{0}”可能已损坏。</value>
+  </data>
+  <data name="SomePlaylistItemCorruptMessage" xml:space="preserve">
+    <value>播放列表“{0}”中的某些项目可能已损坏，因此未播放它们。</value>
+  </data>
+  <data name="PlayerError_Title" xml:space="preserve">
+    <value>播放器出现错误</value>
+  </data>
 </root>

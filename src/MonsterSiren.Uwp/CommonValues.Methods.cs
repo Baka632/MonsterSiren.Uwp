@@ -370,30 +370,14 @@ partial class CommonValues
 
                 return true;
             }
-            catch (HttpRequestException)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            catch (ArgumentOutOfRangeException ex)
+            catch (AggregateException ex)
             {
                 if (ex.Data["AllFailed"] is bool allFailed && allFailed)
                 {
                     WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
                 }
-                else
-                {
-                    allFailed = false;
-                }
 
-                if (allFailed)
-                {
-                    await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-                else
-                {
-                    await DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
+                await DisplayAggregateExceptionError(ex);
             }
         }
 
@@ -625,34 +609,14 @@ partial class CommonValues
 
             return true;
         }
-        catch (HttpRequestException)
-        {
-            if (shouldSendUpdateMediaMessage)
-            {
-                WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
-            }
-
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
-        catch (ArgumentOutOfRangeException ex)
+        catch (AggregateException ex)
         {
             if (shouldSendUpdateMediaMessage && ex.Data["AllFailed"] is bool allFailed && allFailed)
             {
                 WeakReferenceMessenger.Default.Send(string.Empty, NotifyUpdateMediaFailMessageToken);
             }
-            else
-            {
-                allFailed = false;
-            }
 
-            if (allFailed)
-            {
-                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            else
-            {
-                await DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
+            await DisplayAggregateExceptionError(ex);
         }
 
         return false;
@@ -679,7 +643,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(packs, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(packs.ToArray(), box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -1132,7 +1096,7 @@ partial class CommonValues
     /// <remarks>
     /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(IEnumerable<SongInfo> songInfos, AlbumDetail albumDetail, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(SongInfo[] songInfos, AlbumDetail albumDetail, ExceptionBox box)
     {
         foreach (SongInfo item in songInfos)
         {
@@ -1161,7 +1125,7 @@ partial class CommonValues
     /// <remarks>
     /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(IEnumerable<PlaylistItem> playlistItems, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(PlaylistItem[] playlistItems, ExceptionBox box)
     {
         foreach (PlaylistItem item in playlistItems)
         {
@@ -1193,7 +1157,6 @@ partial class CommonValues
     /// </remarks>
     public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(Playlist playlist, ExceptionBox box)
     {
-        // TODO: 在这里添加随机播放...
         List<Exception> innerExceptions = new(5);
 
         for (int i = 0; i < playlist.Items.Count; i++)
@@ -1224,19 +1187,17 @@ partial class CommonValues
 
         if (innerExceptions.Count > 0)
         {
-            AggregateException aggregate = new(innerExceptions);
-
             bool allFailed = playlist.Items.Count == innerExceptions.Count;
-
-            ArgumentOutOfRangeException ex = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", aggregate)
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
             {
                 Data =
                 {
                     ["AllFailed"] = allFailed,
+                    ["PlayItem"] = playlist,
                 }
             };
 
-            box.InboxException = ex;
+            box.InboxException = aggregate;
         }
     }
 
@@ -1249,10 +1210,8 @@ partial class CommonValues
     /// <remarks>
     /// 当播放列表中存在无效项时，此方法会跳过无效项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(IEnumerable<Playlist> playlists, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(Playlist[] playlists, ExceptionBox box)
     {
-        // TODO: 在这里添加随机播放...
-
         List<Exception> innerExceptions = new(5);
         int songCount = 0;
 
@@ -1288,19 +1247,17 @@ partial class CommonValues
 
         if (innerExceptions.Count > 0)
         {
-            AggregateException aggregate = new(innerExceptions);
-
             bool allFailed = songCount == innerExceptions.Count;
-
-            ArgumentOutOfRangeException ex = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", aggregate)
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
             {
                 Data =
                 {
                     ["AllFailed"] = allFailed,
+                    ["PlayItem"] = playlists,
                 }
             };
 
-            box.InboxException = ex;
+            box.InboxException = aggregate;
         }
     }
 
@@ -1313,7 +1270,7 @@ partial class CommonValues
     /// <remarks>
     /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(IEnumerable<SongInfoAndAlbumDetailPack> packs, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(SongInfoAndAlbumDetailPack[] packs, ExceptionBox box)
     {
         foreach ((SongInfo songInfo, AlbumDetail albumDetail) in packs)
         {
@@ -1472,5 +1429,53 @@ partial class CommonValues
         {
             await PlaylistService.RemovePlaylistAsync(playlist);
         }
+    }
+
+    /// <summary>
+    /// 显示针对 <see cref="AggregateException"/> 的错误信息
+    /// </summary>
+    /// <param name="aggregate">指定的 <see cref="AggregateException"/></param>
+    public static async Task DisplayAggregateExceptionError(AggregateException aggregate)
+    {
+        StringBuilder builder = new(aggregate.InnerExceptions.Count * 10);
+
+        if (aggregate.Data["AllFailed"] is not bool allFailed)
+        {
+            allFailed = false;
+        }
+        object errorPlayItem = aggregate.Data["PlayItem"];
+
+        if (aggregate.InnerExceptions.Any(ex => ex is HttpRequestException))
+        {
+            builder.AppendLine("InternetErrorMessage".GetLocalized());
+        }
+
+        if (aggregate.InnerExceptions.Any(ex => ex is ArgumentOutOfRangeException))
+        {
+            string message;
+            if (allFailed)
+            {
+                message = errorPlayItem is Playlist playlist
+                    ? string.Format("PlaylistCorruptMessage".GetLocalized(), playlist.Title)
+                    : "SongOrAlbumCidCorruptMessage".GetLocalized();
+            }
+            else
+            {
+                message = errorPlayItem is Playlist playlist
+                    ? string.Format("SomePlaylistItemCorruptMessage".GetLocalized(), playlist.Title)
+                    : "SomeSongOrAlbumCidCorruptMessage".GetLocalized();
+            }
+
+            builder.AppendLine(message);
+        }
+
+        foreach (Exception ex in aggregate.InnerExceptions.Where(ex => ex is not HttpRequestException and not ArgumentOutOfRangeException))
+        {
+            builder.AppendLine(ex.Message);
+        }
+
+        string dialogTitle = allFailed ? "ErrorOccurred".GetLocalized() : "WarningOccurred".GetLocalized();
+        string dialogMessage = builder.ToString().Trim();
+        await DisplayContentDialog(dialogTitle, dialogMessage, closeButtonText: "Close".GetLocalized());
     }
 }

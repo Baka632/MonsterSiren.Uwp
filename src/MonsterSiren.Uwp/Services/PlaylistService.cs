@@ -249,7 +249,7 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">要播放的播放列表</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/></exception>
     public static async Task PlayForPlaylistAsync(Playlist playlist)
     {
         if (playlist is null)
@@ -268,7 +268,7 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlists">要播放的播放列表序列</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlists"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/></exception>
     public static async Task PlayForPlaylistsAsync(IEnumerable<Playlist> playlists)
     {
         if (playlists is null)
@@ -277,7 +277,7 @@ public static class PlaylistService
         }
 
         ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists, box);
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists.ToArray(), box);
         await MusicService.ReplaceMusic(items);
         box.Unbox();
     }
@@ -287,7 +287,7 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/></exception>
     public static async Task AddPlaylistToNowPlayingAsync(Playlist playlist)
     {
         if (playlist is null)

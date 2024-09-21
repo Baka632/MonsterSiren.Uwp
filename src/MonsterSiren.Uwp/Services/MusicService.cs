@@ -1,5 +1,5 @@
-﻿using System.Collections.Specialized;
-using Windows.Media.Playback;
+﻿using Windows.Media.Playback;
+using System.Collections.Specialized;
 
 namespace MonsterSiren.Uwp.Services;
 
@@ -53,6 +53,10 @@ public static class MusicService
     /// </summary>
     public static event Action<TimeSpan> MusicDurationChanged;
     /// <summary>
+    /// 当准备播放音乐时引发
+    /// </summary>
+    public static event Action MusicPreparing;
+    /// <summary>
     /// 当音乐停止播放时引发
     /// </summary>
     public static event Action MusicStopped;
@@ -64,6 +68,10 @@ public static class MusicService
     /// 当播放列表发生变化时引发
     /// </summary>
     public static event NotifyCollectionChangedEventHandler PlaylistChanged;
+    /// <summary>
+    /// 当播放列表中播放项播放失败时引发
+    /// </summary>
+    public static event Action<MediaPlaybackItemFailedEventArgs> PlaylistItemFailed;
 
     /// <summary>
     /// 获取播放器的播放状态
@@ -163,6 +171,11 @@ public static class MusicService
             PlayerShuffleStateChanged?.Invoke(value);
         }
     }
+
+    /// <summary>
+    /// 获取是否准备播放音乐的值
+    /// </summary>
+    public static bool IsMusicPreparing { get; private set; }
 
     /// <summary>
     /// 获取或设置播放器的循环播放状态
@@ -278,6 +291,13 @@ public static class MusicService
                 PlayerPlayItemChanged?.Invoke(args);
             });
         };
+        mediaPlaybackList.ItemFailed += async (sender, args) =>
+        {
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                PlaylistItemFailed?.Invoke(args);
+            });
+        };
 
         CurrentMediaPlaybackList.CollectionChanged += async (sender, args) =>
         {
@@ -303,39 +323,27 @@ public static class MusicService
     {
         bool shouldStartPlaying = !IsPlayerPlaylistHasMusic;
 
-        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
-
-        if (shouldStartPlaying)
+        try
         {
-            PlayMusic();
-        }
-    }
-
-    /// <summary>
-    /// 添加要播放的音乐
-    /// </summary>
-    /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
-    public static async void AddMusic(IEnumerable<MediaPlaybackItem> medias)
-    {
-        bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
-
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            foreach (MediaPlaybackItem item in medias)
+            if (shouldStartPlaying)
             {
-                CurrentMediaPlaybackList.Add(item);
+                IsMusicPreparing = true;
+                await UIThreadHelper.RunOnUIThread(() => MusicPreparing?.Invoke());
             }
-        });
 
-        if (IsPlayerShuffleEnabled && isNoMusicInPlaylistBefore)
-        {
-            int targetIndex = CurrentMediaPlaybackList.IndexOf(CurrentShuffledMediaPlaybackList[0]);
-            MoveTo((uint)targetIndex);
+            await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
+
+            if (shouldStartPlaying)
+            {
+                PlayMusic();
+            }
         }
-
-        if (isNoMusicInPlaylistBefore)
+        finally
         {
-            PlayMusic();
+            if (shouldStartPlaying)
+            {
+                IsMusicPreparing = false;
+            }
         }
     }
 
@@ -345,24 +353,46 @@ public static class MusicService
     /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
     public static async Task AddMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
-        bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
+        // TODO: 提供更好的随机播放算法
+        // 现在随机播放的实现是，总是首先播放 items 的第一个元素，之后的随机播放由系统决定
+        // 我们希望，第一个播放的项也能随机播放
+        // 并且，现在的实现存在第一项播放完后不继续播放第二项的问题
 
         bool isStopping = false;
-        MusicStopping += OnMusicStopping;
-        await foreach (MediaPlaybackItem item in items)
+        bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
+
+        try
         {
-            if (isStopping)
+            if (isNoMusicInPlaylistBefore)
             {
-                break;
+                IsMusicPreparing = true;
+                await UIThreadHelper.RunOnUIThread(() => MusicPreparing?.Invoke());
             }
 
-            CurrentMediaPlaybackList.Add(item);
-        }
+            MusicStopping += OnMusicStopping;
+            await foreach (MediaPlaybackItem item in items)
+            {
+                if (isStopping)
+                {
+                    break;
+                }
 
-        MusicStopping -= OnMusicStopping;
-        if (isNoMusicInPlaylistBefore)
+                CurrentMediaPlaybackList.Add(item);
+            }
+
+            if (isNoMusicInPlaylistBefore)
+            {
+                PlayMusic();
+            }
+        }
+        finally
         {
-            PlayMusic();
+            if (isNoMusicInPlaylistBefore)
+            {
+                IsMusicPreparing = false;
+            }
+
+            MusicStopping -= OnMusicStopping;
         }
 
         void OnMusicStopping() => isStopping = true;
@@ -374,40 +404,25 @@ public static class MusicService
     /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/></param>
     public static async void ReplaceMusic(MediaPlaybackItem media)
     {
-        StopMusic();
-
-        await UIThreadHelper.RunOnUIThread(() =>
+        try
         {
-            PlayerMediaReplacing?.Invoke();
-        });
+            StopMusic();
 
-        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
-        PlayMusic();
-    }
+            IsMusicPreparing = true;
 
-    /// <summary>
-    /// 将当前的音乐列表替换为指定的音乐列表
-    /// </summary>
-    /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
-    public static async void ReplaceMusic(IEnumerable<MediaPlaybackItem> medias)
-    {
-        StopMusic();
-
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            PlayerMediaReplacing?.Invoke();
-            foreach (MediaPlaybackItem media in medias)
+            await UIThreadHelper.RunOnUIThread(() =>
             {
+                MusicPreparing?.Invoke();
+                PlayerMediaReplacing?.Invoke();
                 CurrentMediaPlaybackList.Add(media);
-            }
-        });
+            });
 
-        if (IsPlayerShuffleEnabled)
-        {
-            int targetIndex = CurrentMediaPlaybackList.IndexOf(CurrentShuffledMediaPlaybackList[0]);
-            MoveTo((uint)targetIndex);
+            PlayMusic();
         }
-        PlayMusic();
+        finally
+        {
+            IsMusicPreparing = false;
+        }
     }
 
     /// <summary>
@@ -416,25 +431,43 @@ public static class MusicService
     /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
     public static async Task ReplaceMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
-        StopMusic();
-
-        await UIThreadHelper.RunOnUIThread(() => PlayerMediaReplacing?.Invoke());
+        // TODO: 提供更好的随机播放算法
+        // 现在随机播放的实现是，总是首先播放 items 的第一个元素，之后的随机播放由系统决定
+        // 我们希望，第一个播放的项也能随机播放
+        // 并且，现在的实现存在第一项播放完后不继续播放第二项的问题
 
         bool isStopping = false;
-        MusicStopping += OnMusicStopping;
 
-        await foreach (MediaPlaybackItem media in items)
+        try
         {
-            if (isStopping)
+            StopMusic();
+
+            IsMusicPreparing = true;
+            await UIThreadHelper.RunOnUIThread(() =>
             {
-                break;
+                MusicPreparing?.Invoke();
+                PlayerMediaReplacing?.Invoke();
+            });
+
+            MusicStopping += OnMusicStopping;
+
+            await foreach (MediaPlaybackItem media in items)
+            {
+                if (isStopping)
+                {
+                    break;
+                }
+
+                CurrentMediaPlaybackList.Add(media);
             }
 
-            CurrentMediaPlaybackList.Add(media);
+            PlayMusic();
         }
-
-        PlayMusic();
-        MusicStopping -= OnMusicStopping;
+        finally
+        {
+            IsMusicPreparing = false;
+            MusicStopping -= OnMusicStopping;
+        }
 
         void OnMusicStopping() => isStopping = true;
     }

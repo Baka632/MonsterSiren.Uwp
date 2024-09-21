@@ -100,7 +100,7 @@ sealed partial class App : Application
 
         StorageFolder temporaryFolder = ApplicationData.Current.TemporaryFolder;
         StorageFolder logFolder = await temporaryFolder.CreateFolderAsync("Log", CreationCollisionOption.OpenIfExists);
-        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.Now:yyyy-MM-dd_HH.mm.ss.fff}.log");
+        StorageFile logFile = await logFolder.CreateFileAsync($"Log-{DateTimeOffset.Now:yyyy-MM-dd_HH.mm.ss.fff}.log", CreationCollisionOption.GenerateUniqueName);
 
         await FileIO.WriteTextAsync(logFile, $"""
             [Exception Detail]
@@ -257,30 +257,10 @@ sealed partial class App : Application
             {
                 await PlaylistService.PlayForPlaylistsAsync(playlists);
             }
-            catch (HttpRequestException)
+            catch (AggregateException ex)
             {
                 WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                if (ex.Data["AllFailed"] is bool allFailed && allFailed)
-                {
-                    WeakReferenceMessenger.Default.Send(string.Empty, CommonValues.NotifyUpdateMediaFailMessageToken);
-                }
-                else
-                {
-                    allFailed = false;
-                }
-
-                if (allFailed)
-                {
-                    await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
-                else
-                {
-                    await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                }
+                await CommonValues.DisplayAggregateExceptionError(ex);
             }
         }
     }

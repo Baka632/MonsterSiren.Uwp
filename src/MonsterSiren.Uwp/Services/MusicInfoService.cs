@@ -6,6 +6,7 @@ using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.Services;
@@ -20,6 +21,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
     /// </summary>
     public static readonly MusicInfoService Default = new();
 
+    private bool isPlaylistItemErrorDialogShowing;
     private MusicDisplayProperties formerMusicDisplayProperties;
     private readonly ThemeListener themeListener = new();
 
@@ -165,20 +167,17 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
-        MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
+        MusicService.PlayerMediaFailed += OnPlayerMediaFailed;
+        MusicService.MusicPreparing += OnMediaPreparing;
         MusicService.MusicStopped += OnMusicStopped;
-        MusicService.PlaylistChanged += OnPlayListChanged;
+        MusicService.PlaylistChanged += OnPlaylistChanged;
+        MusicService.PlaylistItemFailed += OnPlaylistItemFailed;
 
         themeListener.ThemeChanged += OnThemeChanged;
 
         InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColor"];
         IsActive = true;
-    }
-
-    private void OnThemeChanged(ThemeListener sender)
-    {
-        OnPropertyChanged(nameof(MusicThemeColorThemeAware));
     }
 
     private static void InitializeFromSettings()
@@ -241,7 +240,37 @@ public sealed partial class MusicInfoService : ObservableRecipient
         #endregion
     }
 
-    private async void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnPlayerMediaFailed(MediaPlayerFailedEventArgs args)
+    {
+        MessageDialog dialog = new(args.ErrorMessage, "PlayerError_Title".GetLocalized());
+        await dialog.ShowAsync();
+    }
+
+    private async void OnPlaylistItemFailed(MediaPlaybackItemFailedEventArgs args)
+    {
+        if (isPlaylistItemErrorDialogShowing)
+        {
+            return;
+        }
+
+        isPlaylistItemErrorDialogShowing = true;
+        string musicTitle = args.Item?.GetDisplayProperties()?.MusicProperties?.Title;
+        string errorInfo = $"{args.Error.ErrorCode}\n{args.Error.ExtendedError.Message}";
+
+        string message = string.Format("PlaylistItemFailed_Message".GetLocalized(), musicTitle, errorInfo);
+        
+        MessageDialog dialog = new(message, "PlaylistItemFailed_Title".GetLocalized());
+        await dialog.ShowAsync();
+
+        isPlaylistItemErrorDialogShowing = false;
+    }
+
+    private void OnThemeChanged(ThemeListener sender)
+    {
+        OnPropertyChanged(nameof(MusicThemeColorThemeAware));
+    }
+
+    private async void OnPlaylistChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
         {
@@ -249,9 +278,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
-    private void OnPlayerMediaReplacing()
+    private void OnMediaPreparing()
     {
-        IsLoadingMedia = true;
+        IsLoadingMedia = MusicService.IsMusicPreparing;
     }
 
     private void OnMusicStopped()

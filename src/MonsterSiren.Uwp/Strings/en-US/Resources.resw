@@ -525,4 +525,19 @@ The code for this app is licensed to you under the MIT license.</value>
   <data name="InvaildItemTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>This item may corrupt</value>
   </data>
+  <data name="PlaylistItemFailed_Title" xml:space="preserve">
+    <value>Error occurred when playing item</value>
+  </data>
+  <data name="PlaylistItemFailed_Message" xml:space="preserve">
+    <value>The following error occurred: {1}</value>
+  </data>
+  <data name="PlaylistCorruptMessage" xml:space="preserve">
+    <value>Playlist "{0}" may corrupt.</value>
+  </data>
+  <data name="SomePlaylistItemCorruptMessage" xml:space="preserve">
+    <value>Some items in playlist "{0}" may corrupt, so they are not played.</value>
+  </data>
+  <data name="PlayerError_Title" xml:space="preserve">
+    <value>An error about the player occurred</value>
+  </data>
 </root>
