@@ -199,7 +199,7 @@
     <value>移除</value>
   </data>
   <data name="AddToPlaylistLiteral" xml:space="preserve">
-    <value>添加到播放列表</value>
+    <value>添加到“{0}”</value>
   </data>
   <data name="UsingMeteredInternet" xml:space="preserve">
     <value>正在使用流量计费网络</value>

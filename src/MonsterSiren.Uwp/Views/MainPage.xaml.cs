@@ -375,7 +375,7 @@ public sealed partial class MainPage : Page
                 || e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
             {
                 e.AcceptedOperation = DataPackageOperation.Link;
-                e.DragUIOverride.Caption = "AddToPlaylistLiteral".GetLocalized();
+                e.DragUIOverride.Caption = string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title);
             }
             else
             {

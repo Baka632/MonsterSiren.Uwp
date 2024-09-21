@@ -118,7 +118,7 @@
     <value>Remove</value>
   </data>
   <data name="AddToPlaylistLiteral" xml:space="preserve">
-    <value>Add to playlist</value>
+    <value>Add to "{0}"</value>
   </data>
   <data name="UsingMeteredInternet" xml:space="preserve">
     <value>You are using metered Internet connection</value>
