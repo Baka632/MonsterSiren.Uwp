@@ -65,9 +65,9 @@ public sealed partial class MusicInfoService : ObservableObject
     [NotifyPropertyChangedFor(nameof(MusicThemeColorThemeAware))]
     private Color musicThemeColor;
     [ObservableProperty]
-    private bool enableMusicControl;
+    private bool hasMusic;
     [ObservableProperty]
-    private bool showMusicInfo;
+    private bool showOrEnableMusicControl;
 
     public Color MusicThemeColorLight1 { get => MusicThemeColor.LighterBy(0.3f); }
     public Color MusicThemeColorLight2 { get => MusicThemeColor.LighterBy(0.6f); }
@@ -169,6 +169,7 @@ public sealed partial class MusicInfoService : ObservableObject
         MusicService.MusicStopped += OnMusicStopped;
         MusicService.PlaylistChanged += OnPlaylistChanged;
         MusicService.PlaylistItemFailed += OnPlaylistItemFailed;
+        MusicService.PlayerHasMusicStateChanged += OnPlayerHasMusicStateChanged;
 
         themeListener.ThemeChanged += OnThemeChanged;
 
@@ -276,15 +277,48 @@ public sealed partial class MusicInfoService : ObservableObject
 
     private void OnMusicPrepareModeChanged()
     {
-        bool isMusicPreparing = MusicService.IsMusicPreparing;
+        // HACK: 这里有一个问题，正常情况下这里的调整会先执行，所以会导致播放信息没显示完全时，信息控件就出来了
+        // 但是，如果把这里设为只有 isMusicPreparing 为 true 的情况下才更改这里的值
+        // 那么一旦播放出错，信息控件就不能恢复到正常状态
 
+        if (MusicService.IsMusicPreparing)
+        {
+            IsLoadingMedia = true;
+            ShowOrEnableMusicControl = false;
+        }
+    }
+
+    /// <summary>
+    /// 确保 <see cref="IsLoadingMedia"/>、<see cref="ShowOrEnableMusicControl"/> 这些与指示播放状态相关的属性的值正确
+    /// </summary>
+    public void EnsurePlayRelatedPropertyIsCorrect()
+    {
+        bool isMusicPreparing = MusicService.IsMusicPreparing;
         IsLoadingMedia = isMusicPreparing;
-        EnableMusicControl = ShowMusicInfo = !isMusicPreparing;
+
+        if (MusicService.IsPlayerPlaylistHasMusic)
+        {
+            ShowOrEnableMusicControl = !isMusicPreparing;
+        }
+        else
+        {
+            ShowOrEnableMusicControl = false;
+        }
+    }
+
+    private void OnPlayerHasMusicStateChanged()
+    {
+        bool isPlayerPlaylistHasMusic = MusicService.IsPlayerPlaylistHasMusic;
+        HasMusic = isPlayerPlaylistHasMusic;
+
+        if (!isPlayerPlaylistHasMusic)
+        {
+            ShowOrEnableMusicControl = false;
+        }
     }
 
     private void OnMusicStopped()
     {
-        EnableMusicControl = ShowMusicInfo = false;
         if (CurrentMediaCover != null)
         {
             CurrentMediaCover = null;
@@ -408,8 +442,6 @@ public sealed partial class MusicInfoService : ObservableObject
     {
         if (args.NewItem is not null)
         {
-            IsLoadingMedia = true;
-
             MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
@@ -506,6 +538,11 @@ public sealed partial class MusicInfoService : ObservableObject
                     await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
                 }
 
+                if (CurrentMediaCover?.UriSource == uri)
+                {
+                    return;
+                }
+
                 CurrentMediaCover = new BitmapImage(uri)
                 {
                     DecodePixelHeight = 250,
@@ -545,6 +582,7 @@ public sealed partial class MusicInfoService : ObservableObject
                 }
             }
 
+            ShowOrEnableMusicControl = true;
             IsLoadingMedia = false;
             await CreateNowPlayingTile();
         }
@@ -575,9 +613,9 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     [RelayCommand]
-    private static void StopMusic()
+    private static async Task StopMusic()
     {
-        MusicService.StopMusic();
+        await MusicService.StopMusic();
     }
 
     [RelayCommand]

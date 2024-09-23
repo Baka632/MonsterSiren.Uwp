@@ -174,10 +174,12 @@ sealed partial class App : Application
                     }
                     catch (HttpRequestException)
                     {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                     catch (ArgumentOutOfRangeException)
                     {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }
@@ -195,10 +197,12 @@ sealed partial class App : Application
                     }
                     catch (HttpRequestException)
                     {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                     catch (ArgumentOutOfRangeException)
                     {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
                         await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
                     }
                 }

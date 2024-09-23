@@ -12,12 +12,13 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
     private bool shouldMoveToNewItem;
     private TimeSpan newItemPosition;
     private MediaPlaybackState previousState;
+    private MediaPlaybackItem previousItem;
 
     protected override async void InsertItem(int index, MediaPlaybackItem item)
     {
         base.InsertItem(index, item);
 
-        if (shouldMoveToNewItem)
+        if (shouldMoveToNewItem && ReferenceEquals(item, previousItem))
         {
             MusicService.MoveTo((uint)index);
             await Task.Delay(300);
@@ -30,6 +31,7 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
 
             shouldMoveToNewItem = false;
             newItemPosition = TimeSpan.Zero;
+            previousItem = null;
         }
     }
 
@@ -42,6 +44,7 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
             previousState = MusicService.PlayerPlayBackState;
             MusicService.PauseMusic();
             newItemPosition = MusicService.PlayerPosition;
+            previousItem = MusicService.CurrentMediaPlaybackItem;
         }
 
         base.RemoveItem(index);

@@ -76,7 +76,11 @@ public sealed partial class NowPlayingPage : Page
 
         if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && isNowPlayingListExpanded == false)
         {
-            ExpandOrFoldNowPlayingList();
+            ExpandNowPlayingList();
+        }
+        else
+        {
+            FoldNowPlayingList();
         }
     }
 
@@ -96,12 +100,7 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
-        if (args.NewItem is null)
-        {
-            MusicListFoldStoryboard.Begin();
-            isNowPlayingListExpanded = false;
-        }
-        else
+        if (args.NewItem is not null)
         {
             NowPlayingListView.ScrollIntoView(args.NewItem, ScrollIntoViewAlignment.Leading);
             NowPlayingListView.SelectedItem = args.NewItem;
@@ -110,16 +109,26 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandOrFoldNowPlayingList()
     {
-        if (isNowPlayingListExpanded || ViewModel.MusicInfo.EnableMusicControl != true)
+        if (isNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
         {
-            MusicListFoldStoryboard.Begin();
-            isNowPlayingListExpanded = false;
+            FoldNowPlayingList();
         }
         else
         {
-            MusicListExpandStoryboard.Begin();
-            isNowPlayingListExpanded = true;
+            ExpandNowPlayingList();
         }
+    }
+
+    private void ExpandNowPlayingList()
+    {
+        MusicListExpandStoryboard.Begin();
+        isNowPlayingListExpanded = true;
+    }
+
+    private void FoldNowPlayingList()
+    {
+        MusicListFoldStoryboard.Begin();
+        isNowPlayingListExpanded = false;
     }
 
     private void OnMusicListExpandStoryboardCompleted(object sender, object e)

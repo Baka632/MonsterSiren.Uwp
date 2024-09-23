@@ -49,6 +49,10 @@ public static class MusicService
     /// </summary>
     public static event Action PlayerMediaEnded;
     /// <summary>
+    /// 当播放器是否具有音乐的状态发生改变时引发
+    /// </summary>
+    public static event Action PlayerHasMusicStateChanged;
+    /// <summary>
     /// 当音乐的时长发生改变时引发
     /// </summary>
     public static event Action<TimeSpan> MusicDurationChanged;
@@ -322,6 +326,13 @@ public static class MusicService
                 PlaylistChanged?.Invoke(sender, args);
             });
         };
+        CurrentMediaPlaybackList.PropertyChanged += async (sender, args) =>
+        {
+            if (args.PropertyName == nameof(CurrentMediaPlaybackList.Count) && (CurrentMediaPlaybackList.Count - 1 == 0 || CurrentMediaPlaybackList.Count + 1 == 1))
+            {
+                await UIThreadHelper.RunOnUIThread(() => PlayerHasMusicStateChanged?.Invoke());
+            }
+        };
     }
 
     /// <summary>
@@ -361,11 +372,6 @@ public static class MusicService
     /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
     public static async Task AddMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
-        // TODO: 提供更好的随机播放算法
-        // 现在随机播放的实现是，总是首先播放 items 的第一个元素，之后的随机播放由系统决定
-        // 我们希望，第一个播放的项也能随机播放
-        // 并且，现在的实现存在第一项播放完后不继续播放第二项的问题
-
         bool isStopping = false;
         bool isNoMusicInPlaylistBefore = !IsPlayerPlaylistHasMusic;
 
@@ -377,14 +383,37 @@ public static class MusicService
             }
 
             MusicStopping += OnMusicStopping;
+
+            MediaPlaybackItem firstItem = null;
+            bool isFirst = true;
+
             await foreach (MediaPlaybackItem item in items)
             {
+                if (isFirst)
+                {
+                    firstItem = item;
+                }
+
                 if (isStopping)
                 {
                     break;
                 }
 
                 CurrentMediaPlaybackList.Add(item);
+
+                if (isFirst)
+                {
+                    PlayMusic();
+                    isFirst = false;
+                }
+            }
+
+            if (IsPlayerShuffleEnabled && firstItem is not null && mediaPlaybackList.ShuffledItems.Contains(firstItem))
+            {
+                List<MediaPlaybackItem> shuffleList = new(mediaPlaybackList.ShuffledItems);
+                shuffleList.Remove(firstItem);
+                shuffleList.Insert(0, firstItem);
+                mediaPlaybackList.SetShuffledItems(shuffleList);
             }
 
             if (isNoMusicInPlaylistBefore)
@@ -413,7 +442,7 @@ public static class MusicService
     {
         try
         {
-            StopMusic();
+            await StopMusic();
 
             IsMusicPreparing = true;
 
@@ -437,33 +466,47 @@ public static class MusicService
     /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
     public static async Task ReplaceMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
-        // TODO: 提供更好的随机播放算法
-        // 现在随机播放的实现是，总是首先播放 items 的第一个元素，之后的随机播放由系统决定
-        // 我们希望，第一个播放的项也能随机播放
-        // 并且，现在的实现存在第一项播放完后不继续播放第二项的问题
-
         bool isStopping = false;
 
         try
         {
-            StopMusic();
-
             IsMusicPreparing = true;
             await UIThreadHelper.RunOnUIThread(() =>
             {
                 PlayerMediaReplacing?.Invoke();
             });
 
-            MusicStopping += OnMusicStopping;
-
+            MediaPlaybackItem firstItem = null;
+            bool isFirst = true;
             await foreach (MediaPlaybackItem media in items)
             {
+                if (isFirst)
+                {
+                    await StopMusic();
+                    MusicStopping += OnMusicStopping;
+                    firstItem = media;
+                }
+
                 if (isStopping)
                 {
                     break;
                 }
 
                 CurrentMediaPlaybackList.Add(media);
+
+                if (isFirst)
+                {
+                    PlayMusic();
+                    isFirst = false;
+                }
+            }
+
+            if (IsPlayerShuffleEnabled && firstItem is not null && mediaPlaybackList.ShuffledItems.Contains(firstItem))
+            {
+                List<MediaPlaybackItem> shuffleList = new(mediaPlaybackList.ShuffledItems);
+                shuffleList.Remove(firstItem);
+                shuffleList.Insert(0, firstItem);
+                mediaPlaybackList.SetShuffledItems(shuffleList);
             }
 
             PlayMusic();
@@ -559,7 +602,7 @@ public static class MusicService
     /// <summary>
     /// 终止音乐播放
     /// </summary>
-    public static async void StopMusic()
+    public static async Task StopMusic()
     {
         mediaPlayer.Pause();
         mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;

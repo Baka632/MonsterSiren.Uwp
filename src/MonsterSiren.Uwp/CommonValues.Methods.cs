@@ -176,6 +176,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -206,6 +207,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -231,6 +233,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -260,6 +263,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -283,10 +287,13 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
         catch (ArgumentOutOfRangeException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
             int targetIndex = playlist.Items.IndexOf(playlistItem);
             if (targetIndex != -1)
             {
@@ -322,6 +329,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -351,6 +359,7 @@ partial class CommonValues
             }
             catch (AggregateException ex)
             {
+                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
                 await DisplayAggregateExceptionError(ex);
             }
         }
@@ -378,6 +387,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -407,6 +417,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -432,6 +443,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -461,6 +473,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -484,10 +497,13 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
         catch (ArgumentOutOfRangeException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
             int targetIndex = playlist.Items.IndexOf(playlistItem);
             if (targetIndex != -1)
             {
@@ -523,6 +539,7 @@ partial class CommonValues
         }
         catch (AggregateException ex)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayAggregateExceptionError(ex);
         }
 
@@ -551,6 +568,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 
@@ -579,6 +597,7 @@ partial class CommonValues
         }
         catch (HttpRequestException)
         {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
 

@@ -286,7 +286,7 @@
                 BorderThickness="0"
                 Click="OnMediaInfoButtonClick"
                 Style="{x:Null}"
-                Visibility="{x:Bind ViewModel.MusicInfo.ShowMusicInfo, Mode=OneWay}">
+                Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                 <Grid Margin="0,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -296,6 +296,7 @@
                     <Grid
                         x:Name="SongTitleAndArtistNameContainerGrid"
                         Grid.Column="1"
+                        Margin="10,0,0,0"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
@@ -316,12 +317,10 @@
                             Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
                     </Grid>
 
-                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
-                        <Image
-                            x:Name="MediaCoverImage"
-                            Grid.Column="0"
-                            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
-                    </Grid>
+                    <Image
+                        x:Name="MediaCoverImage"
+                        Grid.Column="0"
+                        Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
                 </Grid>
             </Button>
 
@@ -368,7 +367,7 @@
                 <Button
                     AccessKey="P"
                     Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
@@ -377,7 +376,7 @@
                     AccessKey="Z"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
@@ -390,7 +389,7 @@
                 <Button
                     AccessKey="X"
                     Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <msrControls:ThemedToggleButton
@@ -449,7 +448,10 @@
                                     IsThreeState="False"
                                     ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
-                                        <FontIcon Margin="0,0,5,0" Glyph="&#xE14B;" />
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="&#xE14B;" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
@@ -462,7 +464,10 @@
                                     IsThreeState="True"
                                     ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
-                                        <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
@@ -490,7 +495,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
-                                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon
                                             Margin="0,0,5,0"
@@ -505,7 +510,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
-                                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
                                         <TextBlock x:Uid="ClearPlaybackList" />
@@ -539,14 +544,14 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
+                    Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                 <Slider
                     x:Name="MusicProcessSlider"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
                     Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
                     Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                     Style="{StaticResource ThemedSlider}"
@@ -559,7 +564,7 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
+                    Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
             </Grid>
             <muxc:ProgressBar
                 x:Name="MusicStatusProgressBar"
@@ -643,7 +648,7 @@
                                 x:Uid="EnterGlanceMode"
                                 AccessKey="GL"
                                 Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
-                                IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE052;" />
                                 </MenuFlyoutItem.Icon>
@@ -653,7 +658,7 @@
                                 AccessKey="CL"
                                 Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
                                 Icon="Cancel"
-                                IsEnabled="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}" />
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                         </muxc:MenuBarItemFlyout>
                     </Button.Flyout>
                 </Button>

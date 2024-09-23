@@ -44,7 +44,7 @@
             x:Uid="NoMusicTextBlock"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.EnableMusicControl), Mode=OneWay}" />
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.HasMusic), Mode=OneWay}" />
 
         <Image
             x:Name="CoverImage"
@@ -52,7 +52,8 @@
             VerticalAlignment="Stretch"
             Opacity="0.1"
             Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
-            Stretch="UniformToFill" />
+            Stretch="UniformToFill"
+            Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}" />
 
         <Grid
             x:Name="ContentGrid"
@@ -73,11 +74,12 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
-                Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}">
+                Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}">
                 <Button
                     Win17763:CornerRadius="4"
                     AccessKey="P"
-                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}">
+                    Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
@@ -86,7 +88,8 @@
                     Win17763:CornerRadius="4"
                     AccessKey="S"
                     BorderThickness="2"
-                    Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}">
+                    Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
@@ -95,7 +98,8 @@
                 <Button
                     Win17763:CornerRadius="4"
                     AccessKey="N"
-                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}">
+                    Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
             </StackPanel>
@@ -133,14 +137,15 @@
                 Command="{x:Bind ViewModel.BackCommand}"
                 Content="&#xE158;"
                 FontFamily="Segoe MDL2 Assets"
-                FontSize="16" />
+                FontSize="16"
+                Style="{StaticResource DefaultButtonStyle}" />
             <ProgressBar
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Foreground="White"
                 IsIndeterminate="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
                 Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
-                Visibility="{x:Bind ViewModel.MusicInfo.EnableMusicControl, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}"
                 Value="{x:Bind ViewModel.MusicInfo.MusicPosition.TotalSeconds, Mode=OneWay}" />
         </Grid>
 
