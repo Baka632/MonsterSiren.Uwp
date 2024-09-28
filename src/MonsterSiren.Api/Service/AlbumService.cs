@@ -33,14 +33,14 @@ public static class AlbumService
     /// </summary>
     /// <param name="cid">专辑 CID</param>
     /// <returns>包含专辑基本信息的 <see cref="AlbumInfo"/></returns>
-    /// <exception cref="ArgumentException">参数错误</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task<AlbumInfo> GetAlbumInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {
-            throw new ArgumentOutOfRangeException(nameof(cid), $"“{nameof(cid)}”不能为 null 或空白。");
+            throw new ArgumentNullException(nameof(cid), $"“{nameof(cid)}”不能为 null 或空白。");
         }
 
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync($"album/{cid}/data");
@@ -52,7 +52,13 @@ public static class AlbumService
         }
         else
         {
-            throw new ArgumentException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = cid
+                }
+            };
         }
     }
 
@@ -61,14 +67,14 @@ public static class AlbumService
     /// </summary>
     /// <param name="cid">专辑 CID</param>
     /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/></returns>
-    /// <exception cref="ArgumentException">参数错误</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="cid"/> 为 null 或空白</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 null 或空白</exception>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     public static async Task<AlbumDetail> GetAlbumDetailedInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
         {
-            throw new ArgumentOutOfRangeException(nameof(cid), $"“{nameof(cid)}”不能为 null 或空白。");
+            throw new ArgumentNullException(nameof(cid), $"“{nameof(cid)}”不能为 null 或空白。");
         }
 
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync($"album/{cid}/detail");
@@ -80,7 +86,13 @@ public static class AlbumService
         }
         else
         {
-            throw new ArgumentException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}");
+            throw new ArgumentOutOfRangeException($"传入参数错误\n错误代码：{result.Code}\n错误信息：{result.Message}")
+            {
+                Data =
+                {
+                    ["ErrorCid"] = cid
+                }
+            };
         }
     }
 }

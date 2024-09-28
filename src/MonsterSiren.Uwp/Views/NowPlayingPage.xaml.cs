@@ -1,4 +1,6 @@
-﻿using Windows.Media.Playback;
+﻿using System.Threading;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.Input;
 
@@ -74,13 +76,17 @@ public sealed partial class NowPlayingPage : Page
 
         if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && isNowPlayingListExpanded == false)
         {
-            ExpandOrFoldNowPlayingList();
+            ExpandNowPlayingList();
+        }
+        else
+        {
+            FoldNowPlayingList();
         }
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
@@ -94,36 +100,44 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
-        if (args.NewItem is null)
+        if (args.NewItem is not null)
         {
-            MusicListFoldStoryboard.Begin();
-            isNowPlayingListExpanded = false;
-        }
-        else
-        {
-            NowPlayingListView.ScrollIntoView(args.NewItem);
+            NowPlayingListView.ScrollIntoView(args.NewItem, ScrollIntoViewAlignment.Leading);
+            NowPlayingListView.SelectedItem = args.NewItem;
         }
     }
 
     private void ExpandOrFoldNowPlayingList()
     {
-        if (isNowPlayingListExpanded || ViewModel.MusicInfo.CurrentMusicPropertiesExists != true)
+        if (isNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
         {
-            MusicListFoldStoryboard.Begin();
-            isNowPlayingListExpanded = false;
+            FoldNowPlayingList();
         }
         else
         {
-            MusicListExpandStoryboard.Begin();
-            isNowPlayingListExpanded = true;
+            ExpandNowPlayingList();
         }
+    }
+
+    private void ExpandNowPlayingList()
+    {
+        MusicListExpandStoryboard.Begin();
+        isNowPlayingListExpanded = true;
+    }
+
+    private void FoldNowPlayingList()
+    {
+        MusicListFoldStoryboard.Begin();
+        isNowPlayingListExpanded = false;
     }
 
     private void OnMusicListExpandStoryboardCompleted(object sender, object e)
     {
-        if (MusicService.CurrentMediaPlaybackItem is not null && NowPlayingListView.Items.Contains(MusicService.CurrentMediaPlaybackItem))
+        MediaPlaybackItem currentItem = MusicService.CurrentMediaPlaybackItem;
+        if (currentItem is not null && NowPlayingListView.Items.Contains(currentItem))
         {
-            NowPlayingListView.ScrollIntoView(MusicService.CurrentMediaPlaybackItem);
+            NowPlayingListView.ScrollIntoView(currentItem, ScrollIntoViewAlignment.Leading);
+            NowPlayingListView.SelectedItem = currentItem;
         }
     }
 
@@ -154,6 +168,62 @@ public sealed partial class NowPlayingPage : Page
             else
             {
                 MusicInfoService.Default.Volume -= addDelta;
+            }
+        }
+    }
+
+    private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
+        MediaSource source = playbackItem.Source;
+
+        textBlock.Text = "-:-";
+
+        if (source.Duration.HasValue)
+        {
+            textBlock.Text = source.Duration.Value.ToString(@"m\:ss");
+        }
+        else
+        {
+            SemaphoreSlim semaphore = LockerHelper<Uri>.GetOrCreateLocker(source.Uri);
+
+            try
+            {
+                await semaphore.WaitAsync();
+
+                if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
+                {
+                    SongDetail songDetail = details.FirstOrDefault();
+                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
+
+                    if (span.HasValue)
+                    {
+                        textBlock.Text = span.Value.ToString(@"m\:ss");
+                        return;
+                    }
+                }
+
+                await source.OpenAsync();
+                TimeSpan? duration = source.Duration;
+
+                if (duration.HasValue)
+                {
+                    textBlock.Text = duration.Value.ToString(@"m\:ss");
+                }
+                else
+                {
+                    textBlock.Text = "-:-";
+                }
+            }
+            catch (Exception ex) when (ex.HResult == -1072877849)
+            {
+                textBlock.Text = "-:-";
+            }
+            finally
+            {
+                semaphore.Release();
+                LockerHelper<Uri>.ReturnLocker(source.Uri);
             }
         }
     }

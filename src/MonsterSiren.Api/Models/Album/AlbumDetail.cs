@@ -36,7 +36,7 @@ public struct AlbumDetail : IEquatable<AlbumDetail>
     /// <summary>
     /// 专辑内全部歌曲的信息
     /// </summary>
-    public IEnumerable<SongInfo> Songs { get; set; } = Enumerable.Empty<SongInfo>();
+    public IEnumerable<SongInfo> Songs { get; set; } = [];
 
     /// <summary>
     /// 使用指定的参数构造 <see cref="AlbumDetail"/> 的新实例

@@ -25,9 +25,9 @@ public sealed partial class NowPlayingCompactPage : Page
         _timer.Start();
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
         _timer.Stop();
     }
 
@@ -42,7 +42,7 @@ public sealed partial class NowPlayingCompactPage : Page
 
     private void OnTimerTick(object sender, object e)
     {
-        if (IsActive != true && ViewModel.MusicInfo.CurrentMusicPropertiesExists)
+        if (IsActive != true && MusicService.IsPlayerPlaylistHasMusic)
         {
             HideContentStoryBoard.Begin();
             IsContentHide = true;

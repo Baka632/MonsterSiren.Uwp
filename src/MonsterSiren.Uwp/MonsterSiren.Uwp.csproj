@@ -129,6 +129,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CommonValues.cs" />
+    <Compile Include="CommonValues.Methods.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
@@ -147,7 +148,9 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
-    <Compile Include="Helpers\SongDetailExtensions.cs" />
+    <Compile Include="Helpers\LockerHelper.cs" />
+    <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
+    <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
@@ -158,15 +161,19 @@
     <Compile Include="Models\DownloadItemState.cs" />
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
+    <Compile Include="Models\ExceptionBox.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
+    <Compile Include="Models\Playlist.cs" />
+    <Compile Include="Models\PlaylistItem.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicInfoService.Tile.cs" />
     <Compile Include="Services\MusicService.cs" />
+    <Compile Include="Services\PlaylistService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\DownloadViewModel.cs" />
     <Compile Include="ViewModels\GlanceViewViewModel.cs" />
@@ -176,6 +183,8 @@
     <Compile Include="ViewModels\NewsViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingCompactViewModel.cs" />
     <Compile Include="ViewModels\NowPlayingViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistDetailViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\AlbumDetailPage.xaml.cs">
@@ -183,6 +192,9 @@
     </Compile>
     <Compile Include="Views\CodecInfoDialog.xaml.cs">
       <DependentUpon>CodecInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CopyrightDialog.xaml.cs">
+      <DependentUpon>CopyrightDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
@@ -209,6 +221,15 @@
     <Compile Include="Views\NowPlayingPage.xaml.cs">
       <DependentUpon>NowPlayingPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PlaylistInfoDialog.xaml.cs">
+      <DependentUpon>PlaylistInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaylistDetailPage.xaml.cs">
+      <DependentUpon>PlaylistDetailPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaylistPage.xaml.cs">
+      <DependentUpon>PlaylistPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
@@ -222,8 +243,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\App-Logo\Dark-Mode.png" />
-    <Content Include="Assets\App-Logo\Light-Mode.png" />
+    <Content Include="Assets\App-Logo\Logo.png" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
@@ -316,6 +336,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\CopyrightDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DownloadPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -348,6 +372,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlaylistInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaylistDetailPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -358,8 +394,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AsyncEnumerator">
+      <Version>4.0.2</Version>
+    </PackageReference>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
-      <Version>1.0.3</Version>
+      <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.2.2</Version>
@@ -419,6 +458,7 @@
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

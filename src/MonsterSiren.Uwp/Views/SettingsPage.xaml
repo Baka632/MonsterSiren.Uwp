@@ -188,10 +188,15 @@
                                 <muxc:InfoBar
                                     x:Uid="SettingsPage_DownloadFolderRedirected"
                                     IsClosable="False"
-                                    IsOpen="{x:Bind ViewModel.IsFolderRedirected, Mode=OneWay}"
+                                    IsOpen="{x:Bind ViewModel.IsDownloadFolderRedirected, Mode=OneWay}"
+                                    Severity="Warning" />
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_PlaylistFolderRedirected"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind ViewModel.IsPlaylistFolderRedirected, Mode=OneWay}"
                                     Severity="Warning" />
 
-                                <Grid>
+                                <Grid Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition />
@@ -199,7 +204,7 @@
 
                                     <StackPanel Grid.Column="0">
                                         <TextBlock x:Uid="SettingsPage_DownloadPath" Style="{StaticResource BaseTextBlockStyle}" />
-                                        <TextBlock Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
+                                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.DownloadPath, Mode=OneWay}" />
                                     </StackPanel>
 
                                     <Button
@@ -207,6 +212,23 @@
                                         Grid.Column="1"
                                         HorizontalAlignment="Right"
                                         Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Uid="SettingsPage_PlaylistSavePath" Style="{StaticResource BaseTextBlockStyle}" />
+                                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.PlaylistSavePath, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button
+                                        x:Uid="SettingsPage_PickButton"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.PickPlaylistFolderCommand}" />
                                 </Grid>
                             </StackPanel>
                         </muxc:Expander>
@@ -348,14 +370,14 @@
             <PivotItem x:Uid="AboutPivotItem">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                             <Image
                                 Width="90"
                                 Height="90"
-                                Margin="0,0,10,0"
+                                Margin="0,10,10,0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Style="{ThemeResource AppLogoImage}" />
+                                Source="/Assets/App-Logo/Logo.png" />
                             <TextBlock
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
@@ -366,6 +388,7 @@
                         <TextBlock
                             Margin="0,0,0,5"
                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                            IsTextSelectionEnabled="True"
                             Text="{x:Bind app:App.AppVersionWithText}" />
 
                         <HyperlinkButton Margin="0,0,0,5" NavigateUri="https://github.com/Baka632/MonsterSiren.Uwp">
@@ -382,7 +405,15 @@
                         <Button
                             Margin="0,0,0,5"
                             Background="Transparent"
-                            Command="{x:Bind ViewModel.OpenLogFolderCommand}">
+                            Command="{x:Bind ViewModel.OpenCopyrightNoticeDialogCommand}">
+                            <TextBlock x:Uid="SettingsPage_CopyrightStatement" />
+                        </Button>
+
+                        <Button
+                            Margin="0,0,0,5"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.OpenLogFolderCommand}"
+                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
                             <TextBlock x:Uid="SettingsPage_OpenLogFolder" />
                         </Button>
 

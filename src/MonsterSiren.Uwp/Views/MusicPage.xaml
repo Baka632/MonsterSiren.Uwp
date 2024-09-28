@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:albumModels="using:MonsterSiren.Api.Models.Album"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+    xmlns:app="using:MonsterSiren.Uwp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
@@ -14,6 +15,23 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:MusicViewModel}"
     Loaded="OnMusicPageLoaded"
     mc:Ignorable="d">
+    <Page.Resources>
+        <MenuFlyout x:Name="AlbumContextFlyout" Opening="OnAlbumContextFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DownloadAlbumCommandButton"
+                Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Download" />
+        </MenuFlyout>
+    </Page.Resources>
+
 
     <muxc:RefreshContainer x:Name="RefreshActionContainer" RefreshRequested="OnRefreshRequested">
         <Grid>
@@ -84,27 +102,12 @@
                 </GridView.Resources>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="albumModels:AlbumInfo">
-                        <Grid Padding="5" Background="Transparent">
-                            <Grid.ContextFlyout>
-                                <muxc:MenuBarItemFlyout>
-                                    <MenuFlyoutItem
-                                        x:Uid="PlayCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.PlayAlbumForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Play" />
-                                    <MenuFlyoutItem
-                                        x:Uid="AddToPlaylistCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.AddToPlaylistForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Add" />
-                                    <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem
-                                        x:Uid="DownloadAlbumCommandButton"
-                                        Command="{Binding ElementName=Self, Path=ViewModel.DownloadForAlbumInfoCommand}"
-                                        CommandParameter="{x:Bind}"
-                                        Icon="Download" />
-                                </muxc:MenuBarItemFlyout>
-                            </Grid.ContextFlyout>
+                        <Grid
+                            Padding="5"
+                            Background="Transparent"
+                            ContextFlyout="{StaticResource AlbumContextFlyout}"
+                            DataContext="{x:Bind}"
+                            RightTapped="OnGridViewItemGridRightTapped">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -132,27 +135,39 @@
                                 Grid.Row="1"
                                 HorizontalAlignment="Left"
                                 FontWeight="SemiBold"
-                                Text="{x:Bind Name}" />
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind Name}" />
                             <TextBlock
                                 Grid.Row="2"
                                 Margin="0,0,0,5"
                                 HorizontalAlignment="Left"
                                 Foreground="#8f8f8f"
                                 Text="{x:Bind x:String.Join(' / ', Artistes)}"
-                                TextTrimming="CharacterEllipsis" />
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind x:String.Join(' / ', Artistes)}" />
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
 
             <!--#region Loading & Error-->
+            <muxc:ProgressRing
+                Grid.Row="1"
+                Width="50"
+                Height="50"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind app:App.IsGreaterThan18362}" />
             <ProgressRing
                 Grid.Row="1"
                 Width="50"
                 Height="50"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(app:App.IsGreaterThan18362)}" />
 
             <StackPanel
                 Grid.Row="1"

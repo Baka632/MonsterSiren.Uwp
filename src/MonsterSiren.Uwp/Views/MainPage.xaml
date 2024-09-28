@@ -11,6 +11,7 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.UI.Xaml.Media"
+    xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:msrControls="using:MonsterSiren.Uwp.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
@@ -53,6 +54,25 @@
                 </SplineDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
+        <MenuFlyout x:Name="PlaylistItemFlyout" Opening="OnPlaylistItemFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem
+                x:Uid="ModifyCommandButton"
+                Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Edit" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="DeleteCommandButton"
+                Command="{x:Bind ViewModel.RemovePlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Delete" />
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>
@@ -136,8 +156,9 @@
                     AccessKey="NP"
                     AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     AllowDrop="True"
-                    DragOver="OnAlbumInfoDataPackageDragOver"
-                    Drop="OnDropAlbumInfoDataPackage"
+                    DragOver="OnMusicDataPackageDragOver"
+                    Drop="OnDropMusicDataPackage"
+                    SelectsOnInvoked="False"
                     Tag="NowPlayingPage">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="MusicInfo" />
@@ -155,6 +176,28 @@
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE90A;" />
                     </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+
+                <muxc:NavigationViewItemSeparator />
+
+                <muxc:NavigationViewItem
+                    x:Name="PlaylistPageItem"
+                    x:Uid="PlaylistNavViewItem"
+                    AccessKey="LS"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    IsExpanded="True"
+                    Tag="PlaylistPage">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE14C;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem
+                                x:Uid="PlaylistPage_NewPlaylist"
+                                Command="{x:Bind ViewModel.CreateNewPlaylistCommand}"
+                                Icon="Add" />
+                        </MenuFlyout>
+                    </muxc:NavigationViewItem.ContextFlyout>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
 
@@ -174,10 +217,6 @@
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.FooterMenuItems>
 
-            <muxc:NavigationView.PaneFooter>
-                <muxc:NavigationViewItemSeparator />
-            </muxc:NavigationView.PaneFooter>
-
             <Frame
                 x:Name="ContentFrame"
                 Margin="20,20,0,0"
@@ -189,8 +228,8 @@
             Grid.Row="2"
             HorizontalAlignment="Stretch"
             AllowDrop="True"
-            DragOver="OnAlbumInfoDataPackageDragOver"
-            Drop="OnDropAlbumInfoDataPackage"
+            DragOver="OnMusicDataPackageDragOver"
+            Drop="OnDropMusicDataPackage"
             RequestedTheme="Dark">
             <Grid.Background>
                 <media:AcrylicBrush
@@ -202,7 +241,7 @@
             </Grid.Background>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="MediaInfoButtonColumnDefinition" Width="2*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -212,6 +251,7 @@
             </Grid.RowDefinitions>
 
             <muxc:ProgressRing
+                x:Name="LoadingProgressRingMUXC"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
@@ -219,33 +259,45 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}" />
+                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
+                Visibility="{x:Bind app:App.IsGreaterThan18362}" />
+            <ProgressRing
+                x:Name="LoadingProgressRingWUXC"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="0"
+                Margin="40,0,10,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
+                IsActive="{x:Bind ViewModel.MusicInfo.IsLoadingMedia, Mode=OneWay}"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(app:App.IsGreaterThan18362)}" />
             <Button
                 x:Name="MediaInfoButton"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
                 Width="Auto"
-                MaxWidth="300"
                 Padding="0"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
+                HorizontalContentAlignment="Left"
                 Background="Transparent"
                 BorderThickness="0"
                 Click="OnMediaInfoButtonClick"
                 Style="{x:Null}"
-                Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsMediaInfoVisible), Mode=OneWay}">
+                Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                 <Grid Margin="0,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
                     <Grid
                         x:Name="SongTitleAndArtistNameContainerGrid"
                         Grid.Column="1"
-                        MaxWidth="150"
-                        HorizontalAlignment="Center"
+                        Margin="10,0,0,0"
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
                         <Grid.RowDefinitions>
@@ -265,12 +317,10 @@
                             Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
                     </Grid>
 
-                    <Grid Margin="0,0,10,0" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.IsLoadingMedia), Mode=OneWay}">
-                        <Image
-                            x:Name="MediaCoverImage"
-                            Grid.Column="0"
-                            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
-                    </Grid>
+                    <Image
+                        x:Name="MediaCoverImage"
+                        Grid.Column="0"
+                        Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
                 </Grid>
             </Button>
 
@@ -317,16 +367,16 @@
                 <Button
                     AccessKey="P"
                     Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <Button
                     Width="51"
                     Height="51"
-                    AccessKey="S"
+                    AccessKey="Z"
                     BorderThickness="2"
                     Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon
                         FontFamily="Segoe MDL2 Assets"
                         FontSize="25"
@@ -339,7 +389,7 @@
                 <Button
                     AccessKey="X"
                     Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                     <FontIcon Glyph="&#xE101;" />
                 </Button>
                 <msrControls:ThemedToggleButton
@@ -398,7 +448,10 @@
                                     IsThreeState="False"
                                     ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
-                                        <FontIcon Margin="0,0,5,0" Glyph="&#xE14B;" />
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="&#xE14B;" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.ShuffleStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
@@ -411,7 +464,10 @@
                                     IsThreeState="True"
                                     ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
-                                        <FontIcon Margin="0,0,5,0" Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="{x:Bind ViewModel.MusicInfo.RepeatIconGlyph, Mode=OneWay}" />
                                         <TextBlock Text="{x:Bind ViewModel.MusicInfo.RepeatStateDescription, Mode=OneWay}" />
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
@@ -439,7 +495,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
-                                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon
                                             Margin="0,0,5,0"
@@ -454,7 +510,7 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
-                                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                     <StackPanel Orientation="Horizontal">
                                         <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
                                         <TextBlock x:Uid="ClearPlaybackList" />
@@ -488,14 +544,14 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                    Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                 <Slider
                     x:Name="MusicProcessSlider"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     HorizontalAlignment="Stretch"
                     Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                    IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
                     IsThumbToolTipEnabled="False"
                     Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                     Style="{StaticResource ThemedSlider}"
@@ -508,7 +564,7 @@
                     FontSize="12"
                     Foreground="White"
                     Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                    Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                    Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
             </Grid>
             <muxc:ProgressBar
                 x:Name="MusicStatusProgressBar"
@@ -592,7 +648,7 @@
                                 x:Uid="EnterGlanceMode"
                                 AccessKey="GL"
                                 Command="{x:Bind ViewModel.ToGlanceViewPageCommand}"
-                                IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE052;" />
                                 </MenuFlyoutItem.Icon>
@@ -602,7 +658,7 @@
                                 AccessKey="CL"
                                 Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
                                 Icon="Cancel"
-                                IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}" />
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                         </muxc:MenuBarItemFlyout>
                     </Button.Flyout>
                 </Button>
@@ -613,7 +669,11 @@
             x:Name="NotifyNoEmptyStringTeachingTip"
             x:Uid="EmptyStringInSearchBoxTeachingTip"
             Grid.RowSpan="3"
-            Target="{x:Bind SearchBox}" />
+            Target="{x:Bind SearchBox}">
+            <muxc:TeachingTip.IconSource>
+                <muxc:FontIconSource Glyph="&#xE946;" />
+            </muxc:TeachingTip.IconSource>
+        </muxc:TeachingTip>
 
         <controls:InAppNotification
             x:Name="appNotificationControl"
@@ -635,6 +695,12 @@
                                 Storyboard.TargetProperty="Padding"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="5" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButtonColumnDefinition"
+                                Storyboard.TargetProperty="Width"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2*" />
                             </ObjectAnimationUsingKeyFrames>
                             <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaCoverImage"
@@ -734,6 +800,19 @@
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
                             </ObjectAnimationUsingKeyFrames>
+
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingMUXC"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingWUXC"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                            </ObjectAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState.Storyboard>
                 </VisualState>
@@ -749,6 +828,12 @@
                                 Storyboard.TargetProperty="Padding"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="0" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="MediaInfoButtonColumnDefinition"
+                                Storyboard.TargetProperty="Width"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="*" />
                             </ObjectAnimationUsingKeyFrames>
                             <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaCoverImage"
@@ -844,6 +929,19 @@
 
                             <ObjectAnimationUsingKeyFrames
                                 Storyboard.TargetName="MediaInfoButton"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingMUXC"
+                                Storyboard.TargetProperty="(Grid.RowSpan)"
+                                Duration="0">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="2" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames
+                                Storyboard.TargetName="LoadingProgressRingWUXC"
                                 Storyboard.TargetProperty="(Grid.RowSpan)"
                                 Duration="0">
                                 <DiscreteObjectKeyFrame KeyTime="0" Value="2" />

@@ -154,11 +154,12 @@ public class CustomObservableCollection<T> : Collection<T>, INotifyCollectionCha
         PropertyChanged?.Invoke(this, e);
     }
 
+    // Modified
     /// <summary>
     /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
     /// </summary>
     [field: NonSerialized]
-    protected event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
     /// Raise CollectionChanged event to any listeners.

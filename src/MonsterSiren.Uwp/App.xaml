@@ -23,31 +23,8 @@
                 <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml" />
-				<ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml"/>
+                <ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <Style x:Key="AppLogoImage" TargetType="Image">
-                        <Setter Property="Source" Value="/Assets/App-Logo/Light-Mode.png" />
-                    </Style>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <Style x:Key="AppLogoImage" TargetType="Image">
-                        <Setter Property="Source" Value="/Assets/App-Logo/Dark-Mode.png" />
-                    </Style>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="HighContrastBlack">
-                    <Style x:Key="AppLogoImage" TargetType="Image">
-                        <Setter Property="Source" Value="/Assets/App-Logo/Dark-Mode.png" />
-                    </Style>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="HighContrastWhite">
-                    <Style x:Key="AppLogoImage" TargetType="Image">
-                        <Setter Property="Source" Value="/Assets/App-Logo/Light-Mode.png" />
-                    </Style>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

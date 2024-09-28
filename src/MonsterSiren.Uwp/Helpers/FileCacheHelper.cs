@@ -1,6 +1,6 @@
-﻿using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -15,6 +15,7 @@ internal static class FileCacheHelper
 {
     private const string DefaultAlbumCoverCacheFolderName = "AlbumCover";
     private const string DefaultMusicInfoCacheFolderName = "MusicInfo";
+    private const string DefaultSongDurationCacheFolderName = "SongDuration";
     private static readonly StorageFolder tempFolder = ApplicationData.Current.TemporaryFolder;
 
     /// <summary>
@@ -42,38 +43,43 @@ internal static class FileCacheHelper
     /// <param name="cid">专辑的 CID</param>
     public static async Task StoreAlbumByUriAndCid(string uri, string cid)
     {
-        Uri coverUri = new(uri, UriKind.Absolute);
+        SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(cid);
 
         try
         {
-            using HttpClient httpClient = new();
-            using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+            await semaphore.WaitAsync();
+            Uri coverUri = new(uri, UriKind.Absolute);
 
-            using InMemoryRandomAccessStream stream = new();
-            await result.Content.WriteToStreamAsync(stream);
-            stream.Seek(0);
-            string fileName = $"{cid}.jpg";
-            await StoreAlbumCoverAsync(fileName, stream);
+            try
+            {
+                using HttpClient httpClient = new();
+                using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+                using InMemoryRandomAccessStream stream = new();
+                await result.Content.WriteToStreamAsync(stream);
+                stream.Seek(0);
+                string fileName = $"{cid}.jpg";
+
+                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+                if (await coverFolder.FileExistsAsync(fileName) != true)
+                {
+                    StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+                    using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                    await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+                    await transaction.CommitAsync();
+                }
+            }
+            catch (COMException)
+            {
+                return;
+            }
         }
-        catch (COMException)
+        finally
         {
-            return;
+            semaphore.Release();
+            LockerHelper<string>.ReturnLocker(cid);
         }
-    }
-
-    /// <summary>
-    /// 使用指定的文件名与随机访问流，在专辑封面缓存文件夹创建文件
-    /// </summary>
-    /// <param name="fileName">文件名</param>
-    /// <param name="stream">专辑封面的随机访问流</param>
-    private static async Task StoreAlbumCoverAsync(string fileName, IRandomAccessStream stream)
-    {
-        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-        StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-        await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-        await transaction.CommitAsync();
     }
 
     /// <summary>
@@ -125,8 +131,7 @@ internal static class FileCacheHelper
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
     public static async Task<Uri> GetAlbumCoverUriAsync(AlbumDetail albumDetail)
     {
-        string fileName = $"{albumDetail.Cid}.jpg";
-        return await GetAlbumCoverUriAsync(fileName);
+        return await GetAlbumCoverUriAsync(albumDetail.Cid);
     }
 
     /// <summary>
@@ -136,27 +141,77 @@ internal static class FileCacheHelper
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
     public static async Task<Uri> GetAlbumCoverUriAsync(AlbumInfo albumInfo)
     {
-        string fileName = $"{albumInfo.Cid}.jpg";
-        return await GetAlbumCoverUriAsync(fileName);
+        return await GetAlbumCoverUriAsync(albumInfo.Cid);
     }
 
     /// <summary>
-    /// 通过指定的文件名获取指向专辑封面的 Uri
+    /// 通过指定的专辑 CID 获取指向专辑封面的 Uri
     /// </summary>
-    /// <param name="fileName">专辑封面的文件名</param>
+    /// <param name="cid">专辑的 CID</param>
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
-    private static async Task<Uri> GetAlbumCoverUriAsync(string fileName)
+    public static async Task<Uri> GetAlbumCoverUriAsync(string cid)
     {
+        string fileName = $"{cid}.jpg";
+
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
         if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
         {
-            return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+            StorageFile file = await coverFolder.GetFileAsync(fileName);
+            using IRandomAccessStreamWithContentType stream = await file.OpenReadAsync();
+
+            if (stream.Size != 0)
+            {
+                return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 从缓存中获取歌曲时长
+    /// </summary>
+    /// <param name="songCid">歌曲 CID</param>
+    /// <returns>表示歌曲时长的 <see cref="System.TimeSpan"/>。如果缓存中不存在指定项的时长信息，则返回 <see langword="null"/></returns>
+    public static async Task<TimeSpan?> GetSongDurationAsync(string songCid)
+    {
+        StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+        string fileName = $"{songCid}.json";
+        if (durationFolder != null && await durationFolder.FileExistsAsync(fileName))
+        {
+            try
+            {
+                StorageFile file = await durationFolder.GetFileAsync(fileName);
+                using Stream utf8Json = await file.OpenStreamForReadAsync();
+
+                TimeSpan duration = JsonSerializer.Deserialize<TimeSpan>(utf8Json);
+                return duration;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
         }
         else
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// 通过指定的参数，将歌曲的时长信息保存在缓存文件夹中
+    /// </summary>
+    /// <param name="songCid">歌曲的 CID</param>
+    /// <param name="timeSpan">歌曲时长</param>
+    public static async Task StoreSongDurationAsync(string songCid, TimeSpan timeSpan)
+    {
+        StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFile file = await durationFolder.CreateFileAsync($"{songCid}.json", CreationCollisionOption.ReplaceExisting);
+
+        using Stream stream = await file.OpenStreamForWriteAsync();
+        await JsonSerializer.SerializeAsync(stream, timeSpan);
     }
 
     public static async Task StoreAlbumInfoAsync(AlbumInfo info)

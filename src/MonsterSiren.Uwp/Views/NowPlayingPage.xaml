@@ -110,7 +110,8 @@
             VerticalAlignment="Stretch"
             Opacity="0.3"
             Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
-            Stretch="UniformToFill" />
+            Stretch="UniformToFill"
+            Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
         <Grid x:Name="BackdropGrid" Grid.RowSpan="2">
             <Grid.Background>
                 <media:BackdropBlurBrush Amount="20" />
@@ -121,7 +122,7 @@
             Grid.RowSpan="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.HasMusic), Mode=OneWay}">
             <FontIcon
                 Margin="0,0,0,5"
                 FontSize="30"
@@ -135,7 +136,7 @@
             Margin="11,40,11,0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
-            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}">
+            Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
@@ -159,7 +160,8 @@
                     Margin="0,0,10,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}" />
+                    Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                 <StackPanel
                     Grid.Column="1"
                     HorizontalAlignment="Right"
@@ -207,7 +209,7 @@
                             VerticalAlignment="Center"
                             FontSize="12"
                             Text="{x:Bind ViewModel.MusicInfo.MusicPosition, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                            Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                         <Slider
                             x:Name="MusicProcessSlider"
                             Grid.Column="1"
@@ -215,7 +217,7 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
                             Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
                             IsThumbToolTipEnabled="False"
                             Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                             Style="{StaticResource ThemedSlider}"
@@ -227,7 +229,7 @@
                             VerticalAlignment="Center"
                             FontSize="12"
                             Text="{x:Bind ViewModel.MusicInfo.MusicDuration, Converter={StaticResource TimeSpanToStringConverter}, Mode=OneWay}"
-                            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.MusicInfo.CurrentMusicPropertiesExists), Mode=OneWay}" />
+                            Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                     </Grid>
                     <muxc:ProgressBar
                         x:Name="MusicStatusProgressBar"
@@ -270,13 +272,13 @@
                             Margin="0,0,5,0"
                             AccessKey="P"
                             Command="{x:Bind ViewModel.MusicInfo.PreviousMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                             <FontIcon Glyph="&#xE100;" />
                         </Button>
                         <Button
                             AccessKey="S"
                             Command="{x:Bind ViewModel.MusicInfo.PlayOrPauseMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                             <FontIcon
                                 FontFamily="Segoe MDL2 Assets"
                                 FontSize="25"
@@ -289,7 +291,7 @@
                         <Button
                             AccessKey="X"
                             Command="{x:Bind ViewModel.MusicInfo.NextMusicCommand}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}">
+                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
                             <FontIcon Glyph="&#xE101;" />
                         </Button>
                         <msrControls:ThemedToggleButton
@@ -373,7 +375,7 @@
                                         AccessKey="CL"
                                         Command="{x:Bind ViewModel.MusicInfo.StopMusicCommand}"
                                         Icon="Cancel"
-                                        IsEnabled="{x:Bind ViewModel.MusicInfo.CurrentMusicPropertiesExists, Mode=OneWay}" />
+                                        IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                                 </muxc:MenuBarItemFlyout>
                             </Button.Flyout>
                         </Button>
@@ -412,11 +414,13 @@
             x:FieldModifier="Internal"
             AllowDrop="True"
             CanReorderItems="True"
-            ItemsSource="{x:Bind services:MusicService.CurrentMediaPlaybackList}"
-            Visibility="Collapsed">
+            ItemsSource="{x:Bind services:MusicService.CurrentMediaPlaybackList}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="playback:MediaPlaybackItem">
-                    <controls:NowPlayingItemGrid Name="NowPlayingItemGrid" Background="Transparent">
+                    <controls:NowPlayingItemGrid
+                        Name="NowPlayingItemGrid"
+                        Padding="0,0,10,0"
+                        Background="Transparent">
                         <controls:NowPlayingItemGrid.ContextFlyout>
                             <muxc:MenuBarItemFlyout>
                                 <MenuFlyoutItem
@@ -437,7 +441,7 @@
                         <controls:NowPlayingItemGrid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
-                            <!--<ColumnDefinition />-->
+                            <ColumnDefinition MaxWidth="40" />
                         </controls:NowPlayingItemGrid.ColumnDefinitions>
 
                         <StackPanel
@@ -466,12 +470,18 @@
                             Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                             Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
                             TextTrimming="CharacterEllipsis" />
-                        <!--<TextBlock Grid.Column="2" Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='AlbumArtist'}" />-->
+                        <TextBlock
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            DataContext="{x:Bind}"
+                            Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
+                            Loaded="OnSongDurationTextBlockLoaded" />
                     </controls:NowPlayingItemGrid>
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.ItemContainerStyle>
-                <Style BasedOn="{StaticResource Win11ListViewItemNoIndicatorStyle}" TargetType="ListViewItem">
+                <Style BasedOn="{StaticResource Win11ListViewItemStyle}" TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="VerticalContentAlignment" Value="Stretch" />
                     <Setter Property="Padding" Value="15,0,0,0" />

@@ -1,25 +1,31 @@
-﻿using System.Collections.Specialized;
+﻿#define SONG_FOR_PEPE
+
+using System.Collections.Specialized;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.Services;
 
-public sealed partial class MusicInfoService : ObservableRecipient
+/// <summary>
+/// 应用程序音乐信息服务
+/// </summary>
+public sealed partial class MusicInfoService : ObservableObject
 {
     /// <summary>
     /// 获取 <see cref="MusicInfoService"/> 的默认实例
     /// </summary>
     public static readonly MusicInfoService Default = new();
 
-    private MusicDisplayProperties formerMusicDisplayProperties;
+    private bool isPlaylistItemErrorDialogShowing;
     private readonly ThemeListener themeListener = new();
+    private readonly Dictionary<MediaPlaybackItem, int> errorItemErrorCountPair = new(5);
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CurrentMusicPropertiesExists))]
     [NotifyPropertyChangedFor(nameof(MusicDuration))]
     [NotifyPropertyChangedFor(nameof(MusicPosition))]
     private MusicDisplayProperties currentMusicProperties;
@@ -59,6 +65,10 @@ public sealed partial class MusicInfoService : ObservableRecipient
     [NotifyPropertyChangedFor(nameof(MusicThemeColorDark3))]
     [NotifyPropertyChangedFor(nameof(MusicThemeColorThemeAware))]
     private Color musicThemeColor;
+    [ObservableProperty]
+    private bool hasMusic;
+    [ObservableProperty]
+    private bool showOrEnableMusicControl;
 
     public Color MusicThemeColorLight1 { get => MusicThemeColor.LighterBy(0.3f); }
     public Color MusicThemeColorLight2 { get => MusicThemeColor.LighterBy(0.6f); }
@@ -143,11 +153,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     /// <summary>
-    /// 确定当前的音乐属性是否存在的值
-    /// </summary>
-    public bool CurrentMusicPropertiesExists => CurrentMusicProperties is not null;
-
-    /// <summary>
     /// 构造 <see cref="MusicInfoService"/> 的新实例
     /// </summary>
     public MusicInfoService()
@@ -160,20 +165,17 @@ public sealed partial class MusicInfoService : ObservableRecipient
         MusicService.PlayerPositionChanged += OnPlayerPositionChanged;
         MusicService.PlayerShuffleStateChanged += OnPlayerShuffleStateChanged;
         MusicService.PlayerRepeatingStateChanged += OnPlayerRepeatingStateChanged;
-        MusicService.PlayerMediaReplacing += OnPlayerMediaReplacing;
+        MusicService.PlayerMediaFailed += OnPlayerMediaFailed;
+        MusicService.MusicPrepareModeChanged += OnMusicPrepareModeChanged;
         MusicService.MusicStopped += OnMusicStopped;
-        MusicService.PlaylistChanged += OnPlayListChanged;
+        MusicService.PlaylistChanged += OnPlaylistChanged;
+        MusicService.PlaylistItemFailed += OnPlaylistItemFailed;
+        MusicService.PlayerHasMusicStateChanged += OnPlayerHasMusicStateChanged;
 
         themeListener.ThemeChanged += OnThemeChanged;
 
         InitializeFromSettings();
         MusicThemeColor = (Color)Application.Current.Resources["SystemAccentColor"];
-        IsActive = true;
-    }
-
-    private void OnThemeChanged(ThemeListener sender)
-    {
-        OnPropertyChanged(nameof(MusicThemeColorThemeAware));
     }
 
     private static void InitializeFromSettings()
@@ -236,17 +238,116 @@ public sealed partial class MusicInfoService : ObservableRecipient
         #endregion
     }
 
-    private async void OnPlayListChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private async void OnPlayerMediaFailed(MediaPlayerFailedEventArgs args)
     {
-        if (CurrentMusicPropertiesExists && isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
+        MessageDialog dialog = new(args.ErrorMessage, "PlayerError_Title".GetLocalized());
+        await dialog.ShowAsync();
+    }
+
+    private async void OnPlaylistItemFailed(MediaPlaybackItemFailedEventArgs args)
+    {
+        MediaPlaybackItem item = args.Item;
+        MediaItemDisplayProperties props = item?.GetDisplayProperties();
+
+        if (props is not null)
+        {
+            if (errorItemErrorCountPair.TryGetValue(item, out int errorCount))
+            {
+                errorItemErrorCountPair[item]++;
+            }
+            else
+            {
+                errorItemErrorCountPair[item] = errorCount = 1;
+            }
+
+            if (errorCount <= 3
+                && MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => detail.Name == props.MusicProperties.Title, out IEnumerable<SongDetail> details)
+                && details.Any())
+            {
+                try
+                {
+                    SongDetail oldSongDetail = details.Single();
+                    MediaPlaybackItem newPlaybackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(oldSongDetail.Cid, true);
+
+                    MusicService.ReplaceAt(item, newPlaybackItem);
+                    System.Diagnostics.Debug.WriteLine($"已替换：{oldSongDetail.Name}");
+                    return;
+                }
+                catch
+                {
+                    // Do nothing ;-)
+                }
+            }
+        }
+
+        EnsurePlayRelatedPropertyIsCorrect();
+
+        if (isPlaylistItemErrorDialogShowing)
+        {
+            return;
+        }
+
+        isPlaylistItemErrorDialogShowing = true;
+        string musicTitle = props?.MusicProperties?.Title;
+        string errorInfo = $"{args.Error.ErrorCode}\n{args.Error.ExtendedError.Message}";
+
+        string message = string.Format("PlaylistItemFailed_Message".GetLocalized(), musicTitle, errorInfo);
+
+        MessageDialog dialog = new(message, "PlaylistItemFailed_Title".GetLocalized());
+        await dialog.ShowAsync();
+
+        isPlaylistItemErrorDialogShowing = false;
+    }
+
+    private void OnThemeChanged(ThemeListener sender)
+    {
+        OnPropertyChanged(nameof(MusicThemeColorThemeAware));
+    }
+
+    private async void OnPlaylistChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (isUpdatingTile != true && e.Action != NotifyCollectionChangedAction.Reset)
         {
             await CreateNowPlayingTile();
         }
     }
 
-    private void OnPlayerMediaReplacing()
+    private void OnMusicPrepareModeChanged()
     {
-        IsLoadingMedia = true;
+        if (MusicService.IsMusicPreparing)
+        {
+            IsLoadingMedia = true;
+            ShowOrEnableMusicControl = false;
+        }
+    }
+
+    /// <summary>
+    /// 确保 <see cref="IsLoadingMedia"/>、<see cref="ShowOrEnableMusicControl"/> 这些与指示播放状态相关的属性的值正确
+    /// </summary>
+    public void EnsurePlayRelatedPropertyIsCorrect()
+    {
+        bool isMusicPreparing = MusicService.IsMusicPreparing;
+        IsLoadingMedia = isMusicPreparing;
+
+        if (MusicService.IsPlayerPlaylistHasMusic)
+        {
+            ShowOrEnableMusicControl = !isMusicPreparing;
+        }
+        else
+        {
+            ShowOrEnableMusicControl = false;
+        }
+    }
+
+    private void OnPlayerHasMusicStateChanged()
+    {
+        bool isPlayerPlaylistHasMusic = MusicService.IsPlayerPlaylistHasMusic;
+        HasMusic = isPlayerPlaylistHasMusic;
+
+        if (!isPlayerPlaylistHasMusic)
+        {
+            ShowOrEnableMusicControl = false;
+        }
     }
 
     private void OnMusicStopped()
@@ -274,10 +375,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             _ => "RepeatOffText".GetLocalized(),
         };
 
-        if (CurrentMusicPropertiesExists)
-        {
-            await CreateNowPlayingTile();
-        }
+        await CreateNowPlayingTile();
     }
 
     private async void OnPlayerShuffleStateChanged(bool value)
@@ -290,10 +388,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
             false => "ShuffleOffText".GetLocalized()
         };
 
-        if (CurrentMusicPropertiesExists)
-        {
-            await CreateNowPlayingTile();
-        }
+        await CreateNowPlayingTile();
     }
 
     private void OnPlayerPositionChanged(TimeSpan span)
@@ -372,15 +467,99 @@ public sealed partial class MusicInfoService : ObservableRecipient
         }
     }
 
+#if SONG_FOR_PEPE
+    /// <summary>
+    /// 属于佩佩的字段！
+    /// </summary>
+    private int countForPepe = 0;
+#endif
+
     private async void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
-        if (args.NewItem is not null)
-        {
-            IsLoadingMedia = true;
+        MediaPlaybackItem newItem = args.NewItem;
 
-            MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
+        if (newItem is not null)
+        {
+            _ = errorItemErrorCountPair.Remove(newItem);
+
+            MediaItemDisplayProperties props = newItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
+
+#if SONG_FOR_PEPE
+            if (props.MusicProperties.Title == "Mystic Light Quest")
+            {
+                countForPepe++;
+            }
+            else
+            {
+                countForPepe = 0;
+            }
+
+            if (countForPepe >= 5)
+            {
+                Microsoft.Toolkit.Uwp.Notifications.ToastContent toastContent = null;
+
+                if (countForPepe == 5)
+                {
+                    toastContent = new()
+                    {
+                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
+                        {
+                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "佩佩佩佩佩佩佩佩！"
+                                    },
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "循环播放《Mystic Light Quest》达到 5 次！"
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+                else if (countForPepe == 10)
+                {
+                    toastContent = new Microsoft.Toolkit.Uwp.Notifications.ToastContent()
+                    {
+                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
+                        {
+                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362)
+                                        ? "已进入年代👉希望年代·扩张期🥰"
+                                        : "已进入年代👉希望年代·扩张期💖"
+                                    },
+                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
+                                    {
+                                        Text = "在这个年代，美好茁壮成长，二次元从不消逝，溜佩佩EP是无害的病症，猫冰满足了一切需求😋"
+                                    }
+                                },
+                                Attribution = new Microsoft.Toolkit.Uwp.Notifications.ToastGenericAttributionText()
+                                {
+                                    Text = "来自 B 站 PV 评论区"
+                                }
+                            }
+                        }
+                    };
+                }
+
+                if (toastContent is not null)
+                {
+                    Windows.UI.Notifications.ToastNotification toastNotif = new(toastContent.GetXml());
+                    Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
+                }
+            }
+#endif
 
             if (MemoryCacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
             {
@@ -397,6 +576,11 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 {
                     uri = new(albumDetail.CoverUrl, UriKind.Absolute);
                     await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+                }
+
+                if (CurrentMediaCover?.UriSource == uri)
+                {
+                    return;
                 }
 
                 CurrentMediaCover = new BitmapImage(uri)
@@ -438,6 +622,7 @@ public sealed partial class MusicInfoService : ObservableRecipient
                 }
             }
 
+            ShowOrEnableMusicControl = true;
             IsLoadingMedia = false;
             await CreateNowPlayingTile();
         }
@@ -445,15 +630,6 @@ public sealed partial class MusicInfoService : ObservableRecipient
         {
             CurrentMusicProperties = null;
             DeleteNowPlayingTile();
-        }
-    }
-
-    partial void OnIsLoadingMediaChanging(bool isMediaChanging)
-    {
-        if (isMediaChanging)
-        {
-            formerMusicDisplayProperties = CurrentMusicProperties;
-            CurrentMusicProperties = null;
         }
     }
 
@@ -477,9 +653,9 @@ public sealed partial class MusicInfoService : ObservableRecipient
     }
 
     [RelayCommand]
-    private static void StopMusic()
+    private static async Task StopMusic()
     {
-        MusicService.StopMusic();
+        await MusicService.StopMusic();
     }
 
     [RelayCommand]
@@ -496,31 +672,5 @@ public sealed partial class MusicInfoService : ObservableRecipient
         {
             MusicService.PreviousMusic();
         }
-    }
-
-    protected override void OnActivated()
-    {
-        base.OnActivated();
-        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyWillUpdateMediaMessageToken, OnWillUpdateMedia);
-        WeakReferenceMessenger.Default.Register<string, string>(this, CommonValues.NotifyUpdateMediaFailMessageToken, OnUpdateMediaFail);
-    }
-
-    private async void OnUpdateMediaFail(object recipient, string message)
-    {
-        MusicService.PlayMusic();
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            IsLoadingMedia = false;
-            CurrentMusicProperties = formerMusicDisplayProperties;
-        });
-    }
-
-    private async void OnWillUpdateMedia(object recipient, string message)
-    {
-        MusicService.PauseMusic();
-        await UIThreadHelper.RunOnUIThread(() =>
-        {
-            IsLoadingMedia = true;
-        });
     }
 }

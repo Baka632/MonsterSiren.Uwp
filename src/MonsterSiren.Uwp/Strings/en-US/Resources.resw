@@ -40,10 +40,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Monster Siren Records (UWP)</value>
-  </data>
-  <data name="AppDescription" xml:space="preserve">
-    <value>Monster Siren Records (MSR), one of the world's largest music publishers in the eleventh century in Terra</value>
+    <value>Sora Records</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -87,14 +84,8 @@
   <data name="MSR" xml:space="preserve">
     <value>Monster Siren Records</value>
   </data>
-  <data name="AddToPlaylistTextBlock.Text" xml:space="preserve">
-    <value>Add to playlist</value>
-  </data>
   <data name="PlayCommandButton.Text" xml:space="preserve">
     <value>Play</value>
-  </data>
-  <data name="AddToPlaylistCommandButton.Text" xml:space="preserve">
-    <value>Add to playlist</value>
   </data>
   <data name="RepeatOffText" xml:space="preserve">
     <value>Repeat: Off</value>
@@ -126,8 +117,8 @@
   <data name="RemoveCommandButton.Text" xml:space="preserve">
     <value>Remove</value>
   </data>
-  <data name="AddToPlaylist" xml:space="preserve">
-    <value>Add to playlist</value>
+  <data name="AddToPlaylistLiteral" xml:space="preserve">
+    <value>Add to "{0}"</value>
   </data>
   <data name="UsingMeteredInternet" xml:space="preserve">
     <value>You are using metered Internet connection</value>
@@ -337,15 +328,218 @@
     <value>Decoder</value>
   </data>
   <data name="EnterGlanceMode.Text" xml:space="preserve">
-    <value>Enter "Glance" mode</value>
+    <value>Enter "Glance Mode"</value>
   </data>
   <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
-    <value>Glance mode</value>
+    <value>Glance Mode</value>
   </data>
   <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
     <value>Enable screen burn protection</value>
   </data>
   <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
     <value>Lower brightness</value>
+  </data>
+  <data name="PlaylistNavViewItem.Content" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="ModifyCommandButton.Text" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="DeleteCommandButton.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="SettingsPage_PlaylistFolderRedirected.Message" xml:space="preserve">
+    <value>App cannot use the folder selected before, so the playlist path was set to default path.</value>
+  </data>
+  <data name="SettingsPage_PlaylistSavePath.Text" xml:space="preserve">
+    <value>Playlist save path</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Sora Records is a third-party client for Monster Siren Records.</value>
+  </data>
+  <data name="PlaylistTextBlock.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="PlaylistPage_NewPlaylist.Text" xml:space="preserve">
+    <value>Create new playlist</value>
+  </data>
+  <data name="SongsCount" xml:space="preserve">
+    <value>{0} songs</value>
+  </data>
+  <data name="PlaylistCreationTitle" xml:space="preserve">
+    <value>Create new playlist</value>
+  </data>
+  <data name="PlaylistCreationDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="PlaylistCreationPrimaryButtonText" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="PlaylistTitle.Header" xml:space="preserve">
+    <value>Playlist Title</value>
+  </data>
+  <data name="PlaylistDescription.Header" xml:space="preserve">
+    <value>Playlist Description (Optional)</value>
+  </data>
+  <data name="PlaylistTitleEmptyTitle" xml:space="preserve">
+    <value>Title is empty</value>
+  </data>
+  <data name="PlaylistTitleEmptyMessage" xml:space="preserve">
+    <value>Please enter title.</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsTitle" xml:space="preserve">
+    <value>Please change title</value>
+  </data>
+  <data name="PlaylistTitleAlreadyExistsMessage" xml:space="preserve">
+    <value>A playlist with the same name already exists.</value>
+  </data>
+  <data name="EnsureDelete" xml:space="preserve">
+    <value>Are you sure you want to delete this playlist?</value>
+  </data>
+  <data name="PlaylistModifyTitle" xml:space="preserve">
+    <value>Modify playlist infomation</value>
+  </data>
+  <data name="PlaylistModifyPrimaryButtonText" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="NoPlaylistTextBlock.Text" xml:space="preserve">
+    <value>There is no playlist now</value>
+  </data>
+  <data name="MayRenameInFileSystemWarning.Title" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MayRenameInFileSystemWarning.Message" xml:space="preserve">
+    <value>Title contains characters that cannot be used in filename (but doesn't affect display in app)</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlaying.Text" xml:space="preserve">
+    <value>Add to</value>
+  </data>
+  <data name="AddToNowPlaying.Text" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="AddToPlaylistCommand.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlayingTextBlock.Text" xml:space="preserve">
+    <value>Add to...</value>
+  </data>
+  <data name="DeleteFromPlaylist.Text" xml:space="preserve">
+    <value>Remove from playlist</value>
+  </data>
+  <data name="AddToNowPlayingLiteral" xml:space="preserve">
+    <value>Add to now playing</value>
+  </data>
+  <data name="NoSongsInPlaylist.Text" xml:space="preserve">
+    <value>There is no song in playlist, please add some</value>
+  </data>
+  <data name="HoursAndMinutesFormat" xml:space="preserve">
+    <value>{0} hours and {1} minutes</value>
+  </data>
+  <data name="MinutesAndSecondsFormat" xml:space="preserve">
+    <value>{0} hours and {1} seconds</value>
+  </data>
+  <data name="PlaylistFileSystemTip" xml:space="preserve">
+    <value>Playlist file for Sora Records</value>
+  </data>
+  <data name="PlaylistFileDisplayName" xml:space="preserve">
+    <value>Playlist for Sora Records</value>
+  </data>
+  <data name="PlaylistNoDescription.Text" xml:space="preserve">
+    <value>No description now</value>
+  </data>
+  <data name="NoSongPlayed_Title" xml:space="preserve">
+    <value>No song played</value>
+  </data>
+  <data name="NoSongPlayed_PlaylistEmpty" xml:space="preserve">
+    <value>Playlist is empty.</value>
+  </data>
+  <data name="AddToPlaylistTextLiteral" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="AddToPlaylistOrNowPlayingLiteral" xml:space="preserve">
+    <value>Add to</value>
+  </data>
+  <data name="NowPlayingLiteral" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Title" xml:space="preserve">
+    <value>Original folder contains playlist files</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Message" xml:space="preserve">
+    <value>Move them to new folder?</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="OriginalFolderContainsPlaylist_DoNotMove" xml:space="preserve">
+    <value>Don't move</value>
+  </data>
+  <data name="DuplicateFile" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="SelectForSongList.Text" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="DeselectForSongList.Text" xml:space="preserve">
+    <value>Deselect</value>
+  </data>
+  <data name="SelectAllForSongList.Text" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="DeselectAllForSongList.Text" xml:space="preserve">
+    <value>Deselect all</value>
+  </data>
+  <data name="CopySongName.Text" xml:space="preserve">
+    <value>Copy the song name</value>
+  </data>
+  <data name="SongOrAlbumCidIncorrectInputMessage" xml:space="preserve">
+    <value>The CID entered is incorrect, please enter the correct CID.</value>
+  </data>
+  <data name="CopyrightNoticeMessage.Text" xml:space="preserve">
+    <value>This app is a fanwork and does not represent the official. The app behavior itself has nothing to do with the official.
+The copyright of the album art, music audio and other content presented in this application belongs to Shanghai Hypergryph Network Technology Co., Ltd.
+
+The code for this app is licensed to you under the MIT license.</value>
+  </data>
+  <data name="OpenSourceLicenseMessage.Text" xml:space="preserve">
+    <value>This app uses the following open-source libraries:</value>
+  </data>
+  <data name="CopyrightDialog.Title" xml:space="preserve">
+    <value>Statement on Intellectual Property</value>
+  </data>
+  <data name="CopyrightDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsPage_CopyrightStatement.Text" xml:space="preserve">
+    <value>Statement on Intellectual Property</value>
+  </data>
+  <data name="SongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>This item may corrupt.</value>
+  </data>
+  <data name="SomeSongOrAlbumCidCorruptMessage" xml:space="preserve">
+    <value>Some items may corrupt, so they are not played.</value>
+  </data>
+  <data name="WarningOccurred" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="InvaildItemTooltip.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>This item may corrupt</value>
+  </data>
+  <data name="PlaylistItemFailed_Title" xml:space="preserve">
+    <value>Error occurred when playing item</value>
+  </data>
+  <data name="PlaylistItemFailed_Message" xml:space="preserve">
+    <value>The following error occurred: {1}
+
+Please check your Internet connection.</value>
+  </data>
+  <data name="PlaylistCorruptMessage" xml:space="preserve">
+    <value>Playlist "{0}" may corrupt.</value>
+  </data>
+  <data name="SomePlaylistItemCorruptMessage" xml:space="preserve">
+    <value>Some items in playlist "{0}" may corrupt, so they are not played.</value>
+  </data>
+  <data name="PlayerError_Title" xml:space="preserve">
+    <value>An error about the player occurred</value>
   </data>
 </root>

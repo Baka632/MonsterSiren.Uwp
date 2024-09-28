@@ -34,9 +34,9 @@ public sealed partial class NewsPage : Page
         timer.Start();
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         if (timer is not null)
         {
@@ -72,10 +72,5 @@ public sealed partial class NewsPage : Page
     private void OnRecommendedNewsContainerScrollViewerPointerExited(object sender, PointerRoutedEventArgs e)
     {
         isPointerEnteredRecommendedNewsStackPanel = false;
-    }
-
-    private void OnRefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
-    {
-
     }
 }

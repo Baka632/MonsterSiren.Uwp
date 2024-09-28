@@ -1,7 +1,5 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-using Microsoft.Graphics.Canvas.Text;
-using Microsoft.Graphics.Canvas;
 using Windows.Graphics.Display;
 using Windows.UI.ViewManagement;
 
@@ -121,21 +119,5 @@ public sealed partial class GlanceViewPage : Page
     private void OnContentLoaded(object sender, RoutedEventArgs e)
     {
         ViewModel.ContentOffset = ContentCanvas.ActualHeight - ContentStackPanel.ActualHeight;
-    }
-
-    private double MeasureTextSize(TextBlock textBlock)
-    {
-        using CanvasTextFormat textFormat = new()
-        {
-            FontSize = (float)FontSize,
-            FontFamily = FontFamily.Source,
-            Direction = CanvasTextDirection.LeftToRightThenTopToBottom,
-            WordWrapping = CanvasWordWrapping.NoWrap
-        };
-        CanvasDevice device = CanvasDevice.GetSharedDevice();
-
-        double width = (double.IsNaN(textBlock.ActualWidth) || textBlock.ActualWidth < 0) ? 0 : textBlock.ActualWidth;
-        using CanvasTextLayout layout = new(device, textBlock.Text, textFormat, (float)width, 0);
-        return layout.LayoutBounds.Width;
     }
 }

@@ -4,6 +4,8 @@ using Windows.Storage.AccessCache;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;
 using Windows.System;
+using System.Text.Json;
+using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -17,7 +19,11 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string downloadPath = DownloadService.DownloadPath;
     [ObservableProperty]
-    private bool isFolderRedirected = DownloadService.DownloadPathRedirected;
+    private string playlistSavePath = PlaylistService.PlaylistSavePath;
+    [ObservableProperty]
+    private bool isDownloadFolderRedirected = DownloadService.DownloadPathRedirected;
+    [ObservableProperty]
+    private bool isPlaylistFolderRedirected = PlaylistService.PlaylistPathRedirected;
     [ObservableProperty]
     private bool downloadLyric = DownloadService.DownloadLyric;
     [ObservableProperty]
@@ -200,6 +206,105 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task PickPlaylistFolderAsync()
+    {
+        FolderPicker folderPicker = new();
+        folderPicker.FileTypeFilter.Add("*");
+        StorageFolder playlistFolder = await folderPicker.PickSingleFolderAsync();
+
+        if (playlistFolder is null || playlistFolder.Path.Equals(PlaylistSavePath, StringComparison.OrdinalIgnoreCase))
+        {
+            // 用户取消了文件夹选择
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(PlaylistSavePath))
+        {
+            try
+            {
+                StorageFolder formerFolder = await StorageFolder.GetFolderFromPathAsync(PlaylistSavePath);
+                IEnumerable<StorageFile> formerFiles = (await formerFolder.GetFilesAsync()).Where(static file => file.FileType.Equals(PlaylistService.PlaylistFileExtension, StringComparison.OrdinalIgnoreCase));
+
+                if (formerFiles.Any())
+                {
+                    ContentDialogResult result = await CommonValues.DisplayContentDialog("OriginalFolderContainsPlaylist_Title".GetLocalized(),
+                        "OriginalFolderContainsPlaylist_Message".GetLocalized(),
+                        "OriginalFolderContainsPlaylist_Move".GetLocalized(),
+                        secondaryButtonText: "OriginalFolderContainsPlaylist_DoNotMove".GetLocalized(),
+                        closeButtonText: "Cancel".GetLocalized(),
+                        defaultButton: ContentDialogButton.Primary);
+
+                    if (result == ContentDialogResult.None)
+                    {
+                        return;
+                    }
+                    else if (result == ContentDialogResult.Primary)
+                    {
+                        foreach (StorageFile fileToMove in formerFiles)
+                        {
+                            if (await playlistFolder.FileExistsAsync(fileToMove.Name))
+                            {
+                                StorageFile duplicateFile = await playlistFolder.GetFileAsync(fileToMove.Name);
+                                Playlist mayDuplicatePlaylist;
+                                Playlist currentPlaylist;
+
+                                try
+                                {
+                                    using Stream duplicateFileStream = await duplicateFile.OpenStreamForReadAsync();
+                                    mayDuplicatePlaylist = await JsonSerializer.DeserializeAsync<Playlist>(duplicateFileStream, CommonValues.DefaultJsonSerializerOptions);
+                                }
+                                catch (JsonException)
+                                {
+                                    await fileToMove.MoveAndReplaceAsync(duplicateFile);
+                                    continue;
+                                }
+
+                                try
+                                {
+                                    using Stream currentFileStream = await fileToMove.OpenStreamForReadAsync();
+                                    currentPlaylist = await JsonSerializer.DeserializeAsync<Playlist>(currentFileStream, CommonValues.DefaultJsonSerializerOptions);
+                                }
+                                catch (JsonException)
+                                {
+                                    continue;
+                                }
+
+                                NameCollisionOption option = currentPlaylist.PlaylistId == mayDuplicatePlaylist.PlaylistId
+                                    ? NameCollisionOption.ReplaceExisting
+                                    : NameCollisionOption.GenerateUniqueName;
+
+                                await fileToMove.MoveAsync(playlistFolder, PlaylistService.GetPlaylistFileName(currentPlaylist), option);
+
+                                if (!fileToMove.DisplayName.Equals(currentPlaylist.PlaylistSaveName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    currentPlaylist.PlaylistSaveName = fileToMove.DisplayName;
+                                    using Stream currentFileStream = await fileToMove.OpenStreamForWriteAsync();
+                                    currentFileStream.SetLength(0);
+
+                                    await JsonSerializer.SerializeAsync(currentFileStream, currentPlaylist, CommonValues.DefaultJsonSerializerOptions);
+                                }
+                            }
+                            else
+                            {
+                                await fileToMove.MoveAsync(playlistFolder);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
+            {
+                // :-)
+            }
+        }
+
+        StorageApplicationPermissions.FutureAccessList.AddOrReplace(CommonValues.PlaylistSavePathSettingsKey, playlistFolder);
+        PlaylistService.PlaylistSavePath = PlaylistSavePath = playlistFolder.Path;
+        IsPlaylistFolderRedirected = false;
+        await PlaylistService.Initialize();
+    }
+
+    [RelayCommand]
     private async Task PickDownloadFolderAsync()
     {
         FolderPicker folderPicker = new();
@@ -214,7 +319,7 @@ public partial class SettingsViewModel : ObservableObject
 
         StorageApplicationPermissions.FutureAccessList.AddOrReplace(CommonValues.MusicDownloadPathSettingsKey, downloadFolder);
         DownloadService.DownloadPath = DownloadPath = downloadFolder.Path;
-        IsFolderRedirected = false;
+        IsDownloadFolderRedirected = false;
     }
 
     [RelayCommand]
@@ -236,5 +341,12 @@ public partial class SettingsViewModel : ObservableObject
 
         CodecInfoDialog dialog = new(codecs);
         _ = await dialog.ShowAsync();
+    }
+
+    [RelayCommand]
+    private static async Task OpenCopyrightNoticeDialog()
+    {
+        CopyrightDialog copyrightDialog = new();
+        await copyrightDialog.ShowAsync();
     }
 }

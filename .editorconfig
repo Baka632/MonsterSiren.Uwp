@@ -2,3 +2,7 @@
 
 # IDE0290: 使用主构造函数
 dotnet_diagnostic.IDE0290.severity = silent
+
+# CA1826：使用属性，而不是 Linq Enumerable 方法
+# 排除了 FirstOrDefault 和 LastOrDefault 方法
+dotnet_code_quality.CA1826.exclude_ordefault_methods = true

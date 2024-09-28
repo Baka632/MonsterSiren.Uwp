@@ -18,7 +18,7 @@ public sealed partial class MusicPage : Page
     public MusicPage()
     {
         this.InitializeComponent();
-        NavigationCacheMode = NavigationCacheMode.Enabled;
+        NavigationCacheMode = NavigationCacheMode.Required;
     }
 
     private void OnContentGridViewItemClicked(object sender, ItemClickEventArgs e)
@@ -69,15 +69,15 @@ public sealed partial class MusicPage : Page
 
     private async void OnAlbumImageLoaded(object sender, RoutedEventArgs e)
     {
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile().GetConnectionCost();
+        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
 
-        if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
         {
             return;
         }
 
-        Image image = (Image)sender;
-        if (image.DataContext is AlbumInfo info)
+        Image image = sender as Image;
+        if (image?.DataContext is AlbumInfo info)
         {
             Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
             if (fileCoverUri is null)
@@ -97,5 +97,28 @@ public sealed partial class MusicPage : Page
     private void RefreshAlbums(object sender, RoutedEventArgs e)
     {
         RefreshActionContainer.RequestRefresh();
+    }
+
+    private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
+
+        ViewModel.SelectedAlbumInfo = albumInfo;
+    }
+
+    private void OnAlbumContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
+                                                                          ViewModel.SelectedAlbumInfo,
+                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

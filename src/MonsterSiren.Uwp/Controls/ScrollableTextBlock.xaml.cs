@@ -39,22 +39,40 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
     public static readonly DependencyProperty TextProperty =
         DependencyProperty.Register("Text", typeof(string), typeof(ScrollableTextBlock), new PropertyMetadata(string.Empty));
 
+
+    public FrameworkElement RelativeParent
+    {
+        get => (FrameworkElement)GetValue(RelativeParentProperty);
+        set => SetValue(RelativeParentProperty, value);
+    }
+
+    public static readonly DependencyProperty RelativeParentProperty =
+        DependencyProperty.Register("RelativeParent", typeof(FrameworkElement), typeof(ScrollableTextBlock), new PropertyMetadata(null));
+
+    public OpticalMarginAlignment OpticalMarginAlignment
+    {
+        get => (OpticalMarginAlignment)GetValue(OpticalMarginAlignmentProperty);
+        set => SetValue(OpticalMarginAlignmentProperty, value);
+    }
+
+    public static readonly DependencyProperty OpticalMarginAlignmentProperty =
+        DependencyProperty.Register("OpticalMarginAlignment", typeof(OpticalMarginAlignment), typeof(ScrollableTextBlock), new PropertyMetadata(OpticalMarginAlignment.None));
+
     private async void TryStartScrollAnimation()
     {
-        if (isScrolling || parent is null)
+        if (isScrolling || (RelativeParent is null && parent is null))
         {
             return;
         }
 
         DefaultStoryboard.Begin();
         await Task.Delay(300);
+        double actualWidth = RelativeParent is null ? parent.ActualWidth : RelativeParent.ActualWidth;
 
         double textSize = MeasureTextSize();
-        if (textSize > parent.ActualWidth)
+        if (textSize > actualWidth)
         {
-            Thickness padding = Separator.Margin;
-
-            ScrollAnimation.To = -(textSize + (padding.Left + padding.Right));
+            ScrollAnimation.To = -(textSize + Separator.Width);
             ScrollAnimation.Duration = TimeSpan.FromSeconds(textSize / FontSize / 2);
 
             ScrollStoryboard.Begin();
@@ -63,6 +81,7 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
         else
         {
             isScrolling = false;
+            DefaultStoryboard.Begin();
         }
     }
 
@@ -93,6 +112,12 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        if (ScrollStoryboard.GetCurrentState() != Windows.UI.Xaml.Media.Animation.ClockState.Stopped)
+        {
+            isScrolling = false;
+            ScrollStoryboard.Stop();
+        }
+
         TryStartScrollAnimation();
     }
 

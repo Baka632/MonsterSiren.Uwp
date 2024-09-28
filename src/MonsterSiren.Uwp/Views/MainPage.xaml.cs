@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Specialized;
+using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -7,6 +8,7 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
+using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -19,6 +21,7 @@ public sealed partial class MainPage : Page
 {
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
+    private long tokenForPlaylistPageItemIsExpandChangedEvent;
 
     public MainViewModel ViewModel { get; }
 
@@ -36,10 +39,7 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper = new NavigationHelper(ContentFrame);
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
-
-        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
-        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
-        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+        LoadPlaylistForNavigationView();
     }
 
     ~MainPage()
@@ -178,6 +178,11 @@ public sealed partial class MainPage : Page
 
     private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
     {
+        if (args.InvokedItemContainer is null)
+        {
+            return;
+        }
+
         string tag = args.InvokedItemContainer.Tag as string;
         if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
         {
@@ -206,6 +211,10 @@ public sealed partial class MainPage : Page
         else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
         {
             ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else if (tag == "PlaylistPage" && ContentFrame.CurrentSourcePageType != typeof(PlaylistPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistPage), transitionInfo: CommonValues.DefaultTransitionInfo);
         }
     }
 
@@ -241,6 +250,10 @@ public sealed partial class MainPage : Page
         else if (currentSourcePageType == typeof(DownloadPage))
         {
             NavigationView.SelectedItem = DownloadPageItem;
+        }
+        else if (currentSourcePageType == typeof(PlaylistPage) || currentSourcePageType == typeof(PlaylistDetailPage))
+        {
+            NavigationView.SelectedItem = PlaylistPageItem;
         }
         else if (currentSourcePageType == typeof(NewsPage) || currentSourcePageType == typeof(NewsDetailPage))
         {
@@ -305,6 +318,100 @@ public sealed partial class MainPage : Page
         NavigateToNowPlayingPage();
     }
 
+    private void LoadPlaylistForNavigationView()
+    {
+        PlaylistPageItem.MenuItems.Clear();
+        foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+        {
+            MUXCNavigationViewItem item = CreateNavItemByPlaylist(playlist);
+            PlaylistPageItem.MenuItems.Add(item);
+        }
+    }
+
+    private MUXCNavigationViewItem CreateNavItemByPlaylist(Playlist playlist)
+    {
+        MUXCNavigationViewItem item = new()
+        {
+            DataContext = playlist,
+            ContextFlyout = PlaylistItemFlyout,
+            Tag = playlist,
+            Icon = new FontIcon()
+            {
+                Glyph = "\uEC4F"
+            },
+            IsRightTapEnabled = true,
+            AllowDrop = true,
+            SelectsOnInvoked = false,
+        };
+
+        Binding binding = new()
+        {
+            Path = new PropertyPath("Title")
+        };
+
+        item.SetBinding(ContentControl.ContentProperty, binding);
+
+        item.Tapped += (s, e) =>
+        {
+            if (ContentFrame.Content is PlaylistDetailPage page && page.ViewModel?.CurrentPlaylist == playlist)
+            {
+                return;
+            }
+
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
+
+            ChangeSelectedItemOfNavigationView();
+        };
+
+        item.RightTapped += (s, e) =>
+        {
+            ViewModel.SelectedPlaylist = playlist;
+        };
+
+        item.DragOver += (s, e) =>
+        {
+            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
+                || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+                || e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+            {
+                e.AcceptedOperation = DataPackageOperation.Link;
+                e.DragUIOverride.Caption = string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title);
+            }
+            else
+            {
+                e.AcceptedOperation = DataPackageOperation.None;
+            }
+        };
+
+        item.Drop += async (s, e) =>
+        {
+            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+            {
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+                await CommonValues.AddToPlaylist(playlist, albumInfo);
+            }
+            else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
+            {
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+
+                List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
+
+                await CommonValues.AddToPlaylist(playlist, packs);
+            }
+            else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+            {
+                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
+
+                List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
+                await CommonValues.AddToPlaylist(playlist, items);
+            }
+        };
+        return item;
+    }
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -315,17 +422,92 @@ public sealed partial class MainPage : Page
 
         NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
         OnNetworkStatusChanged();
+
+        PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
+
+        // 当在 Code-behind 中添加事件处理器，且 handledEventsToo 设置为 true 时
+        // 我们才能捕获到 e.Handled 被设为 true 的事件
+        MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
+        MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
+
+        tokenForPlaylistPageItemIsExpandChangedEvent = PlaylistPageItem.RegisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, OnPlaylistPageItemIsExpandedChanged);
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
-        base.OnNavigatedFrom(e);
+        base.OnNavigatingFrom(e);
 
         if (NavigationView?.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
         {
             settings.AccessKeyInvoked -= OnNavigationViewItemAccessKeyInvoked;
         }
         NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+
+        MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
+        MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
+
+        PlaylistPageItem.UnregisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, tokenForPlaylistPageItemIsExpandChangedEvent);
+    }
+
+    private void OnPlaylistPageItemIsExpandedChanged(DependencyObject sender, DependencyProperty dp)
+    {
+        if (dp == MUXCNavigationViewItem.IsExpandedProperty)
+        {
+            bool isExpanded = (bool)sender.GetValue(dp);
+
+            if (!isExpanded)
+            {
+                sender.SetValue(dp, true);
+            }
+        }
+    }
+
+    private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        IList<object> target = PlaylistPageItem.MenuItems;
+
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                {
+                    foreach (object item in e.NewItems)
+                    {
+                        if (item is Playlist playlist)
+                        {
+                            MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                            target.Add(navItem);
+                        }
+                    }
+                }
+                break;
+            case NotifyCollectionChangedAction.Move:
+                object oldItem = target[e.OldStartingIndex];
+                target.RemoveAt(e.OldStartingIndex);
+                target.Insert(e.NewStartingIndex, oldItem);
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                target.RemoveAt(e.OldStartingIndex);
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                {
+                    object newPlaylist = e.NewItems[0];
+                    if (newPlaylist is Playlist playlist)
+                    {
+                        MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                        target[e.OldStartingIndex] = navItem;
+                    }
+                }
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                target.Clear();
+                break;
+            default:
+#if DEBUG
+                System.Diagnostics.Debugger.Break();
+#endif
+                break;
+        }
     }
 
     private async void OnNetworkStatusChanged(object sender = null)
@@ -338,12 +520,15 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void OnAlbumInfoDataPackageDragOver(object sender, DragEventArgs e)
+    private void OnMusicDataPackageDragOver(object sender, DragEventArgs e)
     {
-        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId) || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
+            || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+            || e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
+            || e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
         {
             e.AcceptedOperation = DataPackageOperation.Link;
-            e.DragUIOverride.Caption = "AddToPlaylist".GetLocalized();
+            e.DragUIOverride.Caption = "AddToNowPlayingLiteral".GetLocalized();
         }
         else
         {
@@ -351,7 +536,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void OnDropAlbumInfoDataPackage(object sender, DragEventArgs e)
+    private async void OnDropMusicDataPackage(object sender, DragEventArgs e)
     {
         if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
         {
@@ -359,15 +544,30 @@ public sealed partial class MainPage : Page
 
             AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-            await MainViewModel.AddToPlaylistForAlbumInfo(albumInfo);
+            await CommonValues.AddToNowPlaying(albumInfo);
         }
-        else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId))
+        else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
         {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumPackDetailFormatId);
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
 
-            SongInfoAndAlbumDetailPack pack = JsonSerializer.Deserialize<SongInfoAndAlbumDetailPack>(json);
+            List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
 
-            await MainViewModel.AddToPlaylistForSongInfo(pack.SongInfo, pack.AlbumDetail);
+            await CommonValues.AddToNowPlaying(packs);
+        }
+        else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+        {
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
+            List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
+
+            await CommonValues.AddToNowPlaying(items);
+        }
+        else if (e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
+        {
+            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistFormatId);
+
+            Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
+
+            await CommonValues.AddToNowPlaying(playlist);
         }
     }
 
@@ -470,6 +670,31 @@ public sealed partial class MainPage : Page
         }
 
         NotifyNoEmptyStringTeachingTip.IsOpen = false;
-        ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
+
+        if (args.ChosenSuggestion is AlbumInfo albumInfo)
+        {
+            (AlbumInfo info, bool enableBackAnimation) parameter = (albumInfo, false);
+            ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), parameter, CommonValues.DefaultTransitionInfo);
+        }
+        else
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(SearchPage), args.QueryText, CommonValues.DefaultTransitionInfo);
+        }
+    }
+
+    private void OnPlaylistItemFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddPlaylistToNowPlayingCommand,
+                                                                          ViewModel.SelectedPlaylist,
+                                                                          ViewModel.AddPlaylistToAnotherPlaylistCommand,
+                                                                          ViewModel.SelectedPlaylist);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

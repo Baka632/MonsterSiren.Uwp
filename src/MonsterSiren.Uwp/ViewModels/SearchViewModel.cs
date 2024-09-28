@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -18,6 +19,8 @@ public sealed partial class SearchViewModel : ObservableObject
     private bool isAlbumListEmpty;
     [ObservableProperty]
     private bool isNewsListEmpty;
+    [ObservableProperty]
+    private AlbumInfo selectedAlbumInfo;
 
     partial void OnAlbumListChanged(MsrIncrementalCollection<AlbumInfo> value)
     {
@@ -43,8 +46,26 @@ public sealed partial class SearchViewModel : ObservableObject
 
             SearchAlbumAndNewsResult albumAndNewsWarpper = await SearchService.SearchAlbumAndNewsAsync(keyword);
 
+            List<AlbumInfo> albumList = albumAndNewsWarpper.Albums.List.ToList();
+
+            if (await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList))
+            {
+                albumAndNewsWarpper = albumAndNewsWarpper with
+                {
+                    Albums = albumAndNewsWarpper.Albums with { List = albumList }
+                };
+            }
+
             NewsList = new MsrIncrementalCollection<NewsInfo>(albumAndNewsWarpper.News, async lastInfo => await SearchService.SearchNewsAsync(keyword, lastInfo.Cid));
-            AlbumList = new MsrIncrementalCollection<AlbumInfo>(albumAndNewsWarpper.Albums, async lastInfo => await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid));
+            AlbumList = new MsrIncrementalCollection<AlbumInfo>(albumAndNewsWarpper.Albums, async lastInfo =>
+            {
+                ListPackage<AlbumInfo> listPackage = await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid);
+                List<AlbumInfo> list = listPackage.List.ToList();
+
+                return await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(list)
+                ? listPackage with { List = list }
+                : listPackage;
+            });
 
             ErrorVisibility = Visibility.Collapsed;
         }
@@ -58,6 +79,30 @@ public sealed partial class SearchViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
+    {
+        await CommonValues.StartPlay(albumInfo);
+    }
+
+    [RelayCommand]
+    private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
+    {
+        await CommonValues.AddToNowPlaying(albumInfo);
+    }
+
+    [RelayCommand]
+    private async Task AddAlbumInfoToPlaylist(Playlist playlist)
+    {
+        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo);
+    }
+
+    [RelayCommand]
+    private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
+    {
+        await CommonValues.StartDownload(albumInfo);
+    }
+
     private void ShowInternetError(HttpRequestException ex)
     {
         ErrorVisibility = Visibility.Visible;
@@ -67,18 +112,5 @@ public sealed partial class SearchViewModel : ObservableObject
             Message = "InternetErrorMessage".GetLocalized(),
             Exception = ex
         };
-    }
-
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        ContentDialog contentDialog = new()
-        {
-            Title = title,
-            Content = message,
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = closeButtonText
-        };
-
-        await contentDialog.ShowAsync();
     }
 }

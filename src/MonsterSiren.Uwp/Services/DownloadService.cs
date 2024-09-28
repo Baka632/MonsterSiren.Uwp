@@ -39,6 +39,7 @@ public static class DownloadService
         {
             SettingsHelper.Set(CommonValues.MusicDownloadPathSettingsKey, value);
             _downloadPath = value;
+            DownloadPathRedirected = false;
         }
     }
 
@@ -144,9 +145,11 @@ public static class DownloadService
                 ? commonEncoders.First(info => CodecQueryHelper.IsCodecInfoHasTargetEncoder(info, encoderGuid))
                 : commonEncoders.First();
 
+#pragma warning disable IDE0075
             TranscodeDownloadedItem = SettingsHelper.TryGet(CommonValues.MusicTranscodeDownloadedItemSettingsKey, out bool transcodeItem)
                 ? transcodeItem
                 : true;
+#pragma warning restore IDE0075
 
             IsSupportCommonTranscode = true;
         }
@@ -246,9 +249,9 @@ public static class DownloadService
             infoFileStream.Dispose();
 
             DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-            await HandleDownloadOperation(musicDownload, musicName, true);
+            bool isSuccess = await HandleDownloadOperation(musicDownload, musicName, true);
 
-            if (DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
+            if (isSuccess && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
                 StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", CreationCollisionOption.ReplaceExisting);
                 DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
@@ -257,7 +260,7 @@ public static class DownloadService
         });
     }
 
-    private static async Task HandleDownloadOperation(DownloadOperation operation, string displayName, bool isNew)
+    private static async Task<bool> HandleDownloadOperation(DownloadOperation operation, string displayName, bool isNew)
     {
         CancellationTokenSource cts = new();
         DownloadItem item = new(operation, displayName, cts);
@@ -278,6 +281,8 @@ public static class DownloadService
 
             await HandleDownloadedFile(item);
             await RemoveFromList(item);
+
+            return true;
         }
         catch (TaskCanceledException)
         {
@@ -286,6 +291,8 @@ public static class DownloadService
                 await operation.ResultFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
             await RemoveFromList(item);
+
+            return false;
         }
         catch (Exception ex)
         {
@@ -304,6 +311,8 @@ public static class DownloadService
 
             item.ErrorException = exception;
             item.State = DownloadItemState.Error;
+
+            return false;
         }
         finally
         {
@@ -311,7 +320,8 @@ public static class DownloadService
 
             StorageFile musicFile = (StorageFile)operation.ResultFile;
             string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
-            string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
+            string musicName = Path.ChangeExtension(musicFile.DisplayName, null);
+            string infoFilePath = Path.Combine(albumFolderPath, $"{musicName}.json.tmp");
 
             if (File.Exists(infoFilePath))
             {

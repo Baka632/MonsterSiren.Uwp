@@ -1,16 +1,17 @@
-﻿using Windows.Foundation.Metadata;
+﻿using System.Text.Json;
+using System.Text.Unicode;
+using System.Text.Encodings.Web;
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp;
 
 /// <summary>
-/// 提供应用中常用的值的类
+/// 提供应用中常用内容的类
 /// </summary>
-internal static class CommonValues
+internal static partial class CommonValues
 {
     #region Message Token
-    public const string NotifyWillUpdateMediaMessageToken = "Notify_WillUpdateMedia_MessageToken";
-    public const string NotifyUpdateMediaFailMessageToken = "Notify_UpdateMediaFail_MessageToken";
     public const string NotifyAppBackgroundChangedMessageToken = "Notify_AppBackgroundChanged_MessageToken";
     #endregion
 
@@ -38,6 +39,8 @@ internal static class CommonValues
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
 
+    public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
+
     public const string AppBackgroundModeSettingsKey = "App_BackgroundMode_SettingsKey";
     public const string AppColorThemeSettingsKey = "App_ColorTheme_SettingsKey";
 
@@ -47,11 +50,19 @@ internal static class CommonValues
 
     #region Data Package Type
     public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
-    public const string MusicSongInfoAndAlbumPackDetailFormatId = "Music_SongInfoAndAlbumDetailPack_DataPackage_FormatId";
+    public const string MusicSongInfoAndAlbumDetailPacksFormatId = "Music_SongInfoAndAlbumDetailPacks_DataPackage_FormatId";
+    public const string MusicPlaylistFormatId = "Music_Playlist_DataPackage_FormatId";
+    public const string MusicPlaylistItemsFormatId = "Music_PlaylistItems_DataPackage_FormatId";
     #endregion
 
     #region Other Common Things
-    public static readonly NavigationTransitionInfo DefaultTransitionInfo;
+    public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
+    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
+    public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+    };
     #endregion
 
     static CommonValues()

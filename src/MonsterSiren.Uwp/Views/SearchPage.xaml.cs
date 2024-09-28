@@ -1,9 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text.Json;
-using MonsterSiren.Api.Models.News;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -70,7 +68,7 @@ public sealed partial class SearchPage : Page
         }
         catch (HttpRequestException)
         {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -88,16 +86,26 @@ public sealed partial class SearchPage : Page
         e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
     }
 
-    public static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
+    private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        ContentDialog contentDialog = new()
-        {
-            Title = title,
-            Content = message,
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = closeButtonText
-        };
+        FrameworkElement element = (FrameworkElement)sender;
+        AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
 
-        await contentDialog.ShowAsync();
+        ViewModel.SelectedAlbumInfo = albumInfo;
+    }
+
+    private void OnAlbumContextFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
+                                                                          ViewModel.SelectedAlbumInfo,
+                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
     }
 }

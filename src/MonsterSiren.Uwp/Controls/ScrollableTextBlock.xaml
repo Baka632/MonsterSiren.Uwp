@@ -50,17 +50,19 @@
             x:Name="SecondaryText"
             FontSize="{x:Bind FontSize, Mode=OneWay}"
             FontWeight="{x:Bind FontWeight, Mode=OneWay}"
+            OpticalMarginAlignment="{x:Bind OpticalMarginAlignment, Mode=OneWay}"
             Text="{x:Bind Text, Mode=OneWay}"
             Visibility="Collapsed" />
         <StackPanel
             x:Name="Separator"
-            Margin="6,0,6,0"
+            Width="12"
             Visibility="Collapsed" />
         <TextBlock
             x:Name="PrimaryText"
             FontSize="{x:Bind FontSize, Mode=OneWay}"
             FontWeight="{x:Bind FontWeight, Mode=OneWay}"
             Loaded="OnLoaded"
+            OpticalMarginAlignment="{x:Bind OpticalMarginAlignment, Mode=OneWay}"
             Text="{x:Bind Text, Mode=OneWay}" />
     </StackPanel>
 </UserControl>

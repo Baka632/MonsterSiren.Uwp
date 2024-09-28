@@ -1,0 +1,34 @@
+﻿<ContentDialog
+    x:Class="MonsterSiren.Uwp.Views.CopyrightDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MonsterSiren.Uwp.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Uid="CopyrightDialog"
+    mc:Ignorable="d">
+
+    <StackPanel>
+        <TextBlock x:Uid="CopyrightNoticeMessage" TextWrapping="Wrap" />
+
+        <StackPanel
+            Margin="0,10,0,10"
+            BorderBrush="Gray"
+            BorderThickness="0.6" />
+
+        <StackPanel>
+            <TextBlock
+                x:Uid="OpenSourceLicenseMessage"
+                Margin="0,0,0,5"
+                TextWrapping="Wrap" />
+            <HyperlinkButton Content="Microsoft.UI.Xaml" NavigateUri="https://github.com/microsoft/microsoft-ui-xaml" />
+            <HyperlinkButton Content="Windows Community Toolkit" NavigateUri="https://github.com/CommunityToolkit/Windows" />
+            <HyperlinkButton Content=".NET Community Toolkit" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
+            <HyperlinkButton Content="IsExternalInit" NavigateUri="https://github.com/manuelroemer/IsExternalInit" />
+            <HyperlinkButton Content="TagLibSharp" NavigateUri="https://github.com/mono/taglib-sharp" />
+            <HyperlinkButton Content="Win2D.uwp" NavigateUri="https://github.com/Microsoft/Win2D" />
+            <HyperlinkButton Content="WindowsStateTriggers" NavigateUri="https://github.com/dotMorten/WindowsStateTriggers" />
+            <HyperlinkButton Content="Baka632.Library.Uwp.CSharp" NavigateUri="https://github.com/Baka632/Baka632.Library.Uwp" />
+        </StackPanel>
+    </StackPanel>
+</ContentDialog>

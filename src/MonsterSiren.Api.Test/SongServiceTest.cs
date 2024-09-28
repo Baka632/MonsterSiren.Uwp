@@ -5,18 +5,18 @@ namespace MonsterSiren.Api.Test;
 public class SongServiceTest
 {
     [Fact]
-    public async void GetSongDetail()
+    public async Task GetSongDetail()
     {
         SongDetail defaultSongDetail = default;
 
-        //880368 - Magic Theorem
+        // 880368 - Magic Theorem
         SongDetail songDetail = await SongService.GetSongDetailedInfoAsync("880368");
         Assert.NotEqual(defaultSongDetail, songDetail);
         Assert.NotEmpty(songDetail.Artists);
     }
     
     [Fact]
-    public async void GetAllSong()
+    public async Task GetAllSong()
     {
         SongInfo defaultSongInfo = default;
 

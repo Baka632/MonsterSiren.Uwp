@@ -4,14 +4,12 @@ public sealed class TimeSpanToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is TimeSpan timeSpan)
+        return value switch
         {
-            return timeSpan.ToString(@"m\:ss");
-        }
-        else
-        {
-            return DependencyProperty.UnsetValue;
-        }
+            TimeSpan timeSpan => timeSpan.ToString(@"m\:ss"),
+            null => TimeSpan.Zero.ToString(@"m\:ss"),
+            _ => DependencyProperty.UnsetValue
+        };
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)

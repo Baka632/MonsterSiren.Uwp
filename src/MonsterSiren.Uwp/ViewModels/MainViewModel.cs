@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net.Http;
-using MonsterSiren.Api.Models.Song;
-using Windows.Media.Playback;
+﻿using System.Net.Http;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -18,24 +15,15 @@ public partial class MainViewModel : ObservableRecipient
     private readonly MainPage view;
 
     [ObservableProperty]
-    private bool isMediaInfoVisible;
-    [ObservableProperty]
     private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
+    [ObservableProperty]
+    private Playlist selectedPlaylist;
 
     public MainViewModel(MainPage mainPage)
     {
         view = mainPage ?? throw new ArgumentNullException(nameof(mainPage));
-        MusicInfo.PropertyChanged += OnMusicInfoPropertyChanged;
 
         IsActive = true;
-    }
-
-    private void OnMusicInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(MusicInfo.CurrentMusicPropertiesExists))
-        {
-            IsMediaInfoVisible = MusicInfo.CurrentMusicPropertiesExists;
-        }
     }
 
     /// <summary>
@@ -83,104 +71,40 @@ public partial class MainViewModel : ObservableRecipient
         MainPageNavigationHelper.Navigate(typeof(GlanceViewPage), null, new SuppressNavigationTransitionInfo());
     }
 
-    public static async Task AddToPlaylistForAlbumInfo(AlbumInfo albumInfo)
+    [RelayCommand]
+    private static async Task CreateNewPlaylist()
     {
-        try
-        {
-            await Task.Run(async () =>
-            {
-                AlbumDetail albumDetail = await GetAlbumDetail(albumInfo).ConfigureAwait(false);
-                List<MediaPlaybackItem> playbackItems = new(albumDetail.Songs.Count());
-
-                foreach (SongInfo songInfo in albumDetail.Songs)
-                {
-                    SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-                    playbackItems.Add(songDetail.ToMediaPlaybackItem(albumDetail));
-                }
-
-                MusicService.AddMusic(playbackItems);
-            });
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.CreatePlaylist();
     }
 
-    public static async Task AddToPlaylistForSongInfo(SongInfo songInfo, AlbumDetail albumDetail)
+    [RelayCommand]
+    private static async Task PlayForPlaylist(Playlist playlist)
     {
-        try
-        {
-            await Task.Run(async () =>
-            {
-                SongDetail songDetail = await GetSongDetail(songInfo).ConfigureAwait(false);
-                MusicService.AddMusic(songDetail.ToMediaPlaybackItem(albumDetail));
-            });
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        await CommonValues.StartPlay(playlist);
     }
 
-    private static async Task<AlbumDetail> GetAlbumDetail(AlbumInfo albumInfo)
+    [RelayCommand]
+    private static async Task AddPlaylistToNowPlaying(Playlist playlist)
     {
-        AlbumDetail albumDetail;
-        if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(albumInfo.Cid, out AlbumDetail detail))
-        {
-            albumDetail = detail;
-        }
-        else
-        {
-            albumDetail = await AlbumService.GetAlbumDetailedInfoAsync(albumInfo.Cid);
-
-            bool shouldUpdate = false;
-            foreach (SongInfo item in albumDetail.Songs)
-            {
-                if (item.Artists is null || item.Artists.Any() != true)
-                {
-                    shouldUpdate = true;
-                    break;
-                }
-            }
-
-            if (shouldUpdate)
-            {
-                List<SongInfo> songs = albumDetail.Songs.ToList();
-                for (int i = 0; i < songs.Count; i++)
-                {
-                    SongInfo songInfo = songs[i];
-                    if (songInfo.Artists is null || songInfo.Artists.Any() != true)
-                    {
-                        songs[i] = songInfo with { Artists = ["MSR".GetLocalized()] };
-                    }
-                }
-
-                albumDetail = albumDetail with { Songs = songs };
-            }
-
-            if (albumDetail.Songs.Any())
-            {
-                MemoryCacheHelper<AlbumDetail>.Default.Store(albumInfo.Cid, albumDetail);
-            }
-        }
-
-        return albumDetail;
+        await CommonValues.AddToNowPlaying(playlist);
     }
 
-    private static async Task<SongDetail> GetSongDetail(SongInfo songInfo)
+    [RelayCommand]
+    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
     {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(songInfo.Cid, out SongDetail detail))
-        {
-            return detail;
-        }
-        else
-        {
-            SongDetail songDetail = await SongService.GetSongDetailedInfoAsync(songInfo.Cid);
-            MemoryCacheHelper<SongDetail>.Default.Store(songInfo.Cid, songDetail);
+        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
+    }
 
-            return songDetail;
-        }
+    [RelayCommand]
+    private static async Task ModifyPlaylist(Playlist playlist)
+    {
+        await CommonValues.ModifyPlaylist(playlist);
+    }
+
+    [RelayCommand]
+    private static async Task RemovePlaylist(Playlist playlist)
+    {
+        await CommonValues.RemovePlaylist(playlist);
     }
 
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)
@@ -194,27 +118,14 @@ public partial class MainViewModel : ObservableRecipient
             }
 
             ListPackage<AlbumInfo> searchedAlbums = await SearchService.SearchAlbumAsync(keyword);
-            AutoSuggestBoxSuggestion = searchedAlbums.List;
+            List<AlbumInfo> albums = searchedAlbums.List.ToList();
+            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albums);
+
+            AutoSuggestBoxSuggestion = albums;
         }
         catch (HttpRequestException)
         {
             // Just ignore it...
         }
-    }
-
-    private static async Task DisplayContentDialog(string title, string message, string primaryButtonText = "", string closeButtonText = "")
-    {
-        await UIThreadHelper.RunOnUIThread(async () =>
-        {
-            ContentDialog contentDialog = new()
-            {
-                Title = title,
-                Content = message,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText
-            };
-
-            await contentDialog.ShowAsync();
-        });
     }
 }
