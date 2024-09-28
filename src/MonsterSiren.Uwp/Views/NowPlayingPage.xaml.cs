@@ -216,6 +216,10 @@ public sealed partial class NowPlayingPage : Page
                     textBlock.Text = "-:-";
                 }
             }
+            catch (Exception ex) when (ex.HResult == -1072877849)
+            {
+                textBlock.Text = "-:-";
+            }
             finally
             {
                 semaphore.Release();

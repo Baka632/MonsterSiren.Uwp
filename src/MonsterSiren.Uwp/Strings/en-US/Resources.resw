@@ -529,7 +529,9 @@ The code for this app is licensed to you under the MIT license.</value>
     <value>Error occurred when playing item</value>
   </data>
   <data name="PlaylistItemFailed_Message" xml:space="preserve">
-    <value>The following error occurred: {1}</value>
+    <value>The following error occurred: {1}
+
+Please check your Internet connection.</value>
   </data>
   <data name="PlaylistCorruptMessage" xml:space="preserve">
     <value>Playlist "{0}" may corrupt.</value>

@@ -401,7 +401,7 @@ public static class MusicService
 
                 CurrentMediaPlaybackList.Add(item);
 
-                if (isFirst)
+                if (isNoMusicInPlaylistBefore && isFirst)
                 {
                     PlayMusic();
                     isFirst = false;
@@ -414,11 +414,6 @@ public static class MusicService
                 shuffleList.Remove(firstItem);
                 shuffleList.Insert(0, firstItem);
                 mediaPlaybackList.SetShuffledItems(shuffleList);
-            }
-
-            if (isNoMusicInPlaylistBefore)
-            {
-                PlayMusic();
             }
         }
         finally
@@ -508,8 +503,6 @@ public static class MusicService
                 shuffleList.Insert(0, firstItem);
                 mediaPlaybackList.SetShuffledItems(shuffleList);
             }
-
-            PlayMusic();
         }
         finally
         {
@@ -525,6 +518,11 @@ public static class MusicService
     /// </summary>
     public static void PreviousMusic()
     {
+        if (mediaPlaybackList.CurrentItemIndex > mediaPlaybackList.Items.Count)
+        {
+            mediaPlaybackList.MoveTo(0);
+        }
+
         mediaPlaybackList.MovePrevious();
     }
 
@@ -533,6 +531,11 @@ public static class MusicService
     /// </summary>
     public static void NextMusic()
     {
+        if (mediaPlaybackList.CurrentItemIndex > mediaPlaybackList.Items.Count)
+        {
+            mediaPlaybackList.MoveTo(0);
+        }
+
         mediaPlaybackList.MoveNext();
     }
 
@@ -552,18 +555,89 @@ public static class MusicService
     }
 
     /// <summary>
+    /// 将正在播放的项目更改为指定的播放项
+    /// </summary>
+    /// <remarks>
+    /// 指定的播放项必须在正在播放列表中。
+    /// </remarks>
+    /// <param name="item">指定的播放项</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> 不在正在播放列表中</exception>
+    public static void MoveTo(MediaPlaybackItem item)
+    {
+        int index = CurrentMediaPlaybackList.IndexOf(item);
+
+        if (index == -1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(item), "指定的项目不在正在播放列表中。");
+        }
+
+        mediaPlaybackList.MoveTo((uint)index);
+    }
+
+    /// <summary>
     /// 移除指定索引指向的播放项
     /// </summary>
     /// <param name="index">项目在正在播放列表的索引</param>
     /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
-    public static async void RemoveAt(int index)
+    public static void RemoveAt(int index)
     {
         if (index < 0 || index + 1 > CurrentMediaPlaybackList.Count)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.RemoveAt(index));
+        CurrentMediaPlaybackList.RemoveAt(index);
+    }
+
+    /// <summary>
+    /// 替换指定的播放项
+    /// </summary>
+    /// <param name="oldItem">要被移除的播放项</param>
+    /// <param name="newItem">用于替换的新播放项</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
+    /// /// <exception cref="System.ArgumentNullException"><paramref name="oldItem"/> 或 <paramref name="newItem"/> 为 <see langword="null"/></exception>
+    public static void ReplaceAt(MediaPlaybackItem oldItem, MediaPlaybackItem newItem)
+    {
+        if (oldItem is null)
+        {
+            throw new ArgumentNullException(nameof(oldItem));
+        }
+
+        if (newItem is null)
+        {
+            throw new ArgumentNullException(nameof(newItem));
+        }
+
+        int targetIndex = CurrentMediaPlaybackList.IndexOf(oldItem);
+
+        if (targetIndex == -1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(oldItem), "指定项不在正在播放列表中。");
+        }
+
+        ReplaceAt(newItem, targetIndex);
+    }
+
+    /// <summary>
+    /// 替换指定索引指向的播放项
+    /// </summary>
+    /// <param name="item">替换后的项</param>
+    /// <param name="index">项目在正在播放列表的索引</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="item"/> 为 <see langword="null"/></exception>
+    public static void ReplaceAt(MediaPlaybackItem item, int index)
+    {
+        if (item is null)
+        {
+            throw new ArgumentNullException(nameof(item));
+        }
+
+        if (index + 1 > CurrentMediaPlaybackList.Count || index < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        CurrentMediaPlaybackList[index] = item;
     }
 
     /// <summary>

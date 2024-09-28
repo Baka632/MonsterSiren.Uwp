@@ -23,6 +23,7 @@ public sealed partial class MusicInfoService : ObservableObject
 
     private bool isPlaylistItemErrorDialogShowing;
     private readonly ThemeListener themeListener = new();
+    private readonly Dictionary<MediaPlaybackItem, int> errorItemErrorCountPair = new(5);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MusicDuration))]
@@ -245,17 +246,53 @@ public sealed partial class MusicInfoService : ObservableObject
 
     private async void OnPlaylistItemFailed(MediaPlaybackItemFailedEventArgs args)
     {
+        MediaPlaybackItem item = args.Item;
+        MediaItemDisplayProperties props = item?.GetDisplayProperties();
+
+        if (props is not null)
+        {
+            if (errorItemErrorCountPair.TryGetValue(item, out int errorCount))
+            {
+                errorItemErrorCountPair[item]++;
+            }
+            else
+            {
+                errorItemErrorCountPair[item] = errorCount = 1;
+            }
+
+            if (errorCount <= 3
+                && MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => detail.Name == props.MusicProperties.Title, out IEnumerable<SongDetail> details)
+                && details.Any())
+            {
+                try
+                {
+                    SongDetail oldSongDetail = details.Single();
+                    MediaPlaybackItem newPlaybackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(oldSongDetail.Cid, true);
+
+                    MusicService.ReplaceAt(item, newPlaybackItem);
+                    System.Diagnostics.Debug.WriteLine($"已替换：{oldSongDetail.Name}");
+                    return;
+                }
+                catch
+                {
+                    // Do nothing ;-)
+                }
+            }
+        }
+
+        EnsurePlayRelatedPropertyIsCorrect();
+
         if (isPlaylistItemErrorDialogShowing)
         {
             return;
         }
 
         isPlaylistItemErrorDialogShowing = true;
-        string musicTitle = args.Item?.GetDisplayProperties()?.MusicProperties?.Title;
+        string musicTitle = props?.MusicProperties?.Title;
         string errorInfo = $"{args.Error.ErrorCode}\n{args.Error.ExtendedError.Message}";
 
         string message = string.Format("PlaylistItemFailed_Message".GetLocalized(), musicTitle, errorInfo);
-        
+
         MessageDialog dialog = new(message, "PlaylistItemFailed_Title".GetLocalized());
         await dialog.ShowAsync();
 
@@ -277,10 +314,6 @@ public sealed partial class MusicInfoService : ObservableObject
 
     private void OnMusicPrepareModeChanged()
     {
-        // HACK: 这里有一个问题，正常情况下这里的调整会先执行，所以会导致播放信息没显示完全时，信息控件就出来了
-        // 但是，如果把这里设为只有 isMusicPreparing 为 true 的情况下才更改这里的值
-        // 那么一旦播放出错，信息控件就不能恢复到正常状态
-
         if (MusicService.IsMusicPreparing)
         {
             IsLoadingMedia = true;
@@ -435,14 +468,21 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
 #if SONG_FOR_PEPE
+    /// <summary>
+    /// 属于佩佩的字段！
+    /// </summary>
     private int countForPepe = 0;
 #endif
 
     private async void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
-        if (args.NewItem is not null)
+        MediaPlaybackItem newItem = args.NewItem;
+
+        if (newItem is not null)
         {
-            MediaItemDisplayProperties props = args.NewItem.GetDisplayProperties();
+            _ = errorItemErrorCountPair.Remove(newItem);
+
+            MediaItemDisplayProperties props = newItem.GetDisplayProperties();
 
             CurrentMusicProperties = props.MusicProperties;
 

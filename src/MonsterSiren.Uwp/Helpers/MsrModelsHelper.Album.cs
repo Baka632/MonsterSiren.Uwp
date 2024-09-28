@@ -8,11 +8,12 @@ partial class MsrModelsHelper
     /// 通过专辑的 CID 获取专辑详细信息
     /// </summary>
     /// <param name="cid">专辑的 CID</param>
+    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="AlbumDetail"/> 的值</param>
     /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/></returns>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
-    public static async Task<AlbumDetail> GetAlbumDetailAsync(string cid)
+    public static async Task<AlbumDetail> GetAlbumDetailAsync(string cid, bool refresh = false)
     {
-        if (MemoryCacheHelper<AlbumDetail>.Default.TryGetData(cid, out AlbumDetail detail))
+        if (!refresh && MemoryCacheHelper<AlbumDetail>.Default.TryGetData(cid, out AlbumDetail detail))
         {
             return detail;
         }

@@ -147,14 +147,15 @@ public static partial class MsrModelsHelper
     /// 通过歌曲的 CID 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>
     /// </summary>
     /// <param name="songCid">歌曲 CID</param>
+    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="SongDetail"/> 和 <see cref="AlbumDetail"/> 的值</param>
     /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
     /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
-    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid)
+    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid, bool refresh = false)
     {
-        SongDetail songDetail = await GetSongDetailAsync(songCid);
-        AlbumDetail albumDetail = await GetAlbumDetailAsync(songDetail.AlbumCid);
+        SongDetail songDetail = await GetSongDetailAsync(songCid, refresh);
+        AlbumDetail albumDetail = await GetAlbumDetailAsync(songDetail.AlbumCid, refresh);
         return await GetMediaPlaybackItemAsync(songDetail, albumDetail);
     }
 
@@ -163,13 +164,14 @@ public static partial class MsrModelsHelper
     /// </summary>
     /// <param name="songCid">歌曲 CID</param>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
+    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="SongDetail"/> 的值</param>
     /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
     /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
-    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid, AlbumDetail albumDetail)
+    public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(string songCid, AlbumDetail albumDetail, bool refresh = false)
     {
-        SongDetail songDetail = await GetSongDetailAsync(songCid);
+        SongDetail songDetail = await GetSongDetailAsync(songCid, refresh);
         return await GetMediaPlaybackItemAsync(songDetail, albumDetail);
     }
 
@@ -217,13 +219,14 @@ public static partial class MsrModelsHelper
     /// 通过歌曲 CID 获得一个 <see cref="SongDetail"/> 实例
     /// </summary>
     /// <param name="cid">歌曲 CID</param>
+    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="SongDetail"/> 的值</param>
     /// <returns>一个 <see cref="SongDetail"/> 实例</returns>
     /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
     /// <exception cref="ArgumentOutOfRangeException">参数无效</exception>
     /// <exception cref="System.ArgumentNullException">参数为空或空白</exception>
-    public static async Task<SongDetail> GetSongDetailAsync(string cid)
+    public static async Task<SongDetail> GetSongDetailAsync(string cid, bool refresh = false)
     {
-        if (MemoryCacheHelper<SongDetail>.Default.TryGetData(cid, out SongDetail detail))
+        if (!refresh && MemoryCacheHelper<SongDetail>.Default.TryGetData(cid, out SongDetail detail))
         {
             return detail;
         }
