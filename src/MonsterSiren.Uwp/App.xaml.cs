@@ -20,7 +20,7 @@ sealed partial class App : Application
     /// <summary>
     /// 获取应用程序名
     /// </summary>
-    public static string AppDisplayName => ReswHelper.GetReswString("AppDisplayName");
+    public static string AppDisplayName => Package.Current.DisplayName;
     /// <summary>
     /// 获取应用程序版本
     /// </summary>

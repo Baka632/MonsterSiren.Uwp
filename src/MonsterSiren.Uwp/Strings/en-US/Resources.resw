@@ -542,4 +542,7 @@ Please check your Internet connection.</value>
   <data name="PlayerError_Title" xml:space="preserve">
     <value>An error about the player occurred</value>
   </data>
+  <data name="AppDisplayName_Debug" xml:space="preserve">
+    <value>Sora Records（Debug）</value>
+  </data>
 </root>

@@ -1,6 +1,8 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
+using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Services.Store.Engagement;
 using Windows.Networking.Connectivity;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -76,14 +78,34 @@ public sealed partial class MusicPage : Page
             return;
         }
 
-        Image image = sender as Image;
-        if (image?.DataContext is AlbumInfo info)
+        try
         {
-            Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
-            if (fileCoverUri is null)
+            Image image = sender as Image;
+            if (image?.DataContext is AlbumInfo info)
             {
-                await FileCacheHelper.StoreAlbumCoverAsync(info);
+                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
+                if (fileCoverUri is null)
+                {
+                    await FileCacheHelper.StoreAlbumCoverAsync(info);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+#if !DEBUG
+                try
+                {
+                    StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();
+                    logger.Log("缓存封面图像失败");
+                }
+                catch
+                {
+                    // Enough!
+                }
+#else
+            Debug.WriteLine(ex);
+            Debugger.Break();
+#endif
         }
     }
 

@@ -8,6 +8,16 @@ Sora 唱片是一个基于 UWP 的塞壬唱片第三方客户端。
 
 Windows 10 1703 (15063)
 
+## 安装
+
+<a title="从 Microsoft Store 中获取" href="https://apps.microsoft.com/detail/9nk87w7qb57d?mode=full">
+    <picture>
+      <source srcset="https://get.microsoft.com/images/zh-cn%20light.svg" media="(prefers-color-scheme: dark)" />
+      <source srcset="https://get.microsoft.com/images/zh-cn%20dark.svg" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
+      <img src="https://get.microsoft.com/images/zh-cn%20dark.svg" width=200 />
+    </picture>
+</a>
+
 ## 构建需求
 
 - Visual Studio 2022 及以上
