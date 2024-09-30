@@ -620,4 +620,7 @@
   <data name="PlayerError_Title" xml:space="preserve">
     <value>播放器出现错误</value>
   </data>
+  <data name="AppDisplayName_Debug" xml:space="preserve">
+    <value>Sora 唱片（调试）</value>
+  </data>
 </root>
