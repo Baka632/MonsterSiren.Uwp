@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Windows.Input;
 using Windows.Media.Playback;
+using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp;
 
@@ -582,7 +583,9 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(IEnumerable<PlaylistItem> playlistItems)
     {
-        if (!playlistItems.Any())
+        PlaylistItem[] playlistItemsArray = playlistItems.ToArray();
+
+        if (playlistItemsArray.Length <= 0)
         {
             return false;
         }
@@ -590,7 +593,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItems.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItemsArray, box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -599,6 +602,19 @@ partial class CommonValues
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            if (playlistItemsArray.Length == 1)
+            {
+                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            else
+            {
+                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
 
         return false;
