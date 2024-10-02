@@ -168,4 +168,11 @@ public sealed partial class AlbumDetailPage : Page
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
     }
+
+    private void OnIndexTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        int index = SongList.Items.IndexOf(textBlock.DataContext);
+        textBlock.Text = $"{index + 1}.";
+    }
 }

@@ -70,7 +70,7 @@ public sealed partial class MusicViewModel : ObservableObject
         }
         catch (HttpRequestException ex)
         {
-            if (Albums.Count > 0)
+            if (Albums is not null && Albums.Count > 0)
             {
                 await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
             }
