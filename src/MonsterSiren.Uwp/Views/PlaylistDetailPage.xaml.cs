@@ -152,4 +152,12 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
     }
+
+    private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        PlaylistItem playlistItem = (PlaylistItem)element.DataContext;
+
+        await ViewModel.PlayForItemCommand.ExecuteAsync(playlistItem);
+    }
 }

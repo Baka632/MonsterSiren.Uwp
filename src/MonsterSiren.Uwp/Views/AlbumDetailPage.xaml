@@ -262,6 +262,7 @@
                         Background="Transparent"
                         ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"
                         DataContext="{x:Bind}"
+                        DoubleTapped="OnListViewItemGridDoubleTapped"
                         RightTapped="OnListViewItemGridRightTapped">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />

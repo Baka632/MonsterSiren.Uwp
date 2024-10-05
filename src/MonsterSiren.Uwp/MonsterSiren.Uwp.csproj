@@ -400,14 +400,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncEnumerator">
-      <Version>4.0.2</Version>
-    </PackageReference>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
       <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
-      <Version>8.2.2</Version>
+      <Version>8.3.2</Version>
     </PackageReference>
     <PackageReference Include="IsExternalInit">
       <Version>1.0.3</Version>

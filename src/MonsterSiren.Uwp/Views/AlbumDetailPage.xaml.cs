@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -174,5 +175,13 @@ public sealed partial class AlbumDetailPage : Page
         TextBlock textBlock = (TextBlock)sender;
         int index = SongList.Items.IndexOf(textBlock.DataContext);
         textBlock.Text = $"{index + 1}.";
+    }
+
+    private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        SongInfo songInfo = (SongInfo)element.DataContext;
+
+        await ViewModel.PlayForSongInfoCommand.ExecuteAsync(songInfo);
     }
 }
