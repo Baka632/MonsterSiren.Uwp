@@ -103,13 +103,13 @@
     <value>Shuffle: On</value>
   </data>
   <data name="ClearPlaybackList.Text" xml:space="preserve">
-    <value>Clear "Now playing" list</value>
+    <value>Clear Now Playing</value>
   </data>
   <data name="EnterCompactMode.Text" xml:space="preserve">
-    <value>Enter "Compact" mode</value>
+    <value>Enter Compact Mode</value>
   </data>
   <data name="ExitCompactMode.Text" xml:space="preserve">
-    <value>Exit "Compact" mode</value>
+    <value>Exit Compact Mode</value>
   </data>
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>Currently, there is no music that is playing</value>
@@ -328,7 +328,7 @@
     <value>Decoder</value>
   </data>
   <data name="EnterGlanceMode.Text" xml:space="preserve">
-    <value>Enter "Glance Mode"</value>
+    <value>Enter Glance Mode</value>
   </data>
   <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
     <value>Glance Mode</value>
@@ -544,5 +544,13 @@ Please check your Internet connection.</value>
   </data>
   <data name="AppDisplayName_Debug" xml:space="preserve">
     <value>Sora Records（Debug）</value>
+  </data>
+  <data name="GlanceMode_Welcome_Title" xml:space="preserve">
+    <value>Welcome to use Glance Mode</value>
+  </data>
+  <data name="GlanceMode_Welcome_Message" xml:space="preserve">
+    <value>Whether you're focusing on the music, or just glanced the music, this mode can satisfy you.
+
+To exit this mode, double click anywhere, or press the back button.</value>
   </data>
 </root>

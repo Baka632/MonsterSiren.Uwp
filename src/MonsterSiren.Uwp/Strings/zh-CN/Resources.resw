@@ -184,13 +184,13 @@
     <value>随机播放：关闭</value>
   </data>
   <data name="ClearPlaybackList.Text" xml:space="preserve">
-    <value>清空“正在播放”列表</value>
+    <value>清空正在播放列表</value>
   </data>
   <data name="EnterCompactMode.Text" xml:space="preserve">
-    <value>进入“最小模式”</value>
+    <value>进入最小模式</value>
   </data>
   <data name="ExitCompactMode.Text" xml:space="preserve">
-    <value>退出“最小模式”</value>
+    <value>退出最小模式</value>
   </data>
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>目前没有正在播放的歌曲</value>
@@ -409,7 +409,7 @@
     <value>解码器</value>
   </data>
   <data name="EnterGlanceMode.Text" xml:space="preserve">
-    <value>进入“概览模式”</value>
+    <value>进入概览模式</value>
   </data>
   <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
     <value>概览模式</value>
@@ -622,5 +622,13 @@
   </data>
   <data name="AppDisplayName_Debug" xml:space="preserve">
     <value>Sora 唱片（调试）</value>
+  </data>
+  <data name="GlanceMode_Welcome_Title" xml:space="preserve">
+    <value>欢迎使用概览模式</value>
+  </data>
+  <data name="GlanceMode_Welcome_Message" xml:space="preserve">
+    <value>无论是专注于音乐，还是仅仅瞥一眼，此模式都能满足您的需求。
+
+要退出此模式，请双击任意位置，或者按下返回按钮。</value>
   </data>
 </root>

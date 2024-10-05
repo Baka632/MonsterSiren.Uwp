@@ -98,6 +98,14 @@ public sealed partial class GlanceViewPage : Page
                 }
             });
         }
+
+        if (!SettingsHelper.TryGet(CommonValues.GlanceModeIsUsedOnceIndicator, out bool glanceModeIsUsedOnce))
+        {
+            await CommonValues.DisplayContentDialog("GlanceMode_Welcome_Title".GetLocalized(),
+                                                    "GlanceMode_Welcome_Message".GetLocalized(), closeButtonText: "OK".GetLocalized());
+
+            SettingsHelper.Set(CommonValues.GlanceModeIsUsedOnceIndicator, true);
+        }
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
