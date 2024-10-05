@@ -16,82 +16,92 @@
     Unloaded="OnUnloaded"
     mc:Ignorable="d">
 
-    <Grid Margin="0,0,0,20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
-            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                <FontIcon
-                    Margin="0,0,10,0"
-                    HorizontalAlignment="Center"
-                    FontSize="35"
-                    Glyph="&#xE118;" />
-                <TextBlock
-                    x:Uid="DownloadTextBlock"
-                    Margin="0,0,5,0"
-                    HorizontalAlignment="Center"
-                    FontSize="30" />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal">
-                <Button
-                    Margin="0,0,5,0"
-                    AccessKey="0"
-                    Background="Transparent"
-                    Command="{x:Bind ViewModel.OpenDownloadFolderCommand}">
-                    <StackPanel Orientation="Horizontal">
+    <Grid>
+        <ListView
+            Margin="0,0,0,10"
+            ItemsSource="{x:Bind services:DownloadService.DownloadList}"
+            SelectionMode="None">
+            <ListView.Header>
+                <StackPanel Margin="0,0,0,5">
+                    <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                         <FontIcon
+                            Margin="0,0,10,0"
+                            HorizontalAlignment="Center"
+                            FontSize="35"
+                            Glyph="&#xE118;" />
+                        <TextBlock
+                            x:Uid="DownloadTextBlock"
                             Margin="0,0,5,0"
                             HorizontalAlignment="Center"
-                            Glyph="&#xE197;" />
-                        <TextBlock x:Uid="DownloadPage_OpenDownloadFolder" HorizontalAlignment="Center" />
+                            FontSize="30" />
                     </StackPanel>
-                </Button>
 
-                <Button AccessKey="1" Background="Transparent">
-                    <Button.Flyout>
-                        <muxc:MenuBarItemFlyout>
-                            <MenuFlyoutItem
-                                x:Uid="DownloadPage_PauseAll"
-                                AccessKey="0"
-                                Command="{x:Bind ViewModel.PauseAllDownloadCommand}">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE103;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem
-                                x:Uid="DownloadPage_ResumeAll"
-                                AccessKey="1"
-                                Command="{x:Bind ViewModel.ResumeAllDownloadCommand}">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE102;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem
-                                x:Uid="DownloadPage_CancelAll"
-                                AccessKey="2"
-                                Command="{x:Bind ViewModel.CancelAllDownloadCommand}">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                        </muxc:MenuBarItemFlyout>
-                    </Button.Flyout>
+                    <StackPanel Orientation="Horizontal">
+                        <Button
+                            Margin="0,0,5,0"
+                            AccessKey="0"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.OpenDownloadFolderCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Center"
+                                    Glyph="&#xE197;" />
+                                <TextBlock x:Uid="DownloadPage_OpenDownloadFolder" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
 
-                    <SymbolIcon Symbol="More" />
-                </Button>
-            </StackPanel>
-        </StackPanel>
+                        <Button AccessKey="1" Background="Transparent">
+                            <Button.Flyout>
+                                <muxc:MenuBarItemFlyout>
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadPage_PauseAll"
+                                        AccessKey="0"
+                                        Command="{x:Bind ViewModel.PauseAllDownloadCommand}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE103;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadPage_ResumeAll"
+                                        AccessKey="1"
+                                        Command="{x:Bind ViewModel.ResumeAllDownloadCommand}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE102;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadPage_CancelAll"
+                                        AccessKey="2"
+                                        Command="{x:Bind ViewModel.CancelAllDownloadCommand}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </muxc:MenuBarItemFlyout>
+                            </Button.Flyout>
 
+                            <SymbolIcon Symbol="More" />
+                        </Button>
+                    </StackPanel>
 
-        <ListView
-            Grid.Row="1"
-            ItemsSource="{x:Bind services:DownloadService.DownloadList}"
-            SelectionMode="None"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsDownloadListEmpty), Mode=OneWay}">
+                    <StackPanel
+                        Margin="0,20,0,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDownloadListEmpty), Mode=OneWay}">
+                        <FontIcon
+                            Margin="0,0,0,5"
+                            FontSize="40"
+                            Glyph="&#xED59;" />
+                        <TextBlock
+                            x:Uid="DownloadPage_NoDownloadItem"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="20" />
+                    </StackPanel>
+                </StackPanel>
+            </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:DownloadItem">
                     <Grid>
@@ -195,20 +205,5 @@
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
-        <StackPanel
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ToVisibility(ViewModel.IsDownloadListEmpty), Mode=OneWay}">
-            <FontIcon
-                Margin="0,0,0,5"
-                FontSize="40"
-                Glyph="&#xED59;" />
-            <TextBlock
-                x:Uid="DownloadPage_NoDownloadItem"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="20" />
-        </StackPanel>
     </Grid>
 </Page>

@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 using System.Text.Json;
-using Microsoft.Services.Store.Engagement;
+using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
 using Windows.Networking.Connectivity;
 using Windows.UI.Xaml.Media.Animation;
 

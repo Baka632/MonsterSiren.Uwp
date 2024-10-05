@@ -61,9 +61,13 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void CancelAllDownload()
     {
-        foreach (DownloadItem item in DownloadService.DownloadList)
+        DownloadItem[] allDownloads = [.. DownloadService.DownloadList];
+
+        for (int i = 0; i < allDownloads.Length; i++)
         {
+            DownloadItem item = allDownloads[i];
             item.CancelDownload();
+            DownloadService.DownloadList.Remove(item);
         }
     }
 

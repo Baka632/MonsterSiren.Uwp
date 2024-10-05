@@ -11,7 +11,7 @@ namespace MonsterSiren.Uwp.Models;
 public sealed record DownloadItem : INotifyPropertyChanged
 {
     private double _progress;
-    private DownloadItemState _state;
+    private DownloadItemState _state = DownloadItemState.Paused;
     private Exception _errorException;
 
     public event PropertyChangedEventHandler PropertyChanged;

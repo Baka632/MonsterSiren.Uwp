@@ -268,10 +268,10 @@ public static class DownloadService
 
         try
         {
-            item.State = DownloadItemState.Downloading;
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
             if (isNew)
             {
+                item.State = DownloadItemState.Downloading;
                 await operation.StartAsync().AsTask(cts.Token, progressCallback);
             }
             else
@@ -327,6 +327,14 @@ public static class DownloadService
             {
                 StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+
+            DirectoryInfo directoryInfo = new(albumFolderPath);
+            if (directoryInfo.Exists
+                && !directoryInfo.EnumerateDirectories().Any()
+                && !directoryInfo.EnumerateFiles().Any())
+            {
+                directoryInfo.Delete();
             }
         }
     }
