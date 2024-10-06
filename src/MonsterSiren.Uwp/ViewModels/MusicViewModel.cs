@@ -1,14 +1,13 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
-using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
 /// 为 <see cref="MusicPage"/> 提供视图模型
 /// </summary>
-public sealed partial class MusicViewModel : ObservableObject
+public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
 {
     [ObservableProperty]
     private bool isLoading = false;
@@ -22,11 +21,15 @@ public sealed partial class MusicViewModel : ObservableObject
     private CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums;
     [ObservableProperty]
     private AlbumInfo selectedAlbumInfo;
+    [ObservableProperty]
+    private FlyoutBase selectedAlbumInfoContextFlyout;
 
     public async Task Initialize()
     {
         IsLoading = true;
         ErrorVisibility = Visibility.Collapsed;
+        SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
+
         try
         {
             if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
@@ -137,6 +140,113 @@ public sealed partial class MusicViewModel : ObservableObject
     private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
     {
         await CommonValues.StartDownload(albumInfo);
+    }
+
+    [RelayCommand]
+    private void StartMultipleSelection()
+    {
+        view.ContentGridView.SelectionMode = ListViewSelectionMode.Multiple;
+        view.ContentGridView.IsItemClickEnabled = false;
+        SelectedAlbumInfoContextFlyout = view.AlbumSelectionFlyout;
+    }
+
+    [RelayCommand]
+    private void StopMultipleSelection()
+    {
+        view.ContentGridView.SelectionMode = ListViewSelectionMode.None;
+        view.ContentGridView.IsItemClickEnabled = true;
+        SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
+    }
+
+    [RelayCommand]
+    private void SelectAllSongList()
+    {
+        view.ContentGridView.SelectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.AlbumInfos.Count()));
+    }
+
+    [RelayCommand]
+    private void DeselectAllSongList()
+    {
+        view.ContentGridView.DeselectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.AlbumInfos.Count()));
+    }
+
+    [RelayCommand]
+    private async Task PlayAlbumForSelectedItem()
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.StartPlay(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddToNowPlayingForSelectedItem()
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddSelectedItemToPlaylist(Playlist playlist)
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        await CommonValues.AddToPlaylist(playlist, selectedItems);
+    }
+
+    [RelayCommand]
+    private async Task DownloadForSelectedItem()
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.StartDownload(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    private List<AlbumInfo> GetSelectedItems(GridView gridView)
+    {
+        List<AlbumInfo> selectedItems = new(5);
+
+        foreach (ItemIndexRange range in gridView.SelectedRanges)
+        {
+            selectedItems.AddRange(Albums.CollectionSource.AlbumInfos.Skip(range.FirstIndex).Take((int)range.Length));
+        }
+
+        return selectedItems;
     }
 }
 

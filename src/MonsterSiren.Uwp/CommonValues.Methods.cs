@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Windows.Input;
 using Windows.Media.Playback;
-using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp;
 
@@ -169,6 +168,32 @@ partial class CommonValues
             ExceptionBox box = new();
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
+
+            await MusicService.ReplaceMusic(items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放 <see cref="AlbumInfo"/> 序列
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> StartPlay(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
 
             await MusicService.ReplaceMusic(items);
 
@@ -380,6 +405,32 @@ partial class CommonValues
             ExceptionBox box = new();
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
+
+            await MusicService.AddMusic(items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将 <see cref="AlbumInfo"/> 序列加入到正在播放列表中
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
 
             await MusicService.AddMusic(items);
 
@@ -648,6 +699,27 @@ partial class CommonValues
         return false;
     }
 
+    public static async Task<bool> AddToPlaylist(Playlist playlist, IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+
+            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(albumInfos, box);
+
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// 将 <see cref="AlbumDetail"/> 中的歌曲添加到播放列表中
     /// </summary>
@@ -803,6 +875,36 @@ partial class CommonValues
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
                 _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            }
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 启动下载 <see cref="AlbumInfo"/> 序列中歌曲的操作
+    /// </summary>
+    /// <param name="albumDetail">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示下载操作是否成功开始的值</returns>
+    public static async Task<bool> StartDownload(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            foreach (AlbumInfo albumInfo in albumInfos)
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                    _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                }
             }
 
             return true;
@@ -977,6 +1079,71 @@ partial class CommonValues
         }
 
         return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 根据 <see cref="AlbumInfo"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列
+    /// </summary>
+    /// <param name="albumInfos"><see cref="AlbumInfo"/> 序列</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会跳过异常项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(AlbumInfo[] albumInfos, ExceptionBox box)
+    {
+        List<Exception> innerExceptions = new(5);
+        int songCount = 0;
+
+        foreach (AlbumInfo albumInfo in albumInfos)
+        {
+            AlbumDetail detail;
+
+            try
+            {
+                detail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            }
+            catch (Exception ex)
+            {
+                innerExceptions.Add(ex);
+                continue;
+            }
+
+            foreach (SongInfo item in detail.Songs)
+            {
+                songCount++;
+                MediaPlaybackItem playbackItem = null;
+
+                try
+                {
+                    playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.Cid, detail);
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
+
+                if (playbackItem is not null)
+                {
+                    yield return playbackItem;
+                }
+            }
+        }
+
+        if (innerExceptions.Count > 0)
+        {
+            bool allFailed = songCount == innerExceptions.Count;
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
+            {
+                Data =
+                {
+                    ["AllFailed"] = allFailed,
+                    ["PlayItem"] = albumInfos,
+                }
+            };
+
+            box.InboxException = aggregate;
+        }
     }
 
     /// <summary>
@@ -1209,6 +1376,49 @@ partial class CommonValues
             }
 
             yield return item;
+        }
+    }
+
+    /// <summary>
+    /// 根据 <see cref="AlbumInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
+    /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
+    /// </remarks>
+    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<AlbumInfo> albumInfos, ExceptionBox box)
+    {
+        foreach (AlbumInfo albumInfo in albumInfos)
+        {
+            AlbumDetail albumDetail;
+            try
+            {
+                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            }
+            catch (Exception ex)
+            {
+                box.InboxException = ex;
+                yield break;
+            }
+
+            foreach (SongInfo songInfo in albumDetail.Songs)
+            {
+                SongDetail songDetail;
+
+                try
+                {
+                    songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                }
+                catch (Exception ex)
+                {
+                    box.InboxException = ex;
+                    yield break;
+                }
+
+                yield return (songDetail, albumDetail);
+            }
         }
     }
 

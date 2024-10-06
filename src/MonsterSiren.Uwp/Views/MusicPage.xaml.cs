@@ -15,10 +15,12 @@ public sealed partial class MusicPage : Page
 {
     private object _storedGridViewItem;
 
-    public MusicViewModel ViewModel { get; } = new MusicViewModel();
+    public MusicViewModel ViewModel { get; }
 
     public MusicPage()
     {
+        ViewModel = new(this);
+
         this.InitializeComponent();
         NavigationCacheMode = NavigationCacheMode.Required;
     }
@@ -48,6 +50,24 @@ public sealed partial class MusicPage : Page
 
             ContentGridView.Focus(FocusState.Programmatic);
         }
+
+        // HACK: 如果 MusicPage 的缓存模式不再是 Required，就不需要下面的代码了
+        await Task.Delay(300);
+        MainPageNavigationHelper.NavigationComplete += OnMainPageNavigationHelperNavigationComplete;
+    }
+
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+    {
+        base.OnNavigatingFrom(e);
+
+        MainPageNavigationHelper.NavigationComplete -= OnMainPageNavigationHelperNavigationComplete;
+
+        ViewModel.StopMultipleSelectionCommand.Execute(null);
+    }
+
+    private void OnMainPageNavigationHelperNavigationComplete(object sender, EventArgs e)
+    {
+        ViewModel.StopMultipleSelectionCommand.Execute(null);
     }
 
     private async void OnMusicPageLoaded(object sender, RoutedEventArgs e)
@@ -140,6 +160,21 @@ public sealed partial class MusicPage : Page
         MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
                                                                           ViewModel.SelectedAlbumInfo,
                                                                           ViewModel.AddAlbumInfoToPlaylistCommand);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnAlbumSelectionFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSelectedItemCommand,
+                                                                          null,
+                                                                          ViewModel.AddSelectedItemToPlaylistCommand);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
     }
