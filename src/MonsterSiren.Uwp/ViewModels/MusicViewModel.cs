@@ -216,6 +216,19 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
+        if (selectedItems.Count > 10)
+        {
+            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                StopMultipleSelection();
+                return;
+            }
+        }
+
         await CommonValues.AddToPlaylist(playlist, selectedItems);
     }
 
@@ -227,6 +240,19 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         if (selectedItems.Count == 0)
         {
             return;
+        }
+
+        if (selectedItems.Count > 10)
+        {
+            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "DownloadTooManyItemMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                StopMultipleSelection();
+                return;
+            }
         }
 
         bool isSuccess = await CommonValues.StartDownload(selectedItems);

@@ -634,4 +634,19 @@
   <data name="DownloadItemState_Cancelling" xml:space="preserve">
     <value>取消中</value>
   </data>
+  <data name="AddTooManyItemToPlaylistMessage" xml:space="preserve">
+    <value>你正向播放列表添加很多歌曲，这需要花费一些时间。
+在添加完毕之前，对播放列表的更改将不会保存。
+
+要继续吗？</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>继续</value>
+  </data>
+  <data name="DownloadTooManyItemMessage" xml:space="preserve">
+    <value>你正在下载很多歌曲，这可能花费很长时间。
+另外，如果下载项太多，服务器可能会拒绝来自此计算机的请求，导致服务不可用。
+
+要继续吗？</value>
+  </data>
 </root>

@@ -556,4 +556,19 @@ To exit this mode, double click anywhere, or press the back button.</value>
   <data name="DownloadItemState_Cancelling" xml:space="preserve">
     <value>Cancelling</value>
   </data>
+  <data name="AddTooManyItemToPlaylistMessage" xml:space="preserve">
+    <value>You're adding a lot of songs to your playlist, and it will take some time.
+Changes to the playlist will not be saved until these albums are added.
+
+Continue?</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="DownloadTooManyItemMessage" xml:space="preserve">
+    <value>You're downloading a lot of songs, which can take a long time.
+Also, if there are too many downloads, the server may reject requests from this computer, resulting in unavailability of the service.
+
+Continue?</value>
+  </data>
 </root>
