@@ -286,6 +286,7 @@ public static class DownloadService
         }
         catch (TaskCanceledException)
         {
+            item.State = DownloadItemState.Canceled;
             if (operation.ResultFile is not null)
             {
                 await operation.ResultFile.DeleteAsync(StorageDeleteOption.PermanentDelete);

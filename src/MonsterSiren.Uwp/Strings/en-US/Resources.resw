@@ -553,4 +553,7 @@ Please check your Internet connection.</value>
 
 To exit this mode, double click anywhere, or press the back button.</value>
   </data>
+  <data name="DownloadItemState_Cancelling" xml:space="preserve">
+    <value>Cancelling</value>
+  </data>
 </root>

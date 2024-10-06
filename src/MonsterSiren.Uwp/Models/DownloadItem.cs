@@ -105,7 +105,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     public void CancelDownload()
     {
         CancelToken.Cancel();
-        State = DownloadItemState.Canceled;
+        State = DownloadItemState.Cancelling;
     }
 
     /// <summary>

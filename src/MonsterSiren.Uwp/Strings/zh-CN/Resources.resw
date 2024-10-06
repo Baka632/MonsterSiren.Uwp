@@ -631,4 +631,7 @@
 
 要退出此模式，请双击任意位置，或者按下返回按钮。</value>
   </data>
+  <data name="DownloadItemState_Cancelling" xml:space="preserve">
+    <value>取消中</value>
+  </data>
 </root>

@@ -32,5 +32,9 @@ public enum DownloadItemState
     /// <summary>
     /// 已取消
     /// </summary>
-    Canceled
+    Canceled,
+    /// <summary>
+    /// 取消中
+    /// </summary>
+    Cancelling
 }
