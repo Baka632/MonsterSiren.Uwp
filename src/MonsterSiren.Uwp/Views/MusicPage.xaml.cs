@@ -50,29 +50,16 @@ public sealed partial class MusicPage : Page
 
             ContentGridView.Focus(FocusState.Programmatic);
         }
-
-        // HACK: 如果 MusicPage 的缓存模式不再是 Required，就不需要下面的代码了
-        await Task.Delay(300);
-        MainPageNavigationHelper.NavigationComplete += OnMainPageNavigationHelperNavigationComplete;
-    }
-
-    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
-    {
-        base.OnNavigatingFrom(e);
-
-        MainPageNavigationHelper.NavigationComplete -= OnMainPageNavigationHelperNavigationComplete;
-
-        ViewModel.StopMultipleSelectionCommand.Execute(null);
-    }
-
-    private void OnMainPageNavigationHelperNavigationComplete(object sender, EventArgs e)
-    {
-        ViewModel.StopMultipleSelectionCommand.Execute(null);
     }
 
     private async void OnMusicPageLoaded(object sender, RoutedEventArgs e)
     {
         await ViewModel.Initialize();
+    }
+
+    private void OnMusicPageUnloaded(object sender, RoutedEventArgs e)
+    {
+        ViewModel.StopMultipleSelectionCommand.Execute(null);
     }
 
     private void OnGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)

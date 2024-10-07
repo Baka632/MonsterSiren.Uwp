@@ -24,6 +24,8 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [ObservableProperty]
     private FlyoutBase selectedAlbumInfoContextFlyout;
 
+    private readonly int tooManyItemThresholdCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+
     public async Task Initialize()
     {
         IsLoading = true;
@@ -216,7 +218,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        if (selectedItems.Count > 10)
+        if (selectedItems.Count >= tooManyItemThresholdCount)
         {
             ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
                                                     "AddTooManyItemToPlaylistMessage".GetLocalized(),
@@ -242,7 +244,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        if (selectedItems.Count > 10)
+        if (selectedItems.Count >= tooManyItemThresholdCount)
         {
             ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
                                                     "DownloadTooManyItemMessage".GetLocalized(),
