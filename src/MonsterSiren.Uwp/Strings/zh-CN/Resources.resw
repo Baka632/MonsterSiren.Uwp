@@ -655,4 +655,7 @@
   <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
     <value>移除跳过项</value>
   </data>
+  <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
+    <value>屏幕常亮</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using Windows.Graphics.Display;
+using Windows.System.Display;
 using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp.Views;
@@ -13,6 +14,7 @@ public sealed partial class GlanceViewPage : Page
     private readonly DispatcherTimer _timer = new();
     private readonly Random _random = new();
     private BrightnessOverride _brightnessOverride;
+    private DisplayRequest _displayRequest;
 
     public GlanceViewViewModel ViewModel { get; } = new GlanceViewViewModel();
 
@@ -99,6 +101,12 @@ public sealed partial class GlanceViewPage : Page
             });
         }
 
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn) && remainDisplayOn)
+        {
+            _displayRequest = new DisplayRequest();
+            _displayRequest.RequestActive();
+        }
+
         if (!SettingsHelper.TryGet(CommonValues.GlanceModeIsUsedOnceIndicator, out bool glanceModeIsUsedOnce))
         {
             await CommonValues.DisplayContentDialog("GlanceMode_Welcome_Title".GetLocalized(),
@@ -122,6 +130,8 @@ public sealed partial class GlanceViewPage : Page
         {
             _brightnessOverride.StopOverride();
         }
+
+        _displayRequest?.RequestRelease();
     }
 
     private void OnContentLoaded(object sender, RoutedEventArgs e)

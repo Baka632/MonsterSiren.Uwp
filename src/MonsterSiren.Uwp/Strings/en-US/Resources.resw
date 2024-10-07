@@ -577,4 +577,7 @@ Continue?</value>
   <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
     <value>Remove skipped item</value>
   </data>
+  <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
+    <value>Remain display on</value>
+  </data>
 </root>
