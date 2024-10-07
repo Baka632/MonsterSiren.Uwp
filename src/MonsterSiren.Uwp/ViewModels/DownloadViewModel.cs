@@ -24,7 +24,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void CancelOrRemoveDownload(DownloadItem item)
     {
-        if (item.State is DownloadItemState.Canceled or DownloadItemState.Error or DownloadItemState.Done)
+        if (item.State is DownloadItemState.Canceled or DownloadItemState.Error or DownloadItemState.Done or DownloadItemState.Skipped)
         {
             DownloadService.DownloadList.Remove(item);
         }
@@ -64,6 +64,20 @@ public sealed partial class DownloadViewModel : ObservableObject
         foreach (DownloadItem item in DownloadService.DownloadList)
         {
             item.CancelDownload();
+        }
+
+        RemoveAllSkippedDownload();
+    }
+
+    [RelayCommand]
+    private static void RemoveAllSkippedDownload()
+    {
+        DownloadItem[] skippedItem = DownloadService.DownloadList.Where(item => item.State == DownloadItemState.Skipped)
+                                                                         .ToArray();
+
+        foreach (DownloadItem item in skippedItem)
+        {
+            DownloadService.DownloadList.Remove(item);
         }
     }
 

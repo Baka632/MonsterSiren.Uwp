@@ -82,10 +82,28 @@ public sealed record DownloadItem : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// 构造一个占位下载项，其不进行实际的下载操作
+    /// </summary>
+    /// <param name="displayName">下载项的显示名称</param>
+    public DownloadItem(string displayName)
+    {
+        Operation = null;
+        CancelToken = null;
+        DisplayName = displayName;
+        State = DownloadItemState.Skipped;
+        Progress = 1d;
+    }
+
+    /// <summary>
     /// 恢复下载
     /// </summary>
     public void ResumeDownload()
     {
+        if (State == DownloadItemState.Skipped)
+        {
+            return;
+        }
+
         Operation.Resume();
         State = DownloadItemState.Downloading;
     }
@@ -95,6 +113,11 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     public void PauseDownload()
     {
+        if (State == DownloadItemState.Skipped)
+        {
+            return;
+        }
+
         Operation.Pause();
         State = DownloadItemState.Paused;
     }
@@ -104,6 +127,11 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     public void CancelDownload()
     {
+        if (State == DownloadItemState.Skipped)
+        {
+            return;
+        }
+
         CancelToken.Cancel();
         State = DownloadItemState.Cancelling;
     }

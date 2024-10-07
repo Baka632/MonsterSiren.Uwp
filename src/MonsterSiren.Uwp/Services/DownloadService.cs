@@ -219,7 +219,7 @@ public static class DownloadService
             throw new InvalidOperationException($"请先调用 {nameof(Initialize)} 方法");
         }
 
-        if (DownloadList.Any(item => item.Operation.RequestedUri.ToString() == songDetail.SourceUrl))
+        if (DownloadList.Any(item => songDetail.SourceUrl == item.Operation?.RequestedUri?.ToString()))
         {
             return;
         }
@@ -239,6 +239,20 @@ public static class DownloadService
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
+
+            string targetFileName = TranscodeDownloadedItem
+                ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower()}"
+                : $"{musicFileName}.wav";
+
+            IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
+
+            if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+            {
+                DownloadItem item = new(musicName);
+                await AddToList(item);
+                return;
+            }
+
             StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
 
             StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", CreationCollisionOption.ReplaceExisting);

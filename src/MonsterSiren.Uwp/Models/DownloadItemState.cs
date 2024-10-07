@@ -36,5 +36,9 @@ public enum DownloadItemState
     /// <summary>
     /// 取消中
     /// </summary>
-    Cancelling
+    Cancelling,
+    /// <summary>
+    /// 已跳过
+    /// </summary>
+    Skipped,
 }

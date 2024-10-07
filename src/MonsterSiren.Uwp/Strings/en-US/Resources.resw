@@ -571,4 +571,10 @@ Also, if there are too many downloads, the server may reject requests from this 
 
 Continue?</value>
   </data>
+  <data name="DownloadItemState_Skipped" xml:space="preserve">
+    <value>Skipped</value>
+  </data>
+  <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
+    <value>Remove skipped item</value>
+  </data>
 </root>

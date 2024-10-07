@@ -649,4 +649,10 @@
 
 要继续吗？</value>
   </data>
+  <data name="DownloadItemState_Skipped" xml:space="preserve">
+    <value>已跳过</value>
+  </data>
+  <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
+    <value>移除跳过项</value>
+  </data>
 </root>

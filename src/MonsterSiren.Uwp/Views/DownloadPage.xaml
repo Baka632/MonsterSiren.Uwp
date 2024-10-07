@@ -78,6 +78,14 @@
                                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE10A;" />
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        x:Uid="DownloadPage_RemoveAllSkipped"
+                                        AccessKey="3"
+                                        Command="{x:Bind ViewModel.RemoveAllSkippedDownloadCommand}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA99;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
                                 </muxc:MenuBarItemFlyout>
                             </Button.Flyout>
 
