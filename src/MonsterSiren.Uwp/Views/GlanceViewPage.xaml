@@ -9,13 +9,11 @@
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:GlanceViewViewModel}"
     Background="Black"
+    DoubleTapped="OnPageDoubleTapped"
     RequestedTheme="Dark"
     mc:Ignorable="d">
 
-    <Grid
-        Padding="25,10,0,60"
-        Background="Transparent"
-        DoubleTapped="OnGridDoubleTapped">
+    <Grid Padding="25,10,0,60" Background="Transparent">
         <Canvas
             x:Name="ContentCanvas"
             HorizontalAlignment="Stretch"

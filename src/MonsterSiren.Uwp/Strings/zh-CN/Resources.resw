@@ -658,4 +658,7 @@
   <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
     <value>屏幕常亮</value>
   </data>
+  <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
+    <value>确定要删除选中的播放列表？</value>
+  </data>
 </root>

@@ -302,6 +302,25 @@ public static class PlaylistService
     }
 
     /// <summary>
+    /// 将指定的播放列表序列添加到正在播放列表中
+    /// </summary>
+    /// <param name="playlists">指定的播放列表序列</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlists"/> 为 <see langword="null"/>。</exception>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/></exception>
+    public static async Task AddPlaylistsToNowPlayingAsync(IEnumerable<Playlist> playlists)
+    {
+        if (playlists is null)
+        {
+            throw new ArgumentNullException(nameof(playlists));
+        }
+
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists.ToArray(), box);
+        await MusicService.AddMusic(items);
+        box.Unbox();
+    }
+
+    /// <summary>
     /// 向指定的播放列表添加歌曲
     /// </summary>
     /// <param name="playlist">指定的播放列表</param>
@@ -489,6 +508,49 @@ public static class PlaylistService
         finally
         {
             await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组播放列表内的歌曲
+    /// </summary>
+    /// <param name="targetPlaylist">指定的播放列表</param>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列</param>
+    /// <exception cref="ArgumentNullException"><paramref name="targetPlaylist"/> 或 <paramref name="playlists"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist targetPlaylist, IEnumerable<Playlist> playlists)
+    {
+        if (targetPlaylist is null)
+        {
+            throw new ArgumentNullException(nameof(targetPlaylist));
+        }
+
+        if (playlists is null)
+        {
+            throw new ArgumentNullException(nameof(playlists));
+        }
+
+        try
+        {
+            targetPlaylist.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (Playlist playlist in playlists)
+                {
+                    foreach (PlaylistItem item in playlist.Items)
+                    {
+                        if (targetPlaylist.Items.Contains(item))
+                        {
+                            continue;
+                        }
+
+                        targetPlaylist.Items.Add(item);
+                    }
+                }
+            });
+        }
+        finally
+        {
+            await targetPlaylist.RestoreInfoUpdateAsync();
         }
     }
 

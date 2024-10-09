@@ -250,23 +250,7 @@ sealed partial class App : Application
             }
         }
 
-        if (playlistItemCount == 0)
-        {
-            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
-                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
-                                                    "OK".GetLocalized());
-        }
-        else
-        {
-            try
-            {
-                await PlaylistService.PlayForPlaylistsAsync(playlists);
-            }
-            catch (AggregateException ex)
-            {
-                await CommonValues.DisplayAggregateExceptionError(ex);
-            }
-        }
+        await CommonValues.StartPlay(playlists);
     }
 
     private async Task InitializeAppWhenActivate()

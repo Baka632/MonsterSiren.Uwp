@@ -139,7 +139,7 @@ public sealed partial class GlanceViewPage : Page
         ViewModel.ContentOffset = ContentCanvas.ActualHeight - ContentStackPanel.ActualHeight;
     }
 
-    private void OnGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private void OnPageDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         MainPageNavigationHelper.GoBack();
     }

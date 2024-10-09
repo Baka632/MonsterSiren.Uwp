@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Windows.Input;
 using Windows.Media.Playback;
+using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp;
 
@@ -394,6 +395,51 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 播放 <see cref="Playlist"/> 序列
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> StartPlay(IEnumerable<Playlist> playlists)
+    {
+        if (!playlists.Any())
+        {
+            return false;
+        }
+
+        bool noSongInPlaylists = true;
+        foreach (Playlist playlist in playlists)
+        {
+            if (playlist.SongCount > 0)
+            {
+                noSongInPlaylists = false;
+                break;
+            }
+        }
+
+        if (noSongInPlaylists)
+        {
+            await DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+            return false;
+        }
+
+        try
+        {
+            await PlaylistService.PlayForPlaylistsAsync(playlists);
+
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionError(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 将 <see cref="AlbumInfo"/> 中的歌曲加入到正在播放列表中
     /// </summary>
     /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例</param>
@@ -586,6 +632,51 @@ partial class CommonValues
         try
         {
             await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
+
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionError(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="Playlist"/> 序列添加到正在播放列表中
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<Playlist> playlists)
+    {
+        if (!playlists.Any())
+        {
+            return false;
+        }
+
+        bool noSongInPlaylists = true;
+        foreach (Playlist playlist in playlists)
+        {
+            if (playlist.SongCount > 0)
+            {
+                noSongInPlaylists = false;
+                break;
+            }
+        }
+
+        if (noSongInPlaylists)
+        {
+            await DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+            return false;
+        }
+
+        try
+        {
+            await PlaylistService.AddPlaylistsToNowPlayingAsync(playlists);
 
             return true;
         }
@@ -1552,12 +1643,15 @@ partial class CommonValues
     /// 移除指定的播放列表
     /// </summary>
     /// <param name="playlist">目标播放列表</param>
-    public static async Task RemovePlaylist(Playlist playlist)
+    /// <param name="suppressWarning">指示是否要取消删除警告的值</param>
+    public static async Task RemovePlaylist(Playlist playlist, bool suppressWarning = false)
     {
-        ContentDialogResult result = await DisplayContentDialog("EnsureDelete".GetLocalized(), "",
-            "OK".GetLocalized(), "Cancel".GetLocalized());
+        ContentDialogResult result = !suppressWarning
+            ? await DisplayContentDialog("EnsureDelete".GetLocalized(), "", "OK".GetLocalized(),
+                                                "Cancel".GetLocalized())
+            : ContentDialogResult.None;
 
-        if (result == ContentDialogResult.Primary)
+        if (suppressWarning || result == ContentDialogResult.Primary)
         {
             await PlaylistService.RemovePlaylistAsync(playlist);
         }

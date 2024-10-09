@@ -580,4 +580,7 @@ Continue?</value>
   <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
     <value>Remain display on</value>
   </data>
+  <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
+    <value>Are you sure you want to delete selected playlists?</value>
+  </data>
 </root>
