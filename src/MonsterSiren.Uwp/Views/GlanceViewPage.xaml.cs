@@ -1,7 +1,9 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using Windows.Graphics.Display;
+using Windows.System;
 using Windows.System.Display;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp.Views;
@@ -82,6 +84,8 @@ public sealed partial class GlanceViewPage : Page
     {
         base.OnNavigatedTo(e);
 
+        Window.Current.Dispatcher.AcceleratorKeyActivated += OnDispatcherAcceleratorKeyActivated;
+
         ApplicationView view = ApplicationView.GetForCurrentView();
         if (view.IsFullScreenMode != true)
         {
@@ -116,9 +120,20 @@ public sealed partial class GlanceViewPage : Page
         }
     }
 
+    private void OnDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+    {
+        if (args.VirtualKey == VirtualKey.Escape)
+        {
+            ExitGlanceMode();
+            args.Handled = true;
+        }
+    }
+
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
         base.OnNavigatingFrom(e);
+
+        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
 
         ApplicationView view = ApplicationView.GetForCurrentView();
         if (view.IsFullScreenMode)
@@ -140,6 +155,11 @@ public sealed partial class GlanceViewPage : Page
     }
 
     private void OnPageDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        ExitGlanceMode();
+    }
+
+    private static void ExitGlanceMode()
     {
         MainPageNavigationHelper.GoBack();
     }

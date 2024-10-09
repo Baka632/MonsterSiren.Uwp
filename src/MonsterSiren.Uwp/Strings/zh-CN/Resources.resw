@@ -629,7 +629,7 @@
   <data name="GlanceMode_Welcome_Message" xml:space="preserve">
     <value>无论是专注于音乐，还是仅仅瞥一眼，此模式都能满足您的需求。
 
-要退出此模式，请双击任意位置，或者按下返回按钮。</value>
+要退出此模式，请双击任意位置、按下 Esc 键、或者按下返回按钮。</value>
   </data>
   <data name="DownloadItemState_Cancelling" xml:space="preserve">
     <value>取消中</value>
