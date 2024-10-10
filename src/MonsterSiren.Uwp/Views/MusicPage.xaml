@@ -14,21 +14,58 @@
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:MusicViewModel}"
     Loaded="OnMusicPageLoaded"
+    Unloaded="OnMusicPageUnloaded"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout x:Name="AlbumContextFlyout" Opening="OnAlbumContextFlyoutOpening">
+        <MenuFlyout
+            x:Name="AlbumContextFlyout"
+            x:FieldModifier="Public"
+            Opening="OnAlbumContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
                 Icon="Play" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DownloadAlbumCommandButton"
                 Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
                 Icon="Download" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem x:Uid="SelectForSongList" Command="{x:Bind ViewModel.StartMultipleSelectionCommand}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE762;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+
+        <MenuFlyout
+            x:Name="AlbumSelectionFlyout"
+            x:FieldModifier="Public"
+            Opening="OnAlbumSelectionFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayAlbumForSelectedItemCommand}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem
+                x:Uid="DownloadAlbumCommandButton"
+                Command="{x:Bind ViewModel.DownloadForSelectedItemCommand}"
+                Icon="Download" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectAllForSongList"
+                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
+                Icon="SelectAll" />
+            <MenuFlyoutItem
+                x:Uid="DeselectAllForSongList"
+                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
+                Icon="ClearSelection" />
+            <MenuFlyoutItem
+                x:Uid="DeselectForSongList"
+                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+                Icon="Cancel" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -77,6 +114,7 @@
                 x:Name="ContentGridView"
                 Grid.Row="1"
                 animations:ReorderGridAnimation.Duration="500"
+                x:FieldModifier="Internal"
                 CanDragItems="True"
                 DragItemsStarting="OnGridViewItemsDragStarting"
                 IsItemClickEnabled="True"
@@ -105,7 +143,7 @@
                         <Grid
                             Padding="5"
                             Background="Transparent"
-                            ContextFlyout="{StaticResource AlbumContextFlyout}"
+                            ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedAlbumInfoContextFlyout, Mode=OneWay}"
                             DataContext="{x:Bind}"
                             RightTapped="OnGridViewItemGridRightTapped">
                             <Grid.RowDefinitions>

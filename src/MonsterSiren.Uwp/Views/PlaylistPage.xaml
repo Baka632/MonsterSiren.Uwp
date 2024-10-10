@@ -16,7 +16,10 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout x:Name="PlaylistContextFlyout" Opening="OnPlaylistContextFlyoutOpening">
+        <MenuFlyout
+            x:Name="PlaylistContextFlyout"
+            x:FieldModifier="Internal"
+            Opening="OnPlaylistContextFlyoutOpening">
             <MenuFlyoutItem
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayPlaylistCommand}"
@@ -28,12 +31,45 @@
                 Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Edit" />
-            <MenuFlyoutSeparator />
             <MenuFlyoutItem
                 x:Uid="DeleteCommandButton"
                 Command="{x:Bind ViewModel.RemovePlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Delete" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem x:Uid="SelectForSongList" Command="{x:Bind ViewModel.StartMultipleSelectionCommand}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE762;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+
+        <MenuFlyout
+            x:Name="PlaylistSelectionFlyout"
+            x:FieldModifier="Internal"
+            Opening="OnPlaylistSelectionFlyoutOpening">
+            <MenuFlyoutItem
+                x:Uid="PlayCommandButton"
+                Command="{x:Bind ViewModel.PlayPlaylistForSelectedItemCommand}"
+                Icon="Play" />
+            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem
+                x:Uid="DeleteCommandButton"
+                Command="{x:Bind ViewModel.RemoveSelectedPlaylistCommand}"
+                Icon="Delete" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="SelectAllForSongList"
+                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
+                Icon="SelectAll" />
+            <MenuFlyoutItem
+                x:Uid="DeselectAllForSongList"
+                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
+                Icon="ClearSelection" />
+            <MenuFlyoutItem
+                x:Uid="DeselectForSongList"
+                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+                Icon="Cancel" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -89,6 +125,7 @@
                 animations:Connected.ListItemElementName="PlaylistCoverGrid"
                 animations:Connected.ListItemKey="PlaylistItemToDetailAnimationKey"
                 animations:ReorderGridAnimation.Duration="500"
+                x:FieldModifier="Internal"
                 CanDragItems="True"
                 DragItemsStarting="OnPlaylistItemsDragStarting"
                 IsItemClickEnabled="True"
@@ -118,7 +155,7 @@
                         <Grid
                             Padding="5"
                             Background="Transparent"
-                            ContextFlyout="{StaticResource PlaylistContextFlyout}"
+                            ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedPlaylistContextFlyout, Mode=OneWay}"
                             DataContext="{x:Bind}"
                             RightTapped="OnGridViewItemRightTapped">
                             <Grid.RowDefinitions>

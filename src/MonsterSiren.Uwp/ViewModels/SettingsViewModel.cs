@@ -42,6 +42,8 @@ public partial class SettingsViewModel : ObservableObject
     private bool enableGlanceBurnProtection = true;
     [ObservableProperty]
     private bool glanceModeUseLowerBrightness = true;
+    [ObservableProperty]
+    private bool glanceModeRemainDisplayOn = true;
 
     public SettingsViewModel()
     {
@@ -139,7 +141,22 @@ public partial class SettingsViewModel : ObservableObject
             glanceModeUseLowerBrightness = true;
             SettingsHelper.Set(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, true);
         }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn))
+        {
+            glanceModeRemainDisplayOn = remainDisplayOn;
+        }
+        else
+        {
+            glanceModeRemainDisplayOn = true;
+            SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, true);
+        }
         #endregion
+    }
+
+    partial void OnGlanceModeRemainDisplayOnChanged(bool value)
+    {
+        SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, value);
     }
 
     partial void OnGlanceModeUseLowerBrightnessChanged(bool value)

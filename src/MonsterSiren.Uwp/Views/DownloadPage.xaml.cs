@@ -69,6 +69,6 @@ public sealed partial class DownloadPage : Page
     
     internal static bool IsDisplayAsIndeterminate(DownloadItemState state)
     {
-        return state is DownloadItemState.WritingTag or DownloadItemState.Error;
+        return state is DownloadItemState.WritingTag or DownloadItemState.Error or DownloadItemState.Cancelling;
     }
 }

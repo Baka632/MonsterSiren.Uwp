@@ -20,7 +20,18 @@ sealed partial class App : Application
     /// <summary>
     /// 获取应用程序名
     /// </summary>
-    public static string AppDisplayName => Package.Current.DisplayName;
+    public static string AppDisplayName
+    {
+        get
+        {
+#if DEBUG
+            return "AppDisplayName_Debug".GetLocalized();
+#else
+            return "AppDisplayName".GetLocalized();
+#endif
+        }
+    }
+
     /// <summary>
     /// 获取应用程序版本
     /// </summary>
@@ -239,23 +250,7 @@ sealed partial class App : Application
             }
         }
 
-        if (playlistItemCount == 0)
-        {
-            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
-                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
-                                                    "OK".GetLocalized());
-        }
-        else
-        {
-            try
-            {
-                await PlaylistService.PlayForPlaylistsAsync(playlists);
-            }
-            catch (AggregateException ex)
-            {
-                await CommonValues.DisplayAggregateExceptionError(ex);
-            }
-        }
+        await CommonValues.StartPlay(playlists);
     }
 
     private async Task InitializeAppWhenActivate()

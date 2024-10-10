@@ -103,13 +103,13 @@
     <value>Shuffle: On</value>
   </data>
   <data name="ClearPlaybackList.Text" xml:space="preserve">
-    <value>Clear "Now playing" list</value>
+    <value>Clear Now Playing</value>
   </data>
   <data name="EnterCompactMode.Text" xml:space="preserve">
-    <value>Enter "Compact" mode</value>
+    <value>Enter Compact Mode</value>
   </data>
   <data name="ExitCompactMode.Text" xml:space="preserve">
-    <value>Exit "Compact" mode</value>
+    <value>Exit Compact Mode</value>
   </data>
   <data name="NoMusicTextBlock.Text" xml:space="preserve">
     <value>Currently, there is no music that is playing</value>
@@ -328,7 +328,7 @@
     <value>Decoder</value>
   </data>
   <data name="EnterGlanceMode.Text" xml:space="preserve">
-    <value>Enter "Glance Mode"</value>
+    <value>Enter Glance Mode</value>
   </data>
   <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
     <value>Glance Mode</value>
@@ -544,5 +544,43 @@ Please check your Internet connection.</value>
   </data>
   <data name="AppDisplayName_Debug" xml:space="preserve">
     <value>Sora Records（Debug）</value>
+  </data>
+  <data name="GlanceMode_Welcome_Title" xml:space="preserve">
+    <value>Welcome to use Glance Mode</value>
+  </data>
+  <data name="GlanceMode_Welcome_Message" xml:space="preserve">
+    <value>Whether you're focusing on the music, or just glanced the music, this mode can satisfy you.
+
+To exit this mode, double click anywhere, press Esc, or press the back button.</value>
+  </data>
+  <data name="DownloadItemState_Cancelling" xml:space="preserve">
+    <value>Cancelling</value>
+  </data>
+  <data name="AddTooManyItemToPlaylistMessage" xml:space="preserve">
+    <value>You're adding a lot of songs to your playlist, and it will take some time.
+Changes to the playlist will not be saved until these albums are added.
+
+Continue?</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="DownloadTooManyItemMessage" xml:space="preserve">
+    <value>You're downloading a lot of songs, which can take a long time.
+Also, if there are too many downloads, the server may reject requests from this computer, resulting in unavailability of the service.
+
+Continue?</value>
+  </data>
+  <data name="DownloadItemState_Skipped" xml:space="preserve">
+    <value>Skipped</value>
+  </data>
+  <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
+    <value>Remove skipped item</value>
+  </data>
+  <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
+    <value>Remain display on</value>
+  </data>
+  <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
+    <value>Are you sure you want to delete selected playlists?</value>
   </data>
 </root>
