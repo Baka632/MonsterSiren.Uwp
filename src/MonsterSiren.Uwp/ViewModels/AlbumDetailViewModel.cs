@@ -1,5 +1,7 @@
-﻿using System.Net.Http;
+﻿using System.Collections;
+using System.Net.Http;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Xaml.Controls;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -142,7 +144,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private void SelectAllSongList()
     {
-        view.SongList.SelectAll();
+        view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
     }
 
     [RelayCommand]
@@ -154,15 +156,14 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task PlayForListViewSelectedItem()
     {
-        IList<object> selectedItems = view.SongList.SelectedItems;
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
 
         if (selectedItems.Count == 0)
         {
             return;
         }
 
-        IEnumerable<SongInfo> songInfos = selectedItems.Where(obj => obj is SongInfo).Select(obj => (SongInfo)obj);
-        bool isSuccess = await CommonValues.StartPlay(songInfos, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.StartPlay(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {
@@ -173,15 +174,14 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task AddToNowPlayingForListViewSelectedItem()
     {
-        IList<object> selectedItems = view.SongList.SelectedItems;
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
 
         if (selectedItems.Count == 0)
         {
             return;
         }
 
-        IEnumerable<SongInfo> songInfos = selectedItems.Where(obj => obj is SongInfo).Select(obj => (SongInfo)obj);
-        bool isSuccess = await CommonValues.AddToNowPlaying(songInfos, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {
@@ -192,33 +192,43 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task AddToPlaylistForListViewSelectedItem(Playlist playlist)
     {
-        IList<object> selectedItems = view.SongList.SelectedItems;
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
 
         if (selectedItems.Count == 0)
         {
             return;
         }
 
-        IEnumerable<SongInfo> songInfos = selectedItems.Where(obj => obj is SongInfo).Select(obj => (SongInfo)obj);
-        await CommonValues.AddToPlaylist(playlist, songInfos, CurrentAlbumDetail);
+        await CommonValues.AddToPlaylist(playlist, selectedItems, CurrentAlbumDetail);
     }
 
     [RelayCommand]
     private async Task DownloadForListViewSelectedItem()
     {
-        IList<object> selectedItems = view.SongList.SelectedItems;
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
 
         if (selectedItems.Count == 0)
         {
             return;
         }
 
-        IEnumerable<SongInfo> songInfos = selectedItems.Where(obj => obj is SongInfo).Select(obj => (SongInfo)obj);
-        bool isSuccess = await CommonValues.StartDownload(songInfos, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.StartDownload(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {
             StopMultipleSelection();
         }
+    }
+
+    private List<SongInfo> GetSelectedItem(ListView listView)
+    {
+        List<SongInfo> selectedItems = new(5);
+
+        foreach (ItemIndexRange range in listView.SelectedRanges)
+        {
+            selectedItems.AddRange(CurrentAlbumDetail.Songs.Skip(range.FirstIndex).Take((int)range.Length));
+        }
+
+        return selectedItems;
     }
 }
