@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Windows.ApplicationModel.DataTransfer;
+﻿using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 

@@ -174,10 +174,7 @@ public static class DownloadService
         }
         else
         {
-            if (dlPath != null)
-            {
-                DownloadPathRedirected = true;
-            }
+            string originalDlPath = dlPath;
 
             try
             {
@@ -194,6 +191,11 @@ public static class DownloadService
 
             DownloadPath = dlPath;
             SettingsHelper.Set(CommonValues.MusicDownloadPathSettingsKey, dlPath);
+
+            if (originalDlPath != null)
+            {
+                DownloadPathRedirected = true;
+            }
         }
 
         IReadOnlyList<DownloadOperation> downloadsItem = await BackgroundDownloader.GetCurrentDownloadsAsync();

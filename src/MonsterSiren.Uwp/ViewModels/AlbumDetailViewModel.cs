@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Net.Http;
+﻿using System.Net.Http;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.UI.Xaml.Controls;
 
 namespace MonsterSiren.Uwp.ViewModels;
 

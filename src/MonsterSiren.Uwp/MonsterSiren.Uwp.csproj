@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <PackageCertificateKeyFile />
@@ -187,6 +187,12 @@
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SettingsCard.xaml.cs">
+      <DependentUpon>SettingsCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SettingsExpander.xaml.cs">
+      <DependentUpon>SettingsExpander.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ThemedToggleButton.cs" />
     <Compile Include="GlobalUsings.cs" />
@@ -363,6 +369,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Controls\ScrollableTextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SettingsCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SettingsExpander.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -290,8 +290,8 @@ sealed partial class App : Application
 
         // 初始化设置
         await DownloadService.Initialize();
-        _ = new SettingsViewModel();
         await PlaylistService.Initialize();
+        _ = new SettingsViewModel();
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {

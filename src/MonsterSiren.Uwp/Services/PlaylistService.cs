@@ -52,10 +52,7 @@ public static class PlaylistService
         }
         else
         {
-            if (path != null)
-            {
-                PlaylistPathRedirected = true;
-            }
+            string originalPath = path;
 
             try
             {
@@ -72,6 +69,11 @@ public static class PlaylistService
             }
 
             PlaylistSavePath = path;
+
+            if (originalPath != null)
+            {
+                PlaylistPathRedirected = true;
+            }
         }
 
         TotalPlaylists.Clear();

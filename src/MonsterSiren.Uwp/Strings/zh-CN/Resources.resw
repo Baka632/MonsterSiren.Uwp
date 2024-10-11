@@ -219,10 +219,10 @@
   <data name="DownloadNavViewItem.Content" xml:space="preserve">
     <value>下载队列</value>
   </data>
-  <data name="SettingsPage_PathConfig.Text" xml:space="preserve">
+  <data name="SettingsPage_PathConfig.Header" xml:space="preserve">
     <value>路径设置</value>
   </data>
-  <data name="SettingsPage_DownloadPath.Text" xml:space="preserve">
+  <data name="SettingsPage_DownloadPath.Header" xml:space="preserve">
     <value>下载路径</value>
   </data>
   <data name="SettingsPage_PickButton.Content" xml:space="preserve">
@@ -234,10 +234,10 @@
   <data name="LyricFile" xml:space="preserve">
     <value>歌词文件</value>
   </data>
-  <data name="SettingsPage_DownloadConfig.Text" xml:space="preserve">
+  <data name="SettingsPage_DownloadConfig.Header" xml:space="preserve">
     <value>下载选项</value>
   </data>
-  <data name="SettingsPage_DownloadLyric.Text" xml:space="preserve">
+  <data name="SettingsPage_DownloadLyric.Header" xml:space="preserve">
     <value>下载歌词</value>
   </data>
   <data name="SettingsTextBlock.Text" xml:space="preserve">
@@ -264,7 +264,7 @@
   <data name="DownloadAlbumCommandButton.Text" xml:space="preserve">
     <value>下载专辑</value>
   </data>
-  <data name="SettingsPage_EnableTranscode.Text" xml:space="preserve">
+  <data name="SettingsPage_EnableTranscode.Header" xml:space="preserve">
     <value>对下载的音乐文件转码</value>
   </data>
   <data name="AppVersion_WithPlaceholder" xml:space="preserve">
@@ -276,7 +276,7 @@
   <data name="RepoAddress.Text" xml:space="preserve">
     <value>仓库地址</value>
   </data>
-  <data name="SettingsPage_SelectTranscoder.Text" xml:space="preserve">
+  <data name="SettingsPage_SelectTranscoder.Header" xml:space="preserve">
     <value>转码格式</value>
   </data>
   <data name="Mp3Format" xml:space="preserve">
@@ -285,10 +285,10 @@
   <data name="FlacFormat" xml:space="preserve">
     <value>FLAC 格式</value>
   </data>
-  <data name="SettingsPage_TranscodeConfig.Text" xml:space="preserve">
+  <data name="SettingsPage_TranscodeConfig.Header" xml:space="preserve">
     <value>转码设置</value>
   </data>
-  <data name="SettingsPage_SelectTranscodeQuality.Text" xml:space="preserve">
+  <data name="SettingsPage_SelectTranscodeQuality.Header" xml:space="preserve">
     <value>转码质量</value>
   </data>
   <data name="AudioQualityHigh" xml:space="preserve">
@@ -300,7 +300,7 @@
   <data name="AudioQualityLow" xml:space="preserve">
     <value>低（96 kbps 及以上）</value>
   </data>
-  <data name="SettingsPage_TranscodeKeepWavFile.Text" xml:space="preserve">
+  <data name="SettingsPage_TranscodeKeepWavFile.Header" xml:space="preserve">
     <value>转码后保留原始 WAV 文件</value>
   </data>
   <data name="DownloadItemState_Downloading" xml:space="preserve">
@@ -327,7 +327,7 @@
   <data name="PresentationPivotItem.Header" xml:space="preserve">
     <value>显示设置</value>
   </data>
-  <data name="SettingsPage_AppBackground.Text" xml:space="preserve">
+  <data name="SettingsPage_AppBackground.Header" xml:space="preserve">
     <value>背景 + 颜色</value>
   </data>
   <data name="MicaBackground" xml:space="preserve">
@@ -339,7 +339,7 @@
   <data name="PureColorBackground" xml:space="preserve">
     <value>纯色</value>
   </data>
-  <data name="SettingsPage_AppBackgroundConfig.Text" xml:space="preserve">
+  <data name="SettingsPage_AppBackgroundConfig.Header" xml:space="preserve">
     <value>设置应用背景</value>
   </data>
   <data name="NoSongsInAlbum.Text" xml:space="preserve">
@@ -378,7 +378,7 @@
   <data name="SearchNotFound.Text" xml:space="preserve">
     <value>找不到相关结果</value>
   </data>
-  <data name="SettingsPage_AppColorTheme.Text" xml:space="preserve">
+  <data name="SettingsPage_AppColorTheme.Header" xml:space="preserve">
     <value>设置颜色主题（需要重启应用）</value>
   </data>
   <data name="ColorTheme_Default" xml:space="preserve">
@@ -411,13 +411,13 @@
   <data name="EnterGlanceMode.Text" xml:space="preserve">
     <value>进入概览模式</value>
   </data>
-  <data name="SettingsPage_GlanceSettings.Text" xml:space="preserve">
+  <data name="SettingsPage_GlanceSettings.Header" xml:space="preserve">
     <value>概览模式</value>
   </data>
-  <data name="SettingsPage_GlanceMoveSettings.Text" xml:space="preserve">
+  <data name="SettingsPage_GlanceMoveSettings.Header" xml:space="preserve">
     <value>启动烧屏保护</value>
   </data>
-  <data name="SettingsPage_GlanceUseLowBrightness.Text" xml:space="preserve">
+  <data name="SettingsPage_GlanceUseLowBrightness.Header" xml:space="preserve">
     <value>调低亮度</value>
   </data>
   <data name="PlaylistNavViewItem.Content" xml:space="preserve">
@@ -432,7 +432,7 @@
   <data name="SettingsPage_PlaylistFolderRedirected.Message" xml:space="preserve">
     <value>由于应用无法使用先前指定的文件夹，因此播放列表路径已被更改为默认路径。</value>
   </data>
-  <data name="SettingsPage_PlaylistSavePath.Text" xml:space="preserve">
+  <data name="SettingsPage_PlaylistSavePath.Header" xml:space="preserve">
     <value>播放列表保存路径</value>
   </data>
   <data name="PlaylistTextBlock.Text" xml:space="preserve">
@@ -655,7 +655,7 @@
   <data name="DownloadPage_RemoveAllSkipped.Text" xml:space="preserve">
     <value>移除跳过项</value>
   </data>
-  <data name="SettingsPage_GlanceRemainDisplayOn.Text" xml:space="preserve">
+  <data name="SettingsPage_GlanceRemainDisplayOn.Header" xml:space="preserve">
     <value>屏幕常亮</value>
   </data>
   <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
