@@ -661,4 +661,10 @@
   <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
     <value>确定要删除选中的播放列表？</value>
   </data>
+  <data name="UpdateInfoTitle" xml:space="preserve">
+    <value>应用有新的更新</value>
+  </data>
+  <data name="UpdateInfoMessage" xml:space="preserve">
+    <value>请前往应用商店下载。</value>
+  </data>
 </root>

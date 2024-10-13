@@ -583,4 +583,10 @@ Continue?</value>
   <data name="DeleteMultiplePlaylistsMessage" xml:space="preserve">
     <value>Are you sure you want to delete selected playlists?</value>
   </data>
+  <data name="UpdateInfoTitle" xml:space="preserve">
+    <value>There is a new version of app</value>
+  </data>
+  <data name="UpdateInfoMessage" xml:space="preserve">
+    <value>Please go to store to download it.</value>
+  </data>
 </root>

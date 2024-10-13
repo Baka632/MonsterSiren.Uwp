@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Windows.Input;
 using Windows.Media.Playback;
-using MonsterSiren.Uwp.Models;
 
 namespace MonsterSiren.Uwp;
 
