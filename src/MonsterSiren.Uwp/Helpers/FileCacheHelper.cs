@@ -53,23 +53,31 @@ internal static class FileCacheHelper
 
             try
             {
+                string fileName = $"{cid}.jpg";
+                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+                IStorageItem coverFile = await coverFolder.TryGetItemAsync(fileName);
+
+                if (coverFile is not null && coverFile.IsOfType(StorageItemTypes.File))
+                {
+                    BasicProperties props = await coverFile.GetBasicPropertiesAsync();
+
+                    if (props.Size != 0)
+                    {
+                        return;
+                    }
+                }
+
                 using HttpClient httpClient = new();
                 using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
 
                 using InMemoryRandomAccessStream stream = new();
                 await result.Content.WriteToStreamAsync(stream);
                 stream.Seek(0);
-                string fileName = $"{cid}.jpg";
 
-                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-                if (await coverFolder.FileExistsAsync(fileName) != true)
-                {
-                    StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-                    using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-                    await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-                    await transaction.CommitAsync();
-                }
+                StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+                using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+                await transaction.CommitAsync();
             }
             catch (COMException)
             {
