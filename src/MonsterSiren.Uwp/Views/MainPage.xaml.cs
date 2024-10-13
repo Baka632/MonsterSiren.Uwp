@@ -45,6 +45,20 @@ public sealed partial class MainPage : Page
         ChangeSelectedItemOfNavigationView();
         LoadPlaylistForNavigationView();
         CheckUpdateAsync();
+
+        if (SettingsHelper.TryGet(CommonValues.AppVersionSettingsKey, out string version))
+        {
+            if (version != App.AppVersion)
+            {
+                ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage));
+            }
+        }
+        else
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage));
+        }
+
+        SettingsHelper.Set(CommonValues.AppVersionSettingsKey, App.AppVersion);
     }
 
     ~MainPage()
@@ -295,14 +309,14 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
-        else if (currentSourcePageType == typeof(SearchPage))
+        else if (currentSourcePageType == typeof(SearchPage) || currentSourcePageType == typeof(UpdateInfoPage))
         {
             NavigationView.SelectedItem = null;
         }
 #if DEBUG
         else
         {
-            System.Diagnostics.Debugger.Break();
+            Debugger.Break();
         }
 #endif
     }
@@ -536,7 +550,7 @@ public sealed partial class MainPage : Page
                 break;
             default:
 #if DEBUG
-                System.Diagnostics.Debugger.Break();
+                Debugger.Break();
 #endif
                 break;
         }

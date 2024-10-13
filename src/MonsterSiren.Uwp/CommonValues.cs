@@ -49,6 +49,8 @@ internal static partial class CommonValues
     public const string AppGlanceModeRemainDisplayOnSettingsKey = "App_GlanceMode_RemainDisplayOn_SettingsKey";
 
     public const string GlanceModeIsUsedOnceIndicator = "GlanceMode_IsUsedOnce_Indicator";
+
+    public const string AppVersionSettingsKey = "AppVersion_SettingsKey";
     #endregion
 
     #region Data Package Type

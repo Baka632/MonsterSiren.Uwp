@@ -589,4 +589,10 @@ Continue?</value>
   <data name="UpdateInfoMessage" xml:space="preserve">
     <value>Please go to store to download it.</value>
   </data>
+  <data name="UpdateInfoTextBlock.Text" xml:space="preserve">
+    <value>Update note</value>
+  </data>
+  <data name="SettingsPage_OpenUpdateInfoPage.Text" xml:space="preserve">
+    <value>View update note</value>
+  </data>
 </root>

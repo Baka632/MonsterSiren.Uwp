@@ -366,4 +366,10 @@ public partial class SettingsViewModel : ObservableObject
         CopyrightDialog copyrightDialog = new();
         await copyrightDialog.ShowAsync();
     }
+
+    [RelayCommand]
+    private static void OpenUpdateInfoPage()
+    {
+        ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage), null, CommonValues.DefaultTransitionInfo);
+    }
 }

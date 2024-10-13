@@ -135,6 +135,13 @@ sealed partial class App : Application
     /// <param name="e">有关启动请求和过程的详细信息。</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
+#if DEBUG
+        // 调试本地化的相关代码
+
+        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US";
+        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "zh-CN";
+#endif
+
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
         {
