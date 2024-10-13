@@ -174,10 +174,7 @@ public static class DownloadService
         }
         else
         {
-            if (dlPath != null)
-            {
-                DownloadPathRedirected = true;
-            }
+            string originalDlPath = dlPath;
 
             try
             {
@@ -194,6 +191,11 @@ public static class DownloadService
 
             DownloadPath = dlPath;
             SettingsHelper.Set(CommonValues.MusicDownloadPathSettingsKey, dlPath);
+
+            if (originalDlPath != null)
+            {
+                DownloadPathRedirected = true;
+            }
         }
 
         IReadOnlyList<DownloadOperation> downloadsItem = await BackgroundDownloader.GetCurrentDownloadsAsync();
@@ -219,7 +221,7 @@ public static class DownloadService
             throw new InvalidOperationException($"请先调用 {nameof(Initialize)} 方法");
         }
 
-        if (DownloadList.Any(item => item.Operation.RequestedUri.ToString() == songDetail.SourceUrl))
+        if (DownloadList.Any(item => songDetail.SourceUrl == item.Operation?.RequestedUri?.ToString()))
         {
             return;
         }
@@ -239,6 +241,20 @@ public static class DownloadService
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
+
+            string targetFileName = TranscodeDownloadedItem
+                ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower()}"
+                : $"{musicFileName}.wav";
+
+            IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
+
+            if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+            {
+                DownloadItem item = new(musicName);
+                await AddToList(item);
+                return;
+            }
+
             StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
 
             StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", CreationCollisionOption.ReplaceExisting);
@@ -268,10 +284,10 @@ public static class DownloadService
 
         try
         {
-            item.State = DownloadItemState.Downloading;
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
             if (isNew)
             {
+                item.State = DownloadItemState.Downloading;
                 await operation.StartAsync().AsTask(cts.Token, progressCallback);
             }
             else
@@ -286,6 +302,7 @@ public static class DownloadService
         }
         catch (TaskCanceledException)
         {
+            item.State = DownloadItemState.Canceled;
             if (operation.ResultFile is not null)
             {
                 await operation.ResultFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
@@ -327,6 +344,14 @@ public static class DownloadService
             {
                 StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+
+            DirectoryInfo directoryInfo = new(albumFolderPath);
+            if (directoryInfo.Exists
+                && !directoryInfo.EnumerateDirectories().Any()
+                && !directoryInfo.EnumerateFiles().Any())
+            {
+                directoryInfo.Delete();
             }
         }
     }

@@ -184,6 +184,32 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 播放 <see cref="AlbumInfo"/> 序列
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> StartPlay(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
+
+            await MusicService.ReplaceMusic(items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 播放 <see cref="AlbumDetail"/> 中的歌曲
     /// </summary>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
@@ -368,6 +394,51 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 播放 <see cref="Playlist"/> 序列
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> StartPlay(IEnumerable<Playlist> playlists)
+    {
+        if (!playlists.Any())
+        {
+            return false;
+        }
+
+        bool noSongInPlaylists = true;
+        foreach (Playlist playlist in playlists)
+        {
+            if (playlist.SongCount > 0)
+            {
+                noSongInPlaylists = false;
+                break;
+            }
+        }
+
+        if (noSongInPlaylists)
+        {
+            await DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+            return false;
+        }
+
+        try
+        {
+            await PlaylistService.PlayForPlaylistsAsync(playlists);
+
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionError(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 将 <see cref="AlbumInfo"/> 中的歌曲加入到正在播放列表中
     /// </summary>
     /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例</param>
@@ -379,6 +450,32 @@ partial class CommonValues
             ExceptionBox box = new();
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
             IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
+
+            await MusicService.AddMusic(items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将 <see cref="AlbumInfo"/> 序列加入到正在播放列表中
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
 
             await MusicService.AddMusic(items);
 
@@ -547,6 +644,51 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 将一个 <see cref="Playlist"/> 序列添加到正在播放列表中
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列</param>
+    /// <returns>指示操作是否成功的值</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<Playlist> playlists)
+    {
+        if (!playlists.Any())
+        {
+            return false;
+        }
+
+        bool noSongInPlaylists = true;
+        foreach (Playlist playlist in playlists)
+        {
+            if (playlist.SongCount > 0)
+            {
+                noSongInPlaylists = false;
+                break;
+            }
+        }
+
+        if (noSongInPlaylists)
+        {
+            await DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
+                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
+                                                    "OK".GetLocalized());
+            return false;
+        }
+
+        try
+        {
+            await PlaylistService.AddPlaylistsToNowPlayingAsync(playlists);
+
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionError(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 将一个 <see cref="SongInfoAndAlbumDetailPack"/> 序列添加到正在播放列表中
     /// </summary>
     /// <param name="packs">一个 <see cref="SongInfoAndAlbumDetailPack"/> 序列</param>
@@ -582,7 +724,9 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(IEnumerable<PlaylistItem> playlistItems)
     {
-        if (!playlistItems.Any())
+        PlaylistItem[] playlistItemsArray = playlistItems.ToArray();
+
+        if (playlistItemsArray.Length <= 0)
         {
             return false;
         }
@@ -590,7 +734,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItems.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItemsArray, box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -599,6 +743,19 @@ partial class CommonValues
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            if (playlistItemsArray.Length == 1)
+            {
+                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            else
+            {
+                await DisplayContentDialog("ErrorOccurred".GetLocalized(), "SomeSongOrAlbumCidCorruptMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
         }
 
         return false;
@@ -618,6 +775,27 @@ partial class CommonValues
 
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
             IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(albumDetail, box);
+
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
+
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    public static async Task<bool> AddToPlaylist(Playlist playlist, IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            ExceptionBox box = new();
+
+            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(albumInfos, box);
 
             await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
 
@@ -800,6 +978,36 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 启动下载 <see cref="AlbumInfo"/> 序列中歌曲的操作
+    /// </summary>
+    /// <param name="albumDetail">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <returns>指示下载操作是否成功开始的值</returns>
+    public static async Task<bool> StartDownload(IEnumerable<AlbumInfo> albumInfos)
+    {
+        try
+        {
+            foreach (AlbumInfo albumInfo in albumInfos)
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                    _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                }
+            }
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 启动下载 <see cref="AlbumDetail"/> 中歌曲的操作
     /// </summary>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 的实例</param>
@@ -961,6 +1169,71 @@ partial class CommonValues
         }
 
         return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 根据 <see cref="AlbumInfo"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列
+    /// </summary>
+    /// <param name="albumInfos"><see cref="AlbumInfo"/> 序列</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会跳过异常项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(AlbumInfo[] albumInfos, ExceptionBox box)
+    {
+        List<Exception> innerExceptions = new(5);
+        int songCount = 0;
+
+        foreach (AlbumInfo albumInfo in albumInfos)
+        {
+            AlbumDetail detail;
+
+            try
+            {
+                detail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            }
+            catch (Exception ex)
+            {
+                innerExceptions.Add(ex);
+                continue;
+            }
+
+            foreach (SongInfo item in detail.Songs)
+            {
+                songCount++;
+                MediaPlaybackItem playbackItem = null;
+
+                try
+                {
+                    playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.Cid, detail);
+                }
+                catch (Exception ex)
+                {
+                    innerExceptions.Add(ex);
+                }
+
+                if (playbackItem is not null)
+                {
+                    yield return playbackItem;
+                }
+            }
+        }
+
+        if (innerExceptions.Count > 0)
+        {
+            bool allFailed = songCount == innerExceptions.Count;
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
+            {
+                Data =
+                {
+                    ["AllFailed"] = allFailed,
+                    ["PlayItem"] = albumInfos,
+                }
+            };
+
+            box.InboxException = aggregate;
+        }
     }
 
     /// <summary>
@@ -1197,6 +1470,49 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 根据 <see cref="AlbumInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列
+    /// </summary>
+    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
+    /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
+    /// </remarks>
+    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<AlbumInfo> albumInfos, ExceptionBox box)
+    {
+        foreach (AlbumInfo albumInfo in albumInfos)
+        {
+            AlbumDetail albumDetail;
+            try
+            {
+                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            }
+            catch (Exception ex)
+            {
+                box.InboxException = ex;
+                yield break;
+            }
+
+            foreach (SongInfo songInfo in albumDetail.Songs)
+            {
+                SongDetail songDetail;
+
+                try
+                {
+                    songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                }
+                catch (Exception ex)
+                {
+                    box.InboxException = ex;
+                    yield break;
+                }
+
+                yield return (songDetail, albumDetail);
+            }
+        }
+    }
+
+    /// <summary>
     /// 根据 <see cref="AlbumDetail"/> 实例获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列
     /// </summary>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
@@ -1326,12 +1642,15 @@ partial class CommonValues
     /// 移除指定的播放列表
     /// </summary>
     /// <param name="playlist">目标播放列表</param>
-    public static async Task RemovePlaylist(Playlist playlist)
+    /// <param name="suppressWarning">指示是否要取消删除警告的值</param>
+    public static async Task RemovePlaylist(Playlist playlist, bool suppressWarning = false)
     {
-        ContentDialogResult result = await DisplayContentDialog("EnsureDelete".GetLocalized(), "",
-            "OK".GetLocalized(), "Cancel".GetLocalized());
+        ContentDialogResult result = !suppressWarning
+            ? await DisplayContentDialog("EnsureDelete".GetLocalized(), "", "OK".GetLocalized(),
+                                                "Cancel".GetLocalized())
+            : ContentDialogResult.None;
 
-        if (result == ContentDialogResult.Primary)
+        if (suppressWarning || result == ContentDialogResult.Primary)
         {
             await PlaylistService.RemovePlaylistAsync(playlist);
         }

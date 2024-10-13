@@ -15,11 +15,13 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     public event PropertyChangedEventHandler PropertyChanged;
 
     public bool IsTotalPlaylistEmpty => PlaylistService.TotalPlaylists.Count <= 0;
-    public PlaylistViewModel ViewModel { get; } = new PlaylistViewModel();
+    public PlaylistViewModel ViewModel { get; }
 
     public PlaylistPage()
     {
+        ViewModel = new PlaylistViewModel(this);
         this.InitializeComponent();
+        ViewModel.SelectedPlaylistContextFlyout = PlaylistContextFlyout;
     }
 
     private void OnPlaylistItemClick(object sender, ItemClickEventArgs e)
@@ -78,6 +80,21 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
                                                                           ViewModel.SelectedPlaylist,
                                                                           ViewModel.AddPlaylistToAnotherPlaylistCommand,
                                                                           ViewModel.SelectedPlaylist);
+        subItem.Tag = "Placeholder_For_AddTo";
+        flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnPlaylistSelectionFlyoutOpening(object sender, object e)
+    {
+        MenuFlyout flyout = (MenuFlyout)sender;
+        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
+
+        int targetIndex = flyout.Items.IndexOf(target);
+        flyout.Items.RemoveAt(targetIndex);
+
+        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSelectedItemCommand,
+                                                                          null,
+                                                                          ViewModel.AddSelectedItemToPlaylistCommand);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
     }

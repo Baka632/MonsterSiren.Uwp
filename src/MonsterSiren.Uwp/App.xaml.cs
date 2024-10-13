@@ -20,7 +20,18 @@ sealed partial class App : Application
     /// <summary>
     /// 获取应用程序名
     /// </summary>
-    public static string AppDisplayName => Package.Current.DisplayName;
+    public static string AppDisplayName
+    {
+        get
+        {
+#if DEBUG
+            return "AppDisplayName_Debug".GetLocalized();
+#else
+            return "AppDisplayName".GetLocalized();
+#endif
+        }
+    }
+
     /// <summary>
     /// 获取应用程序版本
     /// </summary>
@@ -124,6 +135,13 @@ sealed partial class App : Application
     /// <param name="e">有关启动请求和过程的详细信息。</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
+#if DEBUG
+        // 调试本地化的相关代码
+
+        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US";
+        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "zh-CN";
+#endif
+
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
         {
@@ -239,23 +257,7 @@ sealed partial class App : Application
             }
         }
 
-        if (playlistItemCount == 0)
-        {
-            await CommonValues.DisplayContentDialog("NoSongPlayed_Title".GetLocalized(),
-                                                    "NoSongPlayed_PlaylistEmpty".GetLocalized(),
-                                                    "OK".GetLocalized());
-        }
-        else
-        {
-            try
-            {
-                await PlaylistService.PlayForPlaylistsAsync(playlists);
-            }
-            catch (AggregateException ex)
-            {
-                await CommonValues.DisplayAggregateExceptionError(ex);
-            }
-        }
+        await CommonValues.StartPlay(playlists);
     }
 
     private async Task InitializeAppWhenActivate()
@@ -295,8 +297,8 @@ sealed partial class App : Application
 
         // 初始化设置
         await DownloadService.Initialize();
-        _ = new SettingsViewModel();
         await PlaylistService.Initialize();
+        _ = new SettingsViewModel();
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {

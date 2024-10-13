@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.Web.Http;
 
@@ -52,23 +53,31 @@ internal static class FileCacheHelper
 
             try
             {
+                string fileName = $"{cid}.jpg";
+                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+                IStorageItem coverFile = await coverFolder.TryGetItemAsync(fileName);
+
+                if (coverFile is not null && coverFile.IsOfType(StorageItemTypes.File))
+                {
+                    BasicProperties props = await coverFile.GetBasicPropertiesAsync();
+
+                    if (props.Size != 0)
+                    {
+                        return;
+                    }
+                }
+
                 using HttpClient httpClient = new();
                 using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
 
                 using InMemoryRandomAccessStream stream = new();
                 await result.Content.WriteToStreamAsync(stream);
                 stream.Seek(0);
-                string fileName = $"{cid}.jpg";
 
-                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-                if (await coverFolder.FileExistsAsync(fileName) != true)
-                {
-                    StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-                    using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-                    await RandomAccessStream.CopyAsync(stream, transaction.Stream);
-                    await transaction.CommitAsync();
-                }
+                StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+                using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                await RandomAccessStream.CopyAsync(stream, transaction.Stream);
+                await transaction.CommitAsync();
             }
             catch (COMException)
             {
@@ -151,19 +160,37 @@ internal static class FileCacheHelper
     /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
     public static async Task<Uri> GetAlbumCoverUriAsync(string cid)
     {
-        string fileName = $"{cid}.jpg";
-
-        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-
-        if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
+        try
         {
-            StorageFile file = await coverFolder.GetFileAsync(fileName);
-            using IRandomAccessStreamWithContentType stream = await file.OpenReadAsync();
+            string fileName = $"{cid}.jpg";
 
-            if (stream.Size != 0)
+            StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+
+            if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
             {
-                return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+                StorageFile file = await coverFolder.GetFileAsync(fileName);
+                BasicProperties fileBasicProps = await file.GetBasicPropertiesAsync();
+
+                if (fileBasicProps.Size != 0)
+                {
+                    return new Uri($"ms-appdata:///temp/{DefaultAlbumCoverCacheFolderName}/{fileName}", UriKind.Absolute);
+                }
+                else
+                {
+                    await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
+
+                // 移除下载事务操作遗留下来的临时文件
+                if (await coverFolder.FileExistsAsync($"{file.Name}.~tmp"))
+                {
+                    StorageFile tempFile = await coverFolder.GetFileAsync($"{file.Name}.~tmp");
+                    await tempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
             }
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException or IOException)
+        {
+            // ;-)
         }
 
         return null;
@@ -214,6 +241,7 @@ internal static class FileCacheHelper
         await JsonSerializer.SerializeAsync(stream, timeSpan);
     }
 
+    [Obsolete("暂时不使用此方法")]
     public static async Task StoreAlbumInfoAsync(AlbumInfo info)
     {
         StorageFolder musicInfoFolder = await tempFolder.CreateFolderAsync(DefaultMusicInfoCacheFolderName, CreationCollisionOption.OpenIfExists);

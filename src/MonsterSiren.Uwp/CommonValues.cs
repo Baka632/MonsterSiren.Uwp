@@ -46,6 +46,11 @@ internal static partial class CommonValues
 
     public const string AppGlanceModeBurnProtectionSettingsKey = "App_GlanceMode_BurnProtection_SettingsKey";
     public const string AppGlanceModeUseLowerBrightnessSettingsKey = "App_GlanceMode_UseLowerBrightness_SettingsKey";
+    public const string AppGlanceModeRemainDisplayOnSettingsKey = "App_GlanceMode_RemainDisplayOn_SettingsKey";
+
+    public const string GlanceModeIsUsedOnceIndicator = "GlanceMode_IsUsedOnce_Indicator";
+
+    public const string AppVersionSettingsKey = "AppVersion_SettingsKey";
     #endregion
 
     #region Data Package Type

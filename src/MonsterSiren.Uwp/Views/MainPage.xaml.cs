@@ -4,11 +4,15 @@ using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
+using Windows.Services.Store;
+using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Animation;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+using System.Diagnostics;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -40,12 +44,54 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
         LoadPlaylistForNavigationView();
+        CheckUpdateAsync();
+
+        if (SettingsHelper.TryGet(CommonValues.AppVersionSettingsKey, out string version))
+        {
+            if (version != App.AppVersion)
+            {
+                ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage));
+            }
+        }
+        else
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage));
+        }
+
+        SettingsHelper.Set(CommonValues.AppVersionSettingsKey, App.AppVersion);
     }
 
     ~MainPage()
     {
         MainPageNavigationHelper.GoBackComplete -= OnMainPageGoBackComplete;
         MainPageNavigationHelper = null;
+    }
+
+    [Conditional("Release")]
+    private static async void CheckUpdateAsync()
+    {
+        try
+        {
+            StoreContext storeContext = StoreContext.GetDefault();
+            IReadOnlyList<StorePackageUpdate> updates = await storeContext.GetAppAndOptionalStorePackageUpdatesAsync();
+            if (updates.Count > 0)
+            {
+                MessageDialog dialog = new("UpdateInfoMessage".GetLocalized(), "UpdateInfoTitle".GetLocalized());
+                await dialog.ShowAsync();
+            }
+        }
+        catch
+        {
+            try
+            {
+                StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();
+                logger.Log("检查更新失败");
+            }
+            catch
+            {
+                // Enough!
+            }
+        }
     }
 
     private void ConfigureTitleBar()
@@ -263,14 +309,14 @@ public sealed partial class MainPage : Page
         {
             NavigationView.SelectedItem = NavigationView.SettingsItem;
         }
-        else if (currentSourcePageType == typeof(SearchPage))
+        else if (currentSourcePageType == typeof(SearchPage) || currentSourcePageType == typeof(UpdateInfoPage))
         {
             NavigationView.SelectedItem = null;
         }
 #if DEBUG
         else
         {
-            System.Diagnostics.Debugger.Break();
+            Debugger.Break();
         }
 #endif
     }
@@ -504,7 +550,7 @@ public sealed partial class MainPage : Page
                 break;
             default:
 #if DEBUG
-                System.Diagnostics.Debugger.Break();
+                Debugger.Break();
 #endif
                 break;
         }

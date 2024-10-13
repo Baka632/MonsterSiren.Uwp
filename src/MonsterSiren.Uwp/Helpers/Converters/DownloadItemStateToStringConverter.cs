@@ -15,6 +15,8 @@ public sealed class DownloadItemStateToStringConverter : IValueConverter
                 DownloadItemState.Done => "DownloadItemState_Done".GetLocalized(),
                 DownloadItemState.Error => "DownloadItemState_Error".GetLocalized(),
                 DownloadItemState.Canceled => "DownloadItemState_Canceled".GetLocalized(),
+                DownloadItemState.Cancelling => "DownloadItemState_Cancelling".GetLocalized(),
+                DownloadItemState.Skipped => "DownloadItemState_Skipped".GetLocalized(),
                 _ => throw new NotImplementedException()
             };
         }

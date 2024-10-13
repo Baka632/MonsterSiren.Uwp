@@ -1,6 +1,9 @@
 ﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using Windows.Graphics.Display;
+using Windows.System;
+using Windows.System.Display;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp.Views;
@@ -13,6 +16,7 @@ public sealed partial class GlanceViewPage : Page
     private readonly DispatcherTimer _timer = new();
     private readonly Random _random = new();
     private BrightnessOverride _brightnessOverride;
+    private DisplayRequest _displayRequest;
 
     public GlanceViewViewModel ViewModel { get; } = new GlanceViewViewModel();
 
@@ -80,6 +84,8 @@ public sealed partial class GlanceViewPage : Page
     {
         base.OnNavigatedTo(e);
 
+        Window.Current.Dispatcher.AcceleratorKeyActivated += OnDispatcherAcceleratorKeyActivated;
+
         ApplicationView view = ApplicationView.GetForCurrentView();
         if (view.IsFullScreenMode != true)
         {
@@ -98,11 +104,36 @@ public sealed partial class GlanceViewPage : Page
                 }
             });
         }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn) && remainDisplayOn)
+        {
+            _displayRequest = new DisplayRequest();
+            _displayRequest.RequestActive();
+        }
+
+        if (!SettingsHelper.TryGet(CommonValues.GlanceModeIsUsedOnceIndicator, out bool glanceModeIsUsedOnce))
+        {
+            await CommonValues.DisplayContentDialog("GlanceMode_Welcome_Title".GetLocalized(),
+                                                    "GlanceMode_Welcome_Message".GetLocalized(), closeButtonText: "OK".GetLocalized());
+
+            SettingsHelper.Set(CommonValues.GlanceModeIsUsedOnceIndicator, true);
+        }
+    }
+
+    private void OnDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+    {
+        if (args.VirtualKey == VirtualKey.Escape)
+        {
+            ExitGlanceMode();
+            args.Handled = true;
+        }
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
         base.OnNavigatingFrom(e);
+
+        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
 
         ApplicationView view = ApplicationView.GetForCurrentView();
         if (view.IsFullScreenMode)
@@ -114,10 +145,22 @@ public sealed partial class GlanceViewPage : Page
         {
             _brightnessOverride.StopOverride();
         }
+
+        _displayRequest?.RequestRelease();
     }
 
     private void OnContentLoaded(object sender, RoutedEventArgs e)
     {
         ViewModel.ContentOffset = ContentCanvas.ActualHeight - ContentStackPanel.ActualHeight;
+    }
+
+    private void OnPageDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        ExitGlanceMode();
+    }
+
+    private static void ExitGlanceMode()
+    {
+        MainPageNavigationHelper.GoBack();
     }
 }
