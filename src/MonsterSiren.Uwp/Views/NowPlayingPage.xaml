@@ -346,6 +346,8 @@
                             </Button.Flyout>
                         </Button>
                         <Button
+                            x:Name="MoreOperationButton"
+                            x:FieldModifier="Internal"
                             AccessKey="MO"
                             Content="&#xE10C;"
                             FontFamily="Segoe MDL2 Assets"
@@ -367,6 +369,23 @@
                                         Command="{x:Bind ViewModel.ToGlanceViewPageCommand}">
                                         <MenuFlyoutItem.Icon>
                                             <FontIcon Glyph="&#xE052;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        AccessKey="CA"
+                                        Command="{x:Bind ViewModel.ShowCastToPickerCommand}"
+                                        Text="{x:Bind ViewModel.MediaCastingButtonString, Mode=OneWay}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xEC15;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        x:Uid="StopCasting"
+                                        AccessKey="DC"
+                                        Command="{x:Bind ViewModel.StopCastingCommand}"
+                                        Visibility="{x:Bind ViewModel.IsMediaCasting, Mode=OneWay}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xEA14;" />
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator />

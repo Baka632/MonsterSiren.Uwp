@@ -4,7 +4,7 @@ using MonsterSiren.Api.Models.Song;
 namespace MonsterSiren.Api.Models.Album;
 
 /// <summary>
-///  提供专辑详细信息的结构
+/// 提供专辑详细信息的结构
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct AlbumDetail : IEquatable<AlbumDetail>

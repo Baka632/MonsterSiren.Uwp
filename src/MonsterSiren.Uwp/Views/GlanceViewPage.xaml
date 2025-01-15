@@ -78,6 +78,12 @@
                         x:Load="{x:Bind ViewModel.ShowMuteState, Mode=OneWay}"
                         FontSize="22"
                         Glyph="&#xE198;" />
+                    <FontIcon
+                        x:Name="CastMediaIcon"
+                        Margin="0,0,10,0"
+                        x:Load="{x:Bind ViewModel.ShowCastMedia, Mode=OneWay}"
+                        FontSize="22"
+                        Glyph="&#xEC15;" />
                 </StackPanel>
             </StackPanel>
         </Canvas>

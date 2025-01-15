@@ -489,6 +489,37 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    HorizontalAlignment="Stretch"
+                                    AccessKey="CA"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.ShowCastToPickerCommand}"
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="&#xEC15;" />
+                                        <TextBlock Text="{x:Bind ViewModel.MediaCastingButtonString, Mode=OneWay}" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    HorizontalAlignment="Stretch"
+                                    AccessKey="DC"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{x:Bind ViewModel.StopCastingCommand}"
+                                    IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.IsMediaCasting, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon
+                                            Margin="0,0,5,0"
+                                            FontSize="16"
+                                            Glyph="&#xEA14;" />
+                                        <TextBlock x:Uid="StopCasting" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
                                     Margin="0,5,0,5"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="GL"
@@ -519,6 +550,7 @@
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>
+
                     <SymbolIcon Symbol="More" />
                 </Button>
             </StackPanel>
@@ -632,11 +664,13 @@
                     FontSize="16"
                     Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}" />
                 <Button
+                    x:Name="WideAdditionalButton"
                     Width="35"
                     Height="35"
                     Margin="5,0,5,0"
                     Padding="0"
                     HorizontalAlignment="Center"
+                    x:FieldModifier="Internal"
                     AccessKey="MO"
                     Background="Transparent"
                     Content="&#xE10C;"
@@ -644,6 +678,25 @@
                     FontSize="16">
                     <Button.Flyout>
                         <muxc:MenuBarItemFlyout>
+                            <MenuFlyoutItem
+                                AccessKey="CA"
+                                Command="{x:Bind ViewModel.ShowCastToPickerCommand}"
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
+                                Text="{x:Bind ViewModel.MediaCastingButtonString, Mode=OneWay}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xEC15;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem
+                                x:Uid="StopCasting"
+                                AccessKey="DC"
+                                Command="{x:Bind ViewModel.StopCastingCommand}"
+                                IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.IsMediaCasting, Mode=OneWay}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xEA14;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem
                                 x:Uid="EnterGlanceMode"
                                 AccessKey="GL"

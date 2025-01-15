@@ -673,4 +673,13 @@
   <data name="SettingsPage_OpenUpdateInfoPage.Text" xml:space="preserve">
     <value>查看更新说明</value>
   </data>
+  <data name="CastToDevice" xml:space="preserve">
+    <value>开始音频投送</value>
+  </data>
+  <data name="OpenCastToPanel" xml:space="preserve">
+    <value>打开投送面板</value>
+  </data>
+  <data name="StopCasting.Text" xml:space="preserve">
+    <value>直接停止音频投送</value>
+  </data>
 </root>

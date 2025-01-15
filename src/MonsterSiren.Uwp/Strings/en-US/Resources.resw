@@ -595,4 +595,13 @@ Continue?</value>
   <data name="SettingsPage_OpenUpdateInfoPage.Text" xml:space="preserve">
     <value>View update note</value>
   </data>
+  <data name="CastToDevice" xml:space="preserve">
+    <value>Start audio casting</value>
+  </data>
+  <data name="OpenCastToPanel" xml:space="preserve">
+    <value>Open casting panel</value>
+  </data>
+  <data name="StopCasting.Text" xml:space="preserve">
+    <value>Stop audio casting directly</value>
+  </data>
 </root>

@@ -12,7 +12,7 @@
     <AssemblyName>MonsterSiren.Uwp</AssemblyName>
     <DefaultLanguage>zh-CN</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -20,16 +20,23 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>70211FC3C97E403131B9A07F4D5F11FB3C59A2A4</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Always</AppxBundle>
+    <AppxBundle>Auto</AppxBundle>
     <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <PackageCertificateKeyFile />
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageCertificateThumbprint Condition="$(Configuration) != 'Release'">70211FC3C97E403131B9A07F4D5F11FB3C59A2A4</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint Condition="$(Configuration) == 'Release'">D9B5F2BA3F9EC73CFE90208E263D1F5704100BAE</PackageCertificateThumbprint>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" Condition="$(Configuration) == 'Release'" SubType="Designer" />
+    <AppxManifest Include="Package-Debug.appxmanifest" Condition="$(Configuration) != 'Release'" SubType="Designer" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -229,6 +236,7 @@
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Models\Playlist.cs" />
     <Compile Include="Models\PlaylistItem.cs" />
+    <Compile Include="Services\MediaCastService.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
     <Compile Include="Services\MusicInfoService.Tile.cs" />
@@ -299,14 +307,6 @@
     <Compile Include="Views\UpdateInfoPage.xaml.cs">
       <DependentUpon>UpdateInfoPage.xaml</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" Condition="$(Configuration) == 'Release'">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-    <AppxManifest Include="Package-Debug.appxmanifest" Condition="$(Configuration) != 'Release'">
-      <SubType>Designer</SubType>
-    </AppxManifest>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\App-Logo\Logo.png" />
@@ -537,7 +537,7 @@
     <SDKReference Include="Microsoft.Services.Store.Engagement, Version=10.0">
       <Name>Microsoft Engagement Framework</Name>
     </SDKReference>
-    <SDKReference Include="WindowsMobile, Version=10.0.19041.0">
+    <SDKReference Include="WindowsMobile, Version=10.0.22621.0">
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using Windows.Media.Playback;
 using System.Collections.Specialized;
+using Windows.Media.Casting;
 
 namespace MonsterSiren.Uwp.Services;
 
@@ -333,6 +334,15 @@ public static class MusicService
                 await UIThreadHelper.RunOnUIThread(() => PlayerHasMusicStateChanged?.Invoke());
             }
         };
+    }
+
+    /// <summary>
+    /// 获取用于投送音频到其他设备的 <see cref="CastingSource"/>
+    /// </summary>
+    /// <returns>一个 <see cref="CastingSource"/></returns>
+    public static CastingSource GetCastingSource()
+    {
+        return mediaPlayer.GetAsCastingSource();
     }
 
     /// <summary>
