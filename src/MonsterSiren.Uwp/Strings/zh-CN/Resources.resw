@@ -415,7 +415,7 @@
     <value>概览模式</value>
   </data>
   <data name="SettingsPage_GlanceMoveSettings.Header" xml:space="preserve">
-    <value>启动烧屏保护</value>
+    <value>启用烧屏保护</value>
   </data>
   <data name="SettingsPage_GlanceUseLowBrightness.Header" xml:space="preserve">
     <value>调低亮度</value>

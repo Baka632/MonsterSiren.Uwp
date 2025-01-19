@@ -122,15 +122,25 @@ internal static class FileCacheHelper
     {
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
-        if (coverFolder != null)
+        try
         {
-            StorageFile file = await coverFolder.GetFileAsync(fileName);
-            return await file?.OpenReadAsync();
+            if (coverFolder != null)
+            {
+                IStorageItem item = await coverFolder.TryGetItemAsync(fileName);
+
+                if (item is StorageFile file)
+                {
+                    return await file.OpenReadAsync();
+                }
+            }
         }
-        else
+        catch
         {
-            return null;
+            // Swallow it!
+            // qwq
         }
+
+        return null;
     }
 
     /// <summary>

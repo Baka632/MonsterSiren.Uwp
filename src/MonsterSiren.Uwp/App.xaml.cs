@@ -24,7 +24,7 @@ sealed partial class App : Application
     {
         get
         {
-#if DEBUG
+#if !RELEASE
             return "AppDisplayName_Debug".GetLocalized();
 #else
             return "AppDisplayName".GetLocalized();
@@ -35,7 +35,7 @@ sealed partial class App : Application
     /// <summary>
     /// 获取应用程序版本
     /// </summary>
-    public static string AppVersion => $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
+    public static string AppVersion { get; } = $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
     /// <summary>
     /// 获取带“版本”文字的应用程序版本字符串
     /// </summary>
