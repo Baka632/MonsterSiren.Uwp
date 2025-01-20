@@ -479,6 +479,15 @@ public static class DownloadService
 
                 coverStream = new InMemoryRandomAccessStream();
                 await result.Content.WriteToStreamAsync(coverStream);
+
+                try
+                {
+                    await FileCacheHelper.StoreAlbumCoverByStream(albumDetail.Cid, coverStream);
+                }
+                catch
+                {
+                    // qwq
+                }
             }
 
             coverStream.Seek(0);
