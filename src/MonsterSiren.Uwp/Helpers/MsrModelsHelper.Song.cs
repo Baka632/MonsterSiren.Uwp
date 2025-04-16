@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Threading;
 using Windows.Media;
 using Windows.Media.Core;
@@ -86,9 +86,14 @@ public static partial class MsrModelsHelper
     /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/></returns>
     public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(SongDetail songDetail, AlbumDetail albumDetail)
     {
+        if (string.IsNullOrWhiteSpace(songDetail.SourceUrl))
+        {
+            throw new ArgumentNullException(nameof(songDetail), $"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。");
+        }
+
         Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
 
-        List<SongInfo> songs = albumDetail.Songs.ToList();
+        List<SongInfo> songs = [.. albumDetail.Songs];
         MediaSource source = MediaSource.CreateFromUri(musicUri);
         MediaPlaybackItem playbackItem = new(source);
 
