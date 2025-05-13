@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Unicode;
 using System.Text.Encodings.Web;
 using Windows.Foundation.Metadata;
@@ -68,6 +68,9 @@ internal static partial class CommonValues
         WriteIndented = true,
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
     };
+
+    internal const string BakaEurekaArgument = "BakaEureka";
+    internal const string CortanaAppService = "Baka632.SoraRecords.CortanaService";
     #endregion
 
     static CommonValues()

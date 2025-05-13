@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
 
@@ -40,8 +40,8 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             }
             else
             {
-                IEnumerable<AlbumInfo> albums = await GetAlbumsFromServer();
-                Albums = CreateIncrementalLoadingCollection(albums);
+                IEnumerable<AlbumInfo> albums = await CommonValues.GetAlbumsFromServer();
+                Albums = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albums);
                 MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
             }
 
@@ -63,11 +63,11 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         ErrorVisibility = Visibility.Collapsed;
         try
         {
-            IEnumerable<AlbumInfo> albumInfos = await GetAlbumsFromServer();
+            IEnumerable<AlbumInfo> albumInfos = await CommonValues.GetAlbumsFromServer();
 
             if (Albums is null || !Albums.CollectionSource.AlbumInfos.SequenceEqual(albumInfos))
             {
-                Albums = CreateIncrementalLoadingCollection(albumInfos);
+                Albums = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albumInfos);
                 MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
             }
 
@@ -99,25 +99,6 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             Message = "InternetErrorMessage".GetLocalized(),
             Exception = ex
         };
-    }
-
-    private static CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> CreateIncrementalLoadingCollection(IEnumerable<AlbumInfo> albums)
-    {
-        int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
-        return new(new AlbumInfoSource(albums), loadCount);
-    }
-
-    private async static Task<IEnumerable<AlbumInfo>> GetAlbumsFromServer()
-    {
-        List<AlbumInfo> albums = await Task.Run(async () =>
-        {
-            List<AlbumInfo> albumList = (await AlbumService.GetAllAlbumsAsync()).ToList();
-            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList);
-
-            return albumList;
-        });
-
-        return albums;
     }
 
     [RelayCommand]

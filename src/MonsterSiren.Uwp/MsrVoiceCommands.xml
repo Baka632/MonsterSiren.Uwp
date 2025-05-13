@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.2">
+    <CommandSet xml:lang="zh-hans-cn" Name="SoraRecordsCommandSet_zh-cn">
+        <AppName>塞壬唱片</AppName>
+        <Example>播放塞壬唱片的最新一张专辑</Example>
+        <Command Name="playLatestAlbum">
+            <Example>播放塞壬唱片的最新一张专辑</Example>
+            <ListenFor>播放[塞壬][唱片][的]最新[一张]专辑</ListenFor>
+            <Feedback>正在准备最新一张专辑......</Feedback>
+            <Navigate/>
+        </Command>
+
+        <Command Name="baka-eureka">
+            <Example>Baka 喜欢谁？</Example>
+            <ListenFor>{baka}喜欢谁</ListenFor>
+            <ListenFor>{baka}喜欢[哪位][哪个]干员</ListenFor>
+            <ListenFor>{baka}是[哪位][哪个]干员厨</ListenFor>
+            <Feedback>当然是尤里卡啦！</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+
+        <PhraseList Label="baka">
+            <Item>Baka</Item>
+            <Item>Baka632</Item>
+            <Item>632同学</Item>
+            <Item>巴卡</Item>
+        </PhraseList>
+    </CommandSet>
+</VoiceCommands>

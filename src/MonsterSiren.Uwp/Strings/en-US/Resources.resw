@@ -604,4 +604,13 @@ Continue?</value>
   <data name="StopCasting.Text" xml:space="preserve">
     <value>Stop audio casting directly</value>
   </data>
+  <data name="CortanaService_OpenForegroundApp" xml:space="preserve">
+    <value>Opening Sora Records</value>
+  </data>
+  <data name="CortanaService_BakaEureka_SpokenMessage" xml:space="preserve">
+    <value>It's Eureka of course!</value>
+  </data>
+  <data name="CortanaService_BakaEureka_DisplayMessage" xml:space="preserve">
+    <value>It's very obvious...</value>
+  </data>
 </root>

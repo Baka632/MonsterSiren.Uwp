@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Net.Http;
 using System.Windows.Input;
 using Windows.Media.Playback;
@@ -1702,5 +1702,33 @@ partial class CommonValues
         string dialogTitle = allFailed ? "ErrorOccurred".GetLocalized() : "WarningOccurred".GetLocalized();
         string dialogMessage = builder.ToString().Trim();
         await DisplayContentDialog(dialogTitle, dialogMessage, closeButtonText: "Close".GetLocalized());
+    }
+
+    /// <summary>
+    /// 从服务器中获取全部专辑的信息，并填充艺术家信息及缓存封面信息。
+    /// </summary>
+    /// <returns>包含全部专辑信息的 <see cref="AlbumInfo"/> 列表。</returns>
+    public async static Task<IEnumerable<AlbumInfo>> GetAlbumsFromServer()
+    {
+        List<AlbumInfo> albums = await Task.Run(async () =>
+        {
+            List<AlbumInfo> albumList = [.. (await AlbumService.GetAllAlbumsAsync())];
+            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList);
+
+            return albumList;
+        });
+
+        return albums;
+    }
+
+    /// <summary>
+    /// 为 <see cref="AlbumInfo"/> 列表创建实现增量加载的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 集合。
+    /// </summary>
+    /// <param name="albums">包含专辑信息的 <see cref="AlbumInfo"/> 列表。</param>
+    /// <returns>新的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 实例。</returns>
+    public static CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> CreateAlbumInfoIncrementalLoadingCollection(IEnumerable<AlbumInfo> albums)
+    {
+        int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+        return new(new AlbumInfoSource(albums), loadCount);
     }
 }

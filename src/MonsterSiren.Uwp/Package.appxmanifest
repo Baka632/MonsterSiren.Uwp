@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -10,7 +10,7 @@
   <Identity
     Name="Baka632.SoraRecords"
     Publisher="CN=4D5AE839-7BCA-4089-9852-FAFCD5A737D1"
-    Version="1.2.2.3" />
+    Version="1.2.2.6" />
 
   <mp:PhoneIdentity PhoneProductId="96af26cb-8e86-4824-b261-e6e87cc59d59" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -69,6 +69,10 @@
             <uap:DisplayName>ms-resource:AppDisplayName</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
+        <uap:Extension Category="windows.appService">
+          <uap:AppService Name="Baka632.SoraRecords.CortanaService"/>
+        </uap:Extension>
+        <uap:Extension Category="windows.personalAssistantLaunch"/>
       </Extensions>
     </Application>
   </Applications>

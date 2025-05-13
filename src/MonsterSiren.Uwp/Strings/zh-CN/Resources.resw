@@ -682,4 +682,13 @@
   <data name="StopCasting.Text" xml:space="preserve">
     <value>直接停止音频投送</value>
   </data>
+  <data name="CortanaService_OpenForegroundApp" xml:space="preserve">
+    <value>正在打开 Sora 唱片</value>
+  </data>
+  <data name="CortanaService_BakaEureka_DisplayMessage" xml:space="preserve">
+    <value>这还用说吗...</value>
+  </data>
+  <data name="CortanaService_BakaEureka_SpokenMessage" xml:space="preserve">
+    <value>当然是尤里卡啦！</value>
+  </data>
 </root>

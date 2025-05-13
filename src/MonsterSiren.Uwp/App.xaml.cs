@@ -1,8 +1,10 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.ApplicationModel.VoiceCommands;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
+using Windows.Media.SpeechRecognition;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Notifications;
@@ -135,6 +137,18 @@ sealed partial class App : Application
     /// <param name="e">有关启动请求和过程的详细信息。</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
+        try
+        {
+            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
+            await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"安装语音命令失败：\n{ex}");
+#endif
+        }
+
 #if DEBUG
         // 调试本地化的相关代码
 
@@ -170,13 +184,66 @@ sealed partial class App : Application
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
         }
+
+        if (e.Arguments == CommonValues.BakaEurekaArgument)
+        {
+            ShowBakaEurekaToast();
+        }
     }
 
     protected override async void OnActivated(IActivatedEventArgs args)
     {
         await InitializeAppWhenActivate();
 
-        if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
+        if (args.Kind == ActivationKind.VoiceCommand && args is VoiceCommandActivatedEventArgs voice)
+        {
+            SpeechRecognitionResult speechRecognitionResult = voice.Result;
+            string voiceCommandName = speechRecognitionResult.RulePath[0];
+
+            switch (voiceCommandName)
+            {
+                case "playLatestAlbum":
+                    try
+                    {
+                        ExceptionBox box = new();
+                        AlbumInfo firstAlbum;
+
+                        if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
+                        {
+                            firstAlbum = infos.FirstOrDefault();
+                        }
+                        else
+                        {
+                            IEnumerable<AlbumInfo> albums = await CommonValues.GetAlbumsFromServer();
+                            firstAlbum = albums.FirstOrDefault();
+
+                            CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albums);
+                            MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, incrementalCollection);
+                        }
+
+                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(firstAlbum.Cid);
+                        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
+
+                        await MusicService.ReplaceMusic(items);
+
+                        box.Unbox();
+                    }
+                    catch (HttpRequestException)
+                    {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
             Uri uri = protocol.Uri;
             if (uri.Segments.Length > 1)
@@ -226,6 +293,27 @@ sealed partial class App : Application
                 }
             }
         }
+    }
+
+    private static void ShowBakaEurekaToast()
+    {
+        ToastContent toastContent = new()
+        {
+            Visual = new ToastVisual()
+            {
+                BindingGeneric = new ToastBindingGeneric()
+                {
+                    Children =
+                                {
+                                    new AdaptiveText() { Text = "来自 Baka632 的宣告" },
+                                    new AdaptiveText() { Text = "我永远喜欢尤里卡！" }
+                                }
+                }
+            }
+        };
+
+        ToastNotification toastNotif = new(toastContent.GetXml());
+        ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
     }
 
     protected override async void OnFileActivated(FileActivatedEventArgs args)
@@ -310,6 +398,8 @@ sealed partial class App : Application
                 _ => throw new NotImplementedException(),
             };
         }
+
+        RegisterBackgroundTask();
 
         isInitialized = true;
     }
