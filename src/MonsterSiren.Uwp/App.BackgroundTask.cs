@@ -35,11 +35,11 @@ partial class App
                     {
                         case "baka-eureka":
                             {
-                                SendBakaEurekaMessageToCortana();
+                                await SendBakaEurekaMessageToCortana();
                                 break;
                             }
                         default:
-                            SendLaunchAppInForegroundMessageToCortana();
+                            await SendLaunchAppInForegroundMessageToCortana();
                             break;
                     }
                 }
@@ -48,7 +48,7 @@ partial class App
                     taskDeferral.Complete();
                 }
 
-                async void SendLaunchAppInForegroundMessageToCortana()
+                async Task SendLaunchAppInForegroundMessageToCortana()
                 {
                     VoiceCommandUserMessage userMessage = new()
                     {
@@ -59,7 +59,7 @@ partial class App
                     await voiceServiceConnection.RequestAppLaunchAsync(response);
                 }
 
-                async void SendBakaEurekaMessageToCortana()
+                async Task SendBakaEurekaMessageToCortana()
                 {
                     VoiceCommandUserMessage userMessage = new()
                     {
@@ -70,7 +70,7 @@ partial class App
                     IEnumerable<VoiceCommandContentTile> destinationsContentTiles = [
                         new()
                         {
-                            ContentTileType = VoiceCommandContentTileType.TitleWith68x68IconAndText,
+                            ContentTileType = VoiceCommandContentTileType.TitleWithText,
                             AppLaunchArgument = CommonValues.BakaEurekaArgument,
                             Title = "尤里卡~尤里卡~",
                             TextLine1 = "我所挚爱的你——Baka632",
