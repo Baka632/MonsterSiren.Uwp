@@ -34,17 +34,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
 
         try
         {
-            if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
-            {
-                Albums = infos;
-            }
-            else
-            {
-                IEnumerable<AlbumInfo> albums = await CommonValues.GetAlbumsFromServer();
-                Albums = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albums);
-                MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
-            }
-
+            Albums = await CommonValues.GetOrFetchAlbums();
             ErrorVisibility = Visibility.Collapsed;
         }
         catch (HttpRequestException ex)

@@ -9,6 +9,7 @@ using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp;
 
@@ -184,11 +185,6 @@ sealed partial class App : Application
             // 确保当前窗口处于活动状态
             Window.Current.Activate();
         }
-
-        if (e.Arguments == CommonValues.BakaEurekaArgument)
-        {
-            ShowBakaEurekaToast();
-        }
     }
 
     protected override async void OnActivated(IActivatedEventArgs args)
@@ -203,41 +199,7 @@ sealed partial class App : Application
             switch (voiceCommandName)
             {
                 case "playLatestAlbum":
-                    try
-                    {
-                        ExceptionBox box = new();
-                        AlbumInfo firstAlbum;
-
-                        if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(CommonValues.AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
-                        {
-                            firstAlbum = infos.FirstOrDefault();
-                        }
-                        else
-                        {
-                            IEnumerable<AlbumInfo> albums = await CommonValues.GetAlbumsFromServer();
-                            firstAlbum = albums.FirstOrDefault();
-
-                            CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albums);
-                            MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, incrementalCollection);
-                        }
-
-                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(firstAlbum.Cid);
-                        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
-
-                        await MusicService.ReplaceMusic(items);
-
-                        box.Unbox();
-                    }
-                    catch (HttpRequestException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
+                    await GetAlbumsAndPlay();
                     break;
                 default:
                     break;
@@ -246,52 +208,113 @@ sealed partial class App : Application
         else if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
             Uri uri = protocol.Uri;
-            if (uri.Segments.Length > 1)
+
+            if (uri.Scheme == "windows.personalassistantlaunch")
+            {
+                // Cortana
+                WwwFormUrlDecoder decoder = new(uri.Query);
+                string launchArgument = decoder.GetFirstValueByName("LaunchContext");
+
+                if (launchArgument == CommonValues.BakaEurekaAppLaunchArgument)
+                {
+                    ShowBakaEurekaToast();
+                }
+                else
+                {
+                    string[] launchArgumentParts = launchArgument.Split('=');
+                    if (launchArgumentParts.Length > 1)
+                    {
+                        string type = launchArgumentParts[0];
+                        string value = launchArgumentParts[1];
+
+                        if (type == CommonValues.AlbumAppLaunchArgumentHeader)
+                        {
+                            await PlayAlbumByCid(value);
+                        }
+                    }
+                }
+            }
+            else if (uri.Segments.Length > 1)
             {
                 string argument = uri.Segments[1];
 
                 if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(argument);
-                        MusicService.ReplaceMusic(item);
-                    }
-                    catch (HttpRequestException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
+                    await PlaySongByCid(argument);
                 }
                 else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        ExceptionBox box = new();
-                        AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
-                        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
-
-                        await MusicService.ReplaceMusic(items);
-
-                        box.Unbox();
-                    }
-                    catch (HttpRequestException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                        await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-                    }
+                    await PlayAlbumByCid(argument);
                 }
             }
+        }
+    }
+
+    private static async Task PlayAlbumByCid(string argument)
+    {
+        try
+        {
+            ExceptionBox box = new();
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
+            IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
+
+            await MusicService.ReplaceMusic(items);
+
+            box.Unbox();
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    private static async Task PlaySongByCid(string argument)
+    {
+        try
+        {
+            MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(argument);
+            MusicService.ReplaceMusic(item);
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+    }
+
+    private static async Task GetAlbumsAndPlay()
+    {
+        try
+        {
+            ExceptionBox box = new();
+            AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).FirstOrDefault();
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(firstAlbum.Cid);
+            IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
+
+            await MusicService.ReplaceMusic(items);
+
+            box.Unbox();
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
         }
     }
 
@@ -375,9 +398,17 @@ sealed partial class App : Application
         UIThreadHelper.Initialize(Window.Current.Content.Dispatcher);
         await UIThreadHelper.RunOnUIThread(() =>
         {
-            // 这里我们在 UI 线程间接调用了 CommonValues 的静态构造器
-            // 防止非 UI 线程第一次访问 CommonValues 时出错
-            _ = CommonValues.DefaultTransitionInfo.ToString().Trim();
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
+            {
+                CommonValues.DefaultTransitionInfo = new SlideNavigationTransitionInfo()
+                {
+                    Effect = SlideNavigationTransitionEffect.FromRight
+                };
+            }
+            else
+            {
+                CommonValues.DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
+            }
         });
 
         TitleBarHelper.SetTitleBarAppearance();

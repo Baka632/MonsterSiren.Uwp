@@ -3,11 +3,23 @@
     <CommandSet xml:lang="zh-hans-cn" Name="SoraRecordsCommandSet_zh-cn">
         <AppName>塞壬唱片</AppName>
         <Example>播放塞壬唱片的最新一张专辑</Example>
+        <Command Name="soraRecords">
+            <Example>你好，塞壬唱片</Example>
+            <ListenFor>[你好]塞壬唱片</ListenFor>
+            <Feedback>正在打开 Sora 唱片...</Feedback>
+            <Navigate/>
+        </Command>
         <Command Name="playLatestAlbum">
-            <Example>播放塞壬唱片的最新一张专辑</Example>
+            <Example>播放最新专辑</Example>
             <ListenFor>播放[塞壬][唱片][的]最新[一张]专辑</ListenFor>
             <Feedback>正在准备最新一张专辑......</Feedback>
             <Navigate/>
+        </Command>
+        <Command Name="queryRecentAlbums">
+            <Example>有哪些新专辑？</Example>
+            <ListenFor>[最近]有哪些[塞壬][唱片][的][新]专辑</ListenFor>
+            <Feedback>正在查询，请稍后......</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
         </Command>
 
         <Command Name="baka-eureka">

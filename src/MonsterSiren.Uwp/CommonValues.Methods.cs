@@ -1707,6 +1707,9 @@ partial class CommonValues
     /// <summary>
     /// 从服务器中获取全部专辑的信息，并填充艺术家信息及缓存封面信息。
     /// </summary>
+    /// <remarks>
+    /// 本方法与 <see cref="GetOrFetchAlbums"/> 不同的是，本方法将只从服务器获取最新数据，而不进行缓存。并且本方法返回的是 <see cref="IEnumerable{T}"/> 序列。
+    /// </remarks>
     /// <returns>包含全部专辑信息的 <see cref="AlbumInfo"/> 列表。</returns>
     public async static Task<IEnumerable<AlbumInfo>> GetAlbumsFromServer()
     {
@@ -1719,6 +1722,34 @@ partial class CommonValues
         });
 
         return albums;
+    }
+
+    /// <summary>
+    /// 获取类型为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 的 <see cref="AlbumInfo"/> 集合。
+    /// </summary>
+    /// <remarks>
+    /// 此方法与 <see cref="GetAlbumsFromServer"/> 方法不同的是，本方法会进行缓存，并将 <see cref="IEnumerable{T}"/> 转换为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/>。
+    /// </remarks>
+    /// <returns>一个类型为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 的 <see cref="AlbumInfo"/> 集合</returns>
+    public async static Task<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>> GetOrFetchAlbums()
+    {
+        if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
+        {
+            return infos;
+        }
+        else
+        {
+            IEnumerable<AlbumInfo> albums = await GetAlbumsFromServer();
+
+            CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CreateAlbumInfoIncrementalLoadingCollection(albums);
+
+            if (incrementalCollection.Count > 0)
+            {
+                MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(AlbumInfoCacheKey, incrementalCollection);
+            }
+
+            return incrementalCollection;
+        }
     }
 
     /// <summary>

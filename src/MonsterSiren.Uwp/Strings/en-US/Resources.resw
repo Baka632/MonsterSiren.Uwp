@@ -611,6 +611,21 @@ Continue?</value>
     <value>It's Eureka of course!</value>
   </data>
   <data name="CortanaService_BakaEureka_DisplayMessage" xml:space="preserve">
-    <value>It's very obvious...</value>
+    <value>Very obvious...</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Querying" xml:space="preserve">
+    <value>Querying albums...</value>
+  </data>
+  <data name="CortanaService_NoInternetMessage" xml:space="preserve">
+    <value>Seems that there is no Internet now, try again later</value>
+  </data>
+  <data name="CortanaService_ErrorOccurredMessage" xml:space="preserve">
+    <value>Error occurred, please try again later</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success" xml:space="preserve">
+    <value>Here is recent albums, select one to play it</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success_Repeat" xml:space="preserve">
+    <value>Please select an album to play it</value>
   </data>
 </root>

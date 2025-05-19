@@ -61,7 +61,24 @@ internal static partial class CommonValues
     #endregion
 
     #region Other Common Things
-    public static NavigationTransitionInfo DefaultTransitionInfo { get; private set; }
+    private static bool isDefaultTransitionInfoSet = false;
+    private static NavigationTransitionInfo _defaultTransitionInfo;
+
+    public static NavigationTransitionInfo DefaultTransitionInfo
+    {
+        get => _defaultTransitionInfo;
+        set
+        {
+            if (isDefaultTransitionInfoSet)
+            {
+                throw new InvalidOperationException($"{nameof(DefaultTransitionInfo)} 已被设置，不能再修改。");
+            }
+
+            _defaultTransitionInfo = value;
+            isDefaultTransitionInfoSet = true;
+        }
+    }
+
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
@@ -69,22 +86,13 @@ internal static partial class CommonValues
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
     };
 
-    internal const string BakaEurekaArgument = "BakaEureka";
+    /// <summary>
+    /// 用于提示应用显示“Baka-Eureka”彩蛋的参数。
+    /// </summary>
+    /// <remarks>XML Document Comment for TN (tianlan)</remarks>
+    internal const string BakaEurekaAppLaunchArgument = "BakaEureka";
     internal const string CortanaAppService = "Baka632.SoraRecords.CortanaService";
-    #endregion
 
-    static CommonValues()
-    {
-        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
-        {
-            DefaultTransitionInfo = new SlideNavigationTransitionInfo()
-            {
-                Effect = SlideNavigationTransitionEffect.FromRight
-            };
-        }
-        else
-        {
-            DefaultTransitionInfo = new DrillInNavigationTransitionInfo();
-        }
-    }
+    public const string AlbumAppLaunchArgumentHeader = "album";
+    #endregion
 }

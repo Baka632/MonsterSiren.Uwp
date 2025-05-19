@@ -1,4 +1,4 @@
-﻿using Windows.Storage;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.AccessCache;
 using Windows.Media.Core;

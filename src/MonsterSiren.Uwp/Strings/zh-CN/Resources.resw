@@ -691,4 +691,19 @@
   <data name="CortanaService_BakaEureka_SpokenMessage" xml:space="preserve">
     <value>当然是尤里卡啦！</value>
   </data>
+  <data name="CortanaService_QueryRecentAlbums_Querying" xml:space="preserve">
+    <value>正在查询专辑...</value>
+  </data>
+  <data name="CortanaService_NoInternetMessage" xml:space="preserve">
+    <value>现在似乎没有网络，待会再试吧</value>
+  </data>
+  <data name="CortanaService_ErrorOccurredMessage" xml:space="preserve">
+    <value>出现了错误，请稍后再试</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success" xml:space="preserve">
+    <value>这是最新的专辑，选择一项以播放</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success_Repeat" xml:space="preserve">
+    <value>请选择一张专辑来播放它</value>
+  </data>
 </root>
