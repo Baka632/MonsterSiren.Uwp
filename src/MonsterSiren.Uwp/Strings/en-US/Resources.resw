@@ -190,7 +190,7 @@
     <value>Version: {0}</value>
   </data>
   <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
-    <value>This device does not support most common encoders, so this option is disabled.</value>
+    <value>This device does not support common encoders, so transcode option is disabled.</value>
   </data>
   <data name="RepoAddress.Text" xml:space="preserve">
     <value>Repo address</value>

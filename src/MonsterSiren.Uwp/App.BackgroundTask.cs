@@ -8,7 +8,7 @@ namespace MonsterSiren.Uwp;
 partial class App
 {
 
-    private void RegisterBackgroundTask()
+    private static void RegisterBackgroundTask()
     {
         // qwq
     }

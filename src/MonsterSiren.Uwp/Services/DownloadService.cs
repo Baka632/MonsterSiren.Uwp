@@ -139,7 +139,8 @@ public static class DownloadService
         KeepWavFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
                                     && keepWav;
 
-        if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> commonEncoders))
+        (bool hasEncoders, IEnumerable<CodecInfo> commonEncoders) = await CodecQueryHelper.TryGetCommonEncoders();
+        if (hasEncoders)
         {
             TranscodeEncoderInfo = SettingsHelper.TryGet(CommonValues.MusicTranscodeEncoderGuidSettingsKey, out string encoderGuid) && commonEncoders.Any(info => CodecQueryHelper.IsCodecInfoHasTargetEncoder(info, encoderGuid))
                 ? commonEncoders.First(info => CodecQueryHelper.IsCodecInfoHasTargetEncoder(info, encoderGuid))

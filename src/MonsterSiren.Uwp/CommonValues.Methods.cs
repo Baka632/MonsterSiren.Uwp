@@ -1281,7 +1281,7 @@ partial class CommonValues
         {
             MediaPlaybackItem playbackItem;
 
-            try
+            try  
             {
                 playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.Cid, albumDetail);
             }
@@ -1743,7 +1743,7 @@ partial class CommonValues
 
             CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CreateAlbumInfoIncrementalLoadingCollection(albums);
 
-            if (incrementalCollection.Count > 0)
+            if (incrementalCollection.CollectionSource.AlbumInfos.Any())
             {
                 MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(AlbumInfoCacheKey, incrementalCollection);
             }

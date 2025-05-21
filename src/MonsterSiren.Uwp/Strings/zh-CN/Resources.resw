@@ -271,7 +271,7 @@
     <value>版本：{0}</value>
   </data>
   <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
-    <value>由于此设备不支持常用的编码器，因此该设置已被禁用。</value>
+    <value>由于此设备不支持常用的编码器，因此转码设置已被禁用。</value>
   </data>
   <data name="RepoAddress.Text" xml:space="preserve">
     <value>仓库地址</value>
