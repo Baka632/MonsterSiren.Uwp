@@ -1281,7 +1281,7 @@ partial class CommonValues
         {
             MediaPlaybackItem playbackItem;
 
-            try  
+            try
             {
                 playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.Cid, albumDetail);
             }
