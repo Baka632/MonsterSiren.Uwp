@@ -230,8 +230,8 @@ public static class DownloadService
         await Task.Run(async () =>
         {
             char[] invalidFileChars = Path.GetInvalidFileNameChars();
-            string musicName = songDetail.Name;
-            string musicFileName = $"{songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()} - {musicName}";
+            string musicName = songDetail.Name.Trim();
+            string musicFileName = $"{songDetail.Artists.FirstOrDefault().Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
             foreach (char invalidChar in invalidFileChars)
             {
                 if (musicFileName.Contains(invalidChar))
@@ -241,10 +241,10 @@ public static class DownloadService
             }
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
-            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name, CreationCollisionOption.OpenIfExists);
+            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name.Trim(), CreationCollisionOption.OpenIfExists);
 
             string targetFileName = TranscodeDownloadedItem
-                ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower()}"
+                ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower().Trim()}"
                 : $"{musicFileName}.wav";
 
             IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
@@ -372,7 +372,7 @@ public static class DownloadService
                 MediaEncodingProfile profile = GetEncodingProfile();
 
                 StorageFolder destinationFolder = await sourceFile.GetParentAsync();
-                string desiredName = sourceFile.Name.Replace(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower()}");
+                string desiredName = Path.ChangeExtension(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower().Trim()}");
                 StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
 
                 await TranscodeFile(sourceFile, destinationFile, profile, dlItem);
