@@ -227,12 +227,6 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task InitDownloadService()
-    {
-        await DownloadService.Initialize();
-    }
-
-    [RelayCommand]
     private async Task PickPlaylistFolderAsync()
     {
         FolderPicker folderPicker = new();

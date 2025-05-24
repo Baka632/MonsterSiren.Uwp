@@ -230,8 +230,8 @@ public static class DownloadService
         await Task.Run(async () =>
         {
             char[] invalidFileChars = Path.GetInvalidFileNameChars();
-            string musicName = songDetail.Name.Trim();
-            string musicFileName = $"{songDetail.Artists.FirstOrDefault().Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
+            string musicName = songDetail.Name?.Trim();
+            string musicFileName = $"{songDetail.Artists.FirstOrDefault()?.Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
             foreach (char invalidChar in invalidFileChars)
             {
                 if (musicFileName.Contains(invalidChar))
@@ -241,7 +241,7 @@ public static class DownloadService
             }
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
-            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name.Trim(), CreationCollisionOption.OpenIfExists);
+            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name?.Trim(), CreationCollisionOption.OpenIfExists);
 
             string targetFileName = TranscodeDownloadedItem
                 ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower().Trim()}"
@@ -464,8 +464,8 @@ public static class DownloadService
 
         try
         {
-            List<SongInfo> songs = albumDetail.Songs.ToList();
-            file.Tag.Performers = songDetail.Artists.Any() ? songDetail.Artists.ToArray() : ["MSR".GetLocalized()];
+            List<SongInfo> songs = [.. albumDetail.Songs];
+            file.Tag.Performers = songDetail.Artists.Any() ? [.. songDetail.Artists] : ["MSR".GetLocalized()];
             file.Tag.Title = songDetail.Name;
             file.Tag.Album = albumDetail.Name;
             file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized()];

@@ -8,18 +8,25 @@ internal static class CodecQueryHelper
 
     public static async Task<ValueTuple<bool, IEnumerable<CodecInfo>>> TryGetCommonEncoders()
     {
-        if (_cachedCommonEncoders is not null)
+        try
         {
-            return (true, _cachedCommonEncoders);
-        }
+            if (_cachedCommonEncoders is not null)
+            {
+                return (true, _cachedCommonEncoders);
+            }
 
-        CodecQuery codecQuery = new();
-        IEnumerable<CodecInfo> commonEncoders = from info
-                                                in await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty)
-                                                where HasCommonEncoders(info)
-                                                select info;
-        _cachedCommonEncoders = commonEncoders;
-        return (commonEncoders.Any(), commonEncoders);
+            CodecQuery codecQuery = new();
+            IEnumerable<CodecInfo> commonEncoders = from info
+                                                    in await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty)
+                                                    where HasCommonEncoders(info)
+                                                    select info;
+            _cachedCommonEncoders = commonEncoders;
+            return (commonEncoders.Any(), commonEncoders);
+        }
+        catch
+        {
+            return (false, null);
+        }
     }
 
     public static bool IsCodecInfoHasTargetEncoder(CodecInfo info, string targetEncoderGuid)
