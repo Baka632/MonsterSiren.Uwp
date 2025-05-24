@@ -88,6 +88,15 @@
                                 <ToggleSwitch IsOn="{x:Bind ViewModel.GlanceModeRemainDisplayOn, Mode=TwoWay}" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander>
+
+                        <controls:SettingsExpander Header="调试设置">
+                            <controls:SettingsExpander.HeaderIcon>
+                                <FontIcon Glyph="&#xE15E;" />
+                            </controls:SettingsExpander.HeaderIcon>
+                            <controls:SettingsCard Description="初始化下载服务以重新启用下载及转码功能">
+                                <Button Command="{x:Bind ViewModel.InitDownloadServiceCommand}" Content="初始化下载服务" />
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander>
                     </StackPanel>
                 </ScrollViewer>
             </PivotItem>
