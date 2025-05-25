@@ -300,8 +300,8 @@
   <data name="AudioQualityLow" xml:space="preserve">
     <value>低（96 kbps 及以上）</value>
   </data>
-  <data name="SettingsPage_TranscodeKeepWavFile.Header" xml:space="preserve">
-    <value>转码后保留原始 WAV 文件</value>
+  <data name="SettingsPage_TranscodeKeepRawMusicFile.Header" xml:space="preserve">
+    <value>转码后保留原始音频文件</value>
   </data>
   <data name="DownloadItemState_Downloading" xml:space="preserve">
     <value>下载中</value>
@@ -705,5 +705,8 @@
   </data>
   <data name="CortanaService_QueryRecentAlbums_Success_Repeat" xml:space="preserve">
     <value>请选择一张专辑来播放它</value>
+  </data>
+  <data name="RawMusicFileSaveTag" xml:space="preserve">
+    <value>（原始）</value>
   </data>
 </root>

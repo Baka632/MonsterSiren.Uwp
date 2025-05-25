@@ -36,7 +36,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int selectedTranscodeQualityIndex = -1;
     [ObservableProperty]
-    private bool preserveWavAfterTranscode = DownloadService.KeepWavFileAfterTranscode;
+    private bool preserveRawMusicAfterTranscode = DownloadService.KeepRawMusicFileAfterTranscode;
     [ObservableProperty]
     private int selectedAppBackgroundModeIndex = -1;
     [ObservableProperty]
@@ -199,9 +199,9 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    partial void OnPreserveWavAfterTranscodeChanged(bool value)
+    partial void OnPreserveRawMusicAfterTranscodeChanged(bool value)
     {
-        DownloadService.KeepWavFileAfterTranscode = value;
+        DownloadService.KeepRawMusicFileAfterTranscode = value;
     }
 
     partial void OnSelectedAppBackgroundModeIndexChanged(int value)

@@ -186,8 +186,8 @@
                                 </ComboBox>
                             </controls:SettingsCard>
 
-                            <controls:SettingsCard x:Uid="SettingsPage_TranscodeKeepWavFile">
-                                <ToggleSwitch IsOn="{x:Bind ViewModel.PreserveWavAfterTranscode, Mode=TwoWay}" />
+                            <controls:SettingsCard x:Uid="SettingsPage_TranscodeKeepRawMusicFile">
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.PreserveRawMusicAfterTranscode, Mode=TwoWay}" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander>
                     </StackPanel>

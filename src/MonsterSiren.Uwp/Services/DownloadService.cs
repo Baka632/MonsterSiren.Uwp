@@ -19,7 +19,7 @@ public static class DownloadService
 {
     private static bool _isInitialized;
     private static string _downloadPath;
-    private static bool _keepWavFileAfterTranscode;
+    private static bool _keepRawMusicFileAfterTranscode;
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
     private static CodecInfo _transcodeEncoderInfo;
@@ -96,15 +96,15 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 指示在转码后是否保留原始 WAV 文件的值
+    /// 指示在转码后是否保留原始音乐文件的值
     /// </summary>
-    public static bool KeepWavFileAfterTranscode
+    public static bool KeepRawMusicFileAfterTranscode
     {
-        get => _keepWavFileAfterTranscode;
+        get => _keepRawMusicFileAfterTranscode;
         set
         {
             SettingsHelper.Set(CommonValues.MusicTranscodeKeepWavFileSettingsKey, value);
-            _keepWavFileAfterTranscode = value;
+            _keepRawMusicFileAfterTranscode = value;
         }
     }
 
@@ -136,7 +136,7 @@ public static class DownloadService
         DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
                         || dlLyric;
 
-        KeepWavFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
+        KeepRawMusicFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
                                     && keepWav;
 
         (bool hasEncoders, IEnumerable<CodecInfo> commonEncoders) = await CodecQueryHelper.TryGetCommonEncoders();
@@ -230,6 +230,7 @@ public static class DownloadService
         await Task.Run(async () =>
         {
             char[] invalidFileChars = Path.GetInvalidFileNameChars();
+            string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
             string musicName = songDetail.Name?.Trim();
             string musicFileName = $"{songDetail.Artists.FirstOrDefault()?.Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
             foreach (char invalidChar in invalidFileChars)
@@ -245,7 +246,7 @@ public static class DownloadService
 
             string targetFileName = TranscodeDownloadedItem
                 ? $"{musicFileName}.{GetEncodingProfile().Audio.Subtype.ToLower().Trim()}"
-                : $"{musicFileName}.wav";
+                : $"{musicFileName}{rawMusicExtensions}";
 
             IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
 
@@ -256,7 +257,7 @@ public static class DownloadService
                 return;
             }
 
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}.wav.tmp", CreationCollisionOption.ReplaceExisting);
+            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", CreationCollisionOption.ReplaceExisting);
 
             StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", CreationCollisionOption.ReplaceExisting);
             SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
@@ -372,13 +373,22 @@ public static class DownloadService
                 MediaEncodingProfile profile = GetEncodingProfile();
 
                 StorageFolder destinationFolder = await sourceFile.GetParentAsync();
-                string desiredName = Path.ChangeExtension(sourceFile.FileType, $".{profile.Audio.Subtype.ToLower().Trim()}");
-                StorageFile destinationFile = await destinationFolder.CreateFileAsync(desiredName, CreationCollisionOption.ReplaceExisting);
+                string destinationFileExtensions = $".{profile.Audio.Subtype.ToLower().Trim()}";
+                string sourceFileExtension = Path.GetExtension(sourceFile.Path);
+
+                string destinationFileName = Path.ChangeExtension(sourceFile.Name, destinationFileExtensions);
+
+                if (destinationFileExtensions.Equals(sourceFileExtension, StringComparison.OrdinalIgnoreCase))
+                {
+                    await sourceFile.RenameAsync($"{sourceFile.DisplayName}{"RawMusicFileSaveTag".GetLocalized()}{sourceFileExtension}", NameCollisionOption.ReplaceExisting);
+                }
+                
+                StorageFile destinationFile = await destinationFolder.CreateFileAsync(destinationFileName, CreationCollisionOption.ReplaceExisting);
 
                 await TranscodeFile(sourceFile, destinationFile, profile, dlItem);
                 await WriteTagsToFile(destinationFile, dlItem);
 
-                if (KeepWavFileAfterTranscode != true)
+                if (KeepRawMusicFileAfterTranscode != true)
                 {
                     await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }

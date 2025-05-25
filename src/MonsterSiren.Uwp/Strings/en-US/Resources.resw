@@ -219,8 +219,8 @@
   <data name="AudioQualityLow" xml:space="preserve">
     <value>Low (96 kbps and above)</value>
   </data>
-  <data name="SettingsPage_TranscodeKeepWavFile.Header" xml:space="preserve">
-    <value>Preserve original WAV file after transcoding</value>
+  <data name="SettingsPage_TranscodeKeepRawMusicFile.Header" xml:space="preserve">
+    <value>Preserve original music file after transcoding</value>
   </data>
   <data name="DownloadItemState_Downloading" xml:space="preserve">
     <value>Downloading</value>
@@ -627,5 +627,8 @@ Continue?</value>
   </data>
   <data name="CortanaService_QueryRecentAlbums_Success_Repeat" xml:space="preserve">
     <value>Please select an album to play it</value>
+  </data>
+  <data name="RawMusicFileSaveTag" xml:space="preserve">
+    <value>(Raw)</value>
   </data>
 </root>
