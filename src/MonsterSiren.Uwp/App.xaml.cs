@@ -298,7 +298,7 @@ sealed partial class App : Application
         try
         {
             ExceptionBox box = new();
-            AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).FirstOrDefault();
+            AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos.FirstOrDefault();
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(firstAlbum.Cid);
             IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
 
@@ -327,10 +327,10 @@ sealed partial class App : Application
                 BindingGeneric = new ToastBindingGeneric()
                 {
                     Children =
-                                {
-                                    new AdaptiveText() { Text = "来自 Baka632 的宣告" },
-                                    new AdaptiveText() { Text = "我永远喜欢尤里卡！" }
-                                }
+                     {
+                        new AdaptiveText() { Text = "\u6765\u81EA\u0020\u0042\u0061\u006B\u0061\u0036\u0033\u0032\u0020\u7684\u5BA3\u544A" },
+                        new AdaptiveText() { Text = "\u6211\u6C38\u8FDC\u559C\u6B22\u5C24\u91CC\u5361\uFF01" }
+                     }
                 }
             }
         };

@@ -35,14 +35,16 @@ partial class App
                     switch (voiceCommand.CommandName)
                     {
                         case "baka-eureka":
-                            {
-                                await SendBakaEurekaMessageToCortana();
-                                break;
-                            }
+                            await SendBakaEurekaMessageToCortana();
+                            break;
                         case "queryRecentAlbums":
-                            {
-                                await SendRecentAlbumsQueryToCortana();
-                            }
+                            await SendRecentAlbumsQueryToCortana();
+                            break;
+                        case "baka":
+                            await SendBakaMessageToCortana();
+                            break;
+                        case "eureka":
+                            await SendEurekaMessageToCortana();
                             break;
                         default:
                             await SendLaunchAppInForegroundMessageToCortana();
@@ -79,12 +81,54 @@ partial class App
                         {
                             ContentTileType = VoiceCommandContentTileType.TitleWithText,
                             AppLaunchArgument = CommonValues.BakaEurekaAppLaunchArgument,
-                            Title = "尤里卡~尤里卡~",
-                            TextLine1 = "我所挚爱的你——Baka632",
+                            Title = "EurekaEureka".GetLocalized(),
+                            TextLine1 = "EurekaBakaBeloved".GetLocalized(),
                     }];
 
                     VoiceCommandResponse response = VoiceCommandResponse.CreateResponse(userMessage, destinationsContentTiles);
                     response.AppLaunchArgument = CommonValues.BakaEurekaAppLaunchArgument;
+
+                    await voiceServiceConnection.ReportSuccessAsync(response);
+                }
+
+                async Task SendBakaMessageToCortana()
+                {
+                    VoiceCommandUserMessage userMessage = new()
+                    {
+                        DisplayMessage = "CortanaService_Baka_DisplayMessage".GetLocalized(),
+                        SpokenMessage = "CortanaService_Baka_SpokenMessage".GetLocalized()
+                    };
+
+                    IEnumerable<VoiceCommandContentTile> destinationsContentTiles = [
+                        new()
+                        {
+                            ContentTileType = VoiceCommandContentTileType.TitleWithText,
+                            Title = "AllAboutBaka632".GetLocalized(),
+                            TextLine1 = "LetSoraTellYou".GetLocalized(),
+                    }];
+
+                    VoiceCommandResponse response = VoiceCommandResponse.CreateResponse(userMessage, destinationsContentTiles);
+
+                    await voiceServiceConnection.ReportSuccessAsync(response);
+                }
+
+                async Task SendEurekaMessageToCortana()
+                {
+                    VoiceCommandUserMessage userMessage = new()
+                    {
+                        DisplayMessage = "CortanaService_Eureka_DisplayMessage".GetLocalized(),
+                        SpokenMessage = "CortanaService_Eureka_SpokenMessage".GetLocalized()
+                    };
+
+                    IEnumerable<VoiceCommandContentTile> destinationsContentTiles = [
+                        new()
+                        {
+                            ContentTileType = VoiceCommandContentTileType.TitleWithText,
+                            Title = "AllAboutEureka".GetLocalized(),
+                            TextLine1 = "LetSoraTellYou".GetLocalized(),
+                    }];
+
+                    VoiceCommandResponse response = VoiceCommandResponse.CreateResponse(userMessage, destinationsContentTiles);
 
                     await voiceServiceConnection.ReportSuccessAsync(response);
                 }

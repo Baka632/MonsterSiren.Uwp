@@ -709,4 +709,33 @@
   <data name="RawMusicFileSaveTag" xml:space="preserve">
     <value>（原始）</value>
   </data>
+  <data name="CortanaService_Baka_DisplayMessage" xml:space="preserve">
+    <value>关于 Baka......</value>
+  </data>
+  <data name="CortanaService_Baka_SpokenMessage" xml:space="preserve">
+    <value>Baka632，并不著名的 dotnet 开发者、罗德岛的博士、尤里卡厨和回归线编辑部成员。此刻他欢迎你使用 Sora 唱片，也希望你知道他喜欢尤里卡的事实。</value>
+    <comment>因为长度太长（要求少于等于 256 个字符），所以英文版调整了一下</comment>
+  </data>
+  <data name="CortanaService_Eureka_DisplayMessage" xml:space="preserve">
+    <value>关于尤里卡......</value>
+  </data>
+  <data name="CortanaService_Eureka_SpokenMessage" xml:space="preserve">
+    <value>尤里卡，UOfficial，最后的全能系美少女、游历在泰拉之上、据说是天灾的化身。但不知为何，Baka632 博士并不受她的影响。而且，听说最近尤里卡天天到 Baka632 的办公室直播，甚至还和他一起出门吃了烧烤。</value>
+    <comment>因为长度太长（要求少于等于 256 个字符），所以英文版调整了一下</comment>
+  </data>
+  <data name="EurekaEureka" xml:space="preserve">
+    <value>尤里卡~尤里卡~</value>
+  </data>
+  <data name="EurekaBakaBeloved" xml:space="preserve">
+    <value>我所挚爱的你——Baka632</value>
+  </data>
+  <data name="LetSoraTellYou" xml:space="preserve">
+    <value>让小空告诉你！</value>
+  </data>
+  <data name="AllAboutEureka" xml:space="preserve">
+    <value>那些有关尤里卡的事......</value>
+  </data>
+  <data name="AllAboutBaka632" xml:space="preserve">
+    <value>那些有关 632 同学的事......</value>
+  </data>
 </root>

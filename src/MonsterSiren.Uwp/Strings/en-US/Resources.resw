@@ -436,7 +436,7 @@
     <value>{0} hours and {1} minutes</value>
   </data>
   <data name="MinutesAndSecondsFormat" xml:space="preserve">
-    <value>{0} hours and {1} seconds</value>
+    <value>{0} minutes and {1} seconds</value>
   </data>
   <data name="PlaylistFileSystemTip" xml:space="preserve">
     <value>Playlist file for Sora Records</value>
@@ -543,7 +543,7 @@ Please check your Internet connection.</value>
     <value>An error about the player occurred</value>
   </data>
   <data name="AppDisplayName_Debug" xml:space="preserve">
-    <value>Sora Records（Debug）</value>
+    <value>Sora Records (Debug)</value>
   </data>
   <data name="GlanceMode_Welcome_Title" xml:space="preserve">
     <value>Welcome to use Glance Mode</value>
@@ -587,7 +587,7 @@ Continue?</value>
     <value>There is a new version of app</value>
   </data>
   <data name="UpdateInfoMessage" xml:space="preserve">
-    <value>Please go to store to download it.</value>
+    <value>Please go to Microsoft Store to download it.</value>
   </data>
   <data name="UpdateInfoTextBlock.Text" xml:space="preserve">
     <value>Update note</value>
@@ -630,5 +630,32 @@ Continue?</value>
   </data>
   <data name="RawMusicFileSaveTag" xml:space="preserve">
     <value>(Raw)</value>
+  </data>
+  <data name="CortanaService_Baka_DisplayMessage" xml:space="preserve">
+    <value>About Baka......</value>
+  </data>
+  <data name="CortanaService_Baka_SpokenMessage" xml:space="preserve">
+    <value>Baka632, a not-so-famous dotnet developer, a doctor of Rhodes Island, a big Eureka fan, and a member of the A N E O T editorial board. Now, he welcomes you to use this app and also hopes you know the fact that he loves Eureka.</value>
+  </data>
+  <data name="CortanaService_Eureka_DisplayMessage" xml:space="preserve">
+    <value>About Eureka......</value>
+  </data>
+  <data name="CortanaService_Eureka_SpokenMessage" xml:space="preserve">
+    <value>Eureka, UOfficial, the last all-arounder beauty girl, roams Terra and is said to be the avatar of Catastrophe. But Dr. Baka632 remains unaffected by her. Recently she's been streaming daily from Baka's office and even joined him for barbecue outings.</value>
+  </data>
+  <data name="EurekaEureka" xml:space="preserve">
+    <value>Eureka~Eureka~</value>
+  </data>
+  <data name="EurekaBakaBeloved" xml:space="preserve">
+    <value>My beloved——Baka632</value>
+  </data>
+  <data name="LetSoraTellYou" xml:space="preserve">
+    <value>Let Sora tell you!</value>
+  </data>
+  <data name="AllAboutEureka" xml:space="preserve">
+    <value>All about Eureka......</value>
+  </data>
+  <data name="AllAboutBaka632" xml:space="preserve">
+    <value>All about Baka632......</value>
   </data>
 </root>

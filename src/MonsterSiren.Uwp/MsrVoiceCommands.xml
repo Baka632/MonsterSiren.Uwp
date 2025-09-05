@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.2">
     <CommandSet xml:lang="zh-hans-cn" Name="SoraRecordsCommandSet_zh-cn">
-        <AppName>塞壬唱片</AppName>
-        <Example>播放塞壬唱片的最新一张专辑</Example>
+        <AppName>小空</AppName>
+        <Example>小空，播放最新专辑</Example>
         <Command Name="soraRecords">
-            <Example>你好，塞壬唱片</Example>
-            <ListenFor RequireAppName="ExplicitlySpecified">[你好]{builtin:AppName}</ListenFor>
-            <ListenFor RequireAppName="ExplicitlySpecified">{builtin:AppName}[你好]</ListenFor>
+            <Example>你好，小空</Example>
+            <ListenFor RequireAppName="ExplicitlySpecified">你好{builtin:AppName}</ListenFor>
+            <ListenFor RequireAppName="ExplicitlySpecified">{builtin:AppName}你好</ListenFor>
             <Feedback>正在打开 Sora 唱片...</Feedback>
             <Navigate/>
         </Command>
         <Command Name="playLatestAlbum">
-            <Example>播放最新专辑</Example>
-            <ListenFor>播放{msr}[的]最新[一张]专辑</ListenFor>
+            <Example>小空，播放最新专辑</Example>
+            <ListenFor>播放[塞壬唱片][的]最新[一张]专辑</ListenFor>
+            <ListenFor>播放[塞壬][的]最新[的][一张]专辑</ListenFor>
             <Feedback>正在准备最新一张专辑......</Feedback>
             <Navigate/>
         </Command>
         <Command Name="queryRecentAlbums">
-            <Example>有哪些新专辑？</Example>
-            <ListenFor>[最近]有哪些{msr}[的][新]专辑</ListenFor>
-            <ListenFor>[最近的]{msr}[新]专辑</ListenFor>
+            <Example>小空，有哪些新专辑？</Example>
+            <ListenFor>[最近]有哪些[塞壬唱片][的][新]专辑</ListenFor>
+            <ListenFor>[最近]有哪些[塞壬][的][新]专辑</ListenFor>
+            <ListenFor>[最近的][塞壬唱片][新]专辑</ListenFor>
             <Feedback>正在查询，请稍后......</Feedback>
             <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
         </Command>
@@ -32,16 +34,118 @@
             <Feedback>当然是尤里卡啦！</Feedback>
             <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
         </Command>
+        <Command Name="baka">
+            <Example>谁是 Baka？</Example>
+            <ListenFor>谁是{baka}</ListenFor>
+            <ListenFor>{baka}是谁</ListenFor>
+            <Feedback>欸？问这个吗......</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+        <Command Name="eureka">
+            <Example>谁是尤里卡？</Example>
+            <ListenFor>谁是{eureka}</ListenFor>
+            <ListenFor>{eureka}是谁</ListenFor>
+            <Feedback>欸？问这个吗......</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+        <Command Name="priestess">
+            <Example>？？！！</Example>
+            <ListenFor>谁是普瑞赛斯</ListenFor>
+            <ListenFor>普瑞赛斯是谁</ListenFor>
+            <Feedback>我不能告诉你这个问题的答案，还是听一听塞壬唱片的歌吧。</Feedback>
+            <Navigate/>
+        </Command>
 
         <PhraseList Label="baka">
             <Item>Baka</Item>
             <Item>Baka632</Item>
             <Item>632同学</Item>
             <Item>巴卡</Item>
+            <Item>开发者</Item>
+            <Item>你的开发者</Item>
         </PhraseList>
-        <PhraseList Label="msr">
-            <Item>塞壬唱片</Item>
-            <Item>塞壬</Item>
+        <PhraseList Label="eureka">
+            <Item>尤里卡</Item>
+            <Item>U-Official</Item>
+            <Item>UOfficial</Item>
+            <Item>小U</Item>
+            <Item>U酱</Item>
         </PhraseList>
+    </CommandSet>
+
+    <CommandSet xml:lang="en-us" Name="SoraRecordsCommandSet_en-us">
+        <AppName>Sora</AppName>
+        <Example>Sora, play the lastest album</Example>
+        <Command Name="soraRecords">
+            <Example>Hey, Sora</Example>
+            <ListenFor RequireAppName="ExplicitlySpecified">Hey {builtin:AppName}</ListenFor>
+            <ListenFor RequireAppName="ExplicitlySpecified">Hello {builtin:AppName}</ListenFor>
+            <Feedback>Opening Sora Records...</Feedback>
+            <Navigate/>
+        </Command>
+        <Command Name="playLatestAlbum">
+            <Example>Sora, play the latest album</Example>
+            <ListenFor>Play [the] {latest} album [of monster siren] [records]</ListenFor>
+			<ListenFor>Play [the] {latest} album [of msr]</ListenFor>
+            <ListenFor>Play monster siren records' {latest} album</ListenFor>
+            <ListenFor>Play monster siren's {latest} album</ListenFor>
+			<ListenFor>Play msr's {latest} album</ListenFor>
+            <Feedback>Preparing the {latest} album......</Feedback>
+            <Navigate/>
+        </Command>
+        <Command Name="queryRecentAlbums">
+            <Example>Sora, what new albums are there?</Example>
+            <ListenFor>what new albums [of monster siren] [records] are there</ListenFor>
+            <ListenFor>what are [the] new albums [of monster siren] [records]</ListenFor>
+            <ListenFor>any new albums [of monster siren] [records]</ListenFor>
+            <Feedback>Searching......</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+
+        <Command Name="baka-eureka">
+            <Example>Baka loves who?</Example>
+            <ListenFor>Who does {baka} love</ListenFor>
+            <ListenFor>Which operator does {baka} like</ListenFor>
+            <ListenFor>Who is {baka}'s favorite [operator]</ListenFor>
+            <Feedback>It's Eureka of course!</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+        <Command Name="baka">
+            <Example>Who is Baka?</Example>
+            <ListenFor>Who is {baka}</ListenFor>
+            <Feedback>Hmm? This?</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+        <Command Name="eureka">
+            <Example>Who is Eureka</Example>
+            <ListenFor>Who is {eureka}</ListenFor>
+            <Feedback>Hmm? This?</Feedback>
+            <VoiceCommandService Target="Baka632.SoraRecords.CortanaService"/>
+        </Command>
+        <Command Name="priestess">
+            <Example>？？！！</Example>
+            <ListenFor>Who is Priestess？</ListenFor>
+            <ListenFor>Who is PRTS？</ListenFor>
+            <Feedback>I can't tell you the answer to this question, let's listen to some Monster Siren's songs instead.</Feedback>
+            <Navigate/>
+        </Command>
+
+        <PhraseList Label="baka">
+            <Item>Baka</Item>
+            <Item>Baka632</Item>
+			<Item>Developer</Item>
+			<Item>Your developer</Item>
+        </PhraseList>
+        <PhraseList Label="eureka">
+            <Item>Eureka</Item>
+            <Item>U-Official</Item>
+            <Item>UOfficial</Item>
+            <Item>Uchan</Item>
+            <Item>U-chan</Item>
+        </PhraseList>
+		<PhraseList Label="latest">
+			<Item>latest</Item>
+			<Item>newest</Item>
+		</PhraseList>
     </CommandSet>
 </VoiceCommands>
