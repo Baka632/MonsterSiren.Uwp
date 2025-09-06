@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+using System.Collections.Specialized;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
@@ -128,6 +128,9 @@ public sealed partial class MainPage : Page
             {
                 mode = AppBackgroundMode.PureColor;
             }
+
+            string bgModeString = mode.ToString();
+            SettingsHelper.Set(CommonValues.AppBackgroundModeSettingsKey, bgModeString);
         }
 
         SetMainPageBackground(mode);

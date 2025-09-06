@@ -1,4 +1,4 @@
-﻿using Windows.Storage;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.AccessCache;
 using Windows.Media.Core;
@@ -11,11 +11,14 @@ namespace MonsterSiren.Uwp.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
-    public readonly IReadOnlyList<CodecInfo> AvailableCommonEncoders;
-    public readonly IReadOnlyList<AudioEncodingQuality> AudioEncodingQualities;
-    public readonly IReadOnlyList<AppBackgroundMode> AppBackgroundModes;
-    public readonly IReadOnlyList<AppColorTheme> AppColorThemes;
-
+    [ObservableProperty]
+    private IReadOnlyList<CodecInfo> availableCommonEncoders;
+    [ObservableProperty]
+    private IReadOnlyList<AudioEncodingQuality> audioEncodingQualities;
+    [ObservableProperty]
+    private IReadOnlyList<AppBackgroundMode> appBackgroundModes;
+    [ObservableProperty]
+    private IReadOnlyList<AppColorTheme> appColorThemes;
     [ObservableProperty]
     private string downloadPath = DownloadService.DownloadPath;
     [ObservableProperty]
@@ -33,11 +36,11 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int selectedTranscodeQualityIndex = -1;
     [ObservableProperty]
-    private bool preserveWavAfterTranscode = DownloadService.KeepWavFileAfterTranscode;
+    private bool preserveRawMusicAfterTranscode = DownloadService.KeepRawMusicFileAfterTranscode;
     [ObservableProperty]
-    private int selectedAppBackgroundModeIndex;
+    private int selectedAppBackgroundModeIndex = -1;
     [ObservableProperty]
-    private int selectedAppColorThemeIndex;
+    private int selectedAppColorThemeIndex = -1;
     [ObservableProperty]
     private bool enableGlanceBurnProtection = true;
     [ObservableProperty]
@@ -45,20 +48,21 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool glanceModeRemainDisplayOn = true;
 
-    public SettingsViewModel()
+    public async Task Initialize()
     {
         #region Transcoding
-        if (CodecQueryHelper.TryGetCommonEncoders(out IEnumerable<CodecInfo> infos))
+        (bool hasEncoders, IEnumerable<CodecInfo> infos) = await CodecQueryHelper.TryGetCommonEncoders();
+        if (hasEncoders)
         {
-            List<CodecInfo> codecInfos = infos.ToList();
+            List<CodecInfo> codecInfos = [.. infos];
 
             AvailableCommonEncoders = codecInfos;
-            selectedCodecInfoIndex = codecInfos.FindIndex(info => info.Subtypes.SequenceEqual(DownloadService.TranscodeEncoderInfo?.Subtypes ?? Enumerable.Empty<string>()));
+            SelectedCodecInfoIndex = codecInfos.FindIndex(info => info.Subtypes.SequenceEqual(DownloadService.TranscodeEncoderInfo?.Subtypes ?? Enumerable.Empty<string>()));
         }
 
         List<AudioEncodingQuality> qualities = [AudioEncodingQuality.High, AudioEncodingQuality.Medium, AudioEncodingQuality.Low];
         AudioEncodingQualities = qualities;
-        selectedTranscodeQualityIndex = qualities.IndexOf(DownloadService.TranscodeQuality);
+        SelectedTranscodeQualityIndex = qualities.IndexOf(DownloadService.TranscodeQuality);
         #endregion
 
         #region Background
@@ -102,7 +106,7 @@ public partial class SettingsViewModel : ObservableObject
             }
         }
 
-        selectedAppBackgroundModeIndex = bgModes.IndexOf(backgroundMode);
+        SelectedAppBackgroundModeIndex = bgModes.IndexOf(backgroundMode);
         #endregion
 
         #region Color Theme
@@ -118,37 +122,37 @@ public partial class SettingsViewModel : ObservableObject
             colorTheme = AppColorTheme.Default;
         }
 
-        selectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
+        SelectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
         #endregion
 
         #region Glance
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool enableBurnProtection))
         {
-            enableGlanceBurnProtection = enableBurnProtection;
+            EnableGlanceBurnProtection = enableBurnProtection;
         }
         else
         {
-            enableGlanceBurnProtection = true;
+            EnableGlanceBurnProtection = true;
             SettingsHelper.Set(CommonValues.AppGlanceModeBurnProtectionSettingsKey, true);
         }
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness))
         {
-            glanceModeUseLowerBrightness = useLowerBrightness;
+            GlanceModeUseLowerBrightness = useLowerBrightness;
         }
         else
         {
-            glanceModeUseLowerBrightness = true;
+            GlanceModeUseLowerBrightness = true;
             SettingsHelper.Set(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, true);
         }
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn))
         {
-            glanceModeRemainDisplayOn = remainDisplayOn;
+            GlanceModeRemainDisplayOn = remainDisplayOn;
         }
         else
         {
-            glanceModeRemainDisplayOn = true;
+            GlanceModeRemainDisplayOn = true;
             SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, true);
         }
         #endregion
@@ -195,9 +199,9 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    partial void OnPreserveWavAfterTranscodeChanged(bool value)
+    partial void OnPreserveRawMusicAfterTranscodeChanged(bool value)
     {
-        DownloadService.KeepWavFileAfterTranscode = value;
+        DownloadService.KeepRawMusicFileAfterTranscode = value;
     }
 
     partial void OnSelectedAppBackgroundModeIndexChanged(int value)

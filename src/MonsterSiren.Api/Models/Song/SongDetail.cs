@@ -3,7 +3,7 @@
 namespace MonsterSiren.Api.Models.Song;
 
 /// <summary>
-///  提供歌曲详细信息的结构
+/// 提供歌曲详细信息的结构
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct SongDetail : IEquatable<SongDetail>

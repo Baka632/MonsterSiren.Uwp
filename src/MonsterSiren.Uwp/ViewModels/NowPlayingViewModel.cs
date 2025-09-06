@@ -8,14 +8,66 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// <summary>
 /// 为 <see cref="NowPlayingPage"/> 提供视图模型
 /// </summary>
-public partial class NowPlayingViewModel(NowPlayingPage nowPlaying) : ObservableObject
+public partial class NowPlayingViewModel : ObservableObject
 {
-    private readonly NowPlayingPage view = nowPlaying ?? throw new ArgumentNullException(nameof(nowPlaying));
+    private readonly NowPlayingPage view;
 
     [ObservableProperty]
     private string nowPlayingListExpandButtonGlyph = "\uE010";
+    [ObservableProperty]
+    private bool isMediaCasting = MediaCastService.IsMediaCasting;
+    [ObservableProperty]
+    private string mediaCastingButtonString = "CastToDevice".GetLocalized();
 
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
+
+    public NowPlayingViewModel(NowPlayingPage nowPlaying)
+    {
+        view = nowPlaying;
+        DetermineMediaCastingButtonString(MediaCastService.IsMediaCasting);
+        MediaCastService.MediaCastingStateChanged += OnMediaCastServiceMediaCastingStateChanged;
+    }
+
+    ~NowPlayingViewModel()
+    {
+        MediaCastService.MediaCastingStateChanged -= OnMediaCastServiceMediaCastingStateChanged;
+    }
+
+    private void OnMediaCastServiceMediaCastingStateChanged(bool isCasting)
+    {
+        IsMediaCasting = isCasting;
+        DetermineMediaCastingButtonString(isCasting);
+    }
+
+    private void DetermineMediaCastingButtonString(bool isCasting)
+    {
+        if (isCasting)
+        {
+            MediaCastingButtonString = "OpenCastToPanel".GetLocalized();
+        }
+        else
+        {
+            MediaCastingButtonString = "CastToDevice".GetLocalized();
+        }
+    }
+
+    [RelayCommand]
+    private void ShowCastToPicker()
+    {
+        Button target = view.MoreOperationButton;
+
+        GeneralTransform transform = target.TransformToVisual(Window.Current.Content);
+        Point pt = transform.TransformPoint(new Point(0, 0));
+        Rect selection = new(pt.X, pt.Y, target.ActualWidth, target.ActualHeight);
+
+        MediaCastService.ShowCastingDevicePicker(selection);
+    }
+
+    [RelayCommand]
+    private static void StopCasting()
+    {
+        MediaCastService.StopCasting();
+    }
 
     /// <summary>
     /// 使用指定的 <see cref="TimeSpan"/> 更新音乐播放位置的相关属性

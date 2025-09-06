@@ -25,7 +25,7 @@ internal static class FileCacheHelper
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例</param>
     public static async Task StoreAlbumCoverAsync(AlbumDetail albumDetail)
     {
-        await StoreAlbumByUriAndCid(albumDetail.CoverUrl, albumDetail.Cid);
+        await StoreAlbumCoverByUriAndCid(albumDetail.CoverUrl, albumDetail.Cid);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ internal static class FileCacheHelper
     /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例</param>
     public static async Task StoreAlbumCoverAsync(AlbumInfo albumInfo)
     {
-        await StoreAlbumByUriAndCid(albumInfo.CoverUrl, albumInfo.Cid);
+        await StoreAlbumCoverByUriAndCid(albumInfo.CoverUrl, albumInfo.Cid);
     }
 
     /// <summary>
@@ -42,46 +42,50 @@ internal static class FileCacheHelper
     /// </summary>
     /// <param name="uri">专辑封面的 Uri</param>
     /// <param name="cid">专辑的 CID</param>
-    public static async Task StoreAlbumByUriAndCid(string uri, string cid)
+    public static async Task StoreAlbumCoverByUriAndCid(string uri, string cid)
+    {
+        try
+        {
+            StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+            string fileName = $"{cid}.jpg";
+
+            if (await DetectCanCreateAlbumCoverFile(coverFolder, fileName))
+            {
+                using InMemoryRandomAccessStream stream = await DownloadAlbumCoverStreamFromCid(uri, cid);
+
+                await StoreAlbumCoverByStream(cid, stream);
+            }
+        }
+        catch (COMException)
+        {
+            return;
+        }
+    }
+
+    /// <summary>
+    /// 使用指定的 CID 和随机访问流，在专辑封面缓存文件夹创建专辑封面文件。
+    /// </summary>
+    /// <param name="cid">专辑的 CID</param>
+    /// <param name="stream">包含专辑封面数据的随机访问流</param>
+    public static async Task StoreAlbumCoverByStream(string cid, IRandomAccessStream stream)
     {
         SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(cid);
 
         try
         {
             await semaphore.WaitAsync();
-            Uri coverUri = new(uri, UriKind.Absolute);
+            string fileName = $"{cid}.jpg";
 
-            try
+            StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+            if (await DetectCanCreateAlbumCoverFile(coverFolder, fileName))
             {
-                string fileName = $"{cid}.jpg";
-                StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
-                IStorageItem coverFile = await coverFolder.TryGetItemAsync(fileName);
-
-                if (coverFile is not null && coverFile.IsOfType(StorageItemTypes.File))
-                {
-                    BasicProperties props = await coverFile.GetBasicPropertiesAsync();
-
-                    if (props.Size != 0)
-                    {
-                        return;
-                    }
-                }
-
-                using HttpClient httpClient = new();
-                using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
-
-                using InMemoryRandomAccessStream stream = new();
-                await result.Content.WriteToStreamAsync(stream);
                 stream.Seek(0);
 
                 StorageFile file = await coverFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
                 using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+                transaction.Stream.Seek(0);
                 await RandomAccessStream.CopyAsync(stream, transaction.Stream);
                 await transaction.CommitAsync();
-            }
-            catch (COMException)
-            {
-                return;
             }
         }
         finally
@@ -89,6 +93,43 @@ internal static class FileCacheHelper
             semaphore.Release();
             LockerHelper<string>.ReturnLocker(cid);
         }
+    }
+
+    /// <summary>
+    /// 通过指定的 Uri 字符串与 CID 字符串获取专辑封面的随机访问流
+    /// </summary>
+    /// <param name="uri">专辑封面的 Uri</param>
+    /// <param name="cid">专辑的 CID</param>
+    /// <returns>包含专辑封面数据的 <see cref="InMemoryRandomAccessStream"/></returns>
+    public static async Task<InMemoryRandomAccessStream> DownloadAlbumCoverStreamFromCid(string uri, string cid)
+    {
+        Uri coverUri = new(uri, UriKind.Absolute);
+        using HttpClient httpClient = new();
+        using HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+
+        InMemoryRandomAccessStream stream = new();
+
+        await result.Content.WriteToStreamAsync(stream);
+        stream.Seek(0);
+
+        return stream;
+    }
+
+    private static async Task<bool> DetectCanCreateAlbumCoverFile(StorageFolder coverFolder, string fileName)
+    {
+        IStorageItem coverFile = await coverFolder.TryGetItemAsync(fileName);
+
+        if (coverFile is not null && coverFile.IsOfType(StorageItemTypes.File))
+        {
+            BasicProperties props = await coverFile.GetBasicPropertiesAsync();
+
+            if (props.Size != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -122,15 +163,25 @@ internal static class FileCacheHelper
     {
         StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
 
-        if (coverFolder != null)
+        try
         {
-            StorageFile file = await coverFolder.GetFileAsync(fileName);
-            return await file?.OpenReadAsync();
+            if (coverFolder != null)
+            {
+                IStorageItem item = await coverFolder.TryGetItemAsync(fileName);
+
+                if (item is StorageFile file)
+                {
+                    return await file.OpenReadAsync();
+                }
+            }
         }
-        else
+        catch
         {
-            return null;
+            // Swallow it!
+            // qwq
         }
+
+        return null;
     }
 
     /// <summary>

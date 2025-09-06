@@ -20,6 +20,8 @@ public sealed partial class GlanceViewViewModel : ObservableObject
     private bool showMuteState = MusicService.IsPlayerMuted;
     [ObservableProperty]
     private bool showMeteredInternet = false;
+    [ObservableProperty]
+    private bool showCastMedia = MediaCastService.IsMediaCasting;
 
     public GlanceViewViewModel()
     {
@@ -31,6 +33,12 @@ public sealed partial class GlanceViewViewModel : ObservableObject
         PowerManager.BatteryStatusChanged += OnPowerStatusChanged;
         PowerManager.EnergySaverStatusChanged += OnPowerStatusChanged;
         PowerManager.RemainingChargePercentChanged += OnPowerStatusChanged;
+        MediaCastService.MediaCastingStateChanged += OnMediaCastingStateChanged;
+    }
+
+    private void OnMediaCastingStateChanged(bool state)
+    {
+        ShowCastMedia = state;
     }
 
     private void OnMusicServicePlayerMuteStateChanged(bool state)
@@ -51,6 +59,7 @@ public sealed partial class GlanceViewViewModel : ObservableObject
         PowerManager.BatteryStatusChanged -= OnPowerStatusChanged;
         PowerManager.EnergySaverStatusChanged -= OnPowerStatusChanged;
         PowerManager.RemainingChargePercentChanged -= OnPowerStatusChanged;
+        MediaCastService.MediaCastingStateChanged -= OnMediaCastingStateChanged;
     }
 
     private void OnPowerStatusChanged(object sender, object e)

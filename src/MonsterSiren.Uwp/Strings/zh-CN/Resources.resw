@@ -271,7 +271,7 @@
     <value>版本：{0}</value>
   </data>
   <data name="SettingsPage_EncodeNotAvailable.Message" xml:space="preserve">
-    <value>由于此设备不支持常用的编码器，因此该设置已被禁用。</value>
+    <value>由于此设备不支持常用的编码器，因此转码设置已被禁用。</value>
   </data>
   <data name="RepoAddress.Text" xml:space="preserve">
     <value>仓库地址</value>
@@ -300,8 +300,8 @@
   <data name="AudioQualityLow" xml:space="preserve">
     <value>低（96 kbps 及以上）</value>
   </data>
-  <data name="SettingsPage_TranscodeKeepWavFile.Header" xml:space="preserve">
-    <value>转码后保留原始 WAV 文件</value>
+  <data name="SettingsPage_TranscodeKeepRawMusicFile.Header" xml:space="preserve">
+    <value>转码后保留原始音频文件</value>
   </data>
   <data name="DownloadItemState_Downloading" xml:space="preserve">
     <value>下载中</value>
@@ -415,7 +415,7 @@
     <value>概览模式</value>
   </data>
   <data name="SettingsPage_GlanceMoveSettings.Header" xml:space="preserve">
-    <value>启动烧屏保护</value>
+    <value>启用烧屏保护</value>
   </data>
   <data name="SettingsPage_GlanceUseLowBrightness.Header" xml:space="preserve">
     <value>调低亮度</value>
@@ -672,5 +672,70 @@
   </data>
   <data name="SettingsPage_OpenUpdateInfoPage.Text" xml:space="preserve">
     <value>查看更新说明</value>
+  </data>
+  <data name="CastToDevice" xml:space="preserve">
+    <value>开始音频投送</value>
+  </data>
+  <data name="OpenCastToPanel" xml:space="preserve">
+    <value>打开投送面板</value>
+  </data>
+  <data name="StopCasting.Text" xml:space="preserve">
+    <value>直接停止音频投送</value>
+  </data>
+  <data name="CortanaService_OpenForegroundApp" xml:space="preserve">
+    <value>正在打开 Sora 唱片</value>
+  </data>
+  <data name="CortanaService_BakaEureka_DisplayMessage" xml:space="preserve">
+    <value>这还用说吗...</value>
+  </data>
+  <data name="CortanaService_BakaEureka_SpokenMessage" xml:space="preserve">
+    <value>当然是尤里卡啦！</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Querying" xml:space="preserve">
+    <value>正在查询专辑...</value>
+  </data>
+  <data name="CortanaService_NoInternetMessage" xml:space="preserve">
+    <value>现在似乎没有网络，待会再试吧</value>
+  </data>
+  <data name="CortanaService_ErrorOccurredMessage" xml:space="preserve">
+    <value>出现了错误，请稍后再试</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success" xml:space="preserve">
+    <value>这是最新的专辑，选择一项以播放</value>
+  </data>
+  <data name="CortanaService_QueryRecentAlbums_Success_Repeat" xml:space="preserve">
+    <value>请选择一张专辑来播放它</value>
+  </data>
+  <data name="RawMusicFileSaveTag" xml:space="preserve">
+    <value>（原始）</value>
+  </data>
+  <data name="CortanaService_Baka_DisplayMessage" xml:space="preserve">
+    <value>关于 Baka......</value>
+  </data>
+  <data name="CortanaService_Baka_SpokenMessage" xml:space="preserve">
+    <value>Baka632，并不著名的 dotnet 开发者、罗德岛的博士、尤里卡厨和回归线编辑部成员。此刻他欢迎你使用 Sora 唱片，也希望你知道他喜欢尤里卡的事实。</value>
+    <comment>因为长度太长（要求少于等于 256 个字符），所以英文版调整了一下</comment>
+  </data>
+  <data name="CortanaService_Eureka_DisplayMessage" xml:space="preserve">
+    <value>关于尤里卡......</value>
+  </data>
+  <data name="CortanaService_Eureka_SpokenMessage" xml:space="preserve">
+    <value>尤里卡，UOfficial，最后的全能系美少女、游历在泰拉之上、据说是天灾的化身。但不知为何，Baka632 博士并不受她的影响。而且，听说最近尤里卡天天到 Baka632 的办公室直播，甚至还和他一起出门吃了烧烤。</value>
+    <comment>因为长度太长（要求少于等于 256 个字符），所以英文版调整了一下</comment>
+  </data>
+  <data name="EurekaEureka" xml:space="preserve">
+    <value>尤里卡~尤里卡~</value>
+  </data>
+  <data name="EurekaBakaBeloved" xml:space="preserve">
+    <value>我所挚爱的你——Baka632</value>
+  </data>
+  <data name="LetSoraTellYou" xml:space="preserve">
+    <value>让小空告诉你！</value>
+  </data>
+  <data name="AllAboutEureka" xml:space="preserve">
+    <value>那些有关尤里卡的事......</value>
+  </data>
+  <data name="AllAboutBaka632" xml:space="preserve">
+    <value>那些有关 632 同学的事......</value>
   </data>
 </root>

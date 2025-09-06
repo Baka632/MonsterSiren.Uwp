@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 
 namespace MonsterSiren.Uwp.Models;

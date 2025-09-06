@@ -78,6 +78,13 @@ public sealed partial class MusicPage : Page
 
     private async void OnAlbumImageLoaded(object sender, RoutedEventArgs e)
     {
+        Image image = (Image)sender;
+
+        if (image.Tag is not null)
+        {
+            return;
+        }
+
         ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
 
         if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
@@ -87,14 +94,14 @@ public sealed partial class MusicPage : Page
 
         try
         {
-            Image image = sender as Image;
-            if (image?.DataContext is AlbumInfo info)
+            if (image.DataContext is AlbumInfo info)
             {
                 Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
                 if (fileCoverUri is null)
                 {
                     await FileCacheHelper.StoreAlbumCoverAsync(info);
                 }
+                image.Tag = string.Empty;
             }
         }
         catch (Exception ex)

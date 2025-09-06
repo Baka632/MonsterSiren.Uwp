@@ -1,4 +1,4 @@
-﻿using Windows.Media.Core;
+using Windows.Media.Core;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -6,21 +6,20 @@ internal static class CodecQueryHelper
 {
     private static IEnumerable<CodecInfo> _cachedCommonEncoders;
 
-    public static bool TryGetCommonEncoders(out IEnumerable<CodecInfo> codecInfos)
+    public static async Task<ValueTuple<bool, IEnumerable<CodecInfo>>> TryGetCommonEncoders()
     {
         if (_cachedCommonEncoders is not null)
         {
-            codecInfos = _cachedCommonEncoders;
-            return true;
+            return (true, _cachedCommonEncoders);
         }
 
         CodecQuery codecQuery = new();
         IEnumerable<CodecInfo> commonEncoders = from info
-                                                in codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty).AsTask().Result
+                                                in await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty)
                                                 where HasCommonEncoders(info)
                                                 select info;
-        _cachedCommonEncoders = codecInfos = commonEncoders;
-        return commonEncoders.Any();
+        _cachedCommonEncoders = commonEncoders;
+        return (commonEncoders.Any(), commonEncoders);
     }
 
     public static bool IsCodecInfoHasTargetEncoder(CodecInfo info, string targetEncoderGuid)

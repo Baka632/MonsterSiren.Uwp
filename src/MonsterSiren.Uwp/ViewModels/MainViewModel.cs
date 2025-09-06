@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using MonsterSiren.Uwp.Services;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -18,12 +19,41 @@ public partial class MainViewModel : ObservableRecipient
     private IEnumerable<AlbumInfo> autoSuggestBoxSuggestion = [];
     [ObservableProperty]
     private Playlist selectedPlaylist;
+    [ObservableProperty]
+    private bool isMediaCasting = MediaCastService.IsMediaCasting;
+    [ObservableProperty]
+    private string mediaCastingButtonString;
 
     public MainViewModel(MainPage mainPage)
     {
         view = mainPage ?? throw new ArgumentNullException(nameof(mainPage));
-
+        
         IsActive = true;
+        DetermineMediaCastingButtonString(MediaCastService.IsMediaCasting);
+        MediaCastService.MediaCastingStateChanged += OnMediaCastServiceMediaCastingStateChanged;
+    }
+
+    ~MainViewModel()
+    {
+        MediaCastService.MediaCastingStateChanged -= OnMediaCastServiceMediaCastingStateChanged;
+    }
+
+    private void OnMediaCastServiceMediaCastingStateChanged(bool isCasting)
+    {
+        IsMediaCasting = isCasting;
+        DetermineMediaCastingButtonString(isCasting);
+    }
+
+    private void DetermineMediaCastingButtonString(bool isCasting)
+    {
+        if (isCasting)
+        {
+            MediaCastingButtonString = "OpenCastToPanel".GetLocalized();
+        }
+        else
+        {
+            MediaCastingButtonString = "CastToDevice".GetLocalized();
+        }
     }
 
     /// <summary>
@@ -47,6 +77,24 @@ public partial class MainViewModel : ObservableRecipient
         {
             view.SetMainPageBackground(mode);
         }
+    }
+
+    [RelayCommand]
+    private void ShowCastToPicker()
+    {
+        Button target = view.WideAdditionalButton;
+
+        GeneralTransform transform = target.TransformToVisual(Window.Current.Content);
+        Point pt = transform.TransformPoint(new Point(0, 0));
+        Rect selection = new(pt.X, pt.Y, target.ActualWidth, target.ActualHeight);
+
+        MediaCastService.ShowCastingDevicePicker(selection);
+    }
+
+    [RelayCommand]
+    private static void StopCasting()
+    {
+        MediaCastService.StopCasting();
     }
 
     [RelayCommand]

@@ -1,5 +1,6 @@
-﻿using System.Text;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Windows.Input;
 using Windows.Media.Playback;
 
@@ -7,6 +8,8 @@ namespace MonsterSiren.Uwp;
 
 partial class CommonValues
 {
+    private static readonly SemaphoreSlim _GetOrFetchAlbumsSemaphore = new(1);
+
     /// <summary>
     /// 显示一个对话框
     /// </summary>
@@ -1049,6 +1052,7 @@ partial class CommonValues
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
             _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            // TODO: 此处异常被吞噬，需要使用 W 的异常盒子
 
             return true;
         }
@@ -1702,5 +1706,81 @@ partial class CommonValues
         string dialogTitle = allFailed ? "ErrorOccurred".GetLocalized() : "WarningOccurred".GetLocalized();
         string dialogMessage = builder.ToString().Trim();
         await DisplayContentDialog(dialogTitle, dialogMessage, closeButtonText: "Close".GetLocalized());
+    }
+
+    /// <summary>
+    /// 从服务器中获取全部专辑的信息，并填充艺术家信息及缓存封面信息。
+    /// </summary>
+    /// <remarks>
+    /// 本方法与 <see cref="GetOrFetchAlbums"/> 不同的是，本方法将只从服务器获取最新数据，而不进行缓存。并且本方法返回的是 <see cref="IEnumerable{T}"/> 序列。
+    /// </remarks>
+    /// <returns>包含全部专辑信息的 <see cref="AlbumInfo"/> 列表。</returns>
+    public async static Task<IEnumerable<AlbumInfo>> GetAlbumsFromServer()
+    {
+        List<AlbumInfo> albums = await Task.Run(async () =>
+        {
+            List<AlbumInfo> albumList = [.. (await AlbumService.GetAllAlbumsAsync())];
+            await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList);
+
+            return albumList;
+        });
+
+        return albums;
+    }
+
+    /// <summary>
+    /// 获取类型为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 的 <see cref="AlbumInfo"/> 集合。
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// 此方法与 <see cref="GetAlbumsFromServer"/> 方法不同的是，本方法会进行缓存，并将 <see cref="IEnumerable{T}"/> 转换为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/>。
+    /// </para>
+    /// <para>
+    /// 请注意，在使用 <see cref="IEnumerable{T}"/> 相关的扩展方法时，请务必使用 <see cref="CustomIncrementalLoadingCollection{TSource, IType}.CollectionSource"/> 成员中的集合来获取正确结果。否则，由于增量加载的缘故，<see cref="IEnumerable{T}"/> 相关的扩展方法可能会出现预期外的结果。
+    /// </para>
+    /// </remarks>
+    /// <returns>一个类型为 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 的 <see cref="AlbumInfo"/> 集合</returns>
+    public async static Task<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>> GetOrFetchAlbums()
+    {
+        await _GetOrFetchAlbumsSemaphore.WaitAsync();
+
+        try
+        {
+            if (MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.TryGetData(AlbumInfoCacheKey, out CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> infos))
+            {
+                return infos;
+            }
+            else
+            {
+                IEnumerable<AlbumInfo> albums = await GetAlbumsFromServer();
+
+                CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CreateAlbumInfoIncrementalLoadingCollection(albums);
+
+                if (incrementalCollection.CollectionSource.AlbumInfos.Any())
+                {
+                    MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(AlbumInfoCacheKey, incrementalCollection);
+                }
+
+                return incrementalCollection;
+            }
+        }
+        finally
+        {
+            _GetOrFetchAlbumsSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// 为 <see cref="AlbumInfo"/> 列表创建实现增量加载的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 集合。
+    /// </summary>
+    /// <remarks>
+    /// 请注意，在使用 <see cref="IEnumerable{T}"/> 相关的扩展方法时，请务必使用 <see cref="CustomIncrementalLoadingCollection{TSource, IType}.CollectionSource"/> 成员中的集合来获取正确结果。否则，由于增量加载的缘故，<see cref="IEnumerable{T}"/> 相关的扩展方法可能会出现预期外的结果。
+    /// </remarks>
+    /// <param name="albums">包含专辑信息的 <see cref="AlbumInfo"/> 列表。</param>
+    /// <returns>新的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 实例。</returns>
+    public static CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> CreateAlbumInfoIncrementalLoadingCollection(IEnumerable<AlbumInfo> albums)
+    {
+        int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+        return new(new AlbumInfoSource(albums), loadCount);
     }
 }
