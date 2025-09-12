@@ -21,7 +21,7 @@ sealed partial class App : Application
     private bool isInitialized = false;
 
     /// <summary>
-    /// 获取应用程序名
+    /// 获取应用程序名。
     /// </summary>
     public static string AppDisplayName
     {
@@ -36,11 +36,11 @@ sealed partial class App : Application
     }
 
     /// <summary>
-    /// 获取应用程序版本
+    /// 获取应用程序版本。
     /// </summary>
     public static string AppVersion { get; } = $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
     /// <summary>
-    /// 获取带“版本”文字的应用程序版本字符串
+    /// 获取带“版本”文字的应用程序版本字符串。
     /// </summary>
     public static string AppVersionWithText => string.Format("AppVersion_WithPlaceholder".GetLocalized(), AppVersion);
     public static bool IsGreaterThan18362 => EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362);

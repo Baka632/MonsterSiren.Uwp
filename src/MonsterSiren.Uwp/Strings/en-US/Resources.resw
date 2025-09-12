@@ -658,4 +658,7 @@ Continue?</value>
   <data name="AllAboutBaka632" xml:space="preserve">
     <value>All about Baka632......</value>
   </data>
+  <data name="SettingsPage_ReplaceInvaildCharsInDownloadedFileName.Header" xml:space="preserve">
+    <value>Replace invalid characters with similar ones in filename</value>
+  </data>
 </root>

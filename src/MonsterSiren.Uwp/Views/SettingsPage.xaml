@@ -159,6 +159,9 @@
                             <controls:SettingsCard x:Uid="SettingsPage_EnableTranscode">
                                 <ToggleSwitch IsEnabled="{x:Bind services:DownloadService.IsSupportCommonTranscode}" IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
                             </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="SettingsPage_ReplaceInvaildCharsInDownloadedFileName">
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.ReplaceInvaildCharInDownloadedFileName, Mode=TwoWay}" />
+                            </controls:SettingsCard>
                         </controls:SettingsExpander>
 
                         <controls:SettingsExpander x:Uid="SettingsPage_TranscodeConfig" Visibility="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=OneWay}">

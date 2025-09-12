@@ -4,15 +4,17 @@ using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
-using Windows.Services.Store;
-using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Animation;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+#region 请保留，各个发布模式需要
 using System.Diagnostics;
+using Windows.UI.Popups;
+using Windows.Services.Store;
+using Microsoft.Services.Store.Engagement;
+#endregion
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -44,7 +46,6 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
         LoadPlaylistForNavigationView();
-        CheckUpdateAsync();
 
         if (SettingsHelper.TryGet(CommonValues.AppVersionSettingsKey, out string version))
         {
@@ -67,8 +68,8 @@ public sealed partial class MainPage : Page
         MainPageNavigationHelper = null;
     }
 
-    [Conditional("Release")]
-    private static async void CheckUpdateAsync()
+#if RELEASE
+    private static async Task CheckUpdateAsync()
     {
         try
         {
@@ -93,6 +94,7 @@ public sealed partial class MainPage : Page
             }
         }
     }
+#endif
 
     private void ConfigureTitleBar()
     {
@@ -331,6 +333,10 @@ public sealed partial class MainPage : Page
             MainPageNavigationHelper = new NavigationHelper(Frame);
             MainPageNavigationHelper.GoBackComplete += OnMainPageGoBackComplete;
         }
+
+#if RELEASE
+        _ = CheckUpdateAsync();
+#endif
     }
 
     private void OnMainPageGoBackComplete(object sender, EventArgs arg)
