@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp;
 
 /// <summary>
-/// 提供应用中常用内容的类
+/// 提供应用中常用内容的类。
 /// </summary>
 internal static partial class CommonValues
 {
@@ -38,6 +38,7 @@ internal static partial class CommonValues
     public const string MusicTranscodeEncoderGuidSettingsKey = "Download_TranscodeEncoderGuid_SettingsKey";
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
+    public const string MusicReplaceInvaildCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvaildCharInFileName_SettingsKey";
 
     public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
 
@@ -79,6 +80,19 @@ internal static partial class CommonValues
         }
     }
 
+    /// <summary>
+    /// <para>
+    /// 保存不能作为文件名的字符的字符串数组。
+    /// </para>
+    /// <para>
+    /// 此数组来自于调用 <see cref="Path.GetInvalidFileNameChars"/> 获得的字符数组，而此字段将这个字符数组转换为了字符串数组。
+    /// </para>
+    /// <para>
+    /// 此字段是为了简化在使用诸如 <see cref="string.Replace(string, string)"/> 等类似方法来删除字符时的操作。
+    /// </para>
+    /// </summary>
+    public static string[] InvaildFileNameCharsStringArray = [.. Path.GetInvalidFileNameChars().Select(chr => chr.ToString())];
+
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
@@ -89,7 +103,7 @@ internal static partial class CommonValues
     /// <summary>
     /// 用于提示应用显示“Baka-Eureka”彩蛋的参数。
     /// </summary>
-    /// <remarks>XML Document Comment for TN (tianlan)</remarks>
+    /// <remarks>XML Document Comment for TN (tianlan).</remarks>
     internal const string BakaEurekaAppLaunchArgument = "BakaEureka";
     internal const string CortanaAppService = "Baka632.SoraRecords.CortanaService";
 

@@ -738,4 +738,7 @@
   <data name="AllAboutBaka632" xml:space="preserve">
     <value>那些有关 632 同学的事......</value>
   </data>
+  <data name="SettingsPage_ReplaceInvaildCharsInDownloadedFileName.Header" xml:space="preserve">
+    <value>用相近字符替换文件名中的无效字符</value>
+  </data>
 </root>

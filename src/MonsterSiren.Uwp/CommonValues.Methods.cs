@@ -49,22 +49,39 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符
+    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符。
     /// </summary>
-    /// <param name="fileName">文件名字符串</param>
-    /// <returns>新的字符串</returns>
+    /// <param name="fileName">文件名字符串。</param>
+    /// <remarks>
+    /// <para>
+    /// 本方法替换了以下字符：
+    /// </para>
+    /// <para>
+    /// " ? : &lt; &gt; | * / \
+    /// </para>
+    /// <para>
+    /// 其他在 <see cref="Path.GetInvalidFileNameChars"/> 方法中出现的字符将被删去。
+    /// </para>
+    /// </remarks>
+    /// <returns>新的字符串。</returns>
     public static string ReplaceInvaildFileNameChars(string fileName)
     {
         StringBuilder stringBuilder = new(fileName);
         stringBuilder.Replace('"', '\'');
+        stringBuilder.Replace('?', '？');
+        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('<', '[');
         stringBuilder.Replace('>', ']');
         stringBuilder.Replace('|', 'I');
-        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('*', '★');
-        stringBuilder.Replace('?', '？');
         stringBuilder.Replace('/', '↗');
         stringBuilder.Replace('\\', '↘');
+
+        foreach (string invalidCharStr in InvaildFileNameCharsStringArray)
+        {
+            stringBuilder.Replace(invalidCharStr, string.Empty);
+        }
+
         return stringBuilder.ToString();
     }
 
