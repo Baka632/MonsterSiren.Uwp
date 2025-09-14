@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.VoiceCommands;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
@@ -138,25 +139,6 @@ sealed partial class App : Application
     /// <param name="e">有关启动请求和过程的详细信息。</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
-        try
-        {
-            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
-            await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
-        }
-        catch (Exception ex)
-        {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"安装语音命令失败：\n{ex}");
-#endif
-        }
-
-#if DEBUG
-        // 调试本地化的相关代码
-
-        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US";
-        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "zh-CN";
-#endif
-
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
         {
@@ -395,6 +377,20 @@ sealed partial class App : Application
             return;
         }
 
+        CoreApplication.EnablePrelaunch(true);
+
+        try
+        {
+            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
+            await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"安装语音命令失败：\n{ex}");
+#endif
+        }
+
         UIThreadHelper.Initialize(Window.Current.Content.Dispatcher);
         await UIThreadHelper.RunOnUIThread(() =>
         {
@@ -417,7 +413,7 @@ sealed partial class App : Application
         // 初始化设置
         await DownloadService.Initialize();
         await PlaylistService.Initialize();
-        await new SettingsViewModel().Initialize(); // TODO: 总有一天要改
+        //await new SettingsViewModel().Initialize(); // TODO: 总有一天要改
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {

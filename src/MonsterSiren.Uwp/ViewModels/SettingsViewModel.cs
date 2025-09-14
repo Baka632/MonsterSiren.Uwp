@@ -1,11 +1,12 @@
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.Storage.AccessCache;
-using Windows.Media.Core;
-using Windows.Media.MediaProperties;
-using Windows.System;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Windows.Globalization;
+using Windows.Media.Core;
+using Windows.Media.MediaProperties;
+using Windows.Storage;
+using Windows.Storage.AccessCache;
+using Windows.Storage.Pickers;
+using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -49,6 +50,10 @@ public partial class SettingsViewModel : ObservableObject
     private bool glanceModeUseLowerBrightness = true;
     [ObservableProperty]
     private bool glanceModeRemainDisplayOn = true;
+    [ObservableProperty]
+    private IReadOnlyList<AppLanguage> appLanguages;
+    [ObservableProperty]
+    private int selectedAppLanguageIndex = -1;
 
     public async Task Initialize()
     {
@@ -158,6 +163,14 @@ public partial class SettingsViewModel : ObservableObject
             SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, true);
         }
         #endregion
+
+        #region Languages
+        List<AppLanguage> appLanguages = [AppLanguage.SystemLanguage, .. LanguageHelper.SupportLanguages];
+        AppLanguages = appLanguages;
+
+        AppLanguage currentLanguage = LanguageHelper.GetCurrentAppLanguage();
+        SelectedAppLanguageIndex = appLanguages.IndexOf(currentLanguage);
+        #endregion
     }
 
     partial void OnGlanceModeRemainDisplayOnChanged(bool value)
@@ -220,6 +233,15 @@ public partial class SettingsViewModel : ObservableObject
             SettingsHelper.Set(CommonValues.AppBackgroundModeSettingsKey, bgModeString);
 
             WeakReferenceMessenger.Default.Send(bgModeString, CommonValues.NotifyAppBackgroundChangedMessageToken);
+        }
+    }
+
+    partial void OnSelectedAppLanguageIndexChanged(int value)
+    {
+        if (value >= 0)
+        {
+            AppLanguage lang = AppLanguages[value];
+            LanguageHelper.SetAppLanguage(lang);
         }
     }
 
@@ -361,14 +383,24 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private static async Task OpenCodecsInfoDialog()
     {
-        CodecQuery codecQuery = new();
-        IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
-        IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
+        try
+        {
+            CodecQuery codecQuery = new();
+            IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
+            IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
 
-        List<CodecInfo> codecs = [.. encoders, .. decoders];
+            List<CodecInfo> codecs = [.. encoders, .. decoders];
 
-        CodecInfoDialog dialog = new(codecs);
-        _ = await dialog.ShowAsync();
+            CodecInfoDialog dialog = new(codecs);
+            _ = await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            _ = await CommonValues.DisplayContentDialog(
+                "CodecInfoDialog_UnableDisplayTitle".GetLocalized(),
+                string.Format("CodecInfoDialog_UnableDisplayMessage".GetLocalized(), ex.Message),
+                closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]

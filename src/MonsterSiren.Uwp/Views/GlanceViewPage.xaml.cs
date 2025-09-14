@@ -1,4 +1,4 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using Windows.Graphics.Display;
 using Windows.System;
@@ -13,8 +13,8 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class GlanceViewPage : Page
 {
-    private readonly DispatcherTimer _timer = new();
-    private readonly Random _random = new();
+    private readonly DispatcherTimer _timer;
+    private readonly Random _random;
     private BrightnessOverride _brightnessOverride;
     private DisplayRequest _displayRequest;
 
@@ -26,7 +26,11 @@ public sealed partial class GlanceViewPage : Page
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection)
         {
-            _timer.Interval = TimeSpan.FromSeconds(40d);
+            _random = new();
+            _timer = new()
+            {
+                Interval = TimeSpan.FromSeconds(40d)
+            };
             _timer.Tick += OnTimerTick;
             _timer.Start();
         }

@@ -741,4 +741,24 @@
   <data name="SettingsPage_ReplaceInvaildCharsInDownloadedFileName.Header" xml:space="preserve">
     <value>用相近字符替换文件名中的无效字符</value>
   </data>
+  <data name="SettingsPage_AppLanguage.Header" xml:space="preserve">
+    <value>语言 / Language</value>
+    <comment>@Invariant</comment>
+  </data>
+  <data name="SettingsPage_AppDisplayLanguage.Header" xml:space="preserve">
+    <value>设置语言 / Set Language</value>
+    <comment>@Invariant</comment>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayTitle" xml:space="preserve">
+    <value>出现错误</value>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayMessage" xml:space="preserve">
+    <value>出现以下错误：{0}</value>
+  </data>
+  <data name="UseSystemLanguage" xml:space="preserve">
+    <value>使用系统语言</value>
+  </data>
+  <data name="SettingsPage_ChangeLanguageRestartRequired.Message" xml:space="preserve">
+    <value>更改语言后需要重启应用</value>
+  </data>
 </root>

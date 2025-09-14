@@ -1,4 +1,3 @@
-﻿
 using Windows.Media.Core;
 
 namespace MonsterSiren.Uwp.Helpers.Converters;

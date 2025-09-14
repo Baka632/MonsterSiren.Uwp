@@ -1,4 +1,4 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Diagnostics;
 using System.Text.Json;
@@ -78,6 +78,7 @@ public sealed partial class MusicPage : Page
 
     private async void OnAlbumImageLoaded(object sender, RoutedEventArgs e)
     {
+        // TODO: 优化图像缓存过程
         Image image = (Image)sender;
 
         if (image.Tag is not null)
@@ -106,7 +107,7 @@ public sealed partial class MusicPage : Page
         }
         catch (Exception ex)
         {
-#if !DEBUG
+#if RELEASE
                 try
                 {
                     StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();

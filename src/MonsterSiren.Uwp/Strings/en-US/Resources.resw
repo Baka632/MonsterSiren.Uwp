@@ -298,7 +298,7 @@
     <value>Related content is not found</value>
   </data>
   <data name="SettingsPage_AppColorTheme.Header" xml:space="preserve">
-    <value>Set app's color theme (Require restart)</value>
+    <value>Set app's color theme (Restart required)</value>
   </data>
   <data name="ColorTheme_Default" xml:space="preserve">
     <value>System default</value>
@@ -660,5 +660,17 @@ Continue?</value>
   </data>
   <data name="SettingsPage_ReplaceInvaildCharsInDownloadedFileName.Header" xml:space="preserve">
     <value>Replace invalid characters with similar ones in filename</value>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayTitle" xml:space="preserve">
+    <value>Error occurred</value>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayMessage" xml:space="preserve">
+    <value>The following error occurred: {0}</value>
+  </data>
+  <data name="UseSystemLanguage" xml:space="preserve">
+    <value>Use system language</value>
+  </data>
+  <data name="SettingsPage_ChangeLanguageRestartRequired.Message" xml:space="preserve">
+    <value>Restart required after changing language</value>
   </data>
 </root>

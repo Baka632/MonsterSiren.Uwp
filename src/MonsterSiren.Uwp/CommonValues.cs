@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Unicode;
 using System.Text.Encodings.Web;
-using Windows.Foundation.Metadata;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp;

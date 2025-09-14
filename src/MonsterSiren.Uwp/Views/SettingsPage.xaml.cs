@@ -3,7 +3,7 @@
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 设置页
+/// 设置页。
 /// </summary>
 public sealed partial class SettingsPage : Page
 {

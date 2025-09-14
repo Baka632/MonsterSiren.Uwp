@@ -12,6 +12,7 @@
     xmlns:mediaCore="using:Windows.Media.Core"
     xmlns:mediaProps="using:Windows.Media.MediaProperties"
     xmlns:models="using:MonsterSiren.Uwp.Models"
+    xmlns:msrHelpers="using:MonsterSiren.Uwp.Helpers"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
@@ -45,6 +46,30 @@
             <PivotItem x:Uid="PresentationPivotItem">
                 <ScrollViewer Margin="0,5,0,0">
                     <StackPanel>
+                        <controls:SettingsExpander x:Uid="SettingsPage_AppLanguage">
+                            <controls:SettingsExpander.HeaderIcon>
+                                <FontIcon Glyph="&#xF2B7;" />
+                            </controls:SettingsExpander.HeaderIcon>
+                            <controls:SettingsExpander.CustomHeaderElement>
+                                <muxc:InfoBar
+                                    Margin="0,0,0,10"
+                                    x:Uid="SettingsPage_ChangeLanguageRestartRequired"
+                                    IsClosable="False"
+                                    IsOpen="True"
+                                    Severity="Informational" />
+                            </controls:SettingsExpander.CustomHeaderElement>
+
+                            <controls:SettingsCard x:Uid="SettingsPage_AppDisplayLanguage">
+                                <ComboBox ItemsSource="{x:Bind ViewModel.AppLanguages, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedAppLanguageIndex, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="models:AppLanguage">
+                                            <TextBlock Text="{x:Bind DisplayName}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </controls:SettingsCard>
+                        </controls:SettingsExpander>
+
                         <controls:SettingsExpander x:Uid="SettingsPage_AppBackground">
                             <controls:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xEF1F;" />

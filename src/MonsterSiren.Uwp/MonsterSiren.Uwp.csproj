@@ -124,6 +124,7 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\LockerHelper.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Helpers\Tile\TileHelper.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
+    <Compile Include="Models\AppLanguage.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />

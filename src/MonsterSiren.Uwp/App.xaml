@@ -1,4 +1,4 @@
-﻿<Application
+<Application
     x:Class="MonsterSiren.Uwp.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -23,7 +23,7 @@
                 <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml" />
-                <ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml"/>
+                <ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
