@@ -2,9 +2,11 @@
 
 using System.Diagnostics;
 using System.Text.Json;
-using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
 using Windows.Networking.Connectivity;
 using Windows.UI.Xaml.Media.Animation;
+#region 请保留，发布模式需要
+using Microsoft.Services.Store.Engagement;
+#endregion
 
 namespace MonsterSiren.Uwp.Views;
 

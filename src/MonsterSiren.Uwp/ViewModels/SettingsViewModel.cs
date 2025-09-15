@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
-using Windows.Globalization;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;
 using Windows.Storage;

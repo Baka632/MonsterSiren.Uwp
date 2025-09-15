@@ -1,4 +1,4 @@
-﻿using Windows.Media.Playback;
+using Windows.Media.Playback;
 using System.Collections.Specialized;
 using Windows.Media.Casting;
 

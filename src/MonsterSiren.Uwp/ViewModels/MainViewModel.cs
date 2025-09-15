@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using MonsterSiren.Uwp.Services;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -166,7 +166,7 @@ public partial class MainViewModel : ObservableRecipient
             }
 
             ListPackage<AlbumInfo> searchedAlbums = await SearchService.SearchAlbumAsync(keyword);
-            List<AlbumInfo> albums = searchedAlbums.List.ToList();
+            List<AlbumInfo> albums = [.. searchedAlbums.List];
             await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albums);
 
             AutoSuggestBoxSuggestion = albums;
