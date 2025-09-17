@@ -1,4 +1,4 @@
-﻿#define SONG_FOR_PEPE
+#define SONG_FOR_PEPE
 
 using System.Collections.Specialized;
 using Microsoft.Toolkit.Uwp.UI.Helpers;

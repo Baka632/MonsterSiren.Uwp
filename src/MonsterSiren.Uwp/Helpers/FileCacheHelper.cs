@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -51,7 +51,7 @@ internal static class FileCacheHelper
 
             if (await DetectCanCreateAlbumCoverFile(coverFolder, fileName))
             {
-                using InMemoryRandomAccessStream stream = await DownloadAlbumCoverStreamFromCid(uri, cid);
+                using InMemoryRandomAccessStream stream = await GetAlbumCoverStreamFromUri(uri);
 
                 await StoreAlbumCoverByStream(cid, stream);
             }
@@ -101,7 +101,7 @@ internal static class FileCacheHelper
     /// <param name="uri">专辑封面的 Uri</param>
     /// <param name="cid">专辑的 CID</param>
     /// <returns>包含专辑封面数据的 <see cref="InMemoryRandomAccessStream"/></returns>
-    public static async Task<InMemoryRandomAccessStream> DownloadAlbumCoverStreamFromCid(string uri, string cid)
+    public static async Task<InMemoryRandomAccessStream> GetAlbumCoverStreamFromUri(string uri)
     {
         Uri coverUri = new(uri, UriKind.Absolute);
         using HttpClient httpClient = new();

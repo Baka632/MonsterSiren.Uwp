@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -35,7 +35,7 @@ partial class MsrModelsHelper
 
                 if (shouldUpdate)
                 {
-                    List<SongInfo> songs = detail.Songs.ToList();
+                    List<SongInfo> songs = [.. detail.Songs];
                     TryFillArtistForSongs(songs);
 
                     detail = detail with { Songs = songs };

@@ -49,22 +49,39 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符
+    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符。
     /// </summary>
-    /// <param name="fileName">文件名字符串</param>
-    /// <returns>新的字符串</returns>
+    /// <param name="fileName">文件名字符串。</param>
+    /// <remarks>
+    /// <para>
+    /// 本方法替换了以下字符：
+    /// </para>
+    /// <para>
+    /// " ? : &lt; &gt; | * / \
+    /// </para>
+    /// <para>
+    /// 其他在 <see cref="Path.GetInvalidFileNameChars"/> 方法中出现的字符将被删去。
+    /// </para>
+    /// </remarks>
+    /// <returns>新的字符串。</returns>
     public static string ReplaceInvaildFileNameChars(string fileName)
     {
         StringBuilder stringBuilder = new(fileName);
         stringBuilder.Replace('"', '\'');
+        stringBuilder.Replace('?', '？');
+        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('<', '[');
         stringBuilder.Replace('>', ']');
         stringBuilder.Replace('|', 'I');
-        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('*', '★');
-        stringBuilder.Replace('?', '？');
         stringBuilder.Replace('/', '↗');
         stringBuilder.Replace('\\', '↘');
+
+        foreach (string invalidCharStr in InvaildFileNameCharsStringArray)
+        {
+            stringBuilder.Replace(invalidCharStr, string.Empty);
+        }
+
         return stringBuilder.ToString();
     }
 
@@ -196,7 +213,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. albumInfos], box);
 
             await MusicService.ReplaceMusic(items);
 
@@ -285,7 +302,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songInfos], albumDetail, box);
             await MusicService.ReplaceMusic(items);
             box.Unbox();
             return true;
@@ -350,7 +367,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItems.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. playlistItems], box);
             await MusicService.ReplaceMusic(items);
             box.Unbox();
 
@@ -478,7 +495,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. albumInfos], box);
 
             await MusicService.AddMusic(items);
 
@@ -566,7 +583,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songInfos], albumDetail, box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -706,7 +723,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(packs.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. packs], box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -727,7 +744,7 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(IEnumerable<PlaylistItem> playlistItems)
     {
-        PlaylistItem[] playlistItemsArray = playlistItems.ToArray();
+        PlaylistItem[] playlistItemsArray = [.. playlistItems];
 
         if (playlistItemsArray.Length <= 0)
         {
@@ -884,7 +901,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs([.. songInfos], albumDetail, box);
             await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
 
             box.Unbox();
@@ -913,7 +930,8 @@ partial class CommonValues
 
         try
         {
-            await PlaylistService.AddItemsForPlaylistAsync(playlist, playlistItems.ToArray());
+            PlaylistItem[] items = [.. playlistItems];
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
             return true;
         }
         catch (HttpRequestException)
@@ -1548,14 +1566,14 @@ partial class CommonValues
     /// <summary>
     /// 根据 <see cref="SongInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列
     /// </summary>
-    /// <param name="songInfos"><see cref="SongInfo"/> 序列</param>
+    /// <param name="songInfos"><see cref="SongInfo"/> 数组</param>
     /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/> 实例</param>
     /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
     /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列</returns>
     /// <remarks>
     /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
     /// </remarks>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<SongInfo> songInfos, AlbumDetail albumDetail, ExceptionBox box)
+    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(SongInfo[] songInfos, AlbumDetail albumDetail, ExceptionBox box)
     {
         foreach (SongInfo item in songInfos)
         {

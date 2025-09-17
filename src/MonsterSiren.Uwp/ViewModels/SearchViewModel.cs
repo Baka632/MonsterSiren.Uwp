@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Windows.Media.Playback;
+using System.Net.Http;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -46,7 +45,7 @@ public sealed partial class SearchViewModel : ObservableObject
 
             SearchAlbumAndNewsResult albumAndNewsWarpper = await SearchService.SearchAlbumAndNewsAsync(keyword);
 
-            List<AlbumInfo> albumList = albumAndNewsWarpper.Albums.List.ToList();
+            List<AlbumInfo> albumList = [.. albumAndNewsWarpper.Albums.List];
 
             if (await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(albumList))
             {
@@ -60,7 +59,7 @@ public sealed partial class SearchViewModel : ObservableObject
             AlbumList = new MsrIncrementalCollection<AlbumInfo>(albumAndNewsWarpper.Albums, async lastInfo =>
             {
                 ListPackage<AlbumInfo> listPackage = await SearchService.SearchAlbumAsync(keyword, lastInfo.Cid);
-                List<AlbumInfo> list = listPackage.List.ToList();
+                List<AlbumInfo> list = [.. listPackage.List];
 
                 return await MsrModelsHelper.TryFillArtistAndCachedCoverForAlbum(list)
                 ? listPackage with { List = list }
