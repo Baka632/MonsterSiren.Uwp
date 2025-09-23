@@ -1,6 +1,8 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
-using System.Text.Encodings.Web;
+using Windows.Foundation.Metadata;
+using Windows.System.Profile;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp;
@@ -107,5 +109,7 @@ internal static partial class CommonValues
     internal const string CortanaAppService = "Baka632.SoraRecords.CortanaService";
 
     public const string AlbumAppLaunchArgumentHeader = "album";
+    public static readonly bool IsContract5Present = ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 5);
+    public static readonly bool IsXbox = AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox";
     #endregion
 }

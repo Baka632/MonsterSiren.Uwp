@@ -9,6 +9,9 @@ namespace MonsterSiren.Uwp.Models;
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct AppLanguage : IEquatable<AppLanguage>
 {
+    /// <summary>
+    /// 表示使用系统默认语言。
+    /// </summary>
     public static readonly AppLanguage SystemLanguage = new()
     {
         Name = string.Empty,

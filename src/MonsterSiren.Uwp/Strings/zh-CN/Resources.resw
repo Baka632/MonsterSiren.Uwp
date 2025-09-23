@@ -379,7 +379,7 @@
     <value>找不到相关结果</value>
   </data>
   <data name="SettingsPage_AppColorTheme.Header" xml:space="preserve">
-    <value>设置颜色主题（需要重启应用）</value>
+    <value>设置颜色主题</value>
   </data>
   <data name="ColorTheme_Default" xml:space="preserve">
     <value>系统默认</value>
@@ -743,11 +743,9 @@
   </data>
   <data name="SettingsPage_AppLanguage.Header" xml:space="preserve">
     <value>语言 / Language</value>
-    <comment>@Invariant</comment>
   </data>
   <data name="SettingsPage_AppDisplayLanguage.Header" xml:space="preserve">
     <value>设置语言 / Set Language</value>
-    <comment>@Invariant</comment>
   </data>
   <data name="CodecInfoDialog_UnableDisplayTitle" xml:space="preserve">
     <value>出现错误</value>
@@ -760,5 +758,14 @@
   </data>
   <data name="SettingsPage_ChangeLanguageRestartRequired.Message" xml:space="preserve">
     <value>更改语言后需要重启应用</value>
+  </data>
+  <data name="RestartApp" xml:space="preserve">
+    <value>重启应用</value>
+  </data>
+  <data name="CloseApp" xml:space="preserve">
+    <value>关闭应用</value>
+  </data>
+  <data name="SettingsPage_ChangeColorThemeRestartRequired.Message" xml:space="preserve">
+    <value>更改颜色主题后需要重启应用</value>
   </data>
 </root>

@@ -1,10 +1,10 @@
-﻿using Windows.Media.Casting;
+using Windows.Media.Casting;
 using Windows.UI.Popups;
 
 namespace MonsterSiren.Uwp.Services;
 
 /// <summary>
-/// 为投送媒体提供服务的类
+/// 为投送媒体提供服务的类。
 /// </summary>
 public static class MediaCastService
 {
@@ -13,6 +13,11 @@ public static class MediaCastService
     private static bool _isMediaCasting;
 
     public static event Action<bool> MediaCastingStateChanged;
+
+    /// <summary>
+    /// 指示当前平台是否支持媒体投送的值。
+    /// </summary>
+    public static readonly bool IsSupported = !CommonValues.IsXbox;
 
     /// <summary>
     /// 指示当前是否正在投送音频的值。
@@ -32,18 +37,30 @@ public static class MediaCastService
 
     static MediaCastService()
     {
-        castingDevicePicker = new();
-        castingDevicePicker.Filter.SupportsAudio = true;
-        castingDevicePicker.CastingDeviceSelected += OnCastingDevicePickerCastingDeviceSelected;
+        if (IsSupported)
+        {
+            castingDevicePicker = new();
+            castingDevicePicker.Filter.SupportsAudio = true;
+            castingDevicePicker.CastingDeviceSelected += OnCastingDevicePickerCastingDeviceSelected;
+        }
+        else
+        {
+            IsMediaCasting = false; 
+        }
     }
 
     /// <summary>
-    /// 显示设备选择器
+    /// 显示设备选择器。
     /// </summary>
-    /// <param name="rect">选择器的显示区域</param>
-    /// <param name="placement">选择器的位置</param>
+    /// <param name="rect">选择器的显示区域。</param>
+    /// <param name="placement">选择器的位置。</param>
     public static void ShowCastingDevicePicker(Rect rect, Placement placement = Placement.Default)
     {
+        if (!IsSupported)
+        {
+            throw new NotSupportedException("Xbox 上不支持媒体投送功能。");
+        }
+
         castingDevicePicker.Show(rect, placement);
     }
 

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Windows.ApplicationModel.Core;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;
 using Windows.Storage;
@@ -53,6 +54,14 @@ public partial class SettingsViewModel : ObservableObject
     private IReadOnlyList<AppLanguage> appLanguages;
     [ObservableProperty]
     private int selectedAppLanguageIndex = -1;
+    [ObservableProperty]
+    private string restartOrCloseButtonText = CommonValues.IsContract5Present
+        ? "RestartApp".GetLocalized()
+        : "CloseApp".GetLocalized();
+    [ObservableProperty]
+    private bool showColorThemeChangedInfoBar;
+    [ObservableProperty]
+    private bool showLanguageChangedInfoBar;
 
     public async Task Initialize()
     {
@@ -129,6 +138,7 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         SelectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
+        ShowColorThemeChangedInfoBar = false; // 为了防止初始化时就显示重启应用通知（毕竟这里不是用户修改的）
         #endregion
 
         #region Glance
@@ -169,6 +179,7 @@ public partial class SettingsViewModel : ObservableObject
 
         AppLanguage currentLanguage = LanguageHelper.GetCurrentAppLanguage();
         SelectedAppLanguageIndex = appLanguages.IndexOf(currentLanguage);
+        ShowLanguageChangedInfoBar = false; // 为了防止初始化时就显示重启应用通知（毕竟这里不是用户修改的）
         #endregion
     }
 
@@ -239,6 +250,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (value >= 0)
         {
+            ShowLanguageChangedInfoBar = true;
             AppLanguage lang = AppLanguages[value];
             LanguageHelper.SetAppLanguage(lang);
         }
@@ -248,6 +260,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (value >= 0)
         {
+            ShowColorThemeChangedInfoBar = true;
             AppColorTheme theme = AppColorThemes[value];
             string themeString = theme.ToString();
             SettingsHelper.Set(CommonValues.AppColorThemeSettingsKey, themeString);
@@ -413,5 +426,18 @@ public partial class SettingsViewModel : ObservableObject
     private static void OpenUpdateInfoPage()
     {
         ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage), null, CommonValues.DefaultTransitionInfo);
+    }
+
+    [RelayCommand]
+    private static async Task RestartOrCloseApp()
+    {
+        if (CommonValues.IsContract5Present)
+        {
+            await CoreApplication.RequestRestartAsync(string.Empty);
+        }
+        else
+        {
+            Application.Current.Exit();
+        }
     }
 }

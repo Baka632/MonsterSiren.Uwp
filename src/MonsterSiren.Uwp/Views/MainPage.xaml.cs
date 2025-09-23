@@ -475,8 +475,11 @@ public sealed partial class MainPage : Page
         navigationManager.BackRequested -= BackRequested; //防止重复添加事件订阅
         navigationManager.BackRequested += BackRequested;
 
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-        OnNetworkStatusChanged();
+        if (!CommonValues.IsXbox)
+        {
+            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+            OnNetworkStatusChanged();
+        }
 
         PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
 
@@ -496,7 +499,12 @@ public sealed partial class MainPage : Page
         {
             settings.AccessKeyInvoked -= OnNavigationViewItemAccessKeyInvoked;
         }
-        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+
+        if (!CommonValues.IsXbox)
+        {
+            NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        }
+
         PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
 
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
@@ -567,11 +575,14 @@ public sealed partial class MainPage : Page
 
     private async void OnNetworkStatusChanged(object sender = null)
     {
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
-
-        if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (!CommonValues.IsXbox)
         {
-            await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
+            ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
+
+            if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+            {
+                await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
+            }
         }
     }
 

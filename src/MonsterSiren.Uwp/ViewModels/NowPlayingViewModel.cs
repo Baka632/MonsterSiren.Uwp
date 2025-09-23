@@ -1,4 +1,4 @@
-﻿using Windows.Media.Playback;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;

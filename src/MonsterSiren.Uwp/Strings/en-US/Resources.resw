@@ -298,7 +298,7 @@
     <value>Related content is not found</value>
   </data>
   <data name="SettingsPage_AppColorTheme.Header" xml:space="preserve">
-    <value>Set app's color theme (Restart required)</value>
+    <value>Set app's color theme</value>
   </data>
   <data name="ColorTheme_Default" xml:space="preserve">
     <value>System default</value>
@@ -672,5 +672,20 @@ Continue?</value>
   </data>
   <data name="SettingsPage_ChangeLanguageRestartRequired.Message" xml:space="preserve">
     <value>Restart required after changing language</value>
+  </data>
+  <data name="RestartApp" xml:space="preserve">
+    <value>Restart app</value>
+  </data>
+  <data name="SettingsPage_AppLanguage.Header" xml:space="preserve">
+    <value>Language / 语言</value>
+  </data>
+  <data name="SettingsPage_AppDisplayLanguage.Header" xml:space="preserve">
+    <value>Set Language / 设置语言</value>
+  </data>
+  <data name="CloseApp" xml:space="preserve">
+    <value>Close app</value>
+  </data>
+  <data name="SettingsPage_ChangeColorThemeRestartRequired.Message" xml:space="preserve">
+    <value>Restart required after changing color theme</value>
   </data>
 </root>

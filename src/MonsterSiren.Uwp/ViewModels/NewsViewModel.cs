@@ -82,7 +82,9 @@ public sealed partial class NewsViewModel : ObservableObject
         }
     }
 
+#pragma warning disable IDE0060
     public async void HandleNewsListItemClick(object sender, ItemClickEventArgs e)
+#pragma warning restore IDE0060
     {
         if (e.ClickedItem is not NewsInfo newsInfo)
         {

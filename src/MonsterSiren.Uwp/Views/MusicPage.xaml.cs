@@ -88,11 +88,14 @@ public sealed partial class MusicPage : Page
             return;
         }
 
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
-
-        if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (!CommonValues.IsXbox)
         {
-            return;
+            ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
+
+            if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+            {
+                return;
+            }
         }
 
         try

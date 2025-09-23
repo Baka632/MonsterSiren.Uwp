@@ -46,16 +46,13 @@
             <PivotItem x:Uid="PresentationPivotItem">
                 <ScrollViewer Margin="0,5,0,0">
                     <StackPanel>
-                        <controls:SettingsExpander x:Uid="SettingsPage_AppLanguage">
-                            <controls:SettingsExpander.HeaderIcon>
-                                <FontIcon Glyph="&#xF2B7;" />
-                            </controls:SettingsExpander.HeaderIcon>
+                        <controls:SettingsExpander x:Uid="SettingsPage_AppLanguage" HeaderIcon="Character">
                             <controls:SettingsExpander.CustomHeaderElement>
                                 <muxc:InfoBar
-                                    Margin="0,0,0,10"
                                     x:Uid="SettingsPage_ChangeLanguageRestartRequired"
+                                    Margin="0,0,0,10"
                                     IsClosable="False"
-                                    IsOpen="True"
+                                    IsOpen="{x:Bind ViewModel.ShowLanguageChangedInfoBar, Mode=OneWay}"
                                     Severity="Informational" />
                             </controls:SettingsExpander.CustomHeaderElement>
 
@@ -74,6 +71,14 @@
                             <controls:SettingsExpander.HeaderIcon>
                                 <FontIcon Glyph="&#xEF1F;" />
                             </controls:SettingsExpander.HeaderIcon>
+                            <controls:SettingsExpander.CustomHeaderElement>
+                                <muxc:InfoBar
+                                    x:Uid="SettingsPage_ChangeColorThemeRestartRequired"
+                                    Margin="0,0,0,10"
+                                    IsClosable="False"
+                                    IsOpen="{x:Bind ViewModel.ShowColorThemeChangedInfoBar, Mode=OneWay}"
+                                    Severity="Informational" />
+                            </controls:SettingsExpander.CustomHeaderElement>
 
                             <controls:SettingsCard x:Uid="SettingsPage_AppBackgroundConfig">
                                 <ComboBox ItemsSource="{x:Bind ViewModel.AppBackgroundModes, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedAppBackgroundModeIndex, Mode=TwoWay}">
@@ -225,6 +230,13 @@
             <PivotItem x:Uid="AboutPivotItem">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <StackPanel.Resources>
+                            <Style BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
+                                <Setter Property="Margin" Value="0,0,0,5" />
+                                <Setter Property="Background" Value="Transparent" />
+                            </Style>
+                        </StackPanel.Resources>
+
                         <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                             <Image
                                 Width="90"
@@ -257,29 +269,24 @@
                             </StackPanel>
                         </HyperlinkButton>
 
-                        <Button
-                            Margin="0,0,0,5"
-                            Background="Transparent"
-                            Command="{x:Bind ViewModel.OpenUpdateInfoPageCommand}">
+                        <Button Command="{x:Bind ViewModel.RestartOrCloseAppCommand}" Content="{x:Bind ViewModel.RestartOrCloseButtonText}" />
+
+                        <Button Command="{x:Bind ViewModel.OpenUpdateInfoPageCommand}">
                             <TextBlock x:Uid="SettingsPage_OpenUpdateInfoPage" />
                         </Button>
 
-                        <Button
-                            Margin="0,0,0,5"
-                            Background="Transparent"
-                            Command="{x:Bind ViewModel.OpenCopyrightNoticeDialogCommand}">
+                        <Button Command="{x:Bind ViewModel.OpenCopyrightNoticeDialogCommand}">
                             <TextBlock x:Uid="SettingsPage_CopyrightStatement" />
                         </Button>
 
-                        <Button
-                            Margin="0,0,0,5"
-                            Background="Transparent"
-                            Command="{x:Bind ViewModel.OpenLogFolderCommand}"
-                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
+                        <Button Command="{x:Bind ViewModel.OpenLogFolderCommand}" Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(helpers:EnvironmentHelper.IsWindowsMobile)}">
                             <TextBlock x:Uid="SettingsPage_OpenLogFolder" />
                         </Button>
 
-                        <Button Background="Transparent" Command="{x:Bind ViewModel.OpenCodecsInfoDialogCommand}">
+                        <Button
+                            Margin="0,0,0,0"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.OpenCodecsInfoDialogCommand}">
                             <TextBlock x:Uid="SettingsPage_OpenCodecInfoDialog" />
                         </Button>
                     </StackPanel>
