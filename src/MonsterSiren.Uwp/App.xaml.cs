@@ -189,45 +189,56 @@ sealed partial class App : Application
         }
         else if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
-            Uri uri = protocol.Uri;
-
-            if (uri.Scheme == "windows.personalassistantlaunch")
+            try
             {
-                // Cortana
-                WwwFormUrlDecoder decoder = new(uri.Query);
-                string launchArgument = decoder.GetFirstValueByName("LaunchContext");
+                Uri uri = protocol.Uri;
 
-                if (launchArgument == CommonValues.BakaEurekaAppLaunchArgument)
+                if (uri.Scheme == "windows.personalassistantlaunch")
                 {
-                    ShowBakaEurekaToast();
-                }
-                else
-                {
-                    string[] launchArgumentParts = launchArgument.Split('=');
-                    if (launchArgumentParts.Length > 1)
+                    // Cortana
+                    WwwFormUrlDecoder decoder = new(uri.Query);
+                    string launchArgument = decoder.GetFirstValueByName("LaunchContext");
+
+                    if (launchArgument == CommonValues.BakaEurekaAppLaunchArgument)
                     {
-                        string type = launchArgumentParts[0];
-                        string value = launchArgumentParts[1];
-
-                        if (type == CommonValues.AlbumAppLaunchArgumentHeader)
+                        ShowBakaEurekaToast();
+                    }
+                    else
+                    {
+                        string[] launchArgumentParts = launchArgument.Split('=');
+                        if (launchArgumentParts.Length > 1)
                         {
-                            await PlayAlbumByCid(value);
+                            string type = launchArgumentParts[0];
+                            string value = launchArgumentParts[1];
+
+                            if (type == CommonValues.AlbumAppLaunchArgumentHeader)
+                            {
+                                await PlayAlbumByCid(value);
+                            }
                         }
                     }
                 }
-            }
-            else if (uri.Segments.Length > 1)
-            {
-                string argument = uri.Segments[1];
+                else if (uri.Segments.Length > 1)
+                {
+                    string argument = uri.Segments[1];
 
-                if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
-                {
-                    await PlaySongByCid(argument);
+                    if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await PlaySongByCid(argument);
+                    }
+                    else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await PlayAlbumByCid(argument);
+                    }
                 }
-                else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
-                {
-                    await PlayAlbumByCid(argument);
-                }
+            }
+            catch (UriFormatException ex)
+            {
+#if DEBUG
+                System.Diagnostics.Debugger.Break();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
+                // :-)
             }
         }
     }

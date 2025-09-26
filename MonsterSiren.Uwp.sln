@@ -148,6 +148,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A52FDBF-A96B-45C7-A026-2C271E02A243}
-		RESX_CultureCountyOverrides = az=az-Latn
 	EndGlobalSection
 EndGlobal

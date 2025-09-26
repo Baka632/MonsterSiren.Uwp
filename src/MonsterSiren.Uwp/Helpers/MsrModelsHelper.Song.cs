@@ -63,7 +63,7 @@ public static partial class MsrModelsHelper
 
                 if (span != currentSpan)
                 {
-                    SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(songDetail.Cid);
+                    SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
 
                     await semaphore.WaitAsync();
                     try
@@ -73,7 +73,7 @@ public static partial class MsrModelsHelper
                     finally
                     {
                         semaphore.Release();
-                        LockerHelper<string>.ReturnLocker(songDetail.Cid);
+                        CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
                     }
                 }
             }
@@ -121,7 +121,7 @@ public static partial class MsrModelsHelper
     /// <returns>一个 <see cref="System.TimeSpan"/> 实例</returns>
     public static async Task<TimeSpan?> GetSongDurationAsync(SongDetail songDetail)
     {
-        SemaphoreSlim semaphore = LockerHelper<string>.GetOrCreateLocker(songDetail.Cid);
+        SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
 
         await semaphore.WaitAsync();
         try
@@ -150,7 +150,7 @@ public static partial class MsrModelsHelper
         finally
         {
             semaphore.Release();
-            LockerHelper<string>.ReturnLocker(songDetail.Cid);
+            CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
         }
     }
 

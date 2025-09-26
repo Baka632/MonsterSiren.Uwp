@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -49,6 +49,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         }
     }
 
+    // TODO: 改为使用 Uri
     /// <summary>
     /// 播放列表的封面图
     /// </summary>

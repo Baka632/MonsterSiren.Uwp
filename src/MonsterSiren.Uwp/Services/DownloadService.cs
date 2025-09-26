@@ -501,8 +501,8 @@ public static class DownloadService
         SongDetail songDetail = pack.SongDetail;
         using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
         using TagLib.File file = TagLib.File.Create(uwpStorageFile);
-        IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
 
+        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
         try
         {
             List<SongInfo> songs = [.. albumDetail.Songs];
@@ -513,27 +513,13 @@ public static class DownloadService
             file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
 
             TagLib.Picture picture;
-            if (coverStream is null)
-            {
-                Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                using Windows.Web.Http.HttpClient httpClient = new();
-                using Windows.Web.Http.HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+            coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
 
-                coverStream = new InMemoryRandomAccessStream();
-                await result.Content.WriteToStreamAsync(coverStream);
-
-                try
-                {
-                    await FileCacheHelper.StoreAlbumCoverByStream(albumDetail.Cid, coverStream);
-                }
-                catch
-                {
-                    // qwq
-                }
-            }
+            RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
+            using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
 
             coverStream.Seek(0);
-            Stream stream = coverStream.AsStreamForRead();
+            using Stream stream = coverStream.AsStreamForRead();
             picture = new(TagLib.ByteVector.FromStream(stream))
             {
                 MimeType = "image/jpeg"
@@ -543,7 +529,6 @@ public static class DownloadService
         finally
         {
             file.Save();
-            coverStream.Dispose();
             await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
     }

@@ -64,7 +64,14 @@ partial class MsrModelsHelper
         if (uri is null)
         {
             AlbumDetail albumDetail = await GetAlbumDetailAsync(albumCid);
-            uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            try
+            {
+                uri = await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+            }
+            catch
+            {
+                uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            }
         }
 
         return uri;

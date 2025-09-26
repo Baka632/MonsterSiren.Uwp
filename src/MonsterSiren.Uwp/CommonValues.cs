@@ -111,5 +111,7 @@ internal static partial class CommonValues
     public const string AlbumAppLaunchArgumentHeader = "album";
     public static readonly bool IsContract5Present = ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 5);
     public static readonly bool IsXbox = AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox";
+
+    public static LockerHelper<string> SongDurationLocker { get; } = new();
     #endregion
 }

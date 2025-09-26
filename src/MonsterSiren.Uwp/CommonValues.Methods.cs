@@ -1,14 +1,21 @@
-using System.Net.Http;
+#region 请保留，发布模式需要
+using Microsoft.Services.Store.Engagement;
+#endregion
 using System.Text;
+using System.Net.Http;
 using System.Threading;
+using System.Diagnostics;
 using System.Windows.Input;
 using Windows.Media.Playback;
+using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 
 namespace MonsterSiren.Uwp;
 
 partial class CommonValues
 {
     private static readonly SemaphoreSlim _GetOrFetchAlbumsSemaphore = new(1);
+    private static readonly SemaphoreSlim _LoadAndCacheAlbumSemaphore = new(1 /*10*/);
 
     /// <summary>
     /// 显示一个对话框
@@ -1800,5 +1807,78 @@ partial class CommonValues
     {
         int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
         return new(new AlbumInfoSource(albums), loadCount);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="Image"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="Image"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(Image image, AlbumInfo info)
+    {
+        if (image.Source is not BitmapImage bitmapImage)
+        {
+            bitmapImage = new BitmapImage();
+            image.Source = bitmapImage;
+        }
+        await LoadAndCacheMusicCoverCore(bitmapImage, info);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
+    {
+        if (image.Source is not BitmapImage bitmapImage)
+        {
+            bitmapImage = new BitmapImage();
+            image.Source = bitmapImage;
+        }
+        await LoadAndCacheMusicCoverCore(bitmapImage, info);
+    }
+
+    private static async Task LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info)
+    {
+        try
+        {
+            Uri fileCoverUri = await GetMusicCoverUriCore(info.Cid, info);
+
+            bitmapImage.UriSource = fileCoverUri;
+        }
+        catch (Exception ex)
+        {
+#if RELEASE
+                try
+                {
+                    StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();
+                    logger.Log("缓存封面图像失败");
+                }
+                catch
+                {
+                    // Enough!
+                }
+#else
+            Debug.WriteLine(ex);
+            Debugger.Break();
+#endif
+        }
+    }
+
+    private static async Task<Uri> GetMusicCoverUriCore(string albumCid, AlbumInfo info)
+    {
+        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumCid);
+        if (fileCoverUri is null)
+        {
+            await _LoadAndCacheAlbumSemaphore.WaitAsync();
+            try
+            {
+                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverAsync(info));
+            }
+            finally
+            {
+                _LoadAndCacheAlbumSemaphore.Release();
+            }
+        }
+        return fileCoverUri;
     }
 }

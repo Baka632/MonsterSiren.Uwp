@@ -30,7 +30,7 @@ public sealed partial class MusicInfoService : ObservableObject
     [NotifyPropertyChangedFor(nameof(MusicPosition))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
-    private BitmapImage currentMediaCover;
+    private BitmapImage currentMediaCover; // TODO: 改为 Uri
     [ObservableProperty]
     private string volumeIconGlyph = "\uE995";
     [ObservableProperty]
@@ -560,25 +560,25 @@ public sealed partial class MusicInfoService : ObservableObject
             {
                 AlbumDetail albumDetail = details.First();
 
-                Uri uri;
-
                 Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
-                if (fileCoverUri != null)
+                if (fileCoverUri == null)
                 {
-                    uri = fileCoverUri;
-                }
-                else
-                {
-                    uri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                    await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+                    try
+                    {
+                        fileCoverUri = await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+                    }
+                    catch
+                    {
+                        fileCoverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                    }
                 }
 
-                if (CurrentMediaCover?.UriSource == uri)
+                if (CurrentMediaCover?.UriSource == fileCoverUri)
                 {
                     return;
                 }
 
-                CurrentMediaCover = new BitmapImage(uri)
+                CurrentMediaCover = new BitmapImage(fileCoverUri)
                 {
                     DecodePixelHeight = 250,
                     DecodePixelWidth = 250,
@@ -591,7 +591,7 @@ public sealed partial class MusicInfoService : ObservableObject
                 }
                 else
                 {
-                    MusicThemeColor = await ImageColorHelper.GetPaletteColor(uri);
+                    MusicThemeColor = await ImageColorHelper.GetPaletteColor(fileCoverUri);
                     MemoryCacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
                 }
             }
