@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 
 namespace MonsterSiren.Uwp.Helpers;
 
@@ -35,7 +35,7 @@ partial class MsrModelsHelper
 
                 if (shouldUpdate)
                 {
-                    List<SongInfo> songs = detail.Songs.ToList();
+                    List<SongInfo> songs = [.. detail.Songs];
                     TryFillArtistForSongs(songs);
 
                     detail = detail with { Songs = songs };
@@ -64,7 +64,14 @@ partial class MsrModelsHelper
         if (uri is null)
         {
             AlbumDetail albumDetail = await GetAlbumDetailAsync(albumCid);
-            uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            try
+            {
+                uri = await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+            }
+            catch
+            {
+                uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            }
         }
 
         return uri;

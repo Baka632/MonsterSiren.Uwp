@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -40,7 +40,8 @@ public sealed partial class NewsViewModel : ObservableObject
             }
             else
             {
-                RecommendedNewsInfos = (await NewsService.GetRecommendedNewsAsync()).ToList();
+                List<RecommendedNewsInfo> list = [.. await NewsService.GetRecommendedNewsAsync()];
+                RecommendedNewsInfos = list;
                 MemoryCacheHelper<IList<RecommendedNewsInfo>>.Default.Store(CommonValues.RecommendedNewsInfosCacheKey, RecommendedNewsInfos);
             }
 
@@ -66,7 +67,7 @@ public sealed partial class NewsViewModel : ObservableObject
             NewsInfos = newsInfos;
             MemoryCacheHelper<MsrIncrementalCollection<NewsInfo>>.Default.Store(CommonValues.NewsItemCollectionCacheKey, newsInfos);
 
-            List<RecommendedNewsInfo> recommendeds = (await NewsService.GetRecommendedNewsAsync()).ToList();
+            List<RecommendedNewsInfo> recommendeds = [.. await NewsService.GetRecommendedNewsAsync()];
             if (RecommendedNewsInfos is null || !RecommendedNewsInfos.SequenceEqual(recommendeds))
             {
                 RecommendedNewsInfos = recommendeds;
@@ -81,7 +82,9 @@ public sealed partial class NewsViewModel : ObservableObject
         }
     }
 
+#pragma warning disable IDE0060
     public async void HandleNewsListItemClick(object sender, ItemClickEventArgs e)
+#pragma warning restore IDE0060
     {
         if (e.ClickedItem is not NewsInfo newsInfo)
         {

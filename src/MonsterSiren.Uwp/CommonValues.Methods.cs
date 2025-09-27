@@ -1,25 +1,32 @@
-using System.Net.Http;
+#region 请保留，发布模式需要
+using Microsoft.Services.Store.Engagement;
+#endregion
 using System.Text;
+using System.Net.Http;
 using System.Threading;
+using System.Diagnostics;
 using System.Windows.Input;
 using Windows.Media.Playback;
+using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 
 namespace MonsterSiren.Uwp;
 
 partial class CommonValues
 {
     private static readonly SemaphoreSlim _GetOrFetchAlbumsSemaphore = new(1);
+    private static readonly SemaphoreSlim _LoadAndCacheAlbumSemaphore = new(10);
 
     /// <summary>
-    /// 显示一个对话框
+    /// 显示一个对话框。
     /// </summary>
-    /// <param name="title">对话框的标题</param>
-    /// <param name="message">对话框的消息</param>
-    /// <param name="primaryButtonText">主按钮文本</param>
-    /// <param name="closeButtonText">关闭按钮文本</param>
-    /// <param name="secondaryButtonText">第二按钮文本</param>
-    /// <param name="defaultButton">默认按钮</param>
-    /// <returns>记录结果的 <see cref="ContentDialogResult"/></returns>
+    /// <param name="title">对话框的标题。</param>
+    /// <param name="message">对话框的消息。</param>
+    /// <param name="primaryButtonText">主按钮文本。</param>
+    /// <param name="closeButtonText">关闭按钮文本。</param>
+    /// <param name="secondaryButtonText">第二按钮文本。</param>
+    /// <param name="defaultButton">默认按钮。</param>
+    /// <returns>记录结果的 <see cref="ContentDialogResult"/>。</returns>
     public static async Task<ContentDialogResult> DisplayContentDialog(
         string title, string message, string primaryButtonText = "", string closeButtonText = "",
         string secondaryButtonText = "", ContentDialogButton defaultButton = ContentDialogButton.None)
@@ -49,22 +56,39 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符
+    /// 将字符串中不能作为文件名的部分字符替换为相近的合法字符。
     /// </summary>
-    /// <param name="fileName">文件名字符串</param>
-    /// <returns>新的字符串</returns>
+    /// <param name="fileName">文件名字符串。</param>
+    /// <remarks>
+    /// <para>
+    /// 本方法替换了以下字符：
+    /// </para>
+    /// <para>
+    /// " ? : &lt; &gt; | * / \
+    /// </para>
+    /// <para>
+    /// 其他在 <see cref="Path.GetInvalidFileNameChars"/> 方法中出现的字符将被删去。
+    /// </para>
+    /// </remarks>
+    /// <returns>新的字符串。</returns>
     public static string ReplaceInvaildFileNameChars(string fileName)
     {
         StringBuilder stringBuilder = new(fileName);
         stringBuilder.Replace('"', '\'');
+        stringBuilder.Replace('?', '？');
+        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('<', '[');
         stringBuilder.Replace('>', ']');
         stringBuilder.Replace('|', 'I');
-        stringBuilder.Replace(':', '：');
         stringBuilder.Replace('*', '★');
-        stringBuilder.Replace('?', '？');
         stringBuilder.Replace('/', '↗');
         stringBuilder.Replace('\\', '↘');
+
+        foreach (string invalidCharStr in InvaildFileNameCharsStringArray)
+        {
+            stringBuilder.Replace(invalidCharStr, string.Empty);
+        }
+
         return stringBuilder.ToString();
     }
 
@@ -196,7 +220,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. albumInfos], box);
 
             await MusicService.ReplaceMusic(items);
 
@@ -285,7 +309,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songInfos], albumDetail, box);
             await MusicService.ReplaceMusic(items);
             box.Unbox();
             return true;
@@ -350,7 +374,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playlistItems.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. playlistItems], box);
             await MusicService.ReplaceMusic(items);
             box.Unbox();
 
@@ -478,7 +502,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumInfos.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. albumInfos], box);
 
             await MusicService.AddMusic(items);
 
@@ -566,7 +590,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songInfos], albumDetail, box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -706,7 +730,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(packs.ToArray(), box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. packs], box);
             await MusicService.AddMusic(items);
             box.Unbox();
             return true;
@@ -727,7 +751,7 @@ partial class CommonValues
     /// <returns>指示操作是否成功的值</returns>
     public static async Task<bool> AddToNowPlaying(IEnumerable<PlaylistItem> playlistItems)
     {
-        PlaylistItem[] playlistItemsArray = playlistItems.ToArray();
+        PlaylistItem[] playlistItemsArray = [.. playlistItems];
 
         if (playlistItemsArray.Length <= 0)
         {
@@ -884,7 +908,7 @@ partial class CommonValues
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(songInfos.ToArray(), albumDetail, box);
+            IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs([.. songInfos], albumDetail, box);
             await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
 
             box.Unbox();
@@ -913,7 +937,8 @@ partial class CommonValues
 
         try
         {
-            await PlaylistService.AddItemsForPlaylistAsync(playlist, playlistItems.ToArray());
+            PlaylistItem[] items = [.. playlistItems];
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
             return true;
         }
         catch (HttpRequestException)
@@ -1548,14 +1573,14 @@ partial class CommonValues
     /// <summary>
     /// 根据 <see cref="SongInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列
     /// </summary>
-    /// <param name="songInfos"><see cref="SongInfo"/> 序列</param>
+    /// <param name="songInfos"><see cref="SongInfo"/> 数组</param>
     /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/> 实例</param>
     /// <param name="box">存储异常的 <see cref="ExceptionBox"/></param>
     /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列</returns>
     /// <remarks>
     /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
     /// </remarks>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<SongInfo> songInfos, AlbumDetail albumDetail, ExceptionBox box)
+    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(SongInfo[] songInfos, AlbumDetail albumDetail, ExceptionBox box)
     {
         foreach (SongInfo item in songInfos)
         {
@@ -1782,5 +1807,110 @@ partial class CommonValues
     {
         int loadCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
         return new(new AlbumInfoSource(albums), loadCount);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="Image"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="Image"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(Image image, AlbumInfo info)
+    {
+        if (image.Source is not BitmapImage bitmapImage)
+        {
+            bitmapImage = new BitmapImage();
+            image.Source = bitmapImage;
+        }
+        await LoadAndCacheMusicCoverCore(bitmapImage, info, () => ReferenceEquals(image.Source, bitmapImage) && (AlbumInfo)image.DataContext == info);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
+    {
+        bool needModifySource = false;
+
+        if (image.Source is not BitmapImage bitmapImage)
+        {
+            needModifySource = true;
+            bitmapImage = new BitmapImage()
+            {
+                DecodePixelHeight = 250,
+                DecodePixelType = DecodePixelType.Logical,
+                DecodePixelWidth = 250
+            };
+        }
+
+        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info, () => (AlbumInfo)image.DataContext == info);
+
+        lock (image)
+        {
+            if (needModifySource && isSuccess)
+            {
+                image.Source = bitmapImage;
+            }
+        }
+    }
+
+    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info, Func<bool> detectCanUpdateSource)
+    {
+        if (bitmapImage is null)
+        {
+            throw new ArgumentNullException(nameof(bitmapImage));
+        }
+
+        if (detectCanUpdateSource is null)
+        {
+            throw new ArgumentNullException(nameof(detectCanUpdateSource));
+        }
+
+        try
+        {
+            Uri fileCoverUri = await GetMusicCoverUriCore(info.Cid, info);
+
+            if (detectCanUpdateSource())
+            {
+                bitmapImage.UriSource = fileCoverUri;
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+#if RELEASE
+                try
+                {
+                    StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();
+                    logger.Log("缓存封面图像失败");
+                }
+                catch
+                {
+                    // Enough!
+                }
+#else
+            Debug.WriteLine(ex);
+            Debugger.Break();
+#endif
+        }
+
+        return false;
+    }
+
+    private static async Task<Uri> GetMusicCoverUriCore(string albumCid, AlbumInfo info)
+    {
+        Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumCid);
+        if (fileCoverUri is null)
+        {
+            await _LoadAndCacheAlbumSemaphore.WaitAsync();
+            try
+            {
+                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverAsync(info));
+            }
+            finally
+            {
+                _LoadAndCacheAlbumSemaphore.Release();
+            }
+        }
+        return fileCoverUri;
     }
 }
