@@ -30,7 +30,7 @@ public sealed partial class MusicInfoService : ObservableObject
     [NotifyPropertyChangedFor(nameof(MusicPosition))]
     private MusicDisplayProperties currentMusicProperties;
     [ObservableProperty]
-    private BitmapImage currentMediaCover; // TODO: 改为 Uri
+    private BitmapImage currentMediaCover;
     [ObservableProperty]
     private string volumeIconGlyph = "\uE995";
     [ObservableProperty]
