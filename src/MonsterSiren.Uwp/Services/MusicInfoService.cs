@@ -842,7 +842,7 @@ public sealed partial class MusicInfoService : ObservableObject
         }
 #else
 #warning Do not disable Eureka! Otherwise you will get unlucky!
-#error Eureka is my beloved, do not leave it alone! ——Baka632
+#error Eureka is my beloved, do not leave her alone! ——Baka632
 #endif
     }
 #endif
