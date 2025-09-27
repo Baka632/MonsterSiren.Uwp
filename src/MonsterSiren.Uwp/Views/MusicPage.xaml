@@ -11,6 +11,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:MusicViewModel}"
     Loaded="OnMusicPageLoaded"
@@ -153,20 +154,15 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <Image
+                            <wctControls:ImageEx
                                 x:Name="AlbumImage"
                                 Grid.Row="0"
                                 Width="170"
                                 Height="170"
                                 Margin="0,0,0,5"
-                                Stretch="UniformToFill">
-                                <Image.Source>
-                                    <BitmapImage
-                                        DecodePixelHeight="250"
-                                        DecodePixelType="Logical"
-                                        DecodePixelWidth="250" />
-                                </Image.Source>
-                            </Image>
+                                PlaceholderSource="ms-appx:///Assets/NullAlbum.png"
+                                PlaceholderStretch="UniformToFill"
+                                Stretch="UniformToFill" />
                             <TextBlock
                                 Grid.Row="1"
                                 HorizontalAlignment="Left"

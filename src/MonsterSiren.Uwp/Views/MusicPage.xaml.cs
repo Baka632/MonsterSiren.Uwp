@@ -1,6 +1,7 @@
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Text.Json;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -127,24 +128,21 @@ public sealed partial class MusicPage : Page
     private void OnContentGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
         Grid grid = (Grid)args.ItemContainer.ContentTemplateRoot;
-        Image image = (Image)grid.FindName("AlbumImage");
+        ImageEx image = (ImageEx)grid.FindName("AlbumImage");
 
         if (args.InRecycleQueue)
         {
-            image.Opacity = 0;
+            image.Source = null;
         }
         else
         {
-            args.RegisterUpdateCallback(async (sender, args) =>
+            args.RegisterUpdateCallback((sender, args) =>
             {
-                AlbumInfo albumInfo = (AlbumInfo)args.Item;
-                await CommonValues.LoadAndCacheMusicCover(image, albumInfo);
+                image.Source = null;
 
-                // 防止被回收后的 Image 显示不正确的图像
-                if ((AlbumInfo)image.DataContext == albumInfo)
-                {
-                    image.Opacity = 1;
-                }
+                AlbumInfo albumInfo = (AlbumInfo)args.Item;
+
+                _ = CommonValues.LoadAndCacheMusicCover(image, albumInfo);
             });
         }
         args.Handled = true;

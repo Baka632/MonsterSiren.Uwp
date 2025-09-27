@@ -15,18 +15,18 @@ namespace MonsterSiren.Uwp;
 partial class CommonValues
 {
     private static readonly SemaphoreSlim _GetOrFetchAlbumsSemaphore = new(1);
-    private static readonly SemaphoreSlim _LoadAndCacheAlbumSemaphore = new(1 /*10*/);
+    private static readonly SemaphoreSlim _LoadAndCacheAlbumSemaphore = new(10);
 
     /// <summary>
-    /// 显示一个对话框
+    /// 显示一个对话框。
     /// </summary>
-    /// <param name="title">对话框的标题</param>
-    /// <param name="message">对话框的消息</param>
-    /// <param name="primaryButtonText">主按钮文本</param>
-    /// <param name="closeButtonText">关闭按钮文本</param>
-    /// <param name="secondaryButtonText">第二按钮文本</param>
-    /// <param name="defaultButton">默认按钮</param>
-    /// <returns>记录结果的 <see cref="ContentDialogResult"/></returns>
+    /// <param name="title">对话框的标题。</param>
+    /// <param name="message">对话框的消息。</param>
+    /// <param name="primaryButtonText">主按钮文本。</param>
+    /// <param name="closeButtonText">关闭按钮文本。</param>
+    /// <param name="secondaryButtonText">第二按钮文本。</param>
+    /// <param name="defaultButton">默认按钮。</param>
+    /// <returns>记录结果的 <see cref="ContentDialogResult"/>。</returns>
     public static async Task<ContentDialogResult> DisplayContentDialog(
         string title, string message, string primaryButtonText = "", string closeButtonText = "",
         string secondaryButtonText = "", ContentDialogButton defaultButton = ContentDialogButton.None)
@@ -1820,7 +1820,7 @@ partial class CommonValues
             bitmapImage = new BitmapImage();
             image.Source = bitmapImage;
         }
-        await LoadAndCacheMusicCoverCore(bitmapImage, info);
+        await LoadAndCacheMusicCoverCore(bitmapImage, info, () => ReferenceEquals(image.Source, bitmapImage) && (AlbumInfo)image.DataContext == info);
     }
 
     /// <summary>
@@ -1829,21 +1829,51 @@ partial class CommonValues
     /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
     public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
     {
+        bool needModifySource = false;
+
         if (image.Source is not BitmapImage bitmapImage)
         {
-            bitmapImage = new BitmapImage();
-            image.Source = bitmapImage;
+            needModifySource = true;
+            bitmapImage = new BitmapImage()
+            {
+                DecodePixelHeight = 250,
+                DecodePixelType = DecodePixelType.Logical,
+                DecodePixelWidth = 250
+            };
         }
-        await LoadAndCacheMusicCoverCore(bitmapImage, info);
+
+        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info, () => (AlbumInfo)image.DataContext == info);
+
+        lock (image)
+        {
+            if (needModifySource && isSuccess)
+            {
+                image.Source = bitmapImage;
+            }
+        }
     }
 
-    private static async Task LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info)
+    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info, Func<bool> detectCanUpdateSource)
     {
+        if (bitmapImage is null)
+        {
+            throw new ArgumentNullException(nameof(bitmapImage));
+        }
+
+        if (detectCanUpdateSource is null)
+        {
+            throw new ArgumentNullException(nameof(detectCanUpdateSource));
+        }
+
         try
         {
             Uri fileCoverUri = await GetMusicCoverUriCore(info.Cid, info);
 
-            bitmapImage.UriSource = fileCoverUri;
+            if (detectCanUpdateSource())
+            {
+                bitmapImage.UriSource = fileCoverUri;
+                return true;
+            }
         }
         catch (Exception ex)
         {
@@ -1862,6 +1892,8 @@ partial class CommonValues
             Debugger.Break();
 #endif
         }
+
+        return false;
     }
 
     private static async Task<Uri> GetMusicCoverUriCore(string albumCid, AlbumInfo info)

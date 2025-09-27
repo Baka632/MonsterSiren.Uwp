@@ -1,5 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
+using MonsterSiren.Api.Models.Album;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -182,5 +184,10 @@ public sealed partial class AlbumDetailPage : Page
         SongInfo songInfo = (SongInfo)element.DataContext;
 
         await ViewModel.PlayForSongInfoCommand.ExecuteAsync(songInfo);
+    }
+
+    private async void OnAlbumCoverLoaded(object sender, RoutedEventArgs e)
+    {
+        await CommonValues.LoadAndCacheMusicCover(AlbumCover, ViewModel.CurrentAlbumInfo);
     }
 }

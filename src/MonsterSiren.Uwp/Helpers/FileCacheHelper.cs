@@ -20,6 +20,20 @@ internal static class FileCacheHelper
     private static readonly StorageFolder tempFolder = ApplicationData.Current.TemporaryFolder;
     private static readonly ConcurrentDictionary<string, Uri> albumCidAndAlbumUriDictionary = new();
     private static readonly LockerHelper<string> albumCoverLocker = new();
+    private static StorageFolder coverFolder;
+
+    /// <summary>
+    /// 清理专辑缓存文件夹，以移除下载事务操作遗留下来的临时文件。
+    /// </summary>
+    public static async Task CleanAlbumCoverFolder()
+    {
+        StorageFolder coverFolder = await GetCoverFolder();
+        IReadOnlyList<StorageFile> files = await coverFolder.GetFilesAsync();
+        foreach (StorageFile file in files.Where(file => Path.GetExtension(file.Name) == ".~tmp"))
+        {
+            await file.DeleteAsync();
+        }
+    }
 
     /// <summary>
     /// 通过指定的 <see cref="AlbumDetail"/> 实例获取指向专辑封面的 <see cref="Uri"/>。
@@ -57,29 +71,14 @@ internal static class FileCacheHelper
         {
             string fileName = $"{cid}.jpg";
 
-            StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+            StorageFolder coverFolder = await GetCoverFolder();
 
-            if (coverFolder != null && await coverFolder.FileExistsAsync(fileName))
+            if (coverFolder != null)
             {
-                StorageFile file = await coverFolder.GetFileAsync(fileName);
-                BasicProperties fileBasicProps = await file.GetBasicPropertiesAsync();
-
-                if (fileBasicProps.Size != 0)
+                (bool canCreateNewAlbumCover, Uri existingCoverUri) = await DetectCanCreateAlbumCoverFile(coverFolder, fileName);
+                if (!canCreateNewAlbumCover)
                 {
-                    Uri uri = CreateAlbumCoverImageUri(coverFolder.Name, fileName);
-                    albumCidAndAlbumUriDictionary.TryAdd(cid, uri);
-                    return uri;
-                }
-                else
-                {
-                    await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                }
-
-                // 移除下载事务操作遗留下来的临时文件
-                if (await coverFolder.FileExistsAsync($"{file.Name}.~tmp"))
-                {
-                    StorageFile tempFile = await coverFolder.GetFileAsync($"{file.Name}.~tmp");
-                    await tempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    return existingCoverUri;
                 }
             }
         }
@@ -125,7 +124,7 @@ internal static class FileCacheHelper
         {
             await semaphore.WaitAsync();
 
-            StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+            StorageFolder coverFolder = await GetCoverFolder();
             string fileName = $"{cid}.jpg";
 
             (bool canCreateNewAlbumCover, Uri existingCoverUri) = await DetectCanCreateAlbumCoverFile(coverFolder, fileName);
@@ -204,7 +203,7 @@ internal static class FileCacheHelper
     {
         string fileName = $"{cid}.jpg";
 
-        StorageFolder coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists);
+        StorageFolder coverFolder = await GetCoverFolder();
         (bool canCreateNewAlbumCover, Uri existingCoverUri) = await DetectCanCreateAlbumCoverFile(coverFolder, fileName);
         if (canCreateNewAlbumCover)
         {
@@ -229,6 +228,16 @@ internal static class FileCacheHelper
     private static Uri CreateAlbumCoverImageUri(string folderName, string fileName)
     {
         return new Uri($"ms-appdata:///temp/{folderName}/{fileName}", UriKind.Absolute);
+    }
+
+    private static async Task<StorageFolder> GetCoverFolder()
+    {
+        if (coverFolder is null)
+        {
+            coverFolder = await tempFolder.CreateFolderAsync(DefaultAlbumCoverCacheFolderName, CreationCollisionOption.OpenIfExists); ;
+        }
+
+        return coverFolder;
     }
 
     /// <summary>
