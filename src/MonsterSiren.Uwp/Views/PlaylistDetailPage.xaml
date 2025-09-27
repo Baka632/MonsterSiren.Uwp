@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="MonsterSiren.Uwp.Views.PlaylistDetailPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -11,6 +11,7 @@
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistDetailViewModel}"
     mc:Ignorable="d">
@@ -108,24 +109,12 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Grid x:Name="CoverGrid">
-                        <Image
-                            x:Name="PlaylistCover"
-                            Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImage, Mode=OneWay}"
-                            Stretch="UniformToFill"
-                            Visibility="{x:Bind helpers:XamlHelper.IsNullReverseVisibility(ViewModel.CurrentPlaylist.PlaylistCoverImage), Mode=OneWay}" />
-                        <Grid
-                            x:Name="PlaylistNoItemCover"
-                            Background="#4b4b4b"
-                            Visibility="{x:Bind helpers:XamlHelper.IsNullToVisibility(ViewModel.CurrentPlaylist.PlaylistCoverImage), Mode=OneWay}">
-                            <FontIcon
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontSize="50"
-                                Foreground="White"
-                                Glyph="&#xE955;" />
-                        </Grid>
-                    </Grid>
+                    <wctControls:ImageEx
+                        x:Name="PlaylistCover"
+                        PlaceholderSource="ms-appx:///Assets/NullPlaylist.png"
+                        PlaceholderStretch="UniformToFill"
+                        Source="{x:Bind ViewModel.CurrentPlaylist.PlaylistCoverImageUri, Mode=OneWay}"
+                        Stretch="UniformToFill" />
 
                     <Grid x:Name="PlaylistInfoGrid" Grid.Column="1">
                         <Grid.RowDefinitions>
@@ -347,9 +336,7 @@
                     <VisualState.Setters>
                         <Setter Target="PlaylistCover.Height" Value="200" />
                         <Setter Target="PlaylistCover.Width" Value="200" />
-                        <Setter Target="PlaylistNoItemCover.Height" Value="200" />
-                        <Setter Target="PlaylistNoItemCover.Width" Value="200" />
-                        <Setter Target="CoverGrid.Margin" Value="0" />
+                        <Setter Target="PlaylistCover.Margin" Value="0" />
 
                         <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Center" />
 
@@ -363,8 +350,8 @@
 
                         <Setter Target="PlaylistInfoGrid.(Grid.Row)" Value="1" />
                         <Setter Target="PlaylistInfoGrid.(Grid.Column)" Value="1" />
-                        <Setter Target="CoverGrid.(Grid.Row)" Value="0" />
-                        <Setter Target="CoverGrid.(Grid.Column)" Value="1" />
+                        <Setter Target="PlaylistCover.(Grid.Row)" Value="0" />
+                        <Setter Target="PlaylistCover.(Grid.Column)" Value="1" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -375,9 +362,7 @@
                     <VisualState.Setters>
                         <Setter Target="PlaylistCover.Height" Value="250" />
                         <Setter Target="PlaylistCover.Width" Value="250" />
-                        <Setter Target="PlaylistNoItemCover.Height" Value="250" />
-                        <Setter Target="PlaylistNoItemCover.Width" Value="250" />
-                        <Setter Target="CoverGrid.Margin" Value="0,0,20,0" />
+                        <Setter Target="PlaylistCover.Margin" Value="0,0,20,0" />
 
                         <Setter Target="ControlBarStackPanel.HorizontalAlignment" Value="Stretch" />
 
@@ -391,8 +376,8 @@
 
                         <Setter Target="PlaylistInfoGrid.(Grid.Row)" Value="1" />
                         <Setter Target="PlaylistInfoGrid.(Grid.Column)" Value="1" />
-                        <Setter Target="CoverGrid.(Grid.Row)" Value="1" />
-                        <Setter Target="CoverGrid.(Grid.Column)" Value="0" />
+                        <Setter Target="PlaylistCover.(Grid.Row)" Value="1" />
+                        <Setter Target="PlaylistCover.(Grid.Column)" Value="0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

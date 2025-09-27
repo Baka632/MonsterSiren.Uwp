@@ -5,26 +5,23 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace MonsterSiren.Uwp.Models;
 
 /// <summary>
-/// 表示一个播放列表的类
+/// 表示一个播放列表。
 /// </summary>
-/// <param name="title">播放列表标题</param>
-/// <param name="description">播放列表描述</param>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
 {
     public event PropertyChangedEventHandler PropertyChanged;
     private string _title;
     private string _description;
-    private BitmapImage _playlistCoverImage;
+    private Uri _playlistCoverImageUri;
     private bool isBlocking = false;
 
     /// <summary>
-    /// 播放列表的标题
+    /// 播放列表的标题。
     /// </summary>
     public string Title
     {
@@ -37,7 +34,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     }
 
     /// <summary>
-    /// 播放列表的描述
+    /// 播放列表的描述。
     /// </summary>
     public string Description
     {
@@ -49,44 +46,43 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         }
     }
 
-    // TODO: 改为使用 Uri
     /// <summary>
-    /// 播放列表的封面图
+    /// 播放列表的封面图。
     /// </summary>
     [JsonIgnore]
-    public BitmapImage PlaylistCoverImage
+    public Uri PlaylistCoverImageUri
     {
-        get => _playlistCoverImage;
+        get => _playlistCoverImageUri;
         set
         {
-            _playlistCoverImage = value;
+            _playlistCoverImageUri = value;
             OnPropertiesChanged();
         }
     }
 
     /// <summary>
-    /// 播放列表的总时长
+    /// 播放列表的总时长。
     /// </summary>
     public TimeSpan TotalDuration { get; private set; }
 
     /// <summary>
-    /// 播放列表的 ID
+    /// 播放列表的 ID。
     /// </summary>
     public Guid PlaylistId { get; private set; }
 
     /// <summary>
-    /// 播放列表的保存名称
+    /// 播放列表的保存名称。
     /// </summary>
     public string PlaylistSaveName { get; set; }
 
     /// <summary>
-    /// 当前播放列表的歌曲个数
+    /// 当前播放列表的歌曲个数。
     /// </summary>
     [JsonIgnore]
     public int SongCount { get => Items.Count; }
 
     /// <summary>
-    /// 播放列表的歌曲列表
+    /// 播放列表的歌曲列表。
     /// </summary>
     public ObservableCollection<PlaylistItem> Items { get; private set; } = [];
 
@@ -161,32 +157,26 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
             try
             {
                 Uri uri = await MsrModelsHelper.GetAlbumCoverAsync(item.AlbumCid);
-
-                await UIThreadHelper.RunOnUIThread(() =>
+                if (PlaylistCoverImageUri != uri)
                 {
-                    if (PlaylistCoverImage?.UriSource == uri)
-                    {
-                        return;
-                    }
-
-                    PlaylistCoverImage = new(uri);
-                });
+                    PlaylistCoverImageUri = uri;
+                }
             }
             catch (HttpRequestException)
             {
-                PlaylistCoverImage = null;
+                PlaylistCoverImageUri = null;
             }
             catch (ArgumentOutOfRangeException)
             {
                 isBlocking = true;
                 Items[0] = item with { IsCorruptedItem = true };
                 isBlocking = false;
-                PlaylistCoverImage = null;
+                PlaylistCoverImageUri = null;
             }
         }
         else
         {
-            PlaylistCoverImage = null;
+            PlaylistCoverImageUri = null;
         }
     }
 
@@ -196,9 +186,9 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     }
 
     /// <summary>
-    /// 通知运行时属性已经发生更改
+    /// 通知运行时属性已经发生更改。
     /// </summary>
-    /// <param name="propertyName">发生更改的属性名称,其填充是自动完成的</param>
+    /// <param name="propertyName">发生更改的属性名称，其填充是自动完成的。</param>
     public async void OnPropertiesChanged([CallerMemberName] string propertyName = "")
     {
         await UIThreadHelper.RunOnUIThread(() =>
@@ -253,7 +243,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         int hashCode = 1910073755;
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
-        hashCode = hashCode * -1521134295 + EqualityComparer<BitmapImage>.Default.GetHashCode(PlaylistCoverImage);
+        hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(PlaylistCoverImageUri);
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
         hashCode = hashCode * -1521134295 + PlaylistId.GetHashCode();
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PlaylistSaveName);
