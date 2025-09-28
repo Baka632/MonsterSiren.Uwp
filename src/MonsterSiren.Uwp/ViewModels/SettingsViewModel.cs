@@ -33,7 +33,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool transcodeDownloadedMusic = DownloadService.TranscodeDownloadedItem;
     [ObservableProperty]
-    private bool replaceInvaildCharInDownloadedFileName = DownloadService.ReplaceInvaildCharInFileName;
+    private bool replaceInvaildCharInDownloadedFileName = DownloadService.ReplaceInvalidCharInFileName;
     [ObservableProperty]
     private int selectedCodecInfoIndex = -1;
     [ObservableProperty]
@@ -210,7 +210,7 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnReplaceInvaildCharInDownloadedFileNameChanged(bool value)
     {
-        DownloadService.ReplaceInvaildCharInFileName = value;
+        DownloadService.ReplaceInvalidCharInFileName = value;
     }
 
     partial void OnSelectedCodecInfoIndexChanged(int value)

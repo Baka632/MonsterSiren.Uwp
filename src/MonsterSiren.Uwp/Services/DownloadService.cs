@@ -22,7 +22,7 @@ public static class DownloadService
     private static bool _keepRawMusicFileAfterTranscode;
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
-    private static bool _replaceInvaildCharInFileName = true;
+    private static bool _replaceInvalidCharInFileName = true;
     private static CodecInfo _transcodeEncoderInfo;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static readonly BackgroundDownloader Downloader = new()
@@ -112,13 +112,13 @@ public static class DownloadService
     /// <summary>
     /// 指示下载文件出现无效字符时是否替换为相近的有效字符的值。
     /// </summary>
-    public static bool ReplaceInvaildCharInFileName
+    public static bool ReplaceInvalidCharInFileName
     {
-        get => _replaceInvaildCharInFileName;
+        get => _replaceInvalidCharInFileName;
         set
         {
-            SettingsHelper.Set(CommonValues.MusicReplaceInvaildCharInDownloadedFileNameSettingsKey, value);
-            _replaceInvaildCharInFileName = value;
+            SettingsHelper.Set(CommonValues.MusicReplaceInvalidCharInDownloadedFileNameSettingsKey, value);
+            _replaceInvalidCharInFileName = value;
         }
     }
 
@@ -157,8 +157,8 @@ public static class DownloadService
         }
 
         {
-            ReplaceInvaildCharInFileName = !SettingsHelper.TryGet(CommonValues.MusicReplaceInvaildCharInDownloadedFileNameSettingsKey, out bool replaceInvaildChar)
-                                    || replaceInvaildChar;
+            ReplaceInvalidCharInFileName = !SettingsHelper.TryGet(CommonValues.MusicReplaceInvalidCharInDownloadedFileNameSettingsKey, out bool replaceInvalidChar)
+                                    || replaceInvalidChar;
         }
 
         {
@@ -260,13 +260,13 @@ public static class DownloadService
             string musicName = songDetail.Name?.Trim();
             string musicFileName = $"{songDetail.Artists.FirstOrDefault()?.Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
 
-            if (ReplaceInvaildCharInFileName)
+            if (ReplaceInvalidCharInFileName)
             {
                 musicFileName = CommonValues.ReplaceInvaildFileNameChars(musicFileName);
             }
             else
             {
-                foreach (string invalidCharStr in CommonValues.InvaildFileNameCharsStringArray)
+                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
                 {
                     musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
                 }

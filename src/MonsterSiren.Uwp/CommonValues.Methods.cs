@@ -84,7 +84,7 @@ partial class CommonValues
         stringBuilder.Replace('/', '↗');
         stringBuilder.Replace('\\', '↘');
 
-        foreach (string invalidCharStr in InvaildFileNameCharsStringArray)
+        foreach (string invalidCharStr in InvalidFileNameCharsStringArray)
         {
             stringBuilder.Replace(invalidCharStr, string.Empty);
         }

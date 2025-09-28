@@ -39,7 +39,7 @@ internal static partial class CommonValues
     public const string MusicTranscodeEncoderGuidSettingsKey = "Download_TranscodeEncoderGuid_SettingsKey";
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
-    public const string MusicReplaceInvaildCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvaildCharInFileName_SettingsKey";
+    public const string MusicReplaceInvalidCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvalidCharInFileName_SettingsKey";
 
     public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
 
@@ -92,7 +92,7 @@ internal static partial class CommonValues
     /// 此字段是为了简化在使用诸如 <see cref="string.Replace(string, string)"/> 等类似方法来删除字符时的操作。
     /// </para>
     /// </summary>
-    public static string[] InvaildFileNameCharsStringArray = [.. Path.GetInvalidFileNameChars().Select(chr => chr.ToString())];
+    public static string[] InvalidFileNameCharsStringArray = [.. Path.GetInvalidFileNameChars().Select(chr => chr.ToString())];
 
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
