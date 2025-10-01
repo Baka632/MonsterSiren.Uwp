@@ -60,6 +60,11 @@
                 Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForPlaylistCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"

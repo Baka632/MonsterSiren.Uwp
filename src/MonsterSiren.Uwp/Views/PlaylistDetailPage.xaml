@@ -25,6 +25,11 @@
                 Command="{x:Bind ViewModel.PlayForItemCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForItemCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
@@ -60,6 +65,10 @@
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlaySongListSelectedItemCommand}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"

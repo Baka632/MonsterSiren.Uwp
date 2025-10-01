@@ -27,6 +27,11 @@
                 Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForAlbumInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadAlbumCommandButton"
@@ -49,6 +54,10 @@
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayAlbumForSelectedItemCommand}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadAlbumCommandButton"

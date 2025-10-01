@@ -5,7 +5,7 @@ using Microsoft.Toolkit.Collections;
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="MusicPage"/> 提供视图模型
+/// 为 <see cref="MusicPage"/> 提供视图模型。
 /// </summary>
 public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
 {
@@ -67,7 +67,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         {
             if (Albums is not null && Albums.Count > 0)
             {
-                await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+                await CommonValues.DisplayInternetErrorDialog();
             }
             else
             {
@@ -101,6 +101,12 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
         await CommonValues.AddToNowPlaying(albumInfo);
+    }
+
+    [RelayCommand]
+    private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
+    {
+        await CommonValues.PlayNext(albumInfo);
     }
 
     [RelayCommand]
@@ -172,6 +178,24 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         }
 
         bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForSelectedItem()
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.PlayNext(selectedItems);
 
         if (isSuccess)
         {

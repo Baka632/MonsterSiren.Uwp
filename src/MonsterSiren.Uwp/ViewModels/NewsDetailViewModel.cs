@@ -1,8 +1,11 @@
-﻿using Windows.System;
+using Windows.System;
 using Windows.UI;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="NewsDetailPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class NewsDetailViewModel : ObservableObject
 {
     internal readonly LauncherOptions DefaultLauncherOptionsForExternal = new()

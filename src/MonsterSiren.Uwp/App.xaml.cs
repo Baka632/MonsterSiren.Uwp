@@ -258,7 +258,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -277,7 +277,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -302,7 +302,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {

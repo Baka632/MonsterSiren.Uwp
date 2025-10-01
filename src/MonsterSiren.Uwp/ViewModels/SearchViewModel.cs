@@ -2,6 +2,9 @@ using System.Net.Http;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="SearchPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class SearchViewModel : ObservableObject
 {
     [ObservableProperty]
@@ -88,6 +91,12 @@ public sealed partial class SearchViewModel : ObservableObject
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
         await CommonValues.AddToNowPlaying(albumInfo);
+    }
+
+    [RelayCommand]
+    private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
+    {
+        await CommonValues.PlayNext(albumInfo);
     }
 
     [RelayCommand]

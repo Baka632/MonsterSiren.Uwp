@@ -10,6 +10,9 @@ using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="SettingsPage"/> 提供视图模型。
+/// </summary>
 public partial class SettingsViewModel : ObservableObject
 {
     [ObservableProperty]

@@ -1,5 +1,4 @@
 using System.Net.Http;
-using MonsterSiren.Uwp.Services;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -7,7 +6,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="MainPage"/> 提供视图模型
+/// 为 <see cref="MainPage"/> 提供视图模型。
 /// </summary>
 public partial class MainViewModel : ObservableRecipient
 {
@@ -122,7 +121,7 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task CreateNewPlaylist()
     {
-        await CommonValues.CreatePlaylist();
+        await CommonValues.ShowCreatePlaylistDialog();
     }
 
     [RelayCommand]
@@ -138,6 +137,12 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private static async Task PlayNextForPlaylist(Playlist playlist)
+    {
+        await CommonValues.PlayNext(playlist);
+    }
+
+    [RelayCommand]
     private async Task AddPlaylistToAnotherPlaylist(Playlist target)
     {
         await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
@@ -146,7 +151,7 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task ModifyPlaylist(Playlist playlist)
     {
-        await CommonValues.ModifyPlaylist(playlist);
+        await CommonValues.ShowModifyPlaylistDialog(playlist);
     }
 
     [RelayCommand]

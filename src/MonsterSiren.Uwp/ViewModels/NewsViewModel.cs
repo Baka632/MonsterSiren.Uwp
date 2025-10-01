@@ -2,6 +2,9 @@ using System.Net.Http;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="NewsPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class NewsViewModel : ObservableObject
 {
     [ObservableProperty]
@@ -78,7 +81,7 @@ public sealed partial class NewsViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
     }
 
@@ -109,7 +112,7 @@ public sealed partial class NewsViewModel : ObservableObject
         }
         catch (HttpRequestException)
         {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
     }
 

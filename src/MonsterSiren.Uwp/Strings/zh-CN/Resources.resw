@@ -768,4 +768,7 @@
   <data name="SettingsPage_ChangeColorThemeRestartRequired.Message" xml:space="preserve">
     <value>更改颜色主题后需要重启应用</value>
   </data>
+  <data name="PlayNext.Text" xml:space="preserve">
+    <value>下一首播放</value>
+  </data>
 </root>

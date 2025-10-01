@@ -5,81 +5,81 @@ using Windows.Media.Casting;
 namespace MonsterSiren.Uwp.Services;
 
 /// <summary>
-/// 提供音乐服务的类
+/// 提供音乐服务的类。
 /// </summary>
 public static class MusicService
 {
     /// <summary>
-    /// 当播放器的音量发生改变时引发
+    /// 当播放器的音量发生改变时引发。
     /// </summary>
     public static event Action<double> PlayerVolumeChanged;
     /// <summary>
-    /// 当播放器的静音状态发生改变时引发
+    /// 当播放器的静音状态发生改变时引发。
     /// </summary>
     public static event Action<bool> PlayerMuteStateChanged;
     /// <summary>
-    /// 当播放器的随机播放状态发生改变时引发
+    /// 当播放器的随机播放状态发生改变时引发。
     /// </summary>
     public static event Action<bool> PlayerShuffleStateChanged;
     /// <summary>
-    /// 当播放器的循环播放状态发生改变时引发
+    /// 当播放器的循环播放状态发生改变时引发。
     /// </summary>
     public static event Action<PlayerRepeatingState> PlayerRepeatingStateChanged;
     /// <summary>
-    /// 当播放器的播放曲目发生改变时引发
+    /// 当播放器的播放曲目发生改变时引发。
     /// </summary>
     public static event Action<CurrentMediaPlaybackItemChangedEventArgs> PlayerPlayItemChanged;
     /// <summary>
-    /// 当播放器播放出现错误时引发
+    /// 当播放器播放出现错误时引发。
     /// </summary>
     public static event Action<MediaPlayerFailedEventArgs> PlayerMediaFailed;
     /// <summary>
-    /// 当播放器的播放状态发生改变时引发
+    /// 当播放器的播放状态发生改变时引发。
     /// </summary>
     public static event Action<MediaPlaybackState> PlayerPlaybackStateChanged;
     /// <summary>
-    /// 当播放器的媒体开始被替换时引发
+    /// 当播放器的媒体开始被替换时引发。
     /// </summary>
     public static event Action PlayerMediaReplacing;
     /// <summary>
-    /// 当播放器的播放位置发生改变时引发
+    /// 当播放器的播放位置发生改变时引发。
     /// </summary>
     public static event Action<TimeSpan> PlayerPositionChanged;
     /// <summary>
-    /// 当播放器播放结束时引发
+    /// 当播放器播放结束时引发。
     /// </summary>
     public static event Action PlayerMediaEnded;
     /// <summary>
-    /// 当播放器是否具有音乐的状态发生改变时引发
+    /// 当播放器是否具有音乐的状态发生改变时引发。
     /// </summary>
     public static event Action PlayerHasMusicStateChanged;
     /// <summary>
-    /// 当音乐的时长发生改变时引发
+    /// 当音乐的时长发生改变时引发。
     /// </summary>
     public static event Action<TimeSpan> MusicDurationChanged;
     /// <summary>
-    /// 当准备播放音乐的状态改变时引发
+    /// 当准备播放音乐的状态改变时引发。
     /// </summary>
     public static event Action MusicPrepareModeChanged;
     /// <summary>
-    /// 当音乐停止播放时引发
+    /// 当音乐停止播放时引发。
     /// </summary>
     public static event Action MusicStopped;
     /// <summary>
-    /// 当音乐即将停止播放时引发
+    /// 当音乐即将停止播放时引发。
     /// </summary>
     public static event Action MusicStopping;
     /// <summary>
-    /// 当播放列表发生变化时引发
+    /// 当播放列表发生变化时引发。
     /// </summary>
     public static event NotifyCollectionChangedEventHandler PlaylistChanged;
     /// <summary>
-    /// 当播放列表中播放项播放失败时引发
+    /// 当播放列表中播放项播放失败时引发。
     /// </summary>
     public static event Action<MediaPlaybackItemFailedEventArgs> PlaylistItemFailed;
 
     /// <summary>
-    /// 获取播放器的播放状态
+    /// 获取播放器的播放状态。
     /// </summary>
     public static MediaPlaybackState PlayerPlayBackState
     {
@@ -87,7 +87,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取或设置播放器的音量
+    /// 获取或设置播放器的音量。
     /// </summary>
     public static double PlayerVolume
     {
@@ -96,7 +96,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取或设置播放器的播放位置
+    /// 获取或设置播放器的播放位置。
     /// </summary>
     public static TimeSpan PlayerPosition
     {
@@ -119,7 +119,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取当前播放项的长度
+    /// 获取当前播放项的长度。
     /// </summary>
     public static TimeSpan MusicDuration
     {
@@ -127,7 +127,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 确定播放器的播放列表是否有曲目
+    /// 确定播放器的播放列表是否有曲目。
     /// </summary>
     public static bool IsPlayerPlaylistHasMusic
     {
@@ -135,20 +135,21 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取播放器当前的播放列表
+    /// 获取播放器当前的播放列表。
     /// </summary>
     public static NowPlayingList CurrentMediaPlaybackList { get; }
 
     /// <summary>
-    /// 获取播放器当前的 <see cref="MediaPlaybackItem"/>
+    /// 获取播放器当前的 <see cref="MediaPlaybackItem"/>。
     /// </summary>
     public static MediaPlaybackItem CurrentMediaPlaybackItem
     {
         get => mediaPlaybackList.CurrentItem;
     }
 
+    // TODO: 应该自己管理随机播放列表。
     /// <summary>
-    /// 获取在随机播放时使用的只读列表
+    /// 获取在随机播放时使用的只读列表。
     /// </summary>
     public static IReadOnlyList<MediaPlaybackItem> CurrentShuffledMediaPlaybackList
     {
@@ -156,7 +157,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取或设置播放器的静音状态
+    /// 获取或设置播放器的静音状态。
     /// </summary>
     public static bool IsPlayerMuted
     {
@@ -165,7 +166,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取或设置播放器的随机播放状态
+    /// 获取或设置播放器的随机播放状态。
     /// </summary>
     public static bool IsPlayerShuffleEnabled
     {
@@ -178,7 +179,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取是否准备播放音乐的值
+    /// 获取是否准备播放音乐的值。
     /// </summary>
     public static bool IsMusicPreparing
     {
@@ -191,7 +192,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取或设置播放器的循环播放状态
+    /// 获取或设置播放器的循环播放状态。
     /// </summary>
     public static PlayerRepeatingState PlayerRepeatingState
     {
@@ -337,19 +338,19 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 获取用于投送音频到其他设备的 <see cref="CastingSource"/>
+    /// 获取用于投送音频到其他设备的 <see cref="CastingSource"/>。
     /// </summary>
-    /// <returns>一个 <see cref="CastingSource"/></returns>
+    /// <returns>一个 <see cref="CastingSource"/>。</returns>
     public static CastingSource GetCastingSource()
     {
         return mediaPlayer.GetAsCastingSource();
     }
 
     /// <summary>
-    /// 添加要播放的音乐
+    /// 添加要播放的音乐。
     /// </summary>
-    /// <param name="media">表示音乐的 <see cref="MediaPlaybackItem"/></param>
-    public static async void AddMusic(MediaPlaybackItem media)
+    /// <param name="media">表示音乐的 <see cref="MediaPlaybackItem"/>。</param>
+    public static void AddMusic(MediaPlaybackItem media)
     {
         bool shouldStartPlaying = !IsPlayerPlaylistHasMusic;
 
@@ -360,7 +361,7 @@ public static class MusicService
                 IsMusicPreparing = true;
             }
 
-            await UIThreadHelper.RunOnUIThread(() => CurrentMediaPlaybackList.Add(media));
+            CurrentMediaPlaybackList.Add(media);
 
             if (shouldStartPlaying)
             {
@@ -377,9 +378,9 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 添加要播放的音乐
+    /// 添加要播放的音乐。
     /// </summary>
-    /// <param name="medias">包含音乐的 <see cref="IEnumerable{T}"/></param>
+    /// <param name="items">包含音乐的 <see cref="IAsyncEnumerable{T}"/>。</param>
     public static async Task AddMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
         bool isStopping = false;
@@ -418,8 +419,10 @@ public static class MusicService
                 }
             }
 
-            if (IsPlayerShuffleEnabled && firstItem is not null && mediaPlaybackList.ShuffledItems.Contains(firstItem))
+            if (IsPlayerShuffleEnabled && !isStopping && firstItem is not null
+                && mediaPlaybackList.ShuffledItems.Contains(firstItem))
             {
+                // 强制第一首歌曲在最前面
                 List<MediaPlaybackItem> shuffleList = new(mediaPlaybackList.ShuffledItems);
                 shuffleList.Remove(firstItem);
                 shuffleList.Insert(0, firstItem);
@@ -440,9 +443,101 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 将当前的音乐替换为指定的音乐
+    /// 将歌曲插入到当前歌曲之后，即下一首播放。
     /// </summary>
-    /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/></param>
+    /// <param name="item">表示音乐的 <see cref="MediaPlaybackItem"/>。</param>
+    public static void PlayNext(MediaPlaybackItem item)
+    {
+        if (!IsPlayerPlaylistHasMusic)
+        {
+            AddMusic(item);
+            return;
+        }
+        else
+        {
+            List<MediaPlaybackItem> shuffledPlaybacklist = null;
+            if (IsPlayerShuffleEnabled)
+            {
+                shuffledPlaybacklist = new(CurrentShuffledMediaPlaybackList.Count + 1);
+                shuffledPlaybacklist.AddRange(CurrentShuffledMediaPlaybackList);
+            }
+
+            CurrentMediaPlaybackList.Insert((int)mediaPlaybackList.CurrentItemIndex + 1, item);
+
+            if (shuffledPlaybacklist is not null)
+            {
+                int currentItemIndex = shuffledPlaybacklist.IndexOf(CurrentMediaPlaybackItem);
+                shuffledPlaybacklist.Insert(currentItemIndex + 1, item);
+
+                mediaPlaybackList.SetShuffledItems(shuffledPlaybacklist);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 将歌曲序列插入到当前歌曲之后，即下一首播放。
+    /// </summary>
+    /// <param name="items">包含音乐的 <see cref="IAsyncEnumerable{T}"/>。</param>
+    public static async Task PlayNext(IAsyncEnumerable<MediaPlaybackItem> items)
+    {
+        bool isStopping = false;
+
+        try
+        {
+            if (!IsPlayerPlaylistHasMusic)
+            {
+                await AddMusic(items);
+                return;
+            }
+
+            int currentIndex = (int)mediaPlaybackList.CurrentItemIndex;
+
+            int currentShuffledIndex = -1;
+            List<MediaPlaybackItem> shuffledPlaybacklist = null;
+            if (IsPlayerShuffleEnabled)
+            {
+                shuffledPlaybacklist = [.. CurrentShuffledMediaPlaybackList];
+                currentShuffledIndex = shuffledPlaybacklist.IndexOf(CurrentMediaPlaybackItem);
+            }
+            bool shouldAddToShuffleList = shuffledPlaybacklist is not null;
+
+            MusicStopping += OnMusicStopping;
+
+            int indexOffset = 1;
+            await foreach (MediaPlaybackItem item in items)
+            {
+                if (isStopping)
+                {
+                    break;
+                }
+
+                CurrentMediaPlaybackList.Insert(currentIndex + indexOffset, item);
+
+                if (shouldAddToShuffleList)
+                {
+                    shuffledPlaybacklist.Insert(currentShuffledIndex + indexOffset, item);
+                }
+
+                indexOffset++;
+            }
+
+            if (IsPlayerShuffleEnabled && !isStopping && shouldAddToShuffleList)
+            {
+                mediaPlaybackList.SetShuffledItems(shuffledPlaybacklist);
+            }
+        }
+        finally
+        {
+            MusicStopping -= OnMusicStopping;
+        }
+
+        void OnMusicStopping() => isStopping = true;
+    }
+
+    /// <summary>
+    /// 将当前的音乐替换为指定的音乐。
+    /// </summary>
+    /// <param name="media">包含音乐的 <see cref="MediaPlaybackItem"/>。</param>
     public static async void ReplaceMusic(MediaPlaybackItem media)
     {
         try
@@ -466,9 +561,9 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 将当前的音乐列表替换为指定的音乐列表
+    /// 将当前的音乐列表替换为指定的音乐列表。
     /// </summary>
-    /// <param name="medias">表示音乐的 <see cref="IEnumerable{T}"/></param>
+    /// <param name="items">包含音乐的 <see cref="IAsyncEnumerable{T}"/>。</param>
     public static async Task ReplaceMusic(IAsyncEnumerable<MediaPlaybackItem> items)
     {
         bool isStopping = false;
@@ -508,6 +603,7 @@ public static class MusicService
 
             if (IsPlayerShuffleEnabled && firstItem is not null && mediaPlaybackList.ShuffledItems.Contains(firstItem))
             {
+                // 强制第一首歌曲在最前面
                 List<MediaPlaybackItem> shuffleList = new(mediaPlaybackList.ShuffledItems);
                 shuffleList.Remove(firstItem);
                 shuffleList.Insert(0, firstItem);
@@ -524,7 +620,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 切换到上一个播放项
+    /// 切换到上一个播放项。
     /// </summary>
     public static void PreviousMusic()
     {
@@ -537,7 +633,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 切换到下一个播放项
+    /// 切换到下一个播放项。
     /// </summary>
     public static void NextMusic()
     {
@@ -550,10 +646,10 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 将正在播放的项目更改为索引指向的项目
+    /// 将正在播放的项目更改为索引指向的项目。
     /// </summary>
-    /// <param name="index">项目在正在播放列表的索引</param>
-    /// <exception cref="ArgumentOutOfRangeException">索引指向不存在的项目</exception>
+    /// <param name="index">项目在正在播放列表的索引。</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引指向不存在的项目。</exception>
     public static void MoveTo(uint index)
     {
         if (index + 1 > CurrentMediaPlaybackList.Count)
@@ -565,13 +661,13 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 将正在播放的项目更改为指定的播放项
+    /// 将正在播放的项目更改为指定的播放项。
     /// </summary>
     /// <remarks>
     /// 指定的播放项必须在正在播放列表中。
     /// </remarks>
-    /// <param name="item">指定的播放项</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> 不在正在播放列表中</exception>
+    /// <param name="item">指定的播放项。</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="item"/> 不在正在播放列表中。</exception>
     public static void MoveTo(MediaPlaybackItem item)
     {
         int index = CurrentMediaPlaybackList.IndexOf(item);
@@ -585,10 +681,10 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 移除指定索引指向的播放项
+    /// 移除指定索引指向的播放项。
     /// </summary>
-    /// <param name="index">项目在正在播放列表的索引</param>
-    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
+    /// <param name="index">项目在正在播放列表的索引。</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目。</exception>
     public static void RemoveAt(int index)
     {
         if (index < 0 || index + 1 > CurrentMediaPlaybackList.Count)
@@ -600,12 +696,12 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 替换指定的播放项
+    /// 替换指定的播放项。
     /// </summary>
-    /// <param name="oldItem">要被移除的播放项</param>
-    /// <param name="newItem">用于替换的新播放项</param>
-    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
-    /// /// <exception cref="System.ArgumentNullException"><paramref name="oldItem"/> 或 <paramref name="newItem"/> 为 <see langword="null"/></exception>
+    /// <param name="oldItem">要被移除的播放项。</param>
+    /// <param name="newItem">用于替换的新播放项。</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目。</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="oldItem"/> 或 <paramref name="newItem"/> 为 <see langword="null"/>。</exception>
     public static void ReplaceAt(MediaPlaybackItem oldItem, MediaPlaybackItem newItem)
     {
         if (oldItem is null)
@@ -629,12 +725,12 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 替换指定索引指向的播放项
+    /// 替换指定索引指向的播放项。
     /// </summary>
-    /// <param name="item">替换后的项</param>
-    /// <param name="index">项目在正在播放列表的索引</param>
-    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="item"/> 为 <see langword="null"/></exception>
+    /// <param name="item">替换后的项。</param>
+    /// <param name="index">项目在正在播放列表的索引。</param>
+    /// <exception cref="ArgumentOutOfRangeException">索引为负，或指向不存在的项目。</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="item"/> 为 <see langword="null"/>。</exception>
     public static void ReplaceAt(MediaPlaybackItem item, int index)
     {
         if (item is null)
@@ -651,7 +747,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 开始播放音乐
+    /// 开始播放音乐。
     /// </summary>
     public static void PlayMusic()
     {
@@ -669,7 +765,7 @@ public static class MusicService
     }
     
     /// <summary>
-    /// 暂停播放音乐
+    /// 暂停播放音乐。
     /// </summary>
     public static void PauseMusic()
     {
@@ -684,7 +780,7 @@ public static class MusicService
     }
 
     /// <summary>
-    /// 终止音乐播放
+    /// 终止音乐播放。
     /// </summary>
     public static async Task StopMusic()
     {

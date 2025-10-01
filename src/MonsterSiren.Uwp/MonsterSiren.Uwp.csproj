@@ -94,8 +94,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommonValues.cs" />
-    <Compile Include="CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToNowPlaying.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToPlaylist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Download.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.GetPlaybackItems.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.PlayNext.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>

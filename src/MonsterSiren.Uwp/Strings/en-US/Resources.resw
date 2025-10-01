@@ -688,4 +688,7 @@ Continue?</value>
   <data name="SettingsPage_ChangeColorThemeRestartRequired.Message" xml:space="preserve">
     <value>Restart required after changing color theme</value>
   </data>
+  <data name="PlayNext.Text" xml:space="preserve">
+    <value>Play next</value>
+  </data>
 </root>

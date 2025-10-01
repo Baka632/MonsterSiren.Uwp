@@ -69,7 +69,7 @@ public sealed partial class SearchPage : Page
         }
         catch (HttpRequestException)
         {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
     }
 

@@ -10,7 +10,7 @@ using Windows.Web.Http;
 namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为应用程序数据提供文件中缓存的类
+/// 为应用程序数据提供文件中缓存的类。
 /// </summary>
 internal static class FileCacheHelper
 {

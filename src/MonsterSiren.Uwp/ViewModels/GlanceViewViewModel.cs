@@ -4,6 +4,9 @@ using Windows.System.Power;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="GlanceViewPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class GlanceViewViewModel : ObservableObject
 {
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;

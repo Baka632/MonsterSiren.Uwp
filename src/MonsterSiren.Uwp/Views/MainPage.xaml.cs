@@ -284,7 +284,7 @@ public sealed partial class MainPage : Page
     }
 
     /// <summary>
-    /// 改变导航视图的选择项
+    /// 改变导航视图的选择项。
     /// </summary>
     private void ChangeSelectedItemOfNavigationView()
     {
