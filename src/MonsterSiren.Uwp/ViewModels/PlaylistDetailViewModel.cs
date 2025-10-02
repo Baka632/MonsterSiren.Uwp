@@ -1,7 +1,10 @@
-﻿using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="PlaylistDetailPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : ObservableObject
 {
     [ObservableProperty]
@@ -33,6 +36,12 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task AddItemToNowPlaying(PlaylistItem item)
     {
         await CommonValues.AddToNowPlaying(item, CurrentPlaylist);
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForItem(PlaylistItem item)
+    {
+        await CommonValues.PlayNext(item, CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -85,7 +94,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task ModifyPlaylist()
     {
-        await CommonValues.ModifyPlaylist(CurrentPlaylist);
+        await CommonValues.ShowModifyPlaylistDialog(CurrentPlaylist);
     }
 
     [RelayCommand]
@@ -146,6 +155,18 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
         bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForSelectedItem()
+    {
+        List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
+        bool isSuccess = await CommonValues.PlayNext(selectedItems);
 
         if (isSuccess)
         {

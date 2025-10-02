@@ -13,13 +13,23 @@ internal static class CodecQueryHelper
             return (true, _cachedCommonEncoders);
         }
 
-        CodecQuery codecQuery = new();
-        IEnumerable<CodecInfo> commonEncoders = from info
-                                                in await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty)
-                                                where HasCommonEncoders(info)
-                                                select info;
-        _cachedCommonEncoders = commonEncoders;
-        return (commonEncoders.Any(), commonEncoders);
+        try
+        {
+            CodecQuery codecQuery = new();
+            IEnumerable<CodecInfo> commonEncoders = from info
+                                                    in await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty)
+                                                    where HasCommonEncoders(info)
+                                                    select info;
+            _cachedCommonEncoders = commonEncoders;
+            return (commonEncoders.Any(), commonEncoders);
+        }
+        catch
+        {
+#if DEBUG
+            System.Diagnostics.Debugger.Break();
+#endif
+            return (false, null);
+        }
     }
 
     public static bool IsCodecInfoHasTargetEncoder(CodecInfo info, string targetEncoderGuid)

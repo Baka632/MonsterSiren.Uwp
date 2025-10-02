@@ -1,4 +1,4 @@
-﻿using Windows.Media.Playback;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="NowPlayingPage"/> 提供视图模型
+/// 为 <see cref="NowPlayingPage"/> 提供视图模型。
 /// </summary>
 public partial class NowPlayingViewModel : ObservableObject
 {

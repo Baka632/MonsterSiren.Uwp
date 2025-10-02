@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.UI.Core;
@@ -177,6 +177,7 @@ public sealed partial class NowPlayingPage : Page
         TextBlock textBlock = (TextBlock)sender;
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
         MediaSource source = playbackItem.Source;
+        string sourceUri = source.Uri.ToString();
 
         textBlock.Text = "-:-";
 
@@ -186,7 +187,7 @@ public sealed partial class NowPlayingPage : Page
         }
         else
         {
-            SemaphoreSlim semaphore = LockerHelper<Uri>.GetOrCreateLocker(source.Uri);
+            SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(sourceUri);
 
             try
             {
@@ -223,7 +224,7 @@ public sealed partial class NowPlayingPage : Page
             finally
             {
                 semaphore.Release();
-                LockerHelper<Uri>.ReturnLocker(source.Uri);
+                CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
             }
         }
     }

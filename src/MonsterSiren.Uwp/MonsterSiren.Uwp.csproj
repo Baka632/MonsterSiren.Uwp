@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <NoWarn>$(NoWarn);2008</NoWarn>
@@ -94,8 +94,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommonValues.cs" />
-    <Compile Include="CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToNowPlaying.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToPlaylist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Download.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.GetPlaybackItems.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.PlayNext.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
@@ -124,6 +132,7 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\LockerHelper.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
@@ -132,6 +141,7 @@
     <Compile Include="Helpers\Tile\TileHelper.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
+    <Compile Include="Models\AppLanguage.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />

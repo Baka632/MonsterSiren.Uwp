@@ -1,12 +1,12 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Threading;
 
 namespace MonsterSiren.Uwp.Models;
 
 /// <summary>
-/// 使用塞壬唱片相关服务的增量集合
+/// 使用塞壬唱片相关服务的增量集合。
 /// </summary>
-/// <typeparam name="T">集合类型</typeparam>
+/// <typeparam name="T">集合类型。</typeparam>
 public sealed class MsrIncrementalCollection<T> : ObservableCollection<T>, ISupportIncrementalLoading
 {
     private T lastObject = default;

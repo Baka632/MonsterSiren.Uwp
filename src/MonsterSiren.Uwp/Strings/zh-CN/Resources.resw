@@ -379,7 +379,7 @@
     <value>找不到相关结果</value>
   </data>
   <data name="SettingsPage_AppColorTheme.Header" xml:space="preserve">
-    <value>设置颜色主题（需要重启应用）</value>
+    <value>设置颜色主题</value>
   </data>
   <data name="ColorTheme_Default" xml:space="preserve">
     <value>系统默认</value>
@@ -737,5 +737,38 @@
   </data>
   <data name="AllAboutBaka632" xml:space="preserve">
     <value>那些有关 632 同学的事......</value>
+  </data>
+  <data name="SettingsPage_ReplaceInvaildCharsInDownloadedFileName.Header" xml:space="preserve">
+    <value>用相近字符替换文件名中的无效字符</value>
+  </data>
+  <data name="SettingsPage_AppLanguage.Header" xml:space="preserve">
+    <value>语言 / Language</value>
+  </data>
+  <data name="SettingsPage_AppDisplayLanguage.Header" xml:space="preserve">
+    <value>设置语言 / Set Language</value>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayTitle" xml:space="preserve">
+    <value>出现错误</value>
+  </data>
+  <data name="CodecInfoDialog_UnableDisplayMessage" xml:space="preserve">
+    <value>出现以下错误：{0}</value>
+  </data>
+  <data name="UseSystemLanguage" xml:space="preserve">
+    <value>使用系统语言</value>
+  </data>
+  <data name="SettingsPage_ChangeLanguageRestartRequired.Message" xml:space="preserve">
+    <value>更改语言后需要重启应用</value>
+  </data>
+  <data name="RestartApp" xml:space="preserve">
+    <value>重启应用</value>
+  </data>
+  <data name="CloseApp" xml:space="preserve">
+    <value>关闭应用</value>
+  </data>
+  <data name="SettingsPage_ChangeColorThemeRestartRequired.Message" xml:space="preserve">
+    <value>更改颜色主题后需要重启应用</value>
+  </data>
+  <data name="PlayNext.Text" xml:space="preserve">
+    <value>下一首播放</value>
   </data>
 </root>

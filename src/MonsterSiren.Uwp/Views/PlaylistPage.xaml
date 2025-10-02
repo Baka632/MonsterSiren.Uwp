@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="MonsterSiren.Uwp.Views.PlaylistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,6 +12,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistViewModel}"
     mc:Ignorable="d">
@@ -25,6 +26,11 @@
                 Command="{x:Bind ViewModel.PlayPlaylistCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="ModifyCommandButton"
@@ -52,6 +58,10 @@
                 x:Uid="PlayCommandButton"
                 Command="{x:Bind ViewModel.PlayPlaylistForSelectedItemCommand}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DeleteCommandButton"
@@ -122,7 +132,7 @@
             <GridView
                 x:Name="PlaylistGridView"
                 Grid.Row="1"
-                animations:Connected.ListItemElementName="PlaylistCoverGrid"
+                animations:Connected.ListItemElementName="PlaylistCoverImage"
                 animations:Connected.ListItemKey="PlaylistItemToDetailAnimationKey"
                 animations:ReorderGridAnimation.Duration="500"
                 x:FieldModifier="Internal"
@@ -164,24 +174,15 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <Grid
-                                x:Name="PlaylistCoverGrid"
+                            <wctControls:ImageEx
+                                x:Name="PlaylistCoverImage"
                                 Grid.Row="0"
                                 Width="170"
-                                Height="170">
-                                <Image
-                                    Source="{x:Bind PlaylistCoverImage, Mode=OneWay}"
-                                    Stretch="UniformToFill"
-                                    Visibility="{x:Bind helpers:XamlHelper.IsNullReverseVisibility(PlaylistCoverImage), Mode=OneWay}" />
-                                <Grid Background="#4b4b4b" Visibility="{x:Bind helpers:XamlHelper.IsNullToVisibility(PlaylistCoverImage), Mode=OneWay}">
-                                    <FontIcon
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontSize="50"
-                                        Foreground="White"
-                                        Glyph="&#xE955;" />
-                                </Grid>
-                            </Grid>
+                                Height="170"
+                                PlaceholderSource="ms-appx:///Assets/NullPlaylist.png"
+                                PlaceholderStretch="UniformToFill"
+                                Source="{x:Bind PlaylistCoverImageUri, Mode=OneWay}"
+                                Stretch="UniformToFill" />
 
                             <TextBlock
                                 Grid.Row="1"

@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.VoiceCommands;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
@@ -21,7 +22,7 @@ sealed partial class App : Application
     private bool isInitialized = false;
 
     /// <summary>
-    /// 获取应用程序名
+    /// 获取应用程序名。
     /// </summary>
     public static string AppDisplayName
     {
@@ -36,11 +37,11 @@ sealed partial class App : Application
     }
 
     /// <summary>
-    /// 获取应用程序版本
+    /// 获取应用程序版本。
     /// </summary>
     public static string AppVersion { get; } = $"{Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
     /// <summary>
-    /// 获取带“版本”文字的应用程序版本字符串
+    /// 获取带“版本”文字的应用程序版本字符串。
     /// </summary>
     public static string AppVersionWithText => string.Format("AppVersion_WithPlaceholder".GetLocalized(), AppVersion);
     public static bool IsGreaterThan18362 => EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362);
@@ -138,25 +139,6 @@ sealed partial class App : Application
     /// <param name="e">有关启动请求和过程的详细信息。</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs e)
     {
-        try
-        {
-            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
-            await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
-        }
-        catch (Exception ex)
-        {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"安装语音命令失败：\n{ex}");
-#endif
-        }
-
-#if DEBUG
-        // 调试本地化的相关代码
-
-        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-US";
-        //Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "zh-CN";
-#endif
-
         // 不要在窗口已包含内容时重复应用程序初始化，只需确保窗口处于活动状态
         if (Window.Current.Content is not Frame rootFrame)
         {
@@ -207,45 +189,56 @@ sealed partial class App : Application
         }
         else if (args.Kind == ActivationKind.Protocol && args is ProtocolActivatedEventArgs protocol)
         {
-            Uri uri = protocol.Uri;
-
-            if (uri.Scheme == "windows.personalassistantlaunch")
+            try
             {
-                // Cortana
-                WwwFormUrlDecoder decoder = new(uri.Query);
-                string launchArgument = decoder.GetFirstValueByName("LaunchContext");
+                Uri uri = protocol.Uri;
 
-                if (launchArgument == CommonValues.BakaEurekaAppLaunchArgument)
+                if (uri.Scheme == "windows.personalassistantlaunch")
                 {
-                    ShowBakaEurekaToast();
-                }
-                else
-                {
-                    string[] launchArgumentParts = launchArgument.Split('=');
-                    if (launchArgumentParts.Length > 1)
+                    // Cortana
+                    WwwFormUrlDecoder decoder = new(uri.Query);
+                    string launchArgument = decoder.GetFirstValueByName("LaunchContext");
+
+                    if (launchArgument == CommonValues.BakaEurekaAppLaunchArgument)
                     {
-                        string type = launchArgumentParts[0];
-                        string value = launchArgumentParts[1];
-
-                        if (type == CommonValues.AlbumAppLaunchArgumentHeader)
+                        ShowBakaEurekaToast();
+                    }
+                    else
+                    {
+                        string[] launchArgumentParts = launchArgument.Split('=');
+                        if (launchArgumentParts.Length > 1)
                         {
-                            await PlayAlbumByCid(value);
+                            string type = launchArgumentParts[0];
+                            string value = launchArgumentParts[1];
+
+                            if (type == CommonValues.AlbumAppLaunchArgumentHeader)
+                            {
+                                await PlayAlbumByCid(value);
+                            }
                         }
                     }
                 }
-            }
-            else if (uri.Segments.Length > 1)
-            {
-                string argument = uri.Segments[1];
+                else if (uri.Segments.Length > 1)
+                {
+                    string argument = uri.Segments[1];
 
-                if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
-                {
-                    await PlaySongByCid(argument);
+                    if (uri.Host.Equals("playSong", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await PlaySongByCid(argument);
+                    }
+                    else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await PlayAlbumByCid(argument);
+                    }
                 }
-                else if (uri.Host.Equals("playAlbum", StringComparison.OrdinalIgnoreCase))
-                {
-                    await PlayAlbumByCid(argument);
-                }
+            }
+            catch (UriFormatException ex)
+            {
+#if DEBUG
+                System.Diagnostics.Debugger.Break();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
+                // :-)
             }
         }
     }
@@ -265,7 +258,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -284,7 +277,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -309,7 +302,7 @@ sealed partial class App : Application
         catch (HttpRequestException)
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -395,6 +388,20 @@ sealed partial class App : Application
             return;
         }
 
+        CoreApplication.EnablePrelaunch(true);
+
+        try
+        {
+            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
+            await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"安装语音命令失败：\n{ex}");
+#endif
+        }
+
         UIThreadHelper.Initialize(Window.Current.Content.Dispatcher);
         await UIThreadHelper.RunOnUIThread(() =>
         {
@@ -417,7 +424,6 @@ sealed partial class App : Application
         // 初始化设置
         await DownloadService.Initialize();
         await PlaylistService.Initialize();
-        await new SettingsViewModel().Initialize(); // TODO: 总有一天要改
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {

@@ -1,7 +1,8 @@
-﻿using MonsterSiren.Uwp.Models;
-
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="PlaylistPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObject
 {
     [ObservableProperty]
@@ -12,7 +13,7 @@ public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObj
     [RelayCommand]
     private static async Task CreateNewPlaylist()
     {
-        await CommonValues.CreatePlaylist();
+        await CommonValues.ShowCreatePlaylistDialog();
     }
 
     [RelayCommand]
@@ -28,6 +29,12 @@ public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObj
     }
 
     [RelayCommand]
+    private static async Task PlayNext(Playlist playlist)
+    {
+        await CommonValues.PlayNext(playlist);
+    }
+
+    [RelayCommand]
     private async Task AddPlaylistToAnotherPlaylist(Playlist target)
     {
         await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
@@ -36,7 +43,7 @@ public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObj
     [RelayCommand]
     private static async Task ModifyPlaylist(Playlist playlist)
     {
-        await CommonValues.ModifyPlaylist(playlist);
+        await CommonValues.ShowModifyPlaylistDialog(playlist);
     }
 
     [RelayCommand]
@@ -102,6 +109,24 @@ public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObj
         }
 
         bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForSelectedItem()
+    {
+        List<Playlist> selectedItems = GetSelectedItems(view.PlaylistGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.PlayNext(selectedItems);
 
         if (isSuccess)
         {

@@ -1,8 +1,11 @@
-﻿using Windows.Storage;
+using Windows.Storage;
 using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="DownloadPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class DownloadViewModel : ObservableObject
 {
     [ObservableProperty]
@@ -72,8 +75,7 @@ public sealed partial class DownloadViewModel : ObservableObject
     [RelayCommand]
     private static void RemoveAllSkippedDownload()
     {
-        DownloadItem[] skippedItem = DownloadService.DownloadList.Where(item => item.State == DownloadItemState.Skipped)
-                                                                         .ToArray();
+        DownloadItem[] skippedItem = [.. DownloadService.DownloadList.Where(item => item.State == DownloadItemState.Skipped)];
 
         foreach (DownloadItem item in skippedItem)
         {

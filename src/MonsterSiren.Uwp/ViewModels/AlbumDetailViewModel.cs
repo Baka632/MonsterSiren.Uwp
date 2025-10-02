@@ -1,10 +1,10 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="AlbumDetailPage"/> 提供视图模型
+/// 为 <see cref="AlbumDetailPage"/> 提供视图模型。
 /// </summary>
 public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObject
 {
@@ -91,6 +91,12 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     private async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
     {
         await CommonValues.AddToNowPlaying(songInfo, CurrentAlbumDetail);
+    }
+    
+    [RelayCommand]
+    private async Task PlayNextForSongInfo(SongInfo songInfo)
+    {
+        await CommonValues.PlayNext(songInfo, CurrentAlbumDetail);
     }
 
     [RelayCommand]
@@ -180,6 +186,24 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         }
 
         bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems, CurrentAlbumDetail);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForListViewSelectedItem()
+    {
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.PlayNext(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {
