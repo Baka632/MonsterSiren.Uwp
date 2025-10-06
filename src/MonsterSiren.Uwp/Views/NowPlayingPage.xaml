@@ -97,7 +97,7 @@
         </Storyboard>
     </Page.Resources>
 
-    <Grid>
+    <Grid PointerWheelChanged="OnRootGridPointerWheelChanged">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -129,6 +129,15 @@
                 Glyph="&#xEC4F;" />
             <TextBlock x:Uid="NoMusicTextBlock" FontSize="20" />
         </StackPanel>
+
+        <Grid
+            x:Name="GestureReceiverGrid"
+            Grid.RowSpan="2"
+            Background="Transparent"
+            ManipulationCompleted="OnGestureReceiverGridManipulationCompleted"
+            ManipulationDelta="OnGestureReceiverGridManipulationDelta"
+            ManipulationMode="TranslateY"
+            ManipulationStarted="GestureReceiverGridManipulationStarted" />
 
         <Grid
             x:Name="MusicInfoAndControlGrid"
@@ -433,6 +442,7 @@
             VerticalAlignment="Stretch"
             x:FieldModifier="Internal"
             AllowDrop="True"
+            Background="Transparent"
             CanReorderItems="True"
             ItemsSource="{x:Bind services:MusicService.CurrentMediaPlaybackList}">
             <ListView.ItemTemplate>

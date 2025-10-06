@@ -9,7 +9,7 @@ using Windows.UI.Input;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 正在播放页
+/// 正在播放页。
 /// </summary>
 public sealed partial class NowPlayingPage : Page
 {
@@ -70,7 +70,7 @@ public sealed partial class NowPlayingPage : Page
 
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
 
-        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
+        //当在 Code-behind 中添加事件处理器，且 handledEventsToo 设置为 true 时，我们才能捕获到 Slider 的 PointerReleased 与 PointerPressed 这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
 
@@ -226,6 +226,65 @@ public sealed partial class NowPlayingPage : Page
                 semaphore.Release();
                 CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
             }
+        }
+    }
+
+    private void GestureReceiverGridManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+    {
+
+    }
+
+    private void OnGestureReceiverGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+    {
+
+    }
+
+    private void OnGestureReceiverGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+    {
+        double y = e.Cumulative.Translation.Y;
+
+        if (y > 0)
+        {
+            FoldNowPlayingList();
+        }
+        else if (y < 0)
+        {
+            ExpandNowPlayingList();
+        }
+    }
+
+    private bool isHandlingRootGridPointerWheelChangedEvent = false;
+
+    private void OnRootGridPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    {
+        if (isHandlingRootGridPointerWheelChangedEvent)
+        {
+            return;
+        }
+        isHandlingRootGridPointerWheelChangedEvent = true;
+
+        try
+        {
+            UIElement element = sender as UIElement;
+            PointerPoint currentPoint = e.GetCurrentPoint(element);
+            PointerPointProperties properties = currentPoint.Properties;
+            int wheelDelta = properties.MouseWheelDelta;
+
+            if (!properties.IsHorizontalMouseWheel && Math.Abs(wheelDelta) > 40)
+            {
+                if (wheelDelta > 0)
+                {
+                    FoldNowPlayingList();
+                }
+                else if (wheelDelta < 0)
+                {
+                    ExpandNowPlayingList();
+                }
+            }
+        }
+        finally
+        {
+            isHandlingRootGridPointerWheelChangedEvent = false;
         }
     }
 }
