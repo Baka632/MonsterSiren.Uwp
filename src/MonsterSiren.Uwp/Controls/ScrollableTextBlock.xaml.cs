@@ -1,4 +1,4 @@
-﻿//https://go.microsoft.com/fwlink/?LinkId=234236 上介绍了“用户控件”项模板
+//https://go.microsoft.com/fwlink/?LinkId=234236 上介绍了“用户控件”项模板
 
 using System.ComponentModel;
 using Microsoft.Graphics.Canvas.Text;
@@ -102,9 +102,9 @@ public sealed partial class ScrollableTextBlock : UserControl, INotifyPropertyCh
     }
 
     /// <summary>
-    /// 通知运行时属性已经发生更改
+    /// 通知运行时属性已经发生更改。
     /// </summary>
-    /// <param name="propertyName">发生更改的属性名称,其填充是自动完成的</param>
+    /// <param name="propertyName">发生更改的属性名称，其填充是自动完成的。</param>
     public void OnPropertiesChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

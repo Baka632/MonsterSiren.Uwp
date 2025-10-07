@@ -13,8 +13,6 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class NowPlayingPage : Page
 {
-    private bool isNowPlayingListExpanded = false;
-
     public NowPlayingViewModel ViewModel { get; }
 
     public NowPlayingPage()
@@ -74,7 +72,7 @@ public sealed partial class NowPlayingPage : Page
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
 
-        if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && isNowPlayingListExpanded == false)
+        if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && !ViewModel.IsNowPlayingListExpanded)
         {
             ExpandNowPlayingList();
         }
@@ -109,7 +107,7 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandOrFoldNowPlayingList()
     {
-        if (isNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
+        if (ViewModel.IsNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
         {
             FoldNowPlayingList();
         }
@@ -121,14 +119,12 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandNowPlayingList()
     {
-        MusicListExpandStoryboard.Begin();
-        isNowPlayingListExpanded = true;
+        ViewModel.IsNowPlayingListExpanded = true;
     }
 
     private void FoldNowPlayingList()
     {
-        MusicListFoldStoryboard.Begin();
-        isNowPlayingListExpanded = false;
+        ViewModel.IsNowPlayingListExpanded = false;
     }
 
     private void OnMusicListExpandStoryboardCompleted(object sender, object e)

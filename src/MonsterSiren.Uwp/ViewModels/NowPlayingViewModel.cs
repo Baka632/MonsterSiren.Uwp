@@ -18,6 +18,8 @@ public partial class NowPlayingViewModel : ObservableObject
     private bool isMediaCasting = MediaCastService.IsMediaCasting;
     [ObservableProperty]
     private string mediaCastingButtonString = "CastToDevice".GetLocalized();
+    [ObservableProperty]
+    private bool isNowPlayingListExpanded;
 
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
 
