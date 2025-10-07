@@ -10,7 +10,7 @@
   <Identity
     Name="Baka632.SoraRecords.Debug"
     Publisher="CN=Baka632"
-    Version="1.2.3.8" />
+    Version="1.2.3.10" />
 
   <mp:PhoneIdentity PhoneProductId="96af26cb-8e86-4824-b261-e6e87cc59d59" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

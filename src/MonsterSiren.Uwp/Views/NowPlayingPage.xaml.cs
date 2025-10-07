@@ -225,17 +225,15 @@ public sealed partial class NowPlayingPage : Page
         }
     }
 
-    private void GestureReceiverGridManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+    private void OnRootManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
     {
-
     }
 
-    private void OnGestureReceiverGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+    private void OnRootGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
     {
-
     }
 
-    private void OnGestureReceiverGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+    private void OnRootGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
     {
         double y = e.Cumulative.Translation.Y;
 

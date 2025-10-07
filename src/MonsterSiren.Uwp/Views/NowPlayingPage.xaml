@@ -30,20 +30,19 @@
         </Storyboard>
     </Page.Resources>
 
-    <Grid PointerWheelChanged="OnRootGridPointerWheelChanged">
+    <Grid
+        Background="Transparent"
+        ManipulationCompleted="OnRootGridManipulationCompleted"
+        ManipulationDelta="OnRootGridManipulationDelta"
+        ManipulationMode="TranslateY"
+        ManipulationStarted="OnRootManipulationStarted"
+        PointerWheelChanged="OnRootGridPointerWheelChanged">
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="MusicInfoAndControlRowDefinition" />
-            <RowDefinition x:Name="MusicListViewRowDefinition" />
+            <RowDefinition x:Name="MusicInfoAndControlRowDefinition" Height="Auto" />
+            <RowDefinition x:Name="MusicListViewRowDefinition" Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid
-            x:Name="GestureReceiverGrid"
-            Grid.RowSpan="2"
-            Background="Transparent"
-            ManipulationCompleted="OnGestureReceiverGridManipulationCompleted"
-            ManipulationDelta="OnGestureReceiverGridManipulationDelta"
-            ManipulationMode="TranslateY"
-            ManipulationStarted="GestureReceiverGridManipulationStarted">
+        <Grid Grid.RowSpan="2">
             <Image
                 x:Name="BackgroundImage"
                 HorizontalAlignment="Stretch"
@@ -73,6 +72,7 @@
             x:Name="MusicInfoAndControlGrid"
             Grid.Row="0"
             Margin="11,40,11,0"
+            VerticalAlignment="Top"
             Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="MusicInfoRowDefinition" Height="Auto" />
@@ -88,7 +88,9 @@
             <Grid
                 x:Name="MusicInfoGrid"
                 Grid.Row="0"
-                Margin="0,0,0,20">
+                Margin="0,0,0,20"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -100,6 +102,7 @@
 
                 <Image
                     x:Name="MusicCoverImage"
+                    Grid.Row="0"
                     Grid.Column="0"
                     Width="130"
                     Height="130"
@@ -110,6 +113,7 @@
                     Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                 <StackPanel
                     x:Name="MusicTitleAndArtistStackPanel"
+                    Grid.Row="0"
                     Grid.Column="1"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center">
@@ -119,6 +123,7 @@
                         FontSize="20"
                         FontWeight="Bold"
                         Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}"
+                        TextAlignment="Left"
                         TextTrimming="CharacterEllipsis" />
                     <TextBlock
                         x:Name="MusicArtistTextBlock"
@@ -126,6 +131,7 @@
                         Margin="0,0,0,5"
                         FontSize="16"
                         FontWeight="Medium"
+                        TextAlignment="Left"
                         TextTrimming="CharacterEllipsis">
                         <Run Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
                         <Run Text="·" />
@@ -371,7 +377,7 @@
                         Glyph="&#xE010;"
                         RenderTransformOrigin="0.5, 0.5">
                         <FontIcon.RenderTransform>
-                            <RotateTransform />
+                            <RotateTransform Angle="180" />
                         </FontIcon.RenderTransform>
                     </FontIcon>
                 </Button>
@@ -468,21 +474,8 @@
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="CommonStates">
+                <!--  Expand 是默认状态  -->
                 <VisualState x:Name="Expand">
-                    <VisualState.Setters>
-                        <Setter Target="MusicInfoAndControlRowDefinition.Height" Value="Auto" />
-                        <Setter Target="MusicListViewRowDefinition.Height" Value="*" />
-                        <Setter Target="MusicInfoRowDefinition.Height" Value="Auto" />
-
-                        <Setter Target="MusicCoverImage.(Grid.Column)" Value="0" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Column)" Value="1" />
-                        <Setter Target="MusicCoverImage.(Grid.Row)" Value="0" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Row)" Value="0" />
-
-                        <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Top" />
-                        <Setter Target="NowPlayingListView.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-
                     <VisualState.Storyboard>
                         <Storyboard Completed="OnMusicListExpandStoryboardCompleted">
                             <DoubleAnimation
@@ -498,22 +491,12 @@
                             <FadeInThemeAnimation Storyboard.TargetName="NowPlayingListView" />
                         </Storyboard>
                     </VisualState.Storyboard>
-
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{x:Bind ViewModel.IsNowPlayingListExpanded, Mode=OneWay}" />
-                    </VisualState.StateTriggers>
                 </VisualState>
 
                 <VisualState x:Name="FoldWide">
                     <VisualState.Setters>
                         <Setter Target="MusicInfoAndControlRowDefinition.Height" Value="*" />
                         <Setter Target="MusicListViewRowDefinition.Height" Value="Auto" />
-                        <Setter Target="MusicInfoRowDefinition.Height" Value="Auto" />
-
-                        <Setter Target="MusicCoverImage.(Grid.Column)" Value="0" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Column)" Value="1" />
-                        <Setter Target="MusicCoverImage.(Grid.Row)" Value="0" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Row)" Value="0" />
 
                         <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Bottom" />
                         <Setter Target="NowPlayingListView.Visibility" Value="Collapsed" />
@@ -553,19 +536,15 @@
                         <Setter Target="MusicInfoGrid.VerticalAlignment" Value="Center" />
 
                         <Setter Target="MusicTitleAndArtistStackPanel.HorizontalAlignment" Value="Center" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.VerticalAlignment" Value="Center" />
                         <Setter Target="MusicCoverImage.HorizontalAlignment" Value="Center" />
-                        <Setter Target="MusicCoverImage.VerticalAlignment" Value="Center" />
                         <Setter Target="MusicCoverImage.Margin" Value="0,0,0,10" />
                         <Setter Target="MusicCoverImage.Height" Value="200" />
                         <Setter Target="MusicCoverImage.Width" Value="200" />
                         <Setter Target="MusicTitleTextBlock.TextAlignment" Value="Center" />
                         <Setter Target="MusicArtistTextBlock.TextAlignment" Value="Center" />
 
-                        <Setter Target="MusicCoverImage.(Grid.Column)" Value="0" />
-                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Column)" Value="0" />
-                        <Setter Target="MusicCoverImage.(Grid.Row)" Value="0" />
                         <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Row)" Value="1" />
+                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Column)" Value="0" />
 
                         <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Stretch" />
                         <Setter Target="NowPlayingListView.Visibility" Value="Collapsed" />
