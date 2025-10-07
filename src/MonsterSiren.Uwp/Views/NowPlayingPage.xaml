@@ -173,7 +173,7 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
                             Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.IsMusicProcessSliderEnabled, Mode=OneWay}"
                             IsThumbToolTipEnabled="False"
                             Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                             Style="{StaticResource ThemedSlider}"

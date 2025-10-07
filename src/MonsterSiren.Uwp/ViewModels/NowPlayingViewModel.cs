@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -20,6 +21,11 @@ public partial class NowPlayingViewModel : ObservableObject
     private string mediaCastingButtonString = "CastToDevice".GetLocalized();
     [ObservableProperty]
     private bool isNowPlayingListExpanded;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMusicProcessSliderEnabled))]
+    private bool shouldDisableMusicProcessSlider;
+
+    public bool IsMusicProcessSliderEnabled { get => MusicInfo.ShowOrEnableMusicControl && !ShouldDisableMusicProcessSlider; }
 
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
 
@@ -28,11 +34,27 @@ public partial class NowPlayingViewModel : ObservableObject
         view = nowPlaying;
         DetermineMediaCastingButtonString(MediaCastService.IsMediaCasting);
         MediaCastService.MediaCastingStateChanged += OnMediaCastServiceMediaCastingStateChanged;
+        MusicInfo.PropertyChanged += OnMusicInfoPropertyChanged;
     }
 
     ~NowPlayingViewModel()
     {
+        DehookAllEvent();
+    }
+
+    public void DehookAllEvent()
+    {
         MediaCastService.MediaCastingStateChanged -= OnMediaCastServiceMediaCastingStateChanged;
+        MusicInfo.PropertyChanged -= OnMusicInfoPropertyChanged;
+        GC.SuppressFinalize(this);
+    }
+
+    private void OnMusicInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MusicInfo.ShowOrEnableMusicControl))
+        {
+            OnPropertyChanged(nameof(IsMusicProcessSliderEnabled));
+        }
     }
 
     private void OnMediaCastServiceMediaCastingStateChanged(bool isCasting)

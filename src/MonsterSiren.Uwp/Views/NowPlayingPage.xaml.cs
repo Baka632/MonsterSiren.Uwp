@@ -89,6 +89,7 @@ public sealed partial class NowPlayingPage : Page
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
         MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
+        ViewModel.DehookAllEvent();
     }
 
     private void OnExpandOrFoldNowPlayingList(object sender, RoutedEventArgs e)
@@ -227,6 +228,7 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnRootManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
     {
+        ViewModel.ShouldDisableMusicProcessSlider = true;
     }
 
     private void OnRootGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
@@ -235,6 +237,8 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnRootGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
     {
+        ViewModel.ShouldDisableMusicProcessSlider = false;
+
         double y = e.Cumulative.Translation.Y;
 
         if (y > 0)
