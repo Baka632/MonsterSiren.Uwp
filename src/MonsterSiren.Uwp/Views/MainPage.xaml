@@ -131,6 +131,7 @@
                     AccessKey="Q"
                     AccessKeyInvoked="OnAutoSuggestBoxAccessKeyInvoked"
                     DisplayMemberPath="Name"
+                    GettingFocus="OnNavigationViewSearchBoxGettingFocus"
                     ItemsSource="{x:Bind ViewModel.AutoSuggestBoxSuggestion, Mode=OneWay}"
                     QueryIcon="Find"
                     QuerySubmitted="OnNavigationViewSearchBoxQuerySubmitted"

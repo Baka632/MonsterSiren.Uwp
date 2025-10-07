@@ -1,3 +1,9 @@
+#region 请保留，各个发布模式需要
+using System.Diagnostics;
+using Windows.UI.Popups;
+using Windows.Services.Store;
+using Microsoft.Services.Store.Engagement;
+#endregion
 using System.Collections.Specialized;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
@@ -9,12 +15,6 @@ using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
-#region 请保留，各个发布模式需要
-using System.Diagnostics;
-using Windows.UI.Popups;
-using Windows.Services.Store;
-using Microsoft.Services.Store.Engagement;
-#endregion
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -28,6 +28,7 @@ public sealed partial class MainPage : Page
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
     private long tokenForPlaylistPageItemIsExpandChangedEvent;
+    private bool shouldSuppressAutoSuggestBoxFocusEvent;
 
     public MainViewModel ViewModel { get; }
 
@@ -762,5 +763,15 @@ public sealed partial class MainPage : Page
                                                                           ViewModel.SelectedPlaylist);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnNavigationViewSearchBoxGettingFocus(UIElement sender, GettingFocusEventArgs args)
+    {
+        if (shouldSuppressAutoSuggestBoxFocusEvent)
+        {
+            // TODO: 找到能够正确了解导航视图展开的事件（PaneOpen 事件在低版本系统不可用）
+            args.Cancel = true;
+            shouldSuppressAutoSuggestBoxFocusEvent = false;
+        }
     }
 }

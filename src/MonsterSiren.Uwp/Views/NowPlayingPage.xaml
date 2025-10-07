@@ -79,11 +79,9 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid.Transitions>
-                <TransitionCollection>
-                    <RepositionThemeTransition />
-                </TransitionCollection>
-            </Grid.Transitions>
+            <Grid.RenderTransform>
+                <TranslateTransform />
+            </Grid.RenderTransform>
 
             <Grid
                 x:Name="MusicInfoGrid"
@@ -377,7 +375,7 @@
                         Glyph="&#xE010;"
                         RenderTransformOrigin="0.5, 0.5">
                         <FontIcon.RenderTransform>
-                            <RotateTransform Angle="180" />
+                            <RotateTransform />
                         </FontIcon.RenderTransform>
                     </FontIcon>
                 </Button>
@@ -488,9 +486,22 @@
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
                                 To="180"
                                 Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetPositiveYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
                             <FadeInThemeAnimation Storyboard.TargetName="NowPlayingListView" />
                         </Storyboard>
                     </VisualState.Storyboard>
+
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind ViewModel.IsNowPlayingListExpanded, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
                 </VisualState>
 
                 <VisualState x:Name="FoldWide">
@@ -514,6 +525,15 @@
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
                                 To="0"
                                 Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
                             <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
                         </Storyboard>
                     </VisualState.Storyboard>
@@ -562,6 +582,15 @@
                                 Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
                                 To="0"
                                 Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
                             <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
                         </Storyboard>
                     </VisualState.Storyboard>

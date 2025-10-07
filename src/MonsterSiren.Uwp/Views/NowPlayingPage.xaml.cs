@@ -281,4 +281,16 @@ public sealed partial class NowPlayingPage : Page
             isHandlingRootGridPointerWheelChangedEvent = false;
         }
     }
+
+    private double GetPositiveYPosition(UIElement element)
+    {
+        GeneralTransform transform = element.TransformToVisual(this);
+        Point screenCoords = transform.TransformPoint(new Point(0, 0));
+        return screenCoords.Y - MusicInfoAndControlGrid.ActualHeight;
+    }
+
+    private double GetNegativeYPosition(UIElement element)
+    {
+        return -GetPositiveYPosition(element);
+    }
 }
