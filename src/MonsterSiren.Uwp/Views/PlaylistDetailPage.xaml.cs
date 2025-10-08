@@ -4,6 +4,10 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
+using Windows.Media.Playback;
+using Windows.UI.Xaml.Documents;
 
 namespace MonsterSiren.Uwp.Views;
 
@@ -159,5 +163,70 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         PlaylistItem playlistItem = (PlaylistItem)element.DataContext;
 
         await ViewModel.PlayForItemCommand.ExecuteAsync(playlistItem);
+    }
+
+    private async void OnAlbumTitleTextBlockLoaded(object sender, RoutedEventArgs e)
+    {
+        TextBlock textBlock = (TextBlock)sender;
+        PlaylistItem item = (PlaylistItem)textBlock.DataContext;
+        Run run = (Run)textBlock.FindName("AlbumTitleHyperlinkRun");
+
+        if (string.IsNullOrWhiteSpace(item.AlbumTitle))
+        {
+            run.Text = "...";
+            try
+            {
+                AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+                run.Text = detail.Name;
+                ToolTipService.SetToolTip(textBlock, new ToolTip() { Content = detail.Name });
+                await FillAlbumTitleAndSaveAsync(ViewModel.CurrentPlaylist, item, detail.Name);
+            }
+            catch
+            {
+            }
+        }
+        else
+        {
+            run.Text = item.AlbumTitle;
+            ToolTipService.SetToolTip(textBlock, new ToolTip() { Content = item.AlbumTitle });
+        }
+    }
+
+    private async void OnAlbumTitleHyperlinkClick(Hyperlink sender, HyperlinkClickEventArgs args)
+    {
+        TextBlock parent = sender.FindAscendant<TextBlock>();
+
+        if (parent?.DataContext is PlaylistItem item)
+        {
+            try
+            {
+                AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+
+                if (string.IsNullOrWhiteSpace(item.AlbumTitle))
+                {
+                    await FillAlbumTitleAndSaveAsync(ViewModel.CurrentPlaylist, item, detail.Name);
+                }
+
+                ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), detail, CommonValues.DefaultTransitionInfo);
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private static async Task FillAlbumTitleAndSaveAsync(Playlist playlist, PlaylistItem targetItem, string newTitle)
+    {
+        if (string.IsNullOrWhiteSpace(newTitle))
+        {
+            throw new ArgumentException($"“{nameof(newTitle)}”不能为 null 或空白。", nameof(newTitle));
+        }
+
+        int targetIndex = playlist.Items.IndexOf(targetItem);
+        if (targetIndex != -1)
+        {
+            playlist.Items[targetIndex] = targetItem with { AlbumTitle = newTitle };
+            await PlaylistService.SavePlaylistAsync(playlist);
+        }
     }
 }

@@ -108,7 +108,7 @@
                     <wctControls:ImageEx
                         x:Name="AlbumCover"
                         VerticalAlignment="Top"
-                        DataContext="{x:Bind ViewModel.CurrentAlbumInfo}"
+                        DataContext="{x:Bind ViewModel.CurrentAlbumInfo, Mode=OneWay}"
                         Loaded="OnAlbumCoverLoaded"
                         PlaceholderSource="ms-appx:///Assets/NullAlbum.png"
                         PlaceholderStretch="UniformToFill"

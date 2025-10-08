@@ -382,7 +382,7 @@ public static class PlaylistService
         }
 
         TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
-        PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+        PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration ?? TimeSpan.Zero);
         await AddItemForPlaylistAsync(playlist, item);
     }
 
@@ -504,7 +504,7 @@ public static class PlaylistService
             }
 
             TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
-            PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+            PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration ?? TimeSpan.Zero);
             items.Add(item);
         }
 
@@ -624,7 +624,7 @@ public static class PlaylistService
                 }
 
                 TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
-                PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, duration ?? TimeSpan.Zero);
+                PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration ?? TimeSpan.Zero);
 
                 await UIThreadHelper.RunOnUIThread(() =>
                 {

@@ -64,13 +64,26 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
 
         try
         {
+            // 先用比较准确的，计算出来的 AlbumInfo（不那么准确的地方在专辑艺术家这里，笨笨 yj 的锅）。
+            // 如果这里不先顶上，那么会出现异常，
+            // 因为查询准确的 AlbumInfo 是异步操作，因此 UI 线程在查询过程中会先去处理 UI 的其他事情，
+            // 而由于 AlbumInfo 的内容为空，视图方面相关操作会出现问题。
+            CurrentAlbumInfo = new(albumDetail.Cid,
+                                   albumDetail.Name,
+                                   albumDetail.Intro,
+                                   albumDetail.Belong,
+                                   albumDetail.CoverUrl,
+                                   albumDetail.CoverDeUrl,
+                                   [.. albumDetail.Songs.SelectMany(info => info.Artists).Distinct()]);
+            
+            CurrentAlbumDetail = albumDetail;
+            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+
+            // 之后再去查完全准确的 AlbumInfo
             CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
                 .Single(info => info.Cid == albumDetail.Cid);
 
-            CurrentAlbumDetail = albumDetail;
             ErrorVisibility = Visibility.Collapsed;
-
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
         }
         catch (HttpRequestException ex)
         {

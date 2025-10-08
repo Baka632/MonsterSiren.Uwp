@@ -280,13 +280,13 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
+                            <ColumnDefinition />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.Resources>
                             <Style x:Key="SongDefaultTextStyle" TargetType="TextBlock">
                                 <Setter Property="Margin" Value="0,0,5,0" />
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                <Setter Property="HorizontalAlignment" Value="Left" />
                                 <Setter Property="VerticalAlignment" Value="Center" />
                                 <Setter Property="Grid.Column" Value="1" />
                             </Style>
@@ -311,8 +311,23 @@
                             ToolTipService.ToolTip="{x:Bind SongTitle}"
                             Visibility="{x:Bind IsCorruptedItem}" />
 
-                        <StackPanel
+                        <TextBlock
                             Grid.Column="2"
+                            Margin="0,0,5,0"
+                            VerticalAlignment="Center"
+                            DataContext="{x:Bind}"
+                            Loaded="OnAlbumTitleTextBlockLoaded"
+                            TextTrimming="CharacterEllipsis">
+                            <Hyperlink
+                                Click="OnAlbumTitleHyperlinkClick"
+                                Foreground="{ThemeResource SystemBaseHighColor}"
+                                UnderlineStyle="None">
+                                <Run x:Name="AlbumTitleHyperlinkRun" />
+                            </Hyperlink>
+                        </TextBlock>
+
+                        <StackPanel
+                            Grid.Column="3"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
                             Orientation="Horizontal">
