@@ -1,7 +1,5 @@
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
-using MonsterSiren.Api.Models.Album;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -48,6 +46,11 @@ public sealed partial class AlbumDetailPage : Page
             enableBackAnimation = tuple.Item2;
 
             await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+        }
+        else if (e.Parameter is AlbumDetail detail)
+        {
+            enableBackAnimation = false;
+            await ViewModel.Initialize(detail).ConfigureAwait(false);
         }
     }
 

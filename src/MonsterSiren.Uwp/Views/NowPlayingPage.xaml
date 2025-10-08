@@ -413,39 +413,49 @@
                             </muxc:MenuBarItemFlyout>
                         </controls:NowPlayingItemGrid.ContextFlyout>
 
-                        <!--  Commented for not fitting to narrow UI  -->
                         <controls:NowPlayingItemGrid.ColumnDefinitions>
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="2*" />
                             <ColumnDefinition />
                             <ColumnDefinition MaxWidth="40" />
                         </controls:NowPlayingItemGrid.ColumnDefinitions>
 
-                        <StackPanel
+                        <Grid
                             Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
                             <PathIcon
                                 Margin="0,0,10,0"
-                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Data="F1 M 12.5 17.5 L 12.5 6.259766 L 13.740234 6.259766 L 13.740234 17.5 Z M 1.240234 17.5 L 1.240234 13.759766 L 2.5 13.759766 L 2.5 17.5 Z M 5 17.5 L 5 10 L 6.240234 10 L 6.240234 17.5 Z M 8.740234 17.5 L 8.740234 1.259766 L 10 1.259766 L 10 17.5 Z M 16.240234 10 L 17.5 10 L 17.5 17.5 L 16.240234 17.5 Z "
                                 Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                                 Visibility="{Binding ElementName=NowPlayingItemGrid, Path=CurrentNowPlayingItemIndicatorVisibility, Mode=OneWay}" />
 
                             <TextBlock
-                                HorizontalAlignment="Center"
+                                Grid.Column="1"
                                 VerticalAlignment="Center"
                                 Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                                 Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}"
-                                TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}" />
+                        </Grid>
 
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
-                            Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
-                            TextTrimming="CharacterEllipsis" />
+                            TextTrimming="CharacterEllipsis"
+                            ToolTipService.ToolTip="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}">
+                            <Hyperlink
+                                Click="OnAlbumTitleHyperlinkClick"
+                                Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
+                                UnderlineStyle="None">
+                                <Run Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}" />
+                            </Hyperlink>
+                        </TextBlock>
                         <TextBlock
                             Grid.Column="2"
                             HorizontalAlignment="Right"
@@ -492,7 +502,7 @@
                                 From="{x:Bind GetPositiveYPosition(MusicInfoAndControlGrid)}"
                                 Duration="0:0:0.5">
                                 <DoubleAnimation.EasingFunction>
-                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
                                 </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                             <FadeInThemeAnimation Storyboard.TargetName="NowPlayingListView" />
@@ -531,7 +541,7 @@
                                 From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
                                 Duration="0:0:0.5">
                                 <DoubleAnimation.EasingFunction>
-                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
                                 </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                             <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
@@ -588,7 +598,7 @@
                                 From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
                                 Duration="0:0:0.5">
                                 <DoubleAnimation.EasingFunction>
-                                    <ExponentialEase Exponent="7" EasingMode="EaseOut" />
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
                                 </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                             <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />

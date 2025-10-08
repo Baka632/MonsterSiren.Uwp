@@ -1,4 +1,5 @@
 using System.Threading;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.UI.Core;
@@ -296,5 +297,20 @@ public sealed partial class NowPlayingPage : Page
     private double GetNegativeYPosition(UIElement element)
     {
         return -GetPositiveYPosition(element);
+    }
+
+    private async void OnAlbumTitleHyperlinkClick(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+    {
+        TextBlock parent = sender.FindAscendant<TextBlock>();
+
+        if (parent?.DataContext is MediaPlaybackItem item)
+        {
+            (bool success, AlbumDetail detail) = await MsrModelsHelper.TryGetAlbumDetailFromMediaPlaybackItem(item);
+            if (success)
+            {
+                MainPageNavigationHelper.GoBack();
+                ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), detail, CommonValues.DefaultTransitionInfo);
+            }
+        }
     }
 }

@@ -13,6 +13,38 @@ namespace MonsterSiren.Uwp.Helpers;
 public static partial class MsrModelsHelper
 {
     /// <summary>
+    /// 尝试从 <see cref="MediaPlaybackItem"/> 中获取 <see cref="SongDetail"/>。
+    /// </summary>
+    /// <param name="item">从 <see cref="MsrModelsHelper"/> 获取到的 <see cref="MediaPlaybackItem"/>。</param>
+    /// <remarks>
+    /// 传入 <see cref="MediaPlaybackItem"/> 的来源必须是 <see cref="MsrModelsHelper"/> 中的相关方法，因为这些方法会向 <see cref="MediaPlaybackItem"/> 写入必要的额外数据。
+    /// </remarks>
+    /// <returns>
+    /// <para>
+    /// 一个二元组。
+    /// </para>
+    /// <para>
+    /// 第一个值指示操作是否成功，第二个值是操作成功时获取到的 <see cref="SongDetail"/> 实例。
+    /// </para>
+    /// </returns>
+    public static async Task<ValueTuple<bool, SongDetail>> TryGetSongDetailFromMediaPlaybackItem(MediaPlaybackItem item)
+    {
+        if (TryGetSongCidFromMediaPlaybackItem(item, out string cid))
+        {
+            try
+            {
+                SongDetail songDetail = await GetSongDetailAsync(cid);
+                return (true, songDetail);
+            }
+            catch
+            {
+            }
+        }
+
+        return (false, default);
+    }
+
+    /// <summary>
     /// 使用 <see cref="AlbumDetail"/> 和 <see cref="SongDetail"/> 来获得可供播放器播放的 <see cref="MediaPlaybackItem"/>。
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/>，其中存储了音乐的关键信息。</param>
@@ -44,6 +76,9 @@ public static partial class MsrModelsHelper
         displayProps.MusicProperties.AlbumTitle = albumDetail.Name;
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
+
+        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
+        SetExtraSongAndAlbumCidForMusicProperties(displayProps.MusicProperties, albumDetail, songDetail);
 
         Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
         displayProps.Thumbnail = fileCoverUri is not null
@@ -257,5 +292,51 @@ public static partial class MsrModelsHelper
         {
             return (false, songDetail);
         }
+    }
+
+    private static void SetExtraSongAndAlbumCidForMusicProperties(MusicDisplayProperties properties, AlbumDetail albumDetail, SongDetail songDetail)
+    {
+        if (properties is null)
+        {
+            throw new ArgumentNullException(nameof(properties));
+        }
+
+        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
+        // 0 => Song CID
+        // 1 => Album CID
+        properties.Genres.Add(songDetail.Cid);
+        properties.Genres.Add(albumDetail.Cid);
+    }
+
+    private static bool TryGetSongCidFromMediaPlaybackItem(MediaPlaybackItem item, out string songCid)
+    {
+        if (item is not null)
+        {
+            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
+            songCid = props.Genres.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(songCid))
+            {
+                return true;
+            }
+        }
+
+        songCid = null;
+        return false;
+    }
+
+    private static bool TryGetAlbumCidFromMediaPlaybackItem(MediaPlaybackItem item, out string albumCid)
+    {
+        if (item is not null)
+        {
+            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
+            albumCid = props.Genres.Skip(1).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(albumCid))
+            {
+                return true;
+            }
+        }
+
+        albumCid = null;
+        return false;
     }
 }

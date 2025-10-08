@@ -1,9 +1,42 @@
 using System.Net.Http;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Helpers;
 
 partial class MsrModelsHelper
 {
+    /// <summary>
+    /// 尝试从 <see cref="MediaPlaybackItem"/> 中获取 <see cref="AlbumDetail"/>。
+    /// </summary>
+    /// <param name="item">从 <see cref="MsrModelsHelper"/> 获取到的 <see cref="MediaPlaybackItem"/>。</param>
+    /// <remarks>
+    /// 传入 <see cref="MediaPlaybackItem"/> 的来源必须是 <see cref="MsrModelsHelper"/> 中的相关方法，因为这些方法会向 <see cref="MediaPlaybackItem"/> 写入必要的额外数据。
+    /// </remarks>
+    /// <returns>
+    /// <para>
+    /// 一个二元组。
+    /// </para>
+    /// <para>
+    /// 第一个值指示操作是否成功，第二个值是操作成功时获取到的 <see cref="AlbumDetail"/> 实例。
+    /// </para>
+    /// </returns>
+    public static async Task<ValueTuple<bool, AlbumDetail>> TryGetAlbumDetailFromMediaPlaybackItem(MediaPlaybackItem item)
+    {
+        if (TryGetAlbumCidFromMediaPlaybackItem(item, out string cid))
+        {
+            try
+            {
+                AlbumDetail albumDetail = await GetAlbumDetailAsync(cid);
+                return (true, albumDetail);
+            }
+            catch
+            {
+            }
+        }
+
+        return (false, default);
+    }
+
     /// <summary>
     /// 通过专辑的 CID 获取专辑详细信息。
     /// </summary>

@@ -57,6 +57,37 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         }
     }
 
+    public async Task Initialize(AlbumDetail albumDetail)
+    {
+        IsLoading = true;
+        SelectedSongListItemContextFlyout = view.SongContextFlyout;
+
+        try
+        {
+            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                .Single(info => info.Cid == albumDetail.Cid);
+
+            CurrentAlbumDetail = albumDetail;
+            ErrorVisibility = Visibility.Collapsed;
+
+            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorVisibility = Visibility.Visible;
+            ErrorInfo = new ErrorInfo()
+            {
+                Title = "ErrorOccurred".GetLocalized(),
+                Message = "InternetErrorMessage".GetLocalized(),
+                Exception = ex
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task PlayForCurrentAlbumDetail()
     {
