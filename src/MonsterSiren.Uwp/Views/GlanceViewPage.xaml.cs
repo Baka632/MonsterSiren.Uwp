@@ -1,6 +1,7 @@
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using Windows.Graphics.Display;
+using Windows.Media.Playback;
 using Windows.System;
 using Windows.System.Display;
 using Windows.UI.Core;
@@ -13,19 +14,26 @@ namespace MonsterSiren.Uwp.Views;
 /// </summary>
 public sealed partial class GlanceViewPage : Page
 {
-    private readonly DispatcherTimer _timer;
-    private readonly Random _random;
+    private DispatcherTimer _timer;
+    private Random _random;
     private BrightnessOverride _brightnessOverride;
     private DisplayRequest _displayRequest;
+    private bool isRequestedDisplayActive;
 
     public GlanceViewViewModel ViewModel { get; } = new GlanceViewViewModel();
 
     public GlanceViewPage()
     {
         this.InitializeComponent();
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeBurnProtectionSettingsKey, out bool isEnableBurnProtection) && isEnableBurnProtection)
         {
+            MusicService.PlayerPlaybackStateChanged += OnPlayerPlaybackStateChanged;
             _random = new();
             _timer = new()
             {
@@ -35,7 +43,62 @@ public sealed partial class GlanceViewPage : Page
             _timer.Start();
         }
 
-        SizeChanged += OnPageSizeChanged;
+        Window.Current.Dispatcher.AcceleratorKeyActivated += OnDispatcherAcceleratorKeyActivated;
+
+        ApplicationView view = ApplicationView.GetForCurrentView();
+        if (view.IsFullScreenMode != true)
+        {
+            view.TryEnterFullScreenMode();
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
+        {
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                _brightnessOverride = BrightnessOverride.GetForCurrentView();
+            });
+            TryStartBrightnessOverride();
+
+            Application.Current.EnteredBackground += OnAppEnteredBackground;
+            Application.Current.LeavingBackground += OnAppLeavingBackground;
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn) && remainDisplayOn)
+        {
+            _displayRequest = new DisplayRequest();
+            TryRequestDisplayActive();
+        }
+
+        if (!SettingsHelper.TryGet(CommonValues.GlanceModeIsUsedOnceIndicator, out bool glanceModeIsUsedOnce))
+        {
+            await CommonValues.DisplayContentDialog("GlanceMode_Welcome_Title".GetLocalized(),
+                                                    "GlanceMode_Welcome_Message".GetLocalized(), closeButtonText: "OK".GetLocalized());
+
+            SettingsHelper.Set(CommonValues.GlanceModeIsUsedOnceIndicator, true);
+        }
+    }
+
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+    {
+        base.OnNavigatingFrom(e);
+
+        MusicService.PlayerPlaybackStateChanged -= OnPlayerPlaybackStateChanged;
+        if (_timer is not null)
+        {
+            _timer.Tick -= OnTimerTick;
+        }
+        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
+        Application.Current.EnteredBackground -= OnAppEnteredBackground;
+        Application.Current.LeavingBackground -= OnAppLeavingBackground;
+
+        ApplicationView view = ApplicationView.GetForCurrentView();
+        if (view.IsFullScreenMode)
+        {
+            view.ExitFullScreenMode();
+        }
+
+        TryStopBrightnessOverride();
+        TryReleaseDisplayActive();
     }
 
     private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
@@ -46,6 +109,37 @@ public sealed partial class GlanceViewPage : Page
     private void OnTimerTick(object sender, object e)
     {
         AdjustContentPosition();
+    }
+
+    private void OnAppEnteredBackground(object sender, EnteredBackgroundEventArgs e)
+    {
+        TryStopBrightnessOverride();
+    }
+
+    private void OnAppLeavingBackground(object sender, LeavingBackgroundEventArgs e)
+    {
+        TryStartBrightnessOverride();
+    }
+
+    private void OnDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+    {
+        if (args.VirtualKey == VirtualKey.Escape)
+        {
+            ExitGlanceMode();
+            args.Handled = true;
+        }
+    }
+
+    private void OnPlayerPlaybackStateChanged(MediaPlaybackState state)
+    {
+        if (state == MediaPlaybackState.Paused)
+        {
+            TryReleaseDisplayActive();
+        }
+        else
+        {
+            TryRequestDisplayActive();
+        }
     }
 
     private void AdjustContentPosition()
@@ -84,80 +178,21 @@ public sealed partial class GlanceViewPage : Page
         }
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    private void TryRequestDisplayActive()
     {
-        base.OnNavigatedTo(e);
-
-        Window.Current.Dispatcher.AcceleratorKeyActivated += OnDispatcherAcceleratorKeyActivated;
-
-        ApplicationView view = ApplicationView.GetForCurrentView();
-        if (view.IsFullScreenMode != true)
+        if (!isRequestedDisplayActive && _displayRequest is not null)
         {
-            view.TryEnterFullScreenMode();
-        }
-
-        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness) && useLowerBrightness)
-        {
-            await UIThreadHelper.RunOnUIThread(() =>
-            {
-                _brightnessOverride = BrightnessOverride.GetForCurrentView();
-            });
-            TryStartBrightnessOverride();
-
-            Application.Current.EnteredBackground += OnAppEnteredBackground;
-            Application.Current.LeavingBackground += OnAppLeavingBackground;
-        }
-
-        if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn) && remainDisplayOn)
-        {
-            _displayRequest = new DisplayRequest();
             _displayRequest.RequestActive();
-        }
-
-        if (!SettingsHelper.TryGet(CommonValues.GlanceModeIsUsedOnceIndicator, out bool glanceModeIsUsedOnce))
-        {
-            await CommonValues.DisplayContentDialog("GlanceMode_Welcome_Title".GetLocalized(),
-                                                    "GlanceMode_Welcome_Message".GetLocalized(), closeButtonText: "OK".GetLocalized());
-
-            SettingsHelper.Set(CommonValues.GlanceModeIsUsedOnceIndicator, true);
+            isRequestedDisplayActive = true;
         }
     }
 
-    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+    private void TryReleaseDisplayActive()
     {
-        base.OnNavigatingFrom(e);
-
-        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
-        Application.Current.EnteredBackground -= OnAppEnteredBackground;
-        Application.Current.LeavingBackground -= OnAppLeavingBackground;
-
-        ApplicationView view = ApplicationView.GetForCurrentView();
-        if (view.IsFullScreenMode)
+        if (isRequestedDisplayActive && _displayRequest is not null)
         {
-            view.ExitFullScreenMode();
-        }
-
-        TryStopBrightnessOverride();
-
-        _displayRequest?.RequestRelease();
-    }
-
-    private void OnAppEnteredBackground(object sender, EnteredBackgroundEventArgs e)
-    {
-        TryStopBrightnessOverride();
-    }
-
-    private void OnAppLeavingBackground(object sender, LeavingBackgroundEventArgs e)
-    {
-        TryStartBrightnessOverride();
-    }
-
-    private void OnDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
-    {
-        if (args.VirtualKey == VirtualKey.Escape)
-        {
-            ExitGlanceMode();
-            args.Handled = true;
+            _displayRequest.RequestRelease();
+            isRequestedDisplayActive = false;
         }
     }
 
