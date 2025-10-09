@@ -30,13 +30,7 @@
         </Storyboard>
     </Page.Resources>
 
-    <Grid
-        Background="Transparent"
-        ManipulationCompleted="OnRootGridManipulationCompleted"
-        ManipulationDelta="OnRootGridManipulationDelta"
-        ManipulationMode="TranslateY"
-        ManipulationStarted="OnRootManipulationStarted"
-        PointerWheelChanged="OnRootGridPointerWheelChanged">
+    <Grid PointerWheelChanged="OnRootGridPointerWheelChanged">
         <Grid.RowDefinitions>
             <RowDefinition x:Name="MusicInfoAndControlRowDefinition" Height="Auto" />
             <RowDefinition x:Name="MusicListViewRowDefinition" Height="*" />
@@ -73,8 +67,14 @@
             Grid.Row="0"
             Margin="11,40,11,0"
             VerticalAlignment="Top"
+            Background="Transparent"
+            ManipulationCompleted="OnMusicInfoAndControlGridManipulationCompleted"
+            ManipulationDelta="OnMusicInfoAndControlGridManipulationDelta"
+            ManipulationMode="TranslateY"
+            ManipulationStarted="OnMusicInfoAndControlGridManipulationStarted"
             Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}">
             <Grid.RowDefinitions>
+                <RowDefinition x:Name="MusicInfoPaddingRowDefinition" Height="0" />
                 <RowDefinition x:Name="MusicInfoRowDefinition" Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -85,7 +85,7 @@
 
             <Grid
                 x:Name="MusicInfoGrid"
-                Grid.Row="0"
+                Grid.Row="1"
                 Margin="0,0,0,20"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
@@ -140,7 +140,7 @@
 
             <Grid
                 x:Name="MusicControlGrid"
-                Grid.Row="1"
+                Grid.Row="2"
                 Margin="0,0,0,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -381,6 +381,7 @@
                 </Button>
             </Grid>
         </Grid>
+
         <ListView
             x:Name="NowPlayingListView"
             Grid.Row="1"
@@ -516,10 +517,11 @@
 
                 <VisualState x:Name="FoldWide">
                     <VisualState.Setters>
+                        <Setter Target="MusicInfoPaddingRowDefinition.Height" Value="*" />
                         <Setter Target="MusicInfoAndControlRowDefinition.Height" Value="*" />
                         <Setter Target="MusicListViewRowDefinition.Height" Value="Auto" />
 
-                        <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Bottom" />
+                        <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Stretch" />
                         <Setter Target="NowPlayingListView.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
 

@@ -101,12 +101,11 @@ public sealed partial class GlanceViewPage : Page
             await UIThreadHelper.RunOnUIThread(() =>
             {
                 _brightnessOverride = BrightnessOverride.GetForCurrentView();
-                if (_brightnessOverride.IsSupported)
-                {
-                    _brightnessOverride.SetBrightnessLevel(0.1, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
-                    _brightnessOverride.StartOverride();
-                }
             });
+            TryStartBrightnessOverride();
+
+            Application.Current.EnteredBackground += OnAppEnteredBackground;
+            Application.Current.LeavingBackground += OnAppLeavingBackground;
         }
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn) && remainDisplayOn)
@@ -124,6 +123,35 @@ public sealed partial class GlanceViewPage : Page
         }
     }
 
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+    {
+        base.OnNavigatingFrom(e);
+
+        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
+        Application.Current.EnteredBackground -= OnAppEnteredBackground;
+        Application.Current.LeavingBackground -= OnAppLeavingBackground;
+
+        ApplicationView view = ApplicationView.GetForCurrentView();
+        if (view.IsFullScreenMode)
+        {
+            view.ExitFullScreenMode();
+        }
+
+        TryStopBrightnessOverride();
+
+        _displayRequest?.RequestRelease();
+    }
+
+    private void OnAppEnteredBackground(object sender, EnteredBackgroundEventArgs e)
+    {
+        TryStopBrightnessOverride();
+    }
+
+    private void OnAppLeavingBackground(object sender, LeavingBackgroundEventArgs e)
+    {
+        TryStartBrightnessOverride();
+    }
+
     private void OnDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
     {
         if (args.VirtualKey == VirtualKey.Escape)
@@ -133,24 +161,21 @@ public sealed partial class GlanceViewPage : Page
         }
     }
 
-    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+    private void TryStartBrightnessOverride()
     {
-        base.OnNavigatingFrom(e);
-
-        Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
-
-        ApplicationView view = ApplicationView.GetForCurrentView();
-        if (view.IsFullScreenMode)
+        if (_brightnessOverride is not null && _brightnessOverride.IsSupported)
         {
-            view.ExitFullScreenMode();
+            _brightnessOverride.SetBrightnessLevel(0, DisplayBrightnessOverrideOptions.UseDimmedPolicyWhenBatteryIsLow);
+            _brightnessOverride.StartOverride();
         }
+    }
 
+    private void TryStopBrightnessOverride()
+    {
         if (_brightnessOverride is not null && _brightnessOverride.IsSupported)
         {
             _brightnessOverride.StopOverride();
         }
-
-        _displayRequest?.RequestRelease();
     }
 
     private void OnContentLoaded(object sender, RoutedEventArgs e)

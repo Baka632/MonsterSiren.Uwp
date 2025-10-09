@@ -227,16 +227,16 @@ public sealed partial class NowPlayingPage : Page
         }
     }
 
-    private void OnRootManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+    private void OnMusicInfoAndControlGridManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
     {
         ViewModel.ShouldDisableMusicProcessSlider = true;
     }
 
-    private void OnRootGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+    private void OnMusicInfoAndControlGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
     {
     }
 
-    private void OnRootGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+    private void OnMusicInfoAndControlGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
     {
         ViewModel.ShouldDisableMusicProcessSlider = false;
 
