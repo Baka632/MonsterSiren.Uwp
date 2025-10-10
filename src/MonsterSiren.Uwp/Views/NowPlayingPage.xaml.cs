@@ -1,4 +1,5 @@
-﻿using System.Threading;
+using System.Threading;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.UI.Core;
@@ -9,12 +10,10 @@ using Windows.UI.Input;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 正在播放页
+/// 正在播放页。
 /// </summary>
 public sealed partial class NowPlayingPage : Page
 {
-    private bool isNowPlayingListExpanded = false;
-
     public NowPlayingViewModel ViewModel { get; }
 
     public NowPlayingPage()
@@ -70,11 +69,11 @@ public sealed partial class NowPlayingPage : Page
 
         MusicService.PlayerPlayItemChanged += OnPlayerPlayItemChanged;
 
-        //当在Code-behind中添加事件处理器，且handledEventsToo设置为true时，我们才能捕获到Slider的PointerReleased与PointerPressed这两个事件
+        //当在 Code-behind 中添加事件处理器，且 handledEventsToo 设置为 true 时，我们才能捕获到 Slider 的 PointerReleased 与 PointerPressed 这两个事件
         MusicProcessSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased), true);
         MusicProcessSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed), true);
 
-        if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && isNowPlayingListExpanded == false)
+        if (e.Parameter is bool expandNowPlayingList && expandNowPlayingList && !ViewModel.IsNowPlayingListExpanded)
         {
             ExpandNowPlayingList();
         }
@@ -91,6 +90,7 @@ public sealed partial class NowPlayingPage : Page
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
         MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
+        ViewModel.DehookAllEvent();
     }
 
     private void OnExpandOrFoldNowPlayingList(object sender, RoutedEventArgs e)
@@ -109,7 +109,7 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandOrFoldNowPlayingList()
     {
-        if (isNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
+        if (ViewModel.IsNowPlayingListExpanded || MusicService.IsPlayerPlaylistHasMusic != true)
         {
             FoldNowPlayingList();
         }
@@ -121,14 +121,12 @@ public sealed partial class NowPlayingPage : Page
 
     private void ExpandNowPlayingList()
     {
-        MusicListExpandStoryboard.Begin();
-        isNowPlayingListExpanded = true;
+        ViewModel.IsNowPlayingListExpanded = true;
     }
 
     private void FoldNowPlayingList()
     {
-        MusicListFoldStoryboard.Begin();
-        isNowPlayingListExpanded = false;
+        ViewModel.IsNowPlayingListExpanded = false;
     }
 
     private void OnMusicListExpandStoryboardCompleted(object sender, object e)
@@ -177,6 +175,7 @@ public sealed partial class NowPlayingPage : Page
         TextBlock textBlock = (TextBlock)sender;
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
         MediaSource source = playbackItem.Source;
+        string sourceUri = source.Uri.ToString();
 
         textBlock.Text = "-:-";
 
@@ -186,7 +185,7 @@ public sealed partial class NowPlayingPage : Page
         }
         else
         {
-            SemaphoreSlim semaphore = LockerHelper<Uri>.GetOrCreateLocker(source.Uri);
+            SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(sourceUri);
 
             try
             {
@@ -223,7 +222,94 @@ public sealed partial class NowPlayingPage : Page
             finally
             {
                 semaphore.Release();
-                LockerHelper<Uri>.ReturnLocker(source.Uri);
+                CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
+            }
+        }
+    }
+
+    private void OnMusicInfoAndControlGridManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+    {
+        ViewModel.ShouldDisableMusicProcessSlider = true;
+    }
+
+    private void OnMusicInfoAndControlGridManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+    {
+    }
+
+    private void OnMusicInfoAndControlGridManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+    {
+        ViewModel.ShouldDisableMusicProcessSlider = false;
+
+        double y = e.Cumulative.Translation.Y;
+
+        if (y > 0)
+        {
+            FoldNowPlayingList();
+        }
+        else if (y < 0)
+        {
+            ExpandNowPlayingList();
+        }
+    }
+
+    private bool isHandlingRootGridPointerWheelChangedEvent = false;
+
+    private void OnRootGridPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    {
+        if (isHandlingRootGridPointerWheelChangedEvent)
+        {
+            return;
+        }
+        isHandlingRootGridPointerWheelChangedEvent = true;
+
+        try
+        {
+            UIElement element = sender as UIElement;
+            PointerPoint currentPoint = e.GetCurrentPoint(element);
+            PointerPointProperties properties = currentPoint.Properties;
+            int wheelDelta = properties.MouseWheelDelta;
+
+            if (!properties.IsHorizontalMouseWheel && Math.Abs(wheelDelta) > 40)
+            {
+                if (wheelDelta > 0)
+                {
+                    FoldNowPlayingList();
+                }
+                else if (wheelDelta < 0)
+                {
+                    ExpandNowPlayingList();
+                }
+            }
+        }
+        finally
+        {
+            isHandlingRootGridPointerWheelChangedEvent = false;
+        }
+    }
+
+    private double GetPositiveYPosition(UIElement element)
+    {
+        GeneralTransform transform = element.TransformToVisual(this);
+        Point screenCoords = transform.TransformPoint(new Point(0, 0));
+        return screenCoords.Y - MusicInfoAndControlGrid.ActualHeight;
+    }
+
+    private double GetNegativeYPosition(UIElement element)
+    {
+        return -GetPositiveYPosition(element);
+    }
+
+    private async void OnAlbumTitleHyperlinkClick(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+    {
+        TextBlock parent = sender.FindAscendant<TextBlock>();
+
+        if (parent?.DataContext is MediaPlaybackItem item)
+        {
+            (bool success, AlbumDetail detail) = await MsrModelsHelper.TryGetAlbumDetailFromMediaPlaybackItem(item);
+            if (success)
+            {
+                MainPageNavigationHelper.GoBack();
+                ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), detail, CommonValues.DefaultTransitionInfo);
             }
         }
     }

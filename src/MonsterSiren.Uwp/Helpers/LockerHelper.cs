@@ -1,22 +1,25 @@
-﻿using System.Collections.Concurrent;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace MonsterSiren.Uwp.Helpers;
 
 /// <summary>
-/// 为应用程序提供锁的帮助类
+/// 为应用程序提供锁的帮助类。
 /// </summary>
-/// <typeparam name="T">作为键值的类型</typeparam>
-public static class LockerHelper<T>
+/// <typeparam name="T">作为键值的类型。</typeparam>
+public class LockerHelper<T>
 {
-    private static readonly ConcurrentDictionary<T, SemaphoreCountWrapper> objectLockerPairs = [];
+    private readonly ConcurrentDictionary<T, SemaphoreCountWrapper> objectLockerPairs = [];
 
     /// <summary>
-    /// 获取或创建锁对象。若要清理通过此方法获得的锁对象，请不要调用 <see cref="SemaphoreSlim.Dispose()"/>，而是调用 <see cref="ReturnLocker(T)"/>
+    /// 获取或创建锁对象。
     /// </summary>
-    /// <param name="obj">作为键值的对象</param>
-    /// <returns>一个 <see cref="SemaphoreSlim"/></returns>
-    public static SemaphoreSlim GetOrCreateLocker(T obj)
+    /// <remarks>
+    /// 若要清理通过此方法获得的锁对象，请不要调用 <see cref="SemaphoreSlim.Dispose()"/>，而是调用 <see cref="ReturnLocker(T)"/>。
+    /// </remarks>
+    /// <param name="obj">作为键值的对象。</param>
+    /// <returns>一个 <see cref="SemaphoreSlim"/>。</returns>
+    public SemaphoreSlim GetOrCreateLocker(T obj)
     {
         SemaphoreCountWrapper wrapper = new()
         {
@@ -27,6 +30,7 @@ public static class LockerHelper<T>
 
         if (!ReferenceEquals(wrapper, result))
         {
+            // TODO: 这里可能有线程安全问题
             result.UsageCount++;
             wrapper.Dispose();
         }
@@ -35,10 +39,10 @@ public static class LockerHelper<T>
     }
 
     /// <summary>
-    /// 归还锁对象
+    /// 归还锁对象。
     /// </summary>
-    /// <param name="obj">作为键值的对象</param>
-    public static void ReturnLocker(T obj)
+    /// <param name="obj">作为键值的对象。</param>
+    public void ReturnLocker(T obj)
     {
         if (objectLockerPairs.TryGetValue(obj, out SemaphoreCountWrapper wrapper))
         {
@@ -51,15 +55,15 @@ public static class LockerHelper<T>
             }
         }
     }
-}
 
-internal sealed class SemaphoreCountWrapper : IDisposable
-{
-    public SemaphoreSlim Semaphore { get; set; }
-    public int UsageCount { get; set; }
-
-    public void Dispose()
+    private sealed class SemaphoreCountWrapper : IDisposable
     {
-        Semaphore.Dispose();
+        public SemaphoreSlim Semaphore { get; set; }
+        public int UsageCount { get; set; }
+
+        public void Dispose()
+        {
+            Semaphore.Dispose();
+        }
     }
 }

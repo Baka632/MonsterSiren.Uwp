@@ -13,7 +13,7 @@ using Windows.Web;
 namespace MonsterSiren.Uwp.Services;
 
 /// <summary>
-/// 为歌曲及其相关内容的下载提供服务
+/// 为歌曲及其相关内容的下载提供服务。
 /// </summary>
 public static class DownloadService
 {
@@ -22,6 +22,7 @@ public static class DownloadService
     private static bool _keepRawMusicFileAfterTranscode;
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
+    private static bool _replaceInvalidCharInFileName = true;
     private static CodecInfo _transcodeEncoderInfo;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static readonly BackgroundDownloader Downloader = new()
@@ -30,7 +31,7 @@ public static class DownloadService
     };
 
     /// <summary>
-    /// 获取或设置下载路径
+    /// 获取或设置下载路径。
     /// </summary>
     public static string DownloadPath
     {
@@ -44,7 +45,7 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 指示是否下载歌词的值
+    /// 指示是否下载歌词的值。
     /// </summary>
     public static bool DownloadLyric
     {
@@ -57,7 +58,7 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 指示是否转码下载项的值
+    /// 指示是否转码下载项的值。
     /// </summary>
     public static bool TranscodeDownloadedItem
     {
@@ -70,7 +71,7 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 获取或设置转码操作要使用的编码器信息
+    /// 获取或设置转码操作要使用的编码器信息。
     /// </summary>
     public static CodecInfo TranscodeEncoderInfo
     {
@@ -83,7 +84,7 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 获取或设置转码质量
+    /// 获取或设置转码质量。
     /// </summary>
     public static AudioEncodingQuality TranscodeQuality
     {
@@ -96,7 +97,7 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 指示在转码后是否保留原始音乐文件的值
+    /// 指示在转码后是否保留原始音乐文件的值。
     /// </summary>
     public static bool KeepRawMusicFileAfterTranscode
     {
@@ -108,23 +109,35 @@ public static class DownloadService
         }
     }
 
+    /// <summary>
+    /// 指示下载文件出现无效字符时是否替换为相近的有效字符的值。
+    /// </summary>
+    public static bool ReplaceInvalidCharInFileName
+    {
+        get => _replaceInvalidCharInFileName;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicReplaceInvalidCharInDownloadedFileNameSettingsKey, value);
+            _replaceInvalidCharInFileName = value;
+        }
+    }
+
 
     /// <summary>
-    /// 获取下载列表
+    /// 获取下载列表。
     /// </summary>
     public static ObservableCollection<DownloadItem> DownloadList { get; } = [];
-
     /// <summary>
-    /// 指示应用是否因某种原因而改变下载文件夹的默认路径
+    /// 指示应用是否因某种原因而改变下载文件夹的默认路径。
     /// </summary>
     public static bool DownloadPathRedirected { get; private set; }
     /// <summary>
-    /// 指示设备是否支持常用的转码操作
+    /// 指示设备是否支持常用的转码操作。
     /// </summary>
     public static bool IsSupportCommonTranscode { get; private set; }
 
     /// <summary>
-    /// 初始化下载服务
+    /// 初始化下载服务。
     /// </summary>
     public static async Task Initialize()
     {
@@ -133,11 +146,25 @@ public static class DownloadService
             return;
         }
 
-        DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
-                        || dlLyric;
+        // 下面几个属性的初始化代码略有不同，是因为它们的默认值不同。
+        // 默认值为 true => !SettingsHelper.TryGet(key, out bool val) || val
+        // 默认值为 false => SettingsHelper.TryGet(key, out bool val) && val
+        // 使用大括号包装代码是为了防止调用 SettingsHelper.TryGet 方法时声明的变量影响其他地方。
 
-        KeepRawMusicFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
+        {
+            DownloadLyric = !SettingsHelper.TryGet(CommonValues.MusicDownloadLyricSettingsKey, out bool dlLyric)
+                        || dlLyric;
+        }
+
+        {
+            ReplaceInvalidCharInFileName = !SettingsHelper.TryGet(CommonValues.MusicReplaceInvalidCharInDownloadedFileNameSettingsKey, out bool replaceInvalidChar)
+                                    || replaceInvalidChar;
+        }
+
+        {
+            KeepRawMusicFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
                                     && keepWav;
+        }
 
         (bool hasEncoders, IEnumerable<CodecInfo> commonEncoders) = await CodecQueryHelper.TryGetCommonEncoders();
         if (hasEncoders)
@@ -210,11 +237,11 @@ public static class DownloadService
     }
 
     /// <summary>
-    /// 下载单个歌曲
+    /// 下载单个歌曲。
     /// </summary>
-    /// <param name="albumDetail">歌曲所属专辑信息</param>
-    /// <param name="songDetail">歌曲详细信息</param>
-    /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize"/> 方法</exception>
+    /// <param name="albumDetail">歌曲所属专辑信息。</param>
+    /// <param name="songDetail">歌曲详细信息。</param>
+    /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize"/> 方法。</exception>
     public static async Task DownloadSong(AlbumDetail albumDetail, SongDetail songDetail)
     {
         if (_isInitialized != true)
@@ -229,15 +256,19 @@ public static class DownloadService
 
         await Task.Run(async () =>
         {
-            char[] invalidFileChars = Path.GetInvalidFileNameChars();
             string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
             string musicName = songDetail.Name?.Trim();
             string musicFileName = $"{songDetail.Artists.FirstOrDefault()?.Trim() ?? "MSR".GetLocalized()} - {musicName}".Trim();
-            foreach (char invalidChar in invalidFileChars)
+
+            if (ReplaceInvalidCharInFileName)
             {
-                if (musicFileName.Contains(invalidChar))
+                musicFileName = CommonValues.ReplaceInvaildFileNameChars(musicFileName);
+            }
+            else
+            {
+                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
                 {
-                    musicFileName = musicFileName.Replace(invalidChar.ToString(), string.Empty);
+                    musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
                 }
             }
 
@@ -427,7 +458,7 @@ public static class DownloadService
             return MediaEncodingProfile.CreateFlac(TranscodeQuality);
         }
 
-        throw new NotImplementedException("尚未实现对目标编码器的支持");
+        throw new NotImplementedException("尚未实现对目标编码器的支持。");
 
         static Func<string, bool> IsTargetEncoder(string targetEncoderGuid)
         {
@@ -470,8 +501,8 @@ public static class DownloadService
         SongDetail songDetail = pack.SongDetail;
         using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
         using TagLib.File file = TagLib.File.Create(uwpStorageFile);
-        IRandomAccessStream coverStream = await FileCacheHelper.GetAlbumCoverStreamAsync(albumDetail);
 
+        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
         try
         {
             List<SongInfo> songs = [.. albumDetail.Songs];
@@ -482,27 +513,13 @@ public static class DownloadService
             file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
 
             TagLib.Picture picture;
-            if (coverStream is null)
-            {
-                Uri coverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                using Windows.Web.Http.HttpClient httpClient = new();
-                using Windows.Web.Http.HttpResponseMessage result = await httpClient.GetAsync(coverUri);
+            coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
 
-                coverStream = new InMemoryRandomAccessStream();
-                await result.Content.WriteToStreamAsync(coverStream);
-
-                try
-                {
-                    await FileCacheHelper.StoreAlbumCoverByStream(albumDetail.Cid, coverStream);
-                }
-                catch
-                {
-                    // qwq
-                }
-            }
+            RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
+            using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
 
             coverStream.Seek(0);
-            Stream stream = coverStream.AsStreamForRead();
+            using Stream stream = coverStream.AsStreamForRead();
             picture = new(TagLib.ByteVector.FromStream(stream))
             {
                 MimeType = "image/jpeg"
@@ -512,7 +529,6 @@ public static class DownloadService
         finally
         {
             file.Save();
-            coverStream.Dispose();
             await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
     }
@@ -564,7 +580,7 @@ public static class DownloadService
         }
         else
         {
-            throw new InvalidOperationException($"转码操作失败，原因：{prepareOp.FailureReason}");
+            throw new InvalidOperationException($"转码操作失败，原因：{prepareOp.FailureReason}。");
         }
     }
 

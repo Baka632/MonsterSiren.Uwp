@@ -1,4 +1,4 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 可用于自身或导航至 Frame 内部的空白页。
+/// 播放列表页。
 /// </summary>
 public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 {

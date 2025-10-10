@@ -1,10 +1,10 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="AlbumDetailPage"/> 提供视图模型
+/// 为 <see cref="AlbumDetailPage"/> 提供视图模型。
 /// </summary>
 public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObject
 {
@@ -57,6 +57,50 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         }
     }
 
+    public async Task Initialize(AlbumDetail albumDetail)
+    {
+        IsLoading = true;
+        SelectedSongListItemContextFlyout = view.SongContextFlyout;
+
+        try
+        {
+            // 先用比较准确的，计算出来的 AlbumInfo（不那么准确的地方在专辑艺术家这里，笨笨 yj 的锅）。
+            // 如果这里不先顶上，那么会出现异常，
+            // 因为查询准确的 AlbumInfo 是异步操作，因此 UI 线程在查询过程中会先去处理 UI 的其他事情，
+            // 而由于 AlbumInfo 的内容为空，视图方面相关操作会出现问题。
+            CurrentAlbumInfo = new(albumDetail.Cid,
+                                   albumDetail.Name,
+                                   albumDetail.Intro,
+                                   albumDetail.Belong,
+                                   albumDetail.CoverUrl,
+                                   albumDetail.CoverDeUrl,
+                                   [.. albumDetail.Songs.SelectMany(info => info.Artists).Distinct()]);
+            
+            CurrentAlbumDetail = albumDetail;
+            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+
+            // 之后再去查完全准确的 AlbumInfo
+            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                .Single(info => info.Cid == albumDetail.Cid);
+
+            ErrorVisibility = Visibility.Collapsed;
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorVisibility = Visibility.Visible;
+            ErrorInfo = new ErrorInfo()
+            {
+                Title = "ErrorOccurred".GetLocalized(),
+                Message = "InternetErrorMessage".GetLocalized(),
+                Exception = ex
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task PlayForCurrentAlbumDetail()
     {
@@ -91,6 +135,12 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     private async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
     {
         await CommonValues.AddToNowPlaying(songInfo, CurrentAlbumDetail);
+    }
+    
+    [RelayCommand]
+    private async Task PlayNextForSongInfo(SongInfo songInfo)
+    {
+        await CommonValues.PlayNext(songInfo, CurrentAlbumDetail);
     }
 
     [RelayCommand]
@@ -180,6 +230,24 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         }
 
         bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems, CurrentAlbumDetail);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PlayNextForListViewSelectedItem()
+    {
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.PlayNext(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {

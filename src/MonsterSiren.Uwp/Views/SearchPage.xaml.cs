@@ -1,13 +1,14 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 using System.Net.Http;
 using System.Text.Json;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 可用于自身或导航至 Frame 内部的空白页。
+/// 搜索页。
 /// </summary>
 public sealed partial class SearchPage : Page
 {
@@ -68,7 +69,7 @@ public sealed partial class SearchPage : Page
         }
         catch (HttpRequestException)
         {
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "InternetErrorMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            await CommonValues.DisplayInternetErrorDialog();
         }
     }
 
@@ -107,5 +108,28 @@ public sealed partial class SearchPage : Page
                                                                           ViewModel.AddAlbumInfoToPlaylistCommand);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnAlbumGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+    {
+        Grid grid = (Grid)args.ItemContainer.ContentTemplateRoot;
+        ImageEx image = (ImageEx)grid.FindName("AlbumImage");
+
+        if (args.InRecycleQueue)
+        {
+            image.Source = null;
+        }
+        else
+        {
+            args.RegisterUpdateCallback((sender, args) =>
+            {
+                image.Source = null;
+
+                AlbumInfo albumInfo = (AlbumInfo)args.Item;
+
+                _ = CommonValues.LoadAndCacheMusicCover(image, albumInfo);
+            });
+        }
+        args.Handled = true;
     }
 }

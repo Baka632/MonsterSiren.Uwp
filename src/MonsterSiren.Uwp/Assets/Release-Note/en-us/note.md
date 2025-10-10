@@ -1,62 +1,126 @@
-# Version 1.2.3.0
+# Version 1.2.4.0
 
 Welcome to use the new version of Sora Records, this update mainly made the following changes: 
 
-- Audio casting - you can now cast music to other devices.
-- Cortana support - If your device still supports Cortana, it can now access this app's features.
+- Added play next feature - You can now schedule specific music to play after the current song.
+- Added feature that changes language - Currently supports Simplified Chinese and English.
+- Added the feature to replace invalid characters with similar ones during download.
+- Optimized the album cover rendering process on various pages.
+- Added hyperlinks to open corresponding albums for playlist items.
+- Made numerous improvements to the Now Playing page.
+- Optimized Glance Mode.
 
 ---
 
-## Audio casting
+## Play next feature
 
-You can now cast the currently playing music to other devices.
+You can now insert albums, songs, and playlists into the current playback queue to play next.
 
-To use this feature, click "Start audio casting" in the overflow menu of the playback bar.
+To use this feature, right-click on these items and click "Play Next".
 
-!["Start audio casting" in the playback bar overflow menu](1.png)
+![Right-click menu on an album showing the option to play it next](1.png)
 
-Afterwards, Windows "Connect" window will pop up. Please select the target device from the list.
+## Language change feature
 
-![Windows "Connect" window](2.png)
+You can now change the app's language in the Settings page (Settings → Presentation settings → Language / 语言).
 
-Once selected, the chosen device will start playing. You can adjust its volume and play/pause the music from within Sora Records' window (requires support from the target device).
+![Language selection option](2.png)
 
-![Target device is playing music](3.png)
+Please restart the app after switching languages to fully apply the changes.
 
-To stop audio casting, you can click the "Stop audio casting directly" button in the overflow menu.
+You can restart the app automatically from the Settings page (Settings → About → Restart app). However, if your system is older (lower than Windows 10 version 1709), this option is unavailable. You will need to click "Close app" and restart it manually.
 
-!["Stop Audio Casting Directly" button in the overflow menu](4.png)
+![Automatic app restart option](3.png)
 
-You can also open the casting panel and click "Disconnect" in the "Connect" window.
+Currently, the app supports Simplified Chinese and English. If you wish to add more language, please [create a new Issue](https://github.com/Baka632/MonsterSiren.Uwp/issues/new/choose) in the app's GitHub repository.
 
-!["Disconnect" in the "Connect" window](5.png)
+## Replace invalid characters with similar ones during download
 
-When the application is in audio casting mode, an icon indicating audio casting will appear in the Glance Mode.
+Some song titles (e.g., "2:00 PM in Mitsukue") contain characters that are invalid for filenames.
 
-![Audio casting indicator icon in Glance Mode](6.png)
+In previous versions, when downloading these songs, the app would simply remove these characters from the filename.
 
-## Cortana support
+However, some users preferred these characters to be displayed as similar ones. Therefore, in the new version, some invalid characters are replaced with similar ones by default:
 
-If your device still supports Cortana, and the system version is earlier than Windows 10 2004 (Build 19041, in which Microsoft removed Cortana's voice command support), you can then attempt to use this application's features with Cortana.
+-   `"` (half-width) → `'` (half-width)
+-   `?` (half-width) → `？` (full-width)
+-   `:` (half-width) → `：` (full-width)
+-   `<` → `[`
+-   `>` → `]`
+-   `|` → `I` (uppercase letter i)
+-   `*` → `★`
+-   `/` → `↗`
+-   `\` → `↘`
 
-In Cortana, the wake word for this application is "Sora", which means all voice commands for this app start with "Sora."
+Invalid characters not listed in this table will still be removed directly.
 
-For example:
+If you prefer not to use this feature, you can disable it in the settings (Settings → Storage settings → Download options → Replace invalid characters with similar ones in filename).
 
-- Sora, play the latest album.
-  ![Cortana playing the latest album](7.png)
-- Sora, what are the new albums?
-  ![Cortana querying recent albums](8.png)
+![Setting for 'Replace invalid characters with similar ones in filename'](4.png)
 
-Additionally, if you ask Sora some peculiar questions, you might just get some unexpected replies...?
+## Optimized album cover rendering process on various pages
+
+Previously, when loading album covers, the app would only display a blank space without any placeholder.
+
+In the new version, a placeholder is displayed while the image is loading.
+
+![Placeholder shown while image is loading](5.png)
+
+Additionally, the process for caching album images has been optimized to reduce error rates and data usage.
+
+## Added hyperlinks to open corresponding albums for playlist items
+
+Now, on the playlist details page, each song displays a hyperlink for its album name.
+
+Clicking these hyperlinks allows you to view the album information.
+
+![Album name hyperlink for a playlist item](6.png)
+
+If you created the playlist before this version, you might need to wait a moment for the album name text to appear.
+
+## Numerous improvements to the Now Playing page
+
+This version brings many improvements to the Now Playing page, primarily adding the following features:
+
+### Added ability to expand/collapse the Now Playing list using mouse wheel, touchpad, and gestures
+
+On the Now Playing page, you can now expand/collapse the Now Playing list via:
+
+-   Mouse Wheel: Scroll down / Scroll up
+-   Touchpad: Two-finger swipe up / Two-finger swipe down
+-   Gesture: Swipe up / Swipe down
+
+### optimized Now Playing page for narrow window sizes
+
+Adjusted the layout of the Now Playing page when the window is relatively narrow.
+
+![New layout of the Now Playing page when the window is narrow](7.png)
+
+### Added hyperlinks to open corresponding albums for items in the Now Playing list
+
+Now, each song in the list displays a hyperlink for its album name.
+
+![Album name hyperlink for an item in the Now Playing list](8.png)
+
+Clicking these hyperlinks allows you to view the album information.
+
+## Optimized Glance Mode
+
+The Glance Mode no longer reduces brightness when the app is in the background.
+
+Furthermore, the brightness reduction level for Glance Mode has been set to the minimum (10% brightness → 0% brightness).
+
+Finally, the Glance Mode no longer keeps the screen on when playback is paused.
 
 ---
 
 ## Other miscellaneous updates + fixes
 
-- The minimum supported version on desktop has been lowered to Windows 10 version 1703 (Build 15063).
-- Improved some text descriptions.
-- Fixed an issue where some songs failed to download due to problems with accessing the cache for certain album art.
-- Fixed an issue where errors occurred during music metadata writing and transcoding due to extra spaces in the album/title/artist names of some songs.
+- Enabled prelaunch functionality.
+- Optimized some text descriptions.
+- Disabled features unusable on Xbox for the Xbox version (Media casting and metered network warning).
+- Added mitigation measures for exceptions when querying codecs.
+- The application no longer crashes when activated with an invalid URI.
+- Refactored the code implementing easter eggs and updated the list of songs that trigger them.
 
 > Last but certainly not least, thank you for using Sora Records!

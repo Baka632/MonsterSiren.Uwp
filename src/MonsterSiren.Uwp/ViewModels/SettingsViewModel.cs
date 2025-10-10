@@ -1,14 +1,18 @@
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.Storage.AccessCache;
-using Windows.Media.Core;
-using Windows.Media.MediaProperties;
-using Windows.System;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Windows.ApplicationModel.Core;
+using Windows.Media.Core;
+using Windows.Media.MediaProperties;
+using Windows.Storage;
+using Windows.Storage.AccessCache;
+using Windows.Storage.Pickers;
+using Windows.System;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="SettingsPage"/> 提供视图模型。
+/// </summary>
 public partial class SettingsViewModel : ObservableObject
 {
     [ObservableProperty]
@@ -32,6 +36,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool transcodeDownloadedMusic = DownloadService.TranscodeDownloadedItem;
     [ObservableProperty]
+    private bool replaceInvaildCharInDownloadedFileName = DownloadService.ReplaceInvalidCharInFileName;
+    [ObservableProperty]
     private int selectedCodecInfoIndex = -1;
     [ObservableProperty]
     private int selectedTranscodeQualityIndex = -1;
@@ -47,6 +53,18 @@ public partial class SettingsViewModel : ObservableObject
     private bool glanceModeUseLowerBrightness = true;
     [ObservableProperty]
     private bool glanceModeRemainDisplayOn = true;
+    [ObservableProperty]
+    private IReadOnlyList<AppLanguage> appLanguages;
+    [ObservableProperty]
+    private int selectedAppLanguageIndex = -1;
+    [ObservableProperty]
+    private string restartOrCloseButtonText = CommonValues.IsContract5Present
+        ? "RestartApp".GetLocalized()
+        : "CloseApp".GetLocalized();
+    [ObservableProperty]
+    private bool showColorThemeChangedInfoBar;
+    [ObservableProperty]
+    private bool showLanguageChangedInfoBar;
 
     public async Task Initialize()
     {
@@ -123,6 +141,7 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         SelectedAppColorThemeIndex = appColorThemes.IndexOf(colorTheme);
+        ShowColorThemeChangedInfoBar = false; // 为了防止初始化时就显示重启应用通知（毕竟这里不是用户修改的）
         #endregion
 
         #region Glance
@@ -156,6 +175,15 @@ public partial class SettingsViewModel : ObservableObject
             SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, true);
         }
         #endregion
+
+        #region Languages
+        List<AppLanguage> appLanguages = [AppLanguage.SystemLanguage, .. LanguageHelper.SupportLanguages];
+        AppLanguages = appLanguages;
+
+        AppLanguage currentLanguage = LanguageHelper.GetCurrentAppLanguage();
+        SelectedAppLanguageIndex = appLanguages.IndexOf(currentLanguage);
+        ShowLanguageChangedInfoBar = false; // 为了防止初始化时就显示重启应用通知（毕竟这里不是用户修改的）
+        #endregion
     }
 
     partial void OnGlanceModeRemainDisplayOnChanged(bool value)
@@ -181,6 +209,11 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnTranscodeDownloadedMusicChanged(bool value)
     {
         DownloadService.TranscodeDownloadedItem = value;
+    }
+
+    partial void OnReplaceInvaildCharInDownloadedFileNameChanged(bool value)
+    {
+        DownloadService.ReplaceInvalidCharInFileName = value;
     }
 
     partial void OnSelectedCodecInfoIndexChanged(int value)
@@ -216,10 +249,21 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    partial void OnSelectedAppLanguageIndexChanged(int value)
+    {
+        if (value >= 0)
+        {
+            ShowLanguageChangedInfoBar = true;
+            AppLanguage lang = AppLanguages[value];
+            LanguageHelper.SetAppLanguage(lang);
+        }
+    }
+
     partial void OnSelectedAppColorThemeIndexChanged(int value)
     {
         if (value >= 0)
         {
+            ShowColorThemeChangedInfoBar = true;
             AppColorTheme theme = AppColorThemes[value];
             string themeString = theme.ToString();
             SettingsHelper.Set(CommonValues.AppColorThemeSettingsKey, themeString);
@@ -354,14 +398,24 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private static async Task OpenCodecsInfoDialog()
     {
-        CodecQuery codecQuery = new();
-        IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
-        IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
+        try
+        {
+            CodecQuery codecQuery = new();
+            IReadOnlyList<CodecInfo> encoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Encoder, string.Empty);
+            IReadOnlyList<CodecInfo> decoders = await codecQuery.FindAllAsync(CodecKind.Audio, CodecCategory.Decoder, string.Empty);
 
-        List<CodecInfo> codecs = [.. encoders, .. decoders];
+            List<CodecInfo> codecs = [.. encoders, .. decoders];
 
-        CodecInfoDialog dialog = new(codecs);
-        _ = await dialog.ShowAsync();
+            CodecInfoDialog dialog = new(codecs);
+            _ = await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            _ = await CommonValues.DisplayContentDialog(
+                "CodecInfoDialog_UnableDisplayTitle".GetLocalized(),
+                string.Format("CodecInfoDialog_UnableDisplayMessage".GetLocalized(), ex.Message),
+                closeButtonText: "Close".GetLocalized());
+        }
     }
 
     [RelayCommand]
@@ -375,5 +429,18 @@ public partial class SettingsViewModel : ObservableObject
     private static void OpenUpdateInfoPage()
     {
         ContentFrameNavigationHelper.Navigate(typeof(UpdateInfoPage), null, CommonValues.DefaultTransitionInfo);
+    }
+
+    [RelayCommand]
+    private static async Task RestartOrCloseApp()
+    {
+        if (CommonValues.IsContract5Present)
+        {
+            await CoreApplication.RequestRestartAsync(string.Empty);
+        }
+        else
+        {
+            Application.Current.Exit();
+        }
     }
 }

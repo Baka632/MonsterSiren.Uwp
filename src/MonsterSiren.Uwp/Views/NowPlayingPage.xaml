@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="MonsterSiren.Uwp.Views.NowPlayingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,147 +13,94 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:playback="using:Windows.Media.Playback"
     xmlns:services="using:MonsterSiren.Uwp.Services"
+    xmlns:triggers="using:WindowsStateTriggers"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     d:DataContext="{d:DesignInstance Type=viewmodels:NowPlayingViewModel}"
     Loaded="OnNowPlayingPageLoaded"
     mc:Ignorable="d">
     <Page.Resources>
-        <Storyboard x:Name="EntranceStoryboard">
+        <Storyboard x:Name="EntranceStoryboard" Duration="0:0:0.2">
             <DoubleAnimation
                 Storyboard.TargetName="BackdropGrid"
                 Storyboard.TargetProperty="Opacity"
                 To="1"
                 Duration="0:0:0.2" />
         </Storyboard>
-
-        <Storyboard x:Name="MusicListExpandStoryboard" Completed="OnMusicListExpandStoryboardCompleted">
-            <DoubleAnimation
-                Storyboard.TargetName="BackgroundImage"
-                Storyboard.TargetProperty="Opacity"
-                To="0.1"
-                Duration="0:0:0.2" />
-
-            <DoubleAnimation
-                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
-                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                To="180"
-                Duration="0:0:0.2" />
-
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="MusicInfoAndControlGrid"
-                Storyboard.TargetProperty="VerticalAlignment"
-                Duration="0:0:0.5">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="Top" />
-            </ObjectAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="MusicInfoAndControlGrid"
-                Storyboard.TargetProperty="(Grid.Row)"
-                Duration="0:0:0">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="0" />
-            </ObjectAnimationUsingKeyFrames>
-
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="NowPlayingListView"
-                Storyboard.TargetProperty="Visibility"
-                Duration="0:0:0">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="Visible" />
-            </ObjectAnimationUsingKeyFrames>
-            <FadeInThemeAnimation Storyboard.TargetName="NowPlayingListView" />
-        </Storyboard>
-
-        <Storyboard x:Name="MusicListFoldStoryboard">
-            <DoubleAnimation
-                Storyboard.TargetName="BackgroundImage"
-                Storyboard.TargetProperty="Opacity"
-                To="0.3"
-                Duration="0:0:0.2" />
-
-            <DoubleAnimation
-                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
-                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                To="0"
-                Duration="0:0:0.2" />
-
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="MusicInfoAndControlGrid"
-                Storyboard.TargetProperty="(Grid.Row)"
-                Duration="0:0:0.5">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="1" />
-            </ObjectAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="MusicInfoAndControlGrid"
-                Storyboard.TargetProperty="VerticalAlignment"
-                Duration="0">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="Bottom" />
-            </ObjectAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames
-                Storyboard.TargetName="NowPlayingListView"
-                Storyboard.TargetProperty="Visibility"
-                Duration="0">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="Collapsed" />
-            </ObjectAnimationUsingKeyFrames>
-            <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
-        </Storyboard>
     </Page.Resources>
 
-    <Grid>
+    <Grid PointerWheelChanged="OnRootGridPointerWheelChanged">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
+            <RowDefinition x:Name="MusicInfoAndControlRowDefinition" Height="Auto" />
+            <RowDefinition x:Name="MusicListViewRowDefinition" Height="*" />
         </Grid.RowDefinitions>
 
-        <Image
-            x:Name="BackgroundImage"
-            Grid.RowSpan="2"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            Opacity="0.3"
-            Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
-            Stretch="UniformToFill"
-            Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
-        <Grid x:Name="BackdropGrid" Grid.RowSpan="2">
-            <Grid.Background>
-                <media:BackdropBlurBrush Amount="20" />
-            </Grid.Background>
+        <Grid Grid.RowSpan="2">
+            <Image
+                x:Name="BackgroundImage"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Opacity="0.1"
+                Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
+                Stretch="UniformToFill"
+                Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
+            <Grid x:Name="BackdropGrid">
+                <Grid.Background>
+                    <media:BackdropBlurBrush Amount="20" />
+                </Grid.Background>
+            </Grid>
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.HasMusic), Mode=OneWay}">
+                <FontIcon
+                    Margin="0,0,0,5"
+                    FontSize="30"
+                    Glyph="&#xEC4F;" />
+                <TextBlock x:Uid="NoMusicTextBlock" FontSize="20" />
+            </StackPanel>
         </Grid>
-
-        <StackPanel
-            Grid.RowSpan="2"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.MusicInfo.HasMusic), Mode=OneWay}">
-            <FontIcon
-                Margin="0,0,0,5"
-                FontSize="30"
-                Glyph="&#xEC4F;" />
-            <TextBlock x:Uid="NoMusicTextBlock" FontSize="20" />
-        </StackPanel>
 
         <Grid
             x:Name="MusicInfoAndControlGrid"
-            Grid.Row="1"
+            Grid.Row="0"
             Margin="11,40,11,0"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
+            VerticalAlignment="Top"
+            Background="Transparent"
+            ManipulationCompleted="OnMusicInfoAndControlGridManipulationCompleted"
+            ManipulationDelta="OnMusicInfoAndControlGridManipulationDelta"
+            ManipulationMode="TranslateY"
+            ManipulationStarted="OnMusicInfoAndControlGridManipulationStarted"
             Visibility="{x:Bind ViewModel.MusicInfo.HasMusic, Mode=OneWay}">
             <Grid.RowDefinitions>
+                <RowDefinition x:Name="MusicInfoPaddingRowDefinition" Height="0" />
+                <RowDefinition x:Name="MusicInfoRowDefinition" Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
             </Grid.RowDefinitions>
-            <Grid.Transitions>
-                <TransitionCollection>
-                    <RepositionThemeTransition />
-                </TransitionCollection>
-            </Grid.Transitions>
 
-            <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.RenderTransform>
+                <TranslateTransform />
+            </Grid.RenderTransform>
+
+            <Grid
+                x:Name="MusicInfoGrid"
+                Grid.Row="1"
+                Margin="0,0,0,20"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
                 <Image
+                    x:Name="MusicCoverImage"
+                    Grid.Row="0"
                     Grid.Column="0"
                     Width="130"
                     Height="130"
@@ -163,20 +110,26 @@
                     Source="{x:Bind ViewModel.MusicInfo.CurrentMediaCover, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}" />
                 <StackPanel
+                    x:Name="MusicTitleAndArtistStackPanel"
+                    Grid.Row="0"
                     Grid.Column="1"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center">
                     <TextBlock
+                        x:Name="MusicTitleTextBlock"
                         Grid.Row="0"
                         FontSize="20"
                         FontWeight="Bold"
                         Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.Title, Mode=OneWay}"
+                        TextAlignment="Left"
                         TextTrimming="CharacterEllipsis" />
                     <TextBlock
+                        x:Name="MusicArtistTextBlock"
                         Grid.Row="1"
                         Margin="0,0,0,5"
                         FontSize="16"
                         FontWeight="Medium"
+                        TextAlignment="Left"
                         TextTrimming="CharacterEllipsis">
                         <Run Text="{x:Bind ViewModel.MusicInfo.CurrentMusicProperties.AlbumArtist, Mode=OneWay}" />
                         <Run Text="·" />
@@ -185,7 +138,10 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid
+                x:Name="MusicControlGrid"
+                Grid.Row="2"
+                Margin="0,0,0,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
@@ -217,7 +173,7 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
                             Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
-                            IsEnabled="{x:Bind ViewModel.MusicInfo.ShowOrEnableMusicControl, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.IsMusicProcessSliderEnabled, Mode=OneWay}"
                             IsThumbToolTipEnabled="False"
                             Maximum="{x:Bind ViewModel.MusicInfo.MusicDuration.TotalSeconds, Mode=OneWay}"
                             Style="{StaticResource ThemedSlider}"
@@ -374,7 +330,8 @@
                                     <MenuFlyoutItem
                                         AccessKey="CA"
                                         Command="{x:Bind ViewModel.ShowCastToPickerCommand}"
-                                        Text="{x:Bind ViewModel.MediaCastingButtonString, Mode=OneWay}">
+                                        Text="{x:Bind ViewModel.MediaCastingButtonString, Mode=OneWay}"
+                                        Visibility="{x:Bind services:MediaCastService.IsSupported}">
                                         <MenuFlyoutItem.Icon>
                                             <FontIcon Glyph="&#xEC15;" />
                                         </MenuFlyoutItem.Icon>
@@ -432,6 +389,7 @@
             VerticalAlignment="Stretch"
             x:FieldModifier="Internal"
             AllowDrop="True"
+            Background="Transparent"
             CanReorderItems="True"
             ItemsSource="{x:Bind services:MusicService.CurrentMediaPlaybackList}">
             <ListView.ItemTemplate>
@@ -456,39 +414,49 @@
                             </muxc:MenuBarItemFlyout>
                         </controls:NowPlayingItemGrid.ContextFlyout>
 
-                        <!--  Commented for not fitting to narrow UI  -->
                         <controls:NowPlayingItemGrid.ColumnDefinitions>
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="2*" />
                             <ColumnDefinition />
                             <ColumnDefinition MaxWidth="40" />
                         </controls:NowPlayingItemGrid.ColumnDefinitions>
 
-                        <StackPanel
+                        <Grid
                             Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
                             <PathIcon
                                 Margin="0,0,10,0"
-                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Data="F1 M 12.5 17.5 L 12.5 6.259766 L 13.740234 6.259766 L 13.740234 17.5 Z M 1.240234 17.5 L 1.240234 13.759766 L 2.5 13.759766 L 2.5 17.5 Z M 5 17.5 L 5 10 L 6.240234 10 L 6.240234 17.5 Z M 8.740234 17.5 L 8.740234 1.259766 L 10 1.259766 L 10 17.5 Z M 16.240234 10 L 17.5 10 L 17.5 17.5 L 16.240234 17.5 Z "
                                 Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                                 Visibility="{Binding ElementName=NowPlayingItemGrid, Path=CurrentNowPlayingItemIndicatorVisibility, Mode=OneWay}" />
 
                             <TextBlock
-                                HorizontalAlignment="Center"
+                                Grid.Column="1"
                                 VerticalAlignment="Center"
                                 Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
                                 Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}"
-                                TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
+                                TextTrimming="CharacterEllipsis"
+                                ToolTipService.ToolTip="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicTitle'}" />
+                        </Grid>
 
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
-                            Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}"
-                            TextTrimming="CharacterEllipsis" />
+                            TextTrimming="CharacterEllipsis"
+                            ToolTipService.ToolTip="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}">
+                            <Hyperlink
+                                Click="OnAlbumTitleHyperlinkClick"
+                                Foreground="{Binding ElementName=NowPlayingItemGrid, Path=ContentBrush, Mode=OneWay}"
+                                UnderlineStyle="None">
+                                <Run Text="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}" />
+                            </Hyperlink>
+                        </TextBlock>
                         <TextBlock
                             Grid.Column="2"
                             HorizontalAlignment="Right"
@@ -512,5 +480,141 @@
                 </TransitionCollection>
             </ListView.Transitions>
         </ListView>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CommonStates">
+                <!--  Expand 是默认状态  -->
+                <VisualState x:Name="Expand">
+                    <VisualState.Storyboard>
+                        <Storyboard Completed="OnMusicListExpandStoryboardCompleted">
+                            <DoubleAnimation
+                                Storyboard.TargetName="BackgroundImage"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.1"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                To="180"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetPositiveYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <FadeInThemeAnimation Storyboard.TargetName="NowPlayingListView" />
+                        </Storyboard>
+                    </VisualState.Storyboard>
+
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind ViewModel.IsNowPlayingListExpanded, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+
+                <VisualState x:Name="FoldWide">
+                    <VisualState.Setters>
+                        <Setter Target="MusicInfoPaddingRowDefinition.Height" Value="*" />
+                        <Setter Target="MusicInfoAndControlRowDefinition.Height" Value="*" />
+                        <Setter Target="MusicListViewRowDefinition.Height" Value="Auto" />
+
+                        <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Stretch" />
+                        <Setter Target="NowPlayingListView.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+
+                    <VisualState.Storyboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="BackgroundImage"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.3"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                To="0"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
+                        </Storyboard>
+                    </VisualState.Storyboard>
+
+                    <VisualState.StateTriggers>
+                        <triggers:CompositeStateTrigger Operator="And">
+                            <triggers:AdaptiveTrigger MinWindowWidth="640" />
+                            <triggers:IsFalseStateTrigger Value="{x:Bind ViewModel.IsNowPlayingListExpanded, Mode=OneWay}" />
+                        </triggers:CompositeStateTrigger>
+                    </VisualState.StateTriggers>
+                </VisualState>
+
+                <VisualState x:Name="FoldNarrow">
+                    <VisualState.Setters>
+                        <Setter Target="MusicInfoAndControlRowDefinition.Height" Value="*" />
+                        <Setter Target="MusicListViewRowDefinition.Height" Value="Auto" />
+                        <Setter Target="MusicInfoRowDefinition.Height" Value="*" />
+
+                        <Setter Target="MusicInfoGrid.HorizontalAlignment" Value="Center" />
+                        <Setter Target="MusicInfoGrid.VerticalAlignment" Value="Center" />
+
+                        <Setter Target="MusicTitleAndArtistStackPanel.HorizontalAlignment" Value="Center" />
+                        <Setter Target="MusicCoverImage.HorizontalAlignment" Value="Center" />
+                        <Setter Target="MusicCoverImage.Margin" Value="0,0,0,10" />
+                        <Setter Target="MusicCoverImage.Height" Value="200" />
+                        <Setter Target="MusicCoverImage.Width" Value="200" />
+                        <Setter Target="MusicTitleTextBlock.TextAlignment" Value="Center" />
+                        <Setter Target="MusicArtistTextBlock.TextAlignment" Value="Center" />
+
+                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Row)" Value="1" />
+                        <Setter Target="MusicTitleAndArtistStackPanel.(Grid.Column)" Value="0" />
+
+                        <Setter Target="MusicInfoAndControlGrid.VerticalAlignment" Value="Stretch" />
+                        <Setter Target="NowPlayingListView.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+
+                    <VisualState.Storyboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="BackgroundImage"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.3"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="ExpandOrFoldIndicatorFontIcon"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                To="0"
+                                Duration="0:0:0.2" />
+                            <DoubleAnimation
+                                Storyboard.TargetName="MusicInfoAndControlGrid"
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                From="{x:Bind GetNegativeYPosition(MusicInfoAndControlGrid)}"
+                                Duration="0:0:0.5">
+                                <DoubleAnimation.EasingFunction>
+                                    <ExponentialEase EasingMode="EaseOut" Exponent="7" />
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <FadeOutThemeAnimation Storyboard.TargetName="NowPlayingListView" />
+                        </Storyboard>
+                    </VisualState.Storyboard>
+
+                    <VisualState.StateTriggers>
+                        <triggers:CompositeStateTrigger Operator="And">
+                            <triggers:AdaptiveTrigger MinWindowWidth="0" />
+                            <triggers:IsFalseStateTrigger Value="{x:Bind ViewModel.IsNowPlayingListExpanded, Mode=OneWay}" />
+                        </triggers:CompositeStateTrigger>
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

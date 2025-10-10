@@ -1,4 +1,3 @@
-﻿using System.Collections.Specialized;
 using System.ComponentModel;
 using Windows.Media.Playback;
 using Windows.UI;

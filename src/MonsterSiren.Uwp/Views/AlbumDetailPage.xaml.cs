@@ -1,6 +1,5 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Text.Json;
-using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -8,7 +7,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 专辑详细信息页
+/// 专辑详细信息页。
 /// </summary>
 public sealed partial class AlbumDetailPage : Page
 {
@@ -47,6 +46,11 @@ public sealed partial class AlbumDetailPage : Page
             enableBackAnimation = tuple.Item2;
 
             await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+        }
+        else if (e.Parameter is AlbumDetail detail)
+        {
+            enableBackAnimation = false;
+            await ViewModel.Initialize(detail).ConfigureAwait(false);
         }
     }
 
@@ -183,5 +187,10 @@ public sealed partial class AlbumDetailPage : Page
         SongInfo songInfo = (SongInfo)element.DataContext;
 
         await ViewModel.PlayForSongInfoCommand.ExecuteAsync(songInfo);
+    }
+
+    private async void OnAlbumCoverLoaded(object sender, RoutedEventArgs e)
+    {
+        await CommonValues.LoadAndCacheMusicCover(AlbumCover, ViewModel.CurrentAlbumInfo);
     }
 }

@@ -1,11 +1,11 @@
-﻿using System.Collections.Specialized;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Models;
 
 /// <summary>
-/// 表示一个播放列表
+/// 表示一个正在播放列表。
 /// </summary>
 public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObservableCollection<MediaPlaybackItem>(items)
 {
@@ -18,6 +18,7 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
     {
         base.InsertItem(index, item);
 
+        // 处理移动操作的逻辑
         if (shouldMoveToNewItem && ReferenceEquals(item, previousItem))
         {
             MusicService.MoveTo((uint)index);
@@ -37,6 +38,7 @@ public sealed class NowPlayingList(IList<MediaPlaybackItem> items) : CustomObser
 
     protected override void RemoveItem(int index)
     {
+        // 处理移动操作的逻辑
         if (Items[index] == MusicService.CurrentMediaPlaybackItem)
         {
             shouldMoveToNewItem = true;

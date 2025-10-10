@@ -1,9 +1,12 @@
-﻿using Windows.Media.Playback;
+using Windows.Media.Playback;
 using Windows.Networking.Connectivity;
 using Windows.System.Power;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
+/// <summary>
+/// 为 <see cref="GlanceViewPage"/> 提供视图模型。
+/// </summary>
 public sealed partial class GlanceViewViewModel : ObservableObject
 {
     public MusicInfoService MusicInfo { get; } = MusicInfoService.Default;
@@ -26,8 +29,13 @@ public sealed partial class GlanceViewViewModel : ObservableObject
     public GlanceViewViewModel()
     {
         ChangePowerStateGlyph();
-        OnNetworkStatusChanged();
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+
+        if (!CommonValues.IsXbox)
+        {
+            OnNetworkStatusChanged();
+            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        }
+
         MusicService.PlayerMuteStateChanged += OnMusicServicePlayerMuteStateChanged;
         MusicService.PlayerPlaybackStateChanged += OnMusicServicePlayerPlaybackStateChanged;
         PowerManager.BatteryStatusChanged += OnPowerStatusChanged;
@@ -53,7 +61,11 @@ public sealed partial class GlanceViewViewModel : ObservableObject
 
     ~GlanceViewViewModel()
     {
-        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        if (!CommonValues.IsXbox)
+        {
+            NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        }
+
         MusicService.PlayerMuteStateChanged -= OnMusicServicePlayerMuteStateChanged;
         MusicService.PlayerPlaybackStateChanged -= OnMusicServicePlayerPlaybackStateChanged;
         PowerManager.BatteryStatusChanged -= OnPowerStatusChanged;
@@ -140,10 +152,13 @@ public sealed partial class GlanceViewViewModel : ObservableObject
 
     private async void OnNetworkStatusChanged(object sender = null)
     {
-        await UIThreadHelper.RunOnUIThread(() =>
+        if (!CommonValues.IsXbox)
         {
-            ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
-            ShowMeteredInternet = costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable;
-        });
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
+                ShowMeteredInternet = costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable;
+            });
+        }
     }
 }

@@ -11,6 +11,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:song="using:MonsterSiren.Api.Models.Song"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:AlbumDetailViewModel}"
     mc:Ignorable="d">
@@ -24,6 +25,11 @@
                 Command="{x:Bind ViewModel.PlayForSongInfoCommand}"
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForSongInfoCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
@@ -54,6 +60,10 @@
                 x:Uid="PlayMusicTextBlock"
                 Command="{x:Bind ViewModel.PlayForListViewSelectedItemCommand}"
                 Icon="Play" />
+            <MenuFlyoutItem
+                x:Uid="PlayNext"
+                Command="{x:Bind ViewModel.PlayNextForListViewSelectedItemCommand}"
+                Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
@@ -95,18 +105,14 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Image
+                    <wctControls:ImageEx
                         x:Name="AlbumCover"
                         VerticalAlignment="Top"
-                        Stretch="UniformToFill">
-                        <Image.Source>
-                            <BitmapImage
-                                DecodePixelHeight="250"
-                                DecodePixelType="Logical"
-                                DecodePixelWidth="250"
-                                UriSource="{x:Bind ViewModel.CurrentAlbumInfo.CoverUrl, Mode=OneWay}" />
-                        </Image.Source>
-                    </Image>
+                        DataContext="{x:Bind ViewModel.CurrentAlbumInfo, Mode=OneWay}"
+                        Loaded="OnAlbumCoverLoaded"
+                        PlaceholderSource="ms-appx:///Assets/NullAlbum.png"
+                        PlaceholderStretch="UniformToFill"
+                        Stretch="UniformToFill" />
 
                     <Grid x:Name="AlbumInfoGrid">
                         <Grid.RowDefinitions>

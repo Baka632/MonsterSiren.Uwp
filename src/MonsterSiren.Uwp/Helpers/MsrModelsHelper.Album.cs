@@ -1,16 +1,49 @@
-﻿using System.Net.Http;
+using System.Net.Http;
+using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp.Helpers;
 
 partial class MsrModelsHelper
 {
     /// <summary>
-    /// 通过专辑的 CID 获取专辑详细信息
+    /// 尝试从 <see cref="MediaPlaybackItem"/> 中获取 <see cref="AlbumDetail"/>。
     /// </summary>
-    /// <param name="cid">专辑的 CID</param>
-    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="AlbumDetail"/> 的值</param>
-    /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/></returns>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="item">从 <see cref="MsrModelsHelper"/> 获取到的 <see cref="MediaPlaybackItem"/>。</param>
+    /// <remarks>
+    /// 传入 <see cref="MediaPlaybackItem"/> 的来源必须是 <see cref="MsrModelsHelper"/> 中的相关方法，因为这些方法会向 <see cref="MediaPlaybackItem"/> 写入必要的额外数据。
+    /// </remarks>
+    /// <returns>
+    /// <para>
+    /// 一个二元组。
+    /// </para>
+    /// <para>
+    /// 第一个值指示操作是否成功，第二个值是操作成功时获取到的 <see cref="AlbumDetail"/> 实例。
+    /// </para>
+    /// </returns>
+    public static async Task<ValueTuple<bool, AlbumDetail>> TryGetAlbumDetailFromMediaPlaybackItem(MediaPlaybackItem item)
+    {
+        if (TryGetAlbumCidFromMediaPlaybackItem(item, out string cid))
+        {
+            try
+            {
+                AlbumDetail albumDetail = await GetAlbumDetailAsync(cid);
+                return (true, albumDetail);
+            }
+            catch
+            {
+            }
+        }
+
+        return (false, default);
+    }
+
+    /// <summary>
+    /// 通过专辑的 CID 获取专辑详细信息。
+    /// </summary>
+    /// <param name="cid">专辑的 CID。</param>
+    /// <param name="refresh">指示是否要跳过缓存来获得最新版本的 <see cref="AlbumDetail"/> 的值。</param>
+    /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/>。</returns>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<AlbumDetail> GetAlbumDetailAsync(string cid, bool refresh = false)
     {
         if (!refresh && MemoryCacheHelper<AlbumDetail>.Default.TryGetData(cid, out AlbumDetail detail))
@@ -35,7 +68,7 @@ partial class MsrModelsHelper
 
                 if (shouldUpdate)
                 {
-                    List<SongInfo> songs = detail.Songs.ToList();
+                    List<SongInfo> songs = [.. detail.Songs];
                     TryFillArtistForSongs(songs);
 
                     detail = detail with { Songs = songs };
@@ -52,11 +85,11 @@ partial class MsrModelsHelper
     }
 
     /// <summary>
-    /// 通过专辑 CID 获取专辑封面
+    /// 通过专辑 CID 获取专辑封面。
     /// </summary>
-    /// <param name="albumCid">专辑 CID</param>
-    /// <returns>指向专辑封面的 <see cref="Uri"/></returns>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="albumCid">专辑 CID。</param>
+    /// <returns>指向专辑封面的 <see cref="Uri"/>。</returns>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<Uri> GetAlbumCoverAsync(string albumCid)
     {
         Uri uri = await FileCacheHelper.GetAlbumCoverUriAsync(albumCid);
@@ -64,17 +97,34 @@ partial class MsrModelsHelper
         if (uri is null)
         {
             AlbumDetail albumDetail = await GetAlbumDetailAsync(albumCid);
-            uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            try
+            {
+                uri = await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+            }
+            catch
+            {
+                uri = new Uri(albumDetail.CoverUrl, UriKind.Absolute);
+            }
         }
 
         return uri;
     }
 
     /// <summary>
-    /// 尝试为 <see cref="AlbumInfo"/> 填充艺术家信息，并使用缓存的专辑 Uri
+    /// 尝试为 <see cref="AlbumInfo"/> 填充艺术家信息，并使用缓存的专辑 Uri。
     /// </summary>
-    /// <param name="albumInfo"><see cref="AlbumInfo"/> 的实例</param>
-    /// <returns>一个二元组，第一项是指示是否修改了 <see cref="AlbumInfo"/> 的布尔值，第二项是 <see cref="AlbumInfo"/> 实例。若第一项为 <see langword="false"/> ，则表示没有必要对 <see cref="AlbumInfo"/> 进行修改</returns>
+    /// <param name="albumInfo"><see cref="AlbumInfo"/> 的实例。</param>
+    /// <returns>
+    /// <para>
+    /// 一个二元组。
+    /// </para>
+    /// <para>
+    /// 第一项是指示是否修改了 <see cref="AlbumInfo"/> 的布尔值，第二项是 <see cref="AlbumInfo"/> 实例。
+    /// </para>
+    /// <para>
+    /// 若第一项为 <see langword="false"/>，则表示没有必要对 <see cref="AlbumInfo"/> 进行修改。
+    /// </para>
+    /// </returns>
     public static async Task<ValueTuple<bool, AlbumInfo>> TryFillArtistAndCachedCoverForAlbum(AlbumInfo albumInfo)
     {
         bool isModify = false;
@@ -96,10 +146,10 @@ partial class MsrModelsHelper
     }
 
     /// <summary>
-    /// 尝试为 <see cref="AlbumInfo"/> 列表填充艺术家信息，并使用缓存的专辑 Uri
+    /// 尝试为 <see cref="AlbumInfo"/> 列表填充艺术家信息，并使用缓存的专辑 Uri。
     /// </summary>
-    /// <param name="albumList"><see cref="AlbumInfo"/> 的列表</param>
-    /// <returns>指示是否修改了 <see cref="AlbumInfo"/> 的值。<see langword="false"/> 表示没有必要对 <see cref="AlbumInfo"/> 进行修改</returns>
+    /// <param name="albumList"><see cref="AlbumInfo"/> 的列表。</param>
+    /// <returns>指示是否修改了 <see cref="AlbumInfo"/> 的值。<see langword="false"/> 表示没有必要对 <see cref="AlbumInfo"/> 进行修改。</returns>
     public static async Task<bool> TryFillArtistAndCachedCoverForAlbum(IList<AlbumInfo> albumList)
     {
         bool isModify = false;

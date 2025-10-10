@@ -1,9 +1,7 @@
-﻿// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
+// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
-using System.Diagnostics;
 using System.Text.Json;
-using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
-using Windows.Networking.Connectivity;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -22,6 +20,7 @@ public sealed partial class MusicPage : Page
         ViewModel = new(this);
 
         this.InitializeComponent();
+        // TODO: 专辑陈列页尝试不再使用缓存
         NavigationCacheMode = NavigationCacheMode.Required;
     }
 
@@ -76,53 +75,6 @@ public sealed partial class MusicPage : Page
         e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
     }
 
-    private async void OnAlbumImageLoaded(object sender, RoutedEventArgs e)
-    {
-        Image image = (Image)sender;
-
-        if (image.Tag is not null)
-        {
-            return;
-        }
-
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
-
-        if (costInfo is null || costInfo.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
-        {
-            return;
-        }
-
-        try
-        {
-            if (image.DataContext is AlbumInfo info)
-            {
-                Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(info);
-                if (fileCoverUri is null)
-                {
-                    await FileCacheHelper.StoreAlbumCoverAsync(info);
-                }
-                image.Tag = string.Empty;
-            }
-        }
-        catch (Exception ex)
-        {
-#if !DEBUG
-                try
-                {
-                    StoreServicesCustomEventLogger logger = StoreServicesCustomEventLogger.GetDefault();
-                    logger.Log("缓存封面图像失败");
-                }
-                catch
-                {
-                    // Enough!
-                }
-#else
-            Debug.WriteLine(ex);
-            Debugger.Break();
-#endif
-        }
-    }
-
     private async void OnRefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
     {
         using Deferral deferral = args.GetDeferral();
@@ -171,5 +123,28 @@ public sealed partial class MusicPage : Page
                                                                           ViewModel.AddSelectedItemToPlaylistCommand);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnContentGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+    {
+        Grid grid = (Grid)args.ItemContainer.ContentTemplateRoot;
+        ImageEx image = (ImageEx)grid.FindName("AlbumImage");
+
+        if (args.InRecycleQueue)
+        {
+            image.Source = null;
+        }
+        else
+        {
+            args.RegisterUpdateCallback((sender, args) =>
+            {
+                image.Source = null;
+
+                AlbumInfo albumInfo = (AlbumInfo)args.Item;
+
+                _ = CommonValues.LoadAndCacheMusicCover(image, albumInfo);
+            });
+        }
+        args.Handled = true;
     }
 }

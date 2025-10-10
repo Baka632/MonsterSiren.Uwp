@@ -1,6 +1,13 @@
-﻿#define SONG_FOR_PEPE
+#define GIFTS_FOR_SPECIAL_OPERATORS
+
+#if GIFTS_FOR_SPECIAL_OPERATORS
+#define SONG_FOR_PEPE
+#define SONG_FOR_HARUKA
+#define SONG_FOR_EUREKA
+#endif
 
 using System.Collections.Specialized;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using Windows.Media;
 using Windows.Media.Playback;
@@ -12,12 +19,12 @@ using Windows.UI.Xaml.Media.Imaging;
 namespace MonsterSiren.Uwp.Services;
 
 /// <summary>
-/// 应用程序音乐信息服务
+/// 应用程序音乐信息服务。
 /// </summary>
 public sealed partial class MusicInfoService : ObservableObject
 {
     /// <summary>
-    /// 获取 <see cref="MusicInfoService"/> 的默认实例
+    /// 获取 <see cref="MusicInfoService"/> 的默认实例。
     /// </summary>
     public static readonly MusicInfoService Default = new();
 
@@ -78,7 +85,7 @@ public sealed partial class MusicInfoService : ObservableObject
     };
 
     /// <summary>
-    /// 获取或设置播放器音量
+    /// 获取或设置播放器音量。
     /// </summary>
     public double Volume
     {
@@ -96,7 +103,7 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     /// <summary>
-    /// 获取或设置播放器的静音状态
+    /// 获取或设置播放器的静音状态。
     /// </summary>
     public bool? IsMute
     {
@@ -109,7 +116,7 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     /// <summary>
-    /// 获取或设置播放器的重复播放状态
+    /// 获取或设置播放器的重复播放状态。
     /// </summary>
     public bool? IsRepeat
     {
@@ -135,7 +142,7 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     /// <summary>
-    /// 获取或设置播放器的随机播放状态
+    /// 获取或设置播放器的随机播放状态。
     /// </summary>
     public bool? IsShuffle
     {
@@ -148,7 +155,7 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     /// <summary>
-    /// 构造 <see cref="MusicInfoService"/> 的新实例
+    /// 构造 <see cref="MusicInfoService"/> 的新实例。
     /// </summary>
     public MusicInfoService()
     {
@@ -317,7 +324,7 @@ public sealed partial class MusicInfoService : ObservableObject
     }
 
     /// <summary>
-    /// 确保 <see cref="IsLoadingMedia"/>、<see cref="ShowOrEnableMusicControl"/> 这些与指示播放状态相关的属性的值正确
+    /// 确保 <see cref="IsLoadingMedia"/>、<see cref="ShowOrEnableMusicControl"/> 这些与指示播放状态相关的属性的值正确。
     /// </summary>
     public void EnsurePlayRelatedPropertyIsCorrect()
     {
@@ -462,13 +469,6 @@ public sealed partial class MusicInfoService : ObservableObject
         }
     }
 
-#if SONG_FOR_PEPE
-    /// <summary>
-    /// 属于佩佩的字段！
-    /// </summary>
-    private int countForPepe = 0;
-#endif
-
     private async void OnPlayerPlayItemChanged(CurrentMediaPlaybackItemChangedEventArgs args)
     {
         MediaPlaybackItem newItem = args.NewItem;
@@ -481,104 +481,33 @@ public sealed partial class MusicInfoService : ObservableObject
 
             CurrentMusicProperties = props.MusicProperties;
 
-#if SONG_FOR_PEPE
-            if (props.MusicProperties.Title == "Mystic Light Quest")
-            {
-                countForPepe++;
-            }
-            else
-            {
-                countForPepe = 0;
-            }
-
-            if (countForPepe >= 5)
-            {
-                Microsoft.Toolkit.Uwp.Notifications.ToastContent toastContent = null;
-
-                if (countForPepe == 5)
-                {
-                    toastContent = new()
-                    {
-                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
-                        {
-                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
-                            {
-                                Children =
-                                {
-                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
-                                    {
-                                        Text = "佩佩佩佩佩佩佩佩！"
-                                    },
-                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
-                                    {
-                                        Text = "循环播放《Mystic Light Quest》达到 5 次！"
-                                    }
-                                }
-                            }
-                        }
-                    };
-                }
-                else if (countForPepe == 10)
-                {
-                    toastContent = new Microsoft.Toolkit.Uwp.Notifications.ToastContent()
-                    {
-                        Visual = new Microsoft.Toolkit.Uwp.Notifications.ToastVisual()
-                        {
-                            BindingGeneric = new Microsoft.Toolkit.Uwp.Notifications.ToastBindingGeneric()
-                            {
-                                Children =
-                                {
-                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
-                                    {
-                                        Text = EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362)
-                                        ? "已进入年代👉希望年代·扩张期🥰"
-                                        : "已进入年代👉希望年代·扩张期💖"
-                                    },
-                                    new Microsoft.Toolkit.Uwp.Notifications.AdaptiveText()
-                                    {
-                                        Text = "在这个年代，美好茁壮成长，二次元从不消逝，溜佩佩EP是无害的病症，猫冰满足了一切需求😋"
-                                    }
-                                },
-                                Attribution = new Microsoft.Toolkit.Uwp.Notifications.ToastGenericAttributionText()
-                                {
-                                    Text = "来自 B 站 PV 评论区"
-                                }
-                            }
-                        }
-                    };
-                }
-
-                if (toastContent is not null)
-                {
-                    Windows.UI.Notifications.ToastNotification toastNotif = new(toastContent.GetXml());
-                    Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
-                }
-            }
+#if GIFTS_FOR_SPECIAL_OPERATORS
+            GiftForSpecialOperatorsSelector.TrySelectGift(props);
 #endif
 
             if (MemoryCacheHelper<AlbumDetail>.Default.TryQueryData(val => val.Name == props.MusicProperties.AlbumTitle, out IEnumerable<AlbumDetail> details))
             {
                 AlbumDetail albumDetail = details.First();
 
-                Uri uri;
-
                 Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
-                if (fileCoverUri != null)
+                if (fileCoverUri == null)
                 {
-                    uri = fileCoverUri;
-                }
-                else
-                {
-                    uri = new(albumDetail.CoverUrl, UriKind.Absolute);
-                    await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+                    try
+                    {
+                        fileCoverUri = await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+                    }
+                    catch
+                    {
+                        fileCoverUri = new(albumDetail.CoverUrl, UriKind.Absolute);
+                    }
                 }
 
-                if (CurrentMediaCover?.UriSource == uri)
+                if (CurrentMediaCover?.UriSource == fileCoverUri)
                 {
                     return;
                 }
 
-                CurrentMediaCover = new BitmapImage(uri)
+                CurrentMediaCover = new BitmapImage(fileCoverUri)
                 {
                     DecodePixelHeight = 250,
                     DecodePixelWidth = 250,
@@ -591,7 +520,7 @@ public sealed partial class MusicInfoService : ObservableObject
                 }
                 else
                 {
-                    MusicThemeColor = await ImageColorHelper.GetPaletteColor(uri);
+                    MusicThemeColor = await ImageColorHelper.GetPaletteColor(fileCoverUri);
                     MemoryCacheHelper<Color>.Default.Store(props.MusicProperties.AlbumTitle, MusicThemeColor);
                 }
             }
@@ -668,4 +597,253 @@ public sealed partial class MusicInfoService : ObservableObject
             MusicService.PreviousMusic();
         }
     }
+
+#if GIFTS_FOR_SPECIAL_OPERATORS
+    /// <summary>
+    /// 礼物选择器。
+    /// </summary>
+    /// <remarks>
+    /// Special designed by Baka632.
+    /// </remarks>
+    private static class GiftForSpecialOperatorsSelector
+    {
+        private static readonly IReadOnlyList<Gift> gifts = [
+#if SONG_FOR_PEPE
+            new GiftForPepe(),
+#endif
+#if SONG_FOR_HARUKA
+            new GiftForHaruka(),
+#endif
+#if SONG_FOR_EUREKA
+            new GiftForEureka(),
+#endif
+        ];
+
+        /// <summary>
+        /// 尝试为干员选择符合条件的礼物。
+        /// </summary>
+        /// <param name="props">当前播放器的媒体播放信息。</param>
+        internal static void TrySelectGift(MediaItemDisplayProperties props)
+        {
+            foreach (Gift gift in gifts)
+            {
+                gift.TryOpen(props);
+            }
+        }
+
+        /// <summary>
+        /// 表示给干员的一份礼物。
+        /// </summary>
+        /// <remarks>
+        /// Special designed by Baka632.
+        /// </remarks>
+        private abstract class Gift
+        {
+            /// <summary>
+            /// 对触发条件的计数。
+            /// </summary>
+            public int HitCount { get; private set; }
+
+            /// <summary>
+            /// 尝试打开这份礼物。
+            /// </summary>
+            /// <param name="props">当前正在播放歌曲的信息。</param>
+            public abstract void TryOpen(MediaItemDisplayProperties props);
+
+            /// <summary>
+            /// 根据指定的委托，添加或重置计数。
+            /// </summary>
+            /// <param name="predicate">指定的一个返回 <see langword="bool"/> 的委托。</param>
+            /// <exception cref="ArgumentNullException"><paramref name="predicate"/> 为 <see langword="null"/></exception>
+            protected void AddCountOrReset(Func<bool> predicate)
+            {
+                if (predicate is null)
+                {
+                    throw new ArgumentNullException(nameof(predicate));
+                }
+
+                if (predicate())
+                {
+                    HitCount++;
+                }
+                else
+                {
+                    HitCount = 0;
+                }
+            }
+
+            /// <summary>
+            /// 发送 <see cref="ToastContent"/>。
+            /// </summary>
+            /// <param name="toastContent">指定的 <see cref="ToastContent"/>。</param>
+            protected static void SendToast(ToastContent toastContent)
+            {
+                if (toastContent is not null)
+                {
+                    Windows.UI.Notifications.ToastNotification toastNotif = new(toastContent.GetXml());
+                    Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier().Show(toastNotif);
+                }
+            }
+        }
+
+#if SONG_FOR_PEPE
+        /// <summary>
+        /// 属于佩佩的类！
+        /// </summary>
+        private class GiftForPepe : Gift
+        {
+            private const string SongName = "Mystic Light Quest";
+
+            private static readonly ToastContent pepe5Toast = new()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText() { Text = "佩佩佩佩佩佩佩佩！" },
+                            new AdaptiveText() { Text = "循环播放《Mystic Light Quest》达到 5 次！" }
+                        }
+                    }
+                }
+            };
+
+            private static readonly ToastContent pepe10Toast = new()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = EnvironmentHelper.IsSystemBuildVersionEqualOrGreaterThan(18362)
+                                    ? "已进入年代👉希望年代·扩张期🥰"
+                                    : "已进入年代👉希望年代·扩张期💖"
+                            },
+                            new AdaptiveText()
+                            {
+                                Text = "在这个年代，美好茁壮成长，二次元从不消逝，溜佩佩 EP 是无害的病症，猫冰满足了一切需求😋"
+                            }
+                        },
+                        Attribution = new ToastGenericAttributionText()
+                        {
+                            Text = "来自 B 站 PV 评论区"
+                        }
+                    }
+                }
+            };
+
+            public override void TryOpen(MediaItemDisplayProperties props)
+            {
+                AddCountOrReset(() => props.MusicProperties.Title.Contains(SongName));
+                if (HitCount == 0)
+                {
+                    return;
+                }
+
+                ToastContent toastContent = null;
+                if (HitCount == 5)
+                {
+                    toastContent = pepe5Toast;
+                }
+                else if (HitCount == 10)
+                {
+                    toastContent = pepe10Toast;
+                }
+
+                SendToast(toastContent);
+            }
+        }
+#endif
+
+#if SONG_FOR_HARUKA
+        /// <summary>
+        /// 属于萌萌香的类！
+        /// </summary>
+        private class GiftForHaruka : Gift
+        {
+            private const string SongName = "Little Wish";
+
+            private static readonly ToastContent harukaToast = new()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText() { Text = "Tell Me👏 Tell Me👏" },
+                            new AdaptiveText() { Text = "鏡👏よ鏡👏" },
+                            new AdaptiveText() { Text = "一番👏好きな👏私👏👏になるの👏👏" }
+                        },
+                        Attribution = new ToastGenericAttributionText()
+                        {
+                            Text = "循环播放《Little Wish》达到 5 次！"
+                        }
+                    }
+                }
+            };
+
+            public override void TryOpen(MediaItemDisplayProperties props)
+            {
+                AddCountOrReset(() => props.MusicProperties.Title.Contains(SongName));
+                if (HitCount == 0)
+                {
+                    return;
+                }
+
+                if (HitCount == 5)
+                {
+                    SendToast(harukaToast);
+                }
+            }
+        }
+#endif
+
+#if SONG_FOR_EUREKA
+        /// <summary>
+        /// 属于尤里卡的类！
+        /// </summary>
+        private class GiftForEureka : Gift
+        {
+            private readonly string[] songNames = ["FIVE超新星☆全能live时刻！", "冉冉升起，直播新星"];
+            private readonly ToastContent eurekaToast = new()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText() { Text = "尤里卡~尤里卡~" },
+                            new AdaptiveText() { Text = "原来你也是尤里卡厨！" }
+                        },
+                        Attribution = new ToastGenericAttributionText() { Text = "来自 Baka632 的消息" }
+                    }
+                }
+            };
+
+            public override void TryOpen(MediaItemDisplayProperties props)
+            {
+                AddCountOrReset(() => songNames.Any(name => name == props.MusicProperties.Title));
+                if (HitCount == 0)
+                {
+                    return;
+                }
+
+                if (HitCount == 20)
+                {
+                    SendToast(eurekaToast);
+                }
+            }
+        }
+#else
+#warning Do not disable Eureka! Otherwise you will get unlucky!
+#error Eureka is my beloved, do not leave her alone! ——Baka632
+#endif
+    }
+#endif
 }

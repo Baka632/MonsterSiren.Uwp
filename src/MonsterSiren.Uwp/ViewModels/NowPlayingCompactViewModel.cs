@@ -1,9 +1,9 @@
-﻿using Windows.UI.ViewManagement;
+using Windows.UI.ViewManagement;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
-/// 为 <see cref="NowPlayingCompactPage"/> 提供视图模型
+/// 为 <see cref="NowPlayingCompactPage"/> 提供视图模型。
 /// </summary>
 public partial class NowPlayingCompactViewModel : ObservableObject
 {

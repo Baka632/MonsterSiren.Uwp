@@ -13,7 +13,7 @@
     <DefaultLanguage>zh-CN</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.17134.0</TargetPlatformMinVersion>
     <AppxOSMinVersionReplaceManifestVersion>false</AppxOSMinVersionReplaceManifestVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -94,8 +94,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommonValues.cs" />
-    <Compile Include="CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToNowPlaying.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToPlaylist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Download.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.GetPlaybackItems.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.PlayNext.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
@@ -124,6 +132,7 @@
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />
     <Compile Include="Helpers\DefaultNavigationHelpers.cs" />
+    <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\LockerHelper.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
@@ -132,6 +141,7 @@
     <Compile Include="Helpers\Tile\TileHelper.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
+    <Compile Include="Models\AppLanguage.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />
@@ -344,7 +354,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
-      <Version>8.0.0</Version>
+      <Version>9.0.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -393,6 +403,7 @@
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

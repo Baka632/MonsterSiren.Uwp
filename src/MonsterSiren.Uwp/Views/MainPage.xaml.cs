@@ -1,18 +1,20 @@
+#region 请保留，各个发布模式需要
+using System.Diagnostics;
+using Windows.UI.Popups;
+using Windows.Services.Store;
+using Microsoft.Services.Store.Engagement;
+#endregion
 using System.Collections.Specialized;
 using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Networking.Connectivity;
-using Windows.Services.Store;
-using Microsoft.Services.Store.Engagement; // 别删这个，发布模式要用！
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Animation;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
-using System.Diagnostics;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -26,6 +28,7 @@ public sealed partial class MainPage : Page
     private bool IsTitleBarTextBlockForwardBegun = false;
     private bool IsFirstRun = true;
     private long tokenForPlaylistPageItemIsExpandChangedEvent;
+    private bool shouldSuppressAutoSuggestBoxFocusEvent;
 
     public MainViewModel ViewModel { get; }
 
@@ -44,7 +47,6 @@ public sealed partial class MainPage : Page
         ContentFrameNavigationHelper.Navigate(typeof(MusicPage));
         ChangeSelectedItemOfNavigationView();
         LoadPlaylistForNavigationView();
-        CheckUpdateAsync();
 
         if (SettingsHelper.TryGet(CommonValues.AppVersionSettingsKey, out string version))
         {
@@ -67,8 +69,8 @@ public sealed partial class MainPage : Page
         MainPageNavigationHelper = null;
     }
 
-    [Conditional("Release")]
-    private static async void CheckUpdateAsync()
+#if RELEASE
+    private static async Task CheckUpdateAsync()
     {
         try
         {
@@ -93,6 +95,7 @@ public sealed partial class MainPage : Page
             }
         }
     }
+#endif
 
     private void ConfigureTitleBar()
     {
@@ -282,7 +285,7 @@ public sealed partial class MainPage : Page
     }
 
     /// <summary>
-    /// 改变导航视图的选择项
+    /// 改变导航视图的选择项。
     /// </summary>
     private void ChangeSelectedItemOfNavigationView()
     {
@@ -331,6 +334,10 @@ public sealed partial class MainPage : Page
             MainPageNavigationHelper = new NavigationHelper(Frame);
             MainPageNavigationHelper.GoBackComplete += OnMainPageGoBackComplete;
         }
+
+#if RELEASE
+        _ = CheckUpdateAsync();
+#endif
     }
 
     private void OnMainPageGoBackComplete(object sender, EventArgs arg)
@@ -469,8 +476,11 @@ public sealed partial class MainPage : Page
         navigationManager.BackRequested -= BackRequested; //防止重复添加事件订阅
         navigationManager.BackRequested += BackRequested;
 
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-        OnNetworkStatusChanged();
+        if (!CommonValues.IsXbox)
+        {
+            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+            OnNetworkStatusChanged();
+        }
 
         PlaylistService.TotalPlaylists.CollectionChanged += OnTotalPlaylistsCollectionChanged;
 
@@ -490,7 +500,12 @@ public sealed partial class MainPage : Page
         {
             settings.AccessKeyInvoked -= OnNavigationViewItemAccessKeyInvoked;
         }
-        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+
+        if (!CommonValues.IsXbox)
+        {
+            NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        }
+
         PlaylistService.TotalPlaylists.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
 
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
@@ -561,11 +576,14 @@ public sealed partial class MainPage : Page
 
     private async void OnNetworkStatusChanged(object sender = null)
     {
-        ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
-
-        if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+        if (!CommonValues.IsXbox)
         {
-            await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
+            ConnectionCost costInfo = NetworkInformation.GetInternetConnectionProfile()?.GetConnectionCost();
+
+            if (costInfo?.NetworkCostType is NetworkCostType.Fixed or NetworkCostType.Variable)
+            {
+                await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
+            }
         }
     }
 
@@ -745,5 +763,15 @@ public sealed partial class MainPage : Page
                                                                           ViewModel.SelectedPlaylist);
         subItem.Tag = "Placeholder_For_AddTo";
         flyout.Items.Insert(targetIndex, subItem);
+    }
+
+    private void OnNavigationViewSearchBoxGettingFocus(UIElement sender, GettingFocusEventArgs args)
+    {
+        if (shouldSuppressAutoSuggestBoxFocusEvent)
+        {
+            // TODO: 找到能够正确了解导航视图展开的事件（PaneOpen 事件在低版本系统不可用）
+            args.Cancel = true;
+            shouldSuppressAutoSuggestBoxFocusEvent = false;
+        }
     }
 }
