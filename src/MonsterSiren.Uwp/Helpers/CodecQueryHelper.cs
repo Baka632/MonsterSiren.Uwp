@@ -2,6 +2,7 @@ using Windows.Media.Core;
 
 namespace MonsterSiren.Uwp.Helpers;
 
+[Obsolete("Please don't use CodecQueryHelper")]
 internal static class CodecQueryHelper
 {
     private static IEnumerable<CodecInfo> _cachedCommonEncoders;

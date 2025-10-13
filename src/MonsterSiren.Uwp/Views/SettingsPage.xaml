@@ -189,8 +189,8 @@
                             <controls:SettingsCard x:Uid="SettingsPage_EnableTranscode">
                                 <ToggleSwitch IsEnabled="{x:Bind services:DownloadService.IsSupportCommonTranscode}" IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
                             </controls:SettingsCard>
-                            <controls:SettingsCard x:Uid="SettingsPage_ReplaceInvaildCharsInDownloadedFileName">
-                                <ToggleSwitch IsOn="{x:Bind ViewModel.ReplaceInvaildCharInDownloadedFileName, Mode=TwoWay}" />
+                            <controls:SettingsCard x:Uid="SettingsPage_ReplaceInvalidCharsInDownloadedFileName">
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.ReplaceInvalidCharInDownloadedFileName, Mode=TwoWay}" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander>
 
@@ -200,10 +200,10 @@
                             </controls:SettingsExpander.HeaderIcon>
 
                             <controls:SettingsCard x:Uid="SettingsPage_SelectTranscoder">
-                                <ComboBox ItemsSource="{x:Bind ViewModel.AvailableCommonEncoders, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedCodecInfoIndex, Mode=TwoWay}">
+                                <ComboBox ItemsSource="{x:Bind ViewModel.AudioFormats, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedAudioFormatIndex, Mode=TwoWay}">
                                     <ComboBox.ItemTemplate>
-                                        <DataTemplate x:DataType="mediaCore:CodecInfo">
-                                            <TextBlock Text="{x:Bind Subtypes, Converter={StaticResource AudioGuidToStringConverter}}" />
+                                        <DataTemplate x:DataType="models:AudioFormat">
+                                            <TextBlock Text="{x:Bind Converter={StaticResource AudioFormatToStringConverter}}" />
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>

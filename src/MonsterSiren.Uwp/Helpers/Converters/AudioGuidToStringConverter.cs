@@ -1,8 +1,9 @@
-﻿
+
 using Windows.Media.Core;
 
 namespace MonsterSiren.Uwp.Helpers.Converters;
 
+[Obsolete("Use new settings instead")]
 /// <summary>
 /// 将表示音频格式的 GUID（或其集合）转换为字符串的转换器
 /// </summary>
