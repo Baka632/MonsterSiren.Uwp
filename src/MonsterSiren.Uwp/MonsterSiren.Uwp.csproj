@@ -143,7 +143,7 @@
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
     <Compile Include="Models\AppLanguage.cs" />
-    <Compile Include="Models\AudioType.cs" />
+    <Compile Include="Models\AudioFormat.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />

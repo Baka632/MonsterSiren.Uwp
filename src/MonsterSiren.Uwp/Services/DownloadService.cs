@@ -241,7 +241,7 @@ public static class DownloadService
                 StorageFolder storageFolder = await musicLib.SaveFolder.CreateFolderAsync(App.AppDisplayName, CreationCollisionOption.OpenIfExists);
                 dlPath = storageFolder.Path;
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex) when (ex is UnauthorizedAccessException or NullReferenceException)
             {
                 StorageFolder localCacheFolder = ApplicationData.Current.LocalCacheFolder;
                 StorageFolder dlFolder = await localCacheFolder.CreateFolderAsync("Downloads", CreationCollisionOption.OpenIfExists);
@@ -713,6 +713,11 @@ public static class DownloadService
 
     private static async Task<bool> IsFolderExist(string dlPath)
     {
+        if (string.IsNullOrWhiteSpace(dlPath))
+        {
+            return false;
+        }
+
         try
         {
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(dlPath);

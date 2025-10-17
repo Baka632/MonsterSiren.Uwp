@@ -213,7 +213,10 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnSelectedAudioFormatIndexChanged(int value)
     {
-        DownloadService.TranscodeFormat = AudioFormats[value];
+        if (value >= 0)
+        {
+            DownloadService.TranscodeFormat = AudioFormats[value];
+        }
     }
 
     partial void OnSelectedTranscodeQualityIndexChanged(int value)
