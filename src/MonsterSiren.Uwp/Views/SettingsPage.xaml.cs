@@ -14,8 +14,8 @@ public sealed partial class SettingsPage : Page
         this.InitializeComponent();
     }
 
-    private async void OnSettingsPageLoaded(object sender, RoutedEventArgs e)
+    private void OnSettingsPageLoaded(object sender, RoutedEventArgs e)
     {
-        await ViewModel.Initialize();
+        ViewModel.Initialize();
     }
 }

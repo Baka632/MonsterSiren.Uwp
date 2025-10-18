@@ -25,7 +25,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <NoWarn>$(NoWarn);2008</NoWarn>
@@ -124,6 +124,7 @@
     <Compile Include="Helpers\Converters\AppBackgroundModeToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AppColorThemeToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioEncodingQualityToStringConverter.cs" />
+    <Compile Include="Helpers\Converters\AudioFormatToStringConverter.cs" />
     <Compile Include="Helpers\Converters\AudioGuidToStringConverter.cs" />
     <Compile Include="Helpers\Converters\CodecCategoryToStringConverter.cs" />
     <Compile Include="Helpers\Converters\DownloadItemStateToStringConverter.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
     <Compile Include="Models\AppLanguage.cs" />
+    <Compile Include="Models\AudioFormat.cs" />
     <Compile Include="Models\CustomIncrementalLoadingCollection.cs" />
     <Compile Include="Models\DownloadItem.cs" />
     <Compile Include="Models\DownloadItemState.cs" />
@@ -343,10 +345,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Baka632.Library.Uwp.CSharp">
-      <Version>1.0.4</Version>
+      <Version>1.5.1</Version>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm">
-      <Version>8.3.2</Version>
+      <Version>8.4.0</Version>
     </PackageReference>
     <PackageReference Include="IsExternalInit">
       <Version>1.0.3</Version>
@@ -383,7 +385,7 @@
       <Version>2.3.0</Version>
     </PackageReference>
     <PackageReference Include="Win2D.uwp">
-      <Version>1.27.1</Version>
+      <Version>1.28.2</Version>
     </PackageReference>
     <PackageReference Include="WindowsStateTriggers">
       <Version>1.1.0</Version>

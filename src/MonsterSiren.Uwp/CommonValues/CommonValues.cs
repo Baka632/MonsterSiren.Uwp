@@ -36,7 +36,9 @@ internal static partial class CommonValues
     public const string MusicDownloadPathSettingsKey = "Download_Path_SettingsKey";
     public const string MusicDownloadLyricSettingsKey = "Download_DownloadLyric_SettingsKey";
     public const string MusicTranscodeDownloadedItemSettingsKey = "Download_TranscodeDownloadedItem_SettingsKey";
+    [Obsolete("Don't use")]
     public const string MusicTranscodeEncoderGuidSettingsKey = "Download_TranscodeEncoderGuid_SettingsKey";
+    public const string MusicTranscodeFormatSettingsKey = "Download_TranscodeFormat_SettingsKey";
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
     public const string MusicReplaceInvalidCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvalidCharInFileName_SettingsKey";

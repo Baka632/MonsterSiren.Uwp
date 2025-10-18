@@ -16,7 +16,7 @@ namespace MonsterSiren.Uwp.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     [ObservableProperty]
-    private IReadOnlyList<CodecInfo> availableCommonEncoders;
+    private IReadOnlyList<AudioFormat> audioFormats;
     [ObservableProperty]
     private IReadOnlyList<AudioEncodingQuality> audioEncodingQualities;
     [ObservableProperty]
@@ -36,9 +36,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool transcodeDownloadedMusic = DownloadService.TranscodeDownloadedItem;
     [ObservableProperty]
-    private bool replaceInvaildCharInDownloadedFileName = DownloadService.ReplaceInvalidCharInFileName;
+    private bool replaceInvalidCharInDownloadedFileName = DownloadService.ReplaceInvalidCharInFileName;
     [ObservableProperty]
-    private int selectedCodecInfoIndex = -1;
+    private int selectedAudioFormatIndex = -1;
     [ObservableProperty]
     private int selectedTranscodeQualityIndex = -1;
     [ObservableProperty]
@@ -66,17 +66,12 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool showLanguageChangedInfoBar;
 
-    public async Task Initialize()
+    public void Initialize()
     {
         #region Transcoding
-        (bool hasEncoders, IEnumerable<CodecInfo> infos) = await CodecQueryHelper.TryGetCommonEncoders();
-        if (hasEncoders)
-        {
-            List<CodecInfo> codecInfos = [.. infos];
-
-            AvailableCommonEncoders = codecInfos;
-            SelectedCodecInfoIndex = codecInfos.FindIndex(info => info.Subtypes.SequenceEqual(DownloadService.TranscodeEncoderInfo?.Subtypes ?? Enumerable.Empty<string>()));
-        }
+        List<AudioFormat> formats = [AudioFormat.Mp3, AudioFormat.Flac];
+        AudioFormats = formats;
+        SelectedAudioFormatIndex = formats.IndexOf(DownloadService.TranscodeFormat);
 
         List<AudioEncodingQuality> qualities = [AudioEncodingQuality.High, AudioEncodingQuality.Medium, AudioEncodingQuality.Low];
         AudioEncodingQualities = qualities;
@@ -211,16 +206,16 @@ public partial class SettingsViewModel : ObservableObject
         DownloadService.TranscodeDownloadedItem = value;
     }
 
-    partial void OnReplaceInvaildCharInDownloadedFileNameChanged(bool value)
+    partial void OnReplaceInvalidCharInDownloadedFileNameChanged(bool value)
     {
         DownloadService.ReplaceInvalidCharInFileName = value;
     }
 
-    partial void OnSelectedCodecInfoIndexChanged(int value)
+    partial void OnSelectedAudioFormatIndexChanged(int value)
     {
         if (value >= 0)
         {
-            DownloadService.TranscodeEncoderInfo = AvailableCommonEncoders[value];
+            DownloadService.TranscodeFormat = AudioFormats[value];
         }
     }
 

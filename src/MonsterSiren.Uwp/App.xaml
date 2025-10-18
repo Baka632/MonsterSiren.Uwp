@@ -9,7 +9,7 @@
             <!--#region Converters-->
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
             <converters:DownloadItemStateToStringConverter x:Key="DownloadItemStateToStringConverter" />
-            <converters:AudioGuidToStringConverter x:Key="AudioGuidToStringConverter" />
+            <converters:AudioFormatToStringConverter x:Key="AudioFormatToStringConverter" />
             <converters:AudioEncodingQualityToStringConverter x:Key="AudioEncodingQualityToStringConverter" />
             <converters:MediaPlaybackItemToMusicRelatedPropertiesConverter x:Key="MediaPlaybackItemToMusicRelatedPropertiesConverter" />
             <converters:AppBackgroundModeToStringConverter x:Key="AppBackgroundModeToStringConverter" />

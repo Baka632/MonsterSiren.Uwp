@@ -1,4 +1,4 @@
-﻿
+
 using Windows.Media.MediaProperties;
 
 namespace MonsterSiren.Uwp.Helpers.Converters;
