@@ -777,4 +777,7 @@
   <data name="SettingsPage_AllowUnnecessaryTranscode.Description" xml:space="preserve">
     <value>某些转码操作是不必要的（例如将 MP3 转码为 FLAC），因此默认不会进行这些操作。</value>
   </data>
+  <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
+    <value>某些歌曲的歌曲名中包含不能作为文件名的字符，启用此功能会将一些无效字符替换为相近字符。</value>
+  </data>
 </root>

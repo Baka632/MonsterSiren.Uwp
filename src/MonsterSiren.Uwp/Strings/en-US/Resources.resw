@@ -697,4 +697,7 @@ Continue?</value>
   <data name="SettingsPage_AllowUnnecessaryTranscode.Description" xml:space="preserve">
     <value>Some transcoding operations are unnecessary (for example, converting MP3 to FLAC) and are therefore disabled by default.</value>
   </data>
+  <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
+    <value>Some song titles contain characters that are invalid for filenames, enabling this feature will replace some invalid characters with similar ones.</value>
+  </data>
 </root>
