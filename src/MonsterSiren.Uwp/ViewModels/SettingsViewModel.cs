@@ -44,6 +44,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool preserveRawMusicAfterTranscode = DownloadService.KeepRawMusicFileAfterTranscode;
     [ObservableProperty]
+    private bool allowUnnecessaryTranscode = DownloadService.AllowUnnecessaryTranscode;
+    [ObservableProperty]
     private int selectedAppBackgroundModeIndex = -1;
     [ObservableProperty]
     private int selectedAppColorThemeIndex = -1;
@@ -230,6 +232,11 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnPreserveRawMusicAfterTranscodeChanged(bool value)
     {
         DownloadService.KeepRawMusicFileAfterTranscode = value;
+    }
+
+    partial void OnAllowUnnecessaryTranscodeChanged(bool value)
+    {
+        DownloadService.AllowUnnecessaryTranscode = value;
     }
 
     partial void OnSelectedAppBackgroundModeIndexChanged(int value)

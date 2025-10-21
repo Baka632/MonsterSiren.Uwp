@@ -771,4 +771,10 @@
   <data name="PlayNext.Text" xml:space="preserve">
     <value>下一首播放</value>
   </data>
+  <data name="SettingsPage_AllowUnnecessaryTranscode.Header" xml:space="preserve">
+    <value>允许不必要的转码操作</value>
+  </data>
+  <data name="SettingsPage_AllowUnnecessaryTranscode.Description" xml:space="preserve">
+    <value>某些转码操作是不必要的（例如将 MP3 转码为 FLAC），因此默认不会进行这些操作。</value>
+  </data>
 </root>

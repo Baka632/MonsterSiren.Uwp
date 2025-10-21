@@ -23,6 +23,7 @@ public static class DownloadService
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
     private static bool _replaceInvalidCharInFileName = true;
+    private static bool _allowUnnecessaryTranscode = true;
     private static AudioFormat _transcodeFormat;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static readonly BackgroundDownloader Downloader = new()
@@ -122,6 +123,18 @@ public static class DownloadService
         }
     }
 
+    /// <summary>
+    /// 指示是否允许不必要的转码。
+    /// </summary>
+    public static bool AllowUnnecessaryTranscode
+    {
+        get => _allowUnnecessaryTranscode;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicAllowUnnecessaryTranscodeSettingsKey, value);
+            _allowUnnecessaryTranscode = value;
+        }
+    }
 
     /// <summary>
     /// 获取下载列表。
@@ -164,6 +177,11 @@ public static class DownloadService
         {
             KeepRawMusicFileAfterTranscode = SettingsHelper.TryGet(CommonValues.MusicTranscodeKeepWavFileSettingsKey, out bool keepWav)
                                     && keepWav;
+        }
+
+        {
+            AllowUnnecessaryTranscode = SettingsHelper.TryGet(CommonValues.MusicAllowUnnecessaryTranscodeSettingsKey, out bool unnecessaryTranscode)
+                                    && unnecessaryTranscode;
         }
 
         if (SettingsHelper.TryGet(CommonValues.MusicTranscodeFormatSettingsKey, out string formatString) && Enum.TryParse(formatString, out AudioFormat format))
@@ -416,26 +434,38 @@ public static class DownloadService
                 dlItem.Progress = 0d;
                 dlItem.State = DownloadItemState.Transcoding;
 
-                StorageFolder destinationFolder = await sourceFile.GetParentAsync();
-                string destinationFileExtensions = $".{TranscodeFormat.ToString().ToLower()}";
-                string sourceFileExtension = Path.GetExtension(sourceFile.Path);
+                StorageFile destinationFile;
 
-                string destinationFileName = Path.ChangeExtension(sourceFile.Name, destinationFileExtensions);
-
-                if (destinationFileExtensions.Equals(sourceFileExtension, StringComparison.OrdinalIgnoreCase))
+                if (sourceFile.ContentType != "audio/mpeg"
+                    || TranscodeFormat == AudioFormat.Mp3
+                    || AllowUnnecessaryTranscode)
                 {
-                    await sourceFile.RenameAsync($"{sourceFile.DisplayName}{"RawMusicFileSaveTag".GetLocalized()}{sourceFileExtension}", NameCollisionOption.ReplaceExisting);
-                }
-                
-                StorageFile destinationFile = await destinationFolder.CreateFileAsync(destinationFileName, CreationCollisionOption.ReplaceExisting);
+                    StorageFolder destinationFolder = await sourceFile.GetParentAsync();
 
-                await TranscodeFile(sourceFile, destinationFile, TranscodeFormat, TranscodeQuality, dlItem);
+                    string destinationFileExtensions = $".{TranscodeFormat.ToString().ToLower()}";
+                    string destinationFileName = Path.ChangeExtension(sourceFile.Name, destinationFileExtensions);
+
+                    string sourceFileExtension = Path.GetExtension(sourceFile.Path);
+
+                    if (destinationFileExtensions.Equals(sourceFileExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await sourceFile.RenameAsync($"{sourceFile.DisplayName}{"RawMusicFileSaveTag".GetLocalized()}{sourceFileExtension}", NameCollisionOption.ReplaceExisting);
+                    }
+
+                    destinationFile = await destinationFolder.CreateFileAsync(destinationFileName, CreationCollisionOption.ReplaceExisting);
+                    await TranscodeFile(sourceFile, destinationFile, TranscodeFormat, TranscodeQuality, dlItem);
+
+                    if (KeepRawMusicFileAfterTranscode != true)
+                    {
+                        await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+                }
+                else
+                {
+                    destinationFile = sourceFile;
+                }
+
                 await WriteTagsToFile(destinationFile, dlItem);
-
-                if (KeepRawMusicFileAfterTranscode != true)
-                {
-                    await sourceFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                }
             }
             else
             {
@@ -543,88 +573,6 @@ public static class DownloadService
             ? 0d
             : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
     }
-
-    //private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, AudioFormat format, AudioEncodingQuality quality, DownloadItem dlItem)
-    //{
-    //    CreateAudioGraphResult result = await AudioGraph.CreateAsync(new(Windows.Media.Render.AudioRenderCategory.Media));
-
-    //    if (result.Status != AudioGraphCreationStatus.Success)
-    //    {
-    //        throw new InvalidOperationException($"转码操作失败，原因：{result.Status}。");
-    //    }
-
-    //    using AudioGraph graph = result.Graph;
-    //    CreateAudioFileInputNodeResult inputResult = await graph.CreateFileInputNodeAsync(sourceFile);
-    //    if (inputResult.Status != AudioFileNodeCreationStatus.Success)
-    //    {
-    //        throw new InvalidOperationException($"转码操作失败，原因：{inputResult.Status}。");
-    //    }
-    //    using AudioFileInputNode inputNode = inputResult.FileInputNode;
-
-    //    MediaEncodingProfile profile = format switch
-    //    {
-    //        _ when quality is AudioEncodingQuality.Auto => throw new ArgumentOutOfRangeException(nameof(quality), "不能将音频质量设为 Auto。"),
-    //        AudioFormat.Mp3 => MediaEncodingProfile.CreateMp3(quality),
-    //        AudioFormat.Flac => MediaEncodingProfile.CreateFlac(quality),
-    //        _ => throw new NotImplementedException("尚未实现对指定编码器的支持。")
-    //    };
-    //    CreateAudioFileOutputNodeResult outputResult = await graph.CreateFileOutputNodeAsync(destinationFile, profile);
-    //    if (outputResult.Status != AudioFileNodeCreationStatus.Success)
-    //    {
-    //        throw new InvalidOperationException($"转码操作失败，原因：{outputResult.Status}。");
-    //    }
-
-    //    AudioFileOutputNode outputNode = outputResult.FileOutputNode;
-
-    //    inputNode.AddOutgoingConnection(outputNode);
-
-    //    TaskCompletionSource<bool> completionTask = new();
-    //    inputNode.FileCompleted += (sender, args) =>
-    //    {
-    //        sender.Stop();
-    //        completionTask.SetResult(true);
-    //    };
-
-    //    graph.Start();
-
-    //    await completionTask.Task;
-
-    //    TranscodeFailureReason outputFileResult = await outputNode.FinalizeAsync();
-    //    if (outputFileResult != TranscodeFailureReason.None)
-    //    {
-    //        throw new InvalidOperationException($"转码操作失败，原因：{outputFileResult}。");
-    //    }
-    //    graph.Stop();
-
-    //    //int bitrate = quality switch
-    //    //{
-    //    //    AudioEncodingQuality.Low => 96,
-    //    //    AudioEncodingQuality.Medium => 128,
-    //    //    AudioEncodingQuality.High or _ => 192,
-    //    //};
-
-    //    //if (format is AudioFormat.Flac)
-    //    //{
-    //    //    // TODO: add flac support
-    //    //    throw new NotImplementedException("Please wait...");
-    //    //}
-
-    //    //// TODO: 请解决源文件是 MP3 的情况。
-    //    //using Stream inputStream = await sourceFile.OpenStreamForReadAsync();
-    //    //using Stream outputStream = await destinationFile.OpenStreamForWriteAsync();
-
-    //    //inputStream.Seek(0, SeekOrigin.Begin);
-    //    //outputStream.Seek(0, SeekOrigin.Begin);
-
-    //    //using WaveFileReader reader = new(inputStream);
-    //    //using LameMP3FileWriter writer = new(outputStream, reader.WaveFormat, bitrate);
-    //    //long readerLength = reader.Length;
-    //    //writer.OnProgress += (writer, inputBytes, outputBytes, finished) =>
-    //    //{
-    //    //    dlItem.Progress = inputBytes / readerLength;
-    //    //};
-    //    //await reader.CopyToAsync(writer, 81920, dlItem.CancelToken.Token);
-    //}
 
     private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, AudioFormat format, AudioEncodingQuality quality, DownloadItem dlItem)
     {
