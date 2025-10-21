@@ -23,8 +23,6 @@ public static class DownloadService
     private static bool _downloadLyric = true;
     private static bool _transcodeDownloadedItem = true;
     private static bool _replaceInvalidCharInFileName = true;
-    [Obsolete("Use new settings instead")]
-    private static CodecInfo _transcodeEncoderInfo;
     private static AudioFormat _transcodeFormat;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static readonly BackgroundDownloader Downloader = new()
@@ -69,20 +67,6 @@ public static class DownloadService
         {
             SettingsHelper.Set(CommonValues.MusicTranscodeDownloadedItemSettingsKey, value);
             _transcodeDownloadedItem = value;
-        }
-    }
-
-    [Obsolete("Use new settings instead")]
-    /// <summary>
-    /// 获取或设置转码操作要使用的编码器信息。
-    /// </summary>
-    public static CodecInfo TranscodeEncoderInfo
-    {
-        get => _transcodeEncoderInfo;
-        set
-        {
-            SettingsHelper.Set(CommonValues.MusicTranscodeEncoderGuidSettingsKey, value.Subtypes[0]);
-            _transcodeEncoderInfo = value;
         }
     }
 
@@ -460,40 +444,6 @@ public static class DownloadService
         }
 
         dlItem.State = DownloadItemState.Done;
-    }
-
-    [Obsolete("Don't use")]
-    private static MediaEncodingProfile GetEncodingProfile()
-    {
-        if (TranscodeEncoderInfo is null)
-        {
-            throw new InvalidOperationException($"{TranscodeEncoderInfo} 为 null");
-        }
-        else if (TranscodeEncoderInfo.Kind != CodecKind.Audio || TranscodeEncoderInfo.Category != CodecCategory.Encoder)
-        {
-            throw new InvalidOperationException($"{TranscodeEncoderInfo} 不是音频编码器");
-        }
-        else if (TranscodeQuality == AudioEncodingQuality.Auto)
-        {
-            throw new InvalidOperationException($"{TranscodeQuality} 被设为 '{AudioEncodingQuality.Auto}'");
-        }
-
-        IReadOnlyList<string> subtypes = TranscodeEncoderInfo.Subtypes;
-        if (subtypes.Any(IsTargetEncoder(CodecSubtypes.AudioFormatMP3)))
-        {
-            return MediaEncodingProfile.CreateMp3(TranscodeQuality);
-        }
-        else if (subtypes.Any(IsTargetEncoder(CodecSubtypes.AudioFormatFlac)))
-        {
-            return MediaEncodingProfile.CreateFlac(TranscodeQuality);
-        }
-
-        throw new NotImplementedException("尚未实现对目标编码器的支持。");
-
-        static Func<string, bool> IsTargetEncoder(string targetEncoderGuid)
-        {
-            return encoderGuid => encoderGuid == targetEncoderGuid;
-        }
     }
 
     private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem)
