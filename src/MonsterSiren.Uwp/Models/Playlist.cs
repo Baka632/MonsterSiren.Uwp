@@ -91,7 +91,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         _title = title;
         _description = description;
         PlaylistId = Guid.NewGuid();
-        PlaylistSaveName = CommonValues.ReplaceInvaildFileNameChars(title);
+        PlaylistSaveName = CommonValues.ReplaceInvalidFileNameChars(title);
         Items.CollectionChanged += OnItemCollectionChanged;
     }
 
@@ -108,7 +108,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         TotalDuration = totalDuration;
         PlaylistId = playlistId == Guid.Empty ? Guid.NewGuid() : playlistId;
         PlaylistSaveName = string.IsNullOrWhiteSpace(playlistSaveName)
-            ? CommonValues.ReplaceInvaildFileNameChars(title)
+            ? CommonValues.ReplaceInvalidFileNameChars(title)
             : playlistSaveName;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;

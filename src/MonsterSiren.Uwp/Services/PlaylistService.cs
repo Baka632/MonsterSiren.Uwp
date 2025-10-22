@@ -231,7 +231,7 @@ public static class PlaylistService
         {
             formerSaveName = playlist.PlaylistSaveName;
             playlist.Title = newTitle;
-            playlist.PlaylistSaveName = CommonValues.ReplaceInvaildFileNameChars(newTitle);
+            playlist.PlaylistSaveName = CommonValues.ReplaceInvalidFileNameChars(newTitle);
             isModifyTitle = true;
         }
 

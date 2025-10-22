@@ -700,4 +700,22 @@ Continue?</value>
   <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
     <value>Some song titles contain characters that are invalid for filenames, enabling this feature will replace some invalid characters with similar ones.</value>
   </data>
+  <data name="SettingsPage_MusicFilenameTemplateString.Header" xml:space="preserve">
+    <value>Filename format</value>
+  </data>
+  <data name="AlbumTitleText" xml:space="preserve">
+    <value>Album title</value>
+  </data>
+  <data name="SongTitleText" xml:space="preserve">
+    <value>Song title</value>
+  </data>
+  <data name="ArtistText" xml:space="preserve">
+    <value>Name of the first album artist</value>
+  </data>
+  <data name="ArtistsText" xml:space="preserve">
+    <value>Names of all album artists</value>
+  </data>
+  <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
+    <value>You can restore the default settings by clearing the text box.</value>
+  </data>
 </root>

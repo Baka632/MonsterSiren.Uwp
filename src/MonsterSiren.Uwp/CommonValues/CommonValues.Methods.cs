@@ -70,7 +70,7 @@ partial class CommonValues
     /// </para>
     /// </remarks>
     /// <returns>新的字符串。</returns>
-    public static string ReplaceInvaildFileNameChars(string fileName)
+    public static string ReplaceInvalidFileNameChars(string fileName)
     {
         StringBuilder stringBuilder = new(fileName);
         stringBuilder.Replace('"', '\'');

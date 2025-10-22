@@ -780,4 +780,22 @@
   <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
     <value>某些歌曲的歌曲名中包含不能作为文件名的字符，启用此功能会将一些无效字符替换为相近字符。</value>
   </data>
+  <data name="SettingsPage_MusicFilenameTemplateString.Header" xml:space="preserve">
+    <value>文件名格式</value>
+  </data>
+  <data name="AlbumTitleText" xml:space="preserve">
+    <value>专辑名称</value>
+  </data>
+  <data name="SongTitleText" xml:space="preserve">
+    <value>歌曲名称</value>
+  </data>
+  <data name="ArtistText" xml:space="preserve">
+    <value>第一位专辑艺术家名称</value>
+  </data>
+  <data name="ArtistsText" xml:space="preserve">
+    <value>全部专辑艺术家名称</value>
+  </data>
+  <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
+    <value>可以通过清空文本框来还原到默认设置。</value>
+  </data>
 </root>
