@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.ApplicationModel.Core;
@@ -44,6 +45,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool preserveRawMusicAfterTranscode = DownloadService.KeepRawMusicFileAfterTranscode;
     [ObservableProperty]
+    private bool allowUnnecessaryTranscode = DownloadService.AllowUnnecessaryTranscode;
+    [ObservableProperty]
     private int selectedAppBackgroundModeIndex = -1;
     [ObservableProperty]
     private int selectedAppColorThemeIndex = -1;
@@ -65,9 +68,36 @@ public partial class SettingsViewModel : ObservableObject
     private bool showColorThemeChangedInfoBar;
     [ObservableProperty]
     private bool showLanguageChangedInfoBar;
+    [ObservableProperty]
+    private string musicFileTemplateString = DownloadService.MusicFileTemplateString;
+    [ObservableProperty]
+    private string musicFilePartsTemplateExplainText;
 
     public void Initialize()
     {
+        StringBuilder templateExplainTextBuilder = new(CommonValues.MusicFilenamePartTemplates.Length + (CommonValues.MusicFilenamePartTemplates.Length * 10));
+        for (int i = 0; i < CommonValues.MusicFilenamePartTemplates.Length; i++)
+        {
+            string template = CommonValues.MusicFilenamePartTemplates[i];
+            templateExplainTextBuilder.Append(template);
+            templateExplainTextBuilder.Append(": ");
+            string content = template switch
+            {
+                "{AlbumTitle}" => "AlbumTitleText".GetLocalized(),
+                "{SongTitle}" => "SongTitleText".GetLocalized(),
+                "{Artist}" => "ArtistText".GetLocalized(),
+                "{Artists}" => "ArtistsText".GetLocalized(),
+                _ => throw new NotImplementedException("未添加对指定文件名模板的支持。"),
+            };
+
+            templateExplainTextBuilder.Append(content);
+            if (i + 1 < CommonValues.MusicFilenamePartTemplates.Length)
+            {
+                templateExplainTextBuilder.AppendLine();
+            }
+        }
+        MusicFilePartsTemplateExplainText = templateExplainTextBuilder.ToString();
+
         #region Transcoding
         List<AudioFormat> formats = [AudioFormat.Mp3, AudioFormat.Flac];
         AudioFormats = formats;
@@ -230,6 +260,44 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnPreserveRawMusicAfterTranscodeChanged(bool value)
     {
         DownloadService.KeepRawMusicFileAfterTranscode = value;
+    }
+
+    partial void OnAllowUnnecessaryTranscodeChanged(bool value)
+    {
+        DownloadService.AllowUnnecessaryTranscode = value;
+    }
+
+    partial void OnMusicFileTemplateStringChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            MusicFileTemplateString = CommonValues.DefaultMusicFilenameTemplate;
+        }
+        else
+        {
+            string rawValue = value;
+
+            if (ReplaceInvalidCharInDownloadedFileName)
+            {
+                value = CommonValues.ReplaceInvalidFileNameChars(value);
+            }
+            else
+            {
+                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
+                {
+                    value = value.Replace(invalidCharStr, string.Empty);
+                }
+            }
+
+            if (rawValue == value)
+            {
+                DownloadService.MusicFileTemplateString = value;
+            }
+            else
+            {
+                MusicFileTemplateString = value;
+            }
+        }
     }
 
     partial void OnSelectedAppBackgroundModeIndexChanged(int value)

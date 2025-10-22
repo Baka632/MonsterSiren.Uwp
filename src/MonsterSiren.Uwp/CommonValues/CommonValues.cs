@@ -42,6 +42,8 @@ internal static partial class CommonValues
     public const string MusicTranscodeQualitySettingsKey = "Download_TranscodeQuality_SettingsKey";
     public const string MusicTranscodeKeepWavFileSettingsKey = "Download_TranscodeKeepWavFile_SettingsKey";
     public const string MusicReplaceInvalidCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvalidCharInFileName_SettingsKey";
+    public const string MusicAllowUnnecessaryTranscodeSettingsKey = "Download_AllowUnnecessaryTranscode_SettingsKey";
+    public const string MusicFileTemplateStringSettingsKey = "Download_MusicFileTemplateStringSettingsKey_SettingsKey";
 
     public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
 
@@ -115,5 +117,13 @@ internal static partial class CommonValues
     public static readonly bool IsXbox = AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox";
 
     public static LockerHelper<string> SongDurationLocker { get; } = new();
+
+    public const string DefaultMusicFilenameTemplate = "{Artist} - {SongTitle}";
+    public static readonly string[] MusicFilenamePartTemplates = [
+            "{AlbumTitle}",
+            "{SongTitle}",
+            "{Artist}",
+            "{Artists}",
+        ];
     #endregion
 }

@@ -144,10 +144,7 @@
                                 </StackPanel>
                             </controls:SettingsExpander.CustomHeaderElement>
 
-                            <controls:SettingsCard
-                                x:Uid="SettingsPage_DownloadPath"
-                                Description="{x:Bind ViewModel.DownloadPath, Mode=OneWay}"
-                                HeaderStyle="{StaticResource BaseTextBlockStyle}">
+                            <controls:SettingsCard x:Uid="SettingsPage_DownloadPath" Description="{x:Bind ViewModel.DownloadPath, Mode=OneWay}">
                                 <controls:SettingsCard.DescriptionStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="IsTextSelectionEnabled" Value="True" />
@@ -157,10 +154,7 @@
                                 <Button x:Uid="SettingsPage_PickButton" Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
                             </controls:SettingsCard>
 
-                            <controls:SettingsCard
-                                x:Uid="SettingsPage_PlaylistSavePath"
-                                Description="{x:Bind ViewModel.PlaylistSavePath, Mode=OneWay}"
-                                HeaderStyle="{StaticResource BaseTextBlockStyle}">
+                            <controls:SettingsCard x:Uid="SettingsPage_PlaylistSavePath" Description="{x:Bind ViewModel.PlaylistSavePath, Mode=OneWay}">
                                 <controls:SettingsCard.DescriptionStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="IsTextSelectionEnabled" Value="True" />
@@ -192,6 +186,25 @@
                             <controls:SettingsCard x:Uid="SettingsPage_ReplaceInvalidCharsInDownloadedFileName">
                                 <ToggleSwitch IsOn="{x:Bind ViewModel.ReplaceInvalidCharInDownloadedFileName, Mode=TwoWay}" />
                             </controls:SettingsCard>
+                            <controls:SettingsCard x:Uid="SettingsPage_MusicFilenameTemplateString">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox
+                                        Width="200"
+                                        Text="{x:Bind ViewModel.MusicFileTemplateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Margin="5,0,0,0" Background="Transparent">
+                                        <FontIcon Glyph="&#xE946;" />
+
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <TextBlock
+                                                    IsTextSelectionEnabled="True"
+                                                    Text="{x:Bind ViewModel.MusicFilePartsTemplateExplainText, Mode=OneWay}"
+                                                    TextWrapping="Wrap" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </StackPanel>
+                            </controls:SettingsCard>
                         </controls:SettingsExpander>
 
                         <controls:SettingsExpander x:Uid="SettingsPage_TranscodeConfig" Visibility="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=OneWay}">
@@ -221,6 +234,10 @@
 
                             <controls:SettingsCard x:Uid="SettingsPage_TranscodeKeepRawMusicFile">
                                 <ToggleSwitch IsOn="{x:Bind ViewModel.PreserveRawMusicAfterTranscode, Mode=TwoWay}" />
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard x:Uid="SettingsPage_AllowUnnecessaryTranscode">
+                                <ToggleSwitch IsOn="{x:Bind ViewModel.AllowUnnecessaryTranscode, Mode=TwoWay}" />
                             </controls:SettingsCard>
                         </controls:SettingsExpander>
                     </StackPanel>
