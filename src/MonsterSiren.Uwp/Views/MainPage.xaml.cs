@@ -14,6 +14,8 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
+using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Views.FavoritePageParts;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
@@ -21,7 +23,7 @@ using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 应用主页面
+/// 应用主页面。
 /// </summary>
 public sealed partial class MainPage : Page
 {
@@ -162,7 +164,7 @@ public sealed partial class MainPage : Page
         {
             MainPageNavigationHelper.GoBack(e);
         }
-        else if(ContentFrameNavigationHelper.CanGoBack)
+        else if (ContentFrameNavigationHelper.CanGoBack)
         {
             ContentFrameNavigationHelper.GoBack(e);
         }
@@ -228,48 +230,6 @@ public sealed partial class MainPage : Page
         TitleBar.Visibility = visibility;
     }
 
-    private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
-    {
-        if (args.InvokedItemContainer is null)
-        {
-            return;
-        }
-
-        string tag = args.InvokedItemContainer.Tag as string;
-        if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-        else
-        {
-            NavigateByNavViewItemTag(tag);
-        }
-    }
-
-    private void NavigateByNavViewItemTag(string tag)
-    {
-        if (tag == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(MusicPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-        else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
-        {
-            NavigateToNowPlayingPage(true);
-        }
-        else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-        else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-        else if (tag == "PlaylistPage" && ContentFrame.CurrentSourcePageType != typeof(PlaylistPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(PlaylistPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-    }
-
     private void NavigateToNowPlayingPage(bool expandNowPlayingList = false)
     {
         StartTitleTextBlockAnimation(AppViewBackButtonVisibility.Visible);
@@ -282,49 +242,6 @@ public sealed partial class MainPage : Page
         {
             ChangeSelectedItemOfNavigationView();
         }
-    }
-
-    /// <summary>
-    /// 改变导航视图的选择项。
-    /// </summary>
-    private void ChangeSelectedItemOfNavigationView()
-    {
-        Type currentSourcePageType = ContentFrame.CurrentSourcePageType;
-
-        if (currentSourcePageType == typeof(MusicPage) || currentSourcePageType == typeof(AlbumDetailPage))
-        {
-            NavigationView.SelectedItem = MusicPageItem;
-        }
-        else if (currentSourcePageType == typeof(NowPlayingPage))
-        {
-            NavigationView.SelectedItem = NowPlayingPageItem;
-        }
-        else if (currentSourcePageType == typeof(DownloadPage))
-        {
-            NavigationView.SelectedItem = DownloadPageItem;
-        }
-        else if (currentSourcePageType == typeof(PlaylistPage) || currentSourcePageType == typeof(PlaylistDetailPage))
-        {
-            NavigationView.SelectedItem = PlaylistPageItem;
-        }
-        else if (currentSourcePageType == typeof(NewsPage) || currentSourcePageType == typeof(NewsDetailPage))
-        {
-            NavigationView.SelectedItem = NewsPageItem;
-        }
-        else if (currentSourcePageType == typeof(SettingsPage))
-        {
-            NavigationView.SelectedItem = NavigationView.SettingsItem;
-        }
-        else if (currentSourcePageType == typeof(SearchPage) || currentSourcePageType == typeof(UpdateInfoPage))
-        {
-            NavigationView.SelectedItem = null;
-        }
-#if DEBUG
-        else
-        {
-            Debugger.Break();
-        }
-#endif
     }
 
     private void OnMainPageLoaded(object sender, RoutedEventArgs e)
@@ -374,100 +291,6 @@ public sealed partial class MainPage : Page
         NavigateToNowPlayingPage();
     }
 
-    private void LoadPlaylistForNavigationView()
-    {
-        PlaylistPageItem.MenuItems.Clear();
-        foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-        {
-            MUXCNavigationViewItem item = CreateNavItemByPlaylist(playlist);
-            PlaylistPageItem.MenuItems.Add(item);
-        }
-    }
-
-    private MUXCNavigationViewItem CreateNavItemByPlaylist(Playlist playlist)
-    {
-        MUXCNavigationViewItem item = new()
-        {
-            DataContext = playlist,
-            ContextFlyout = PlaylistItemFlyout,
-            Tag = playlist,
-            Icon = new FontIcon()
-            {
-                Glyph = "\uEC4F"
-            },
-            IsRightTapEnabled = true,
-            AllowDrop = true,
-            SelectsOnInvoked = false,
-        };
-
-        Binding binding = new()
-        {
-            Path = new PropertyPath("Title")
-        };
-
-        item.SetBinding(ContentControl.ContentProperty, binding);
-
-        item.Tapped += (s, e) =>
-        {
-            if (ContentFrame.Content is PlaylistDetailPage page && page.ViewModel?.CurrentPlaylist == playlist)
-            {
-                return;
-            }
-
-            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
-
-            ChangeSelectedItemOfNavigationView();
-        };
-
-        item.RightTapped += (s, e) =>
-        {
-            ViewModel.SelectedPlaylist = playlist;
-        };
-
-        item.DragOver += (s, e) =>
-        {
-            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-                || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
-                || e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-            {
-                e.AcceptedOperation = DataPackageOperation.Link;
-                e.DragUIOverride.Caption = string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title);
-            }
-            else
-            {
-                e.AcceptedOperation = DataPackageOperation.None;
-            }
-        };
-
-        item.Drop += async (s, e) =>
-        {
-            if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
-            {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
-
-                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
-
-                await CommonValues.AddToPlaylist(playlist, albumInfo);
-            }
-            else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
-            {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
-
-                List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
-
-                await CommonValues.AddToPlaylist(playlist, packs);
-            }
-            else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-            {
-                string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
-
-                List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-                await CommonValues.AddToPlaylist(playlist, items);
-            }
-        };
-        return item;
-    }
-
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -514,66 +337,6 @@ public sealed partial class MainPage : Page
         PlaylistPageItem.UnregisterPropertyChangedCallback(MUXCNavigationViewItem.IsExpandedProperty, tokenForPlaylistPageItemIsExpandChangedEvent);
     }
 
-    private void OnPlaylistPageItemIsExpandedChanged(DependencyObject sender, DependencyProperty dp)
-    {
-        if (dp == MUXCNavigationViewItem.IsExpandedProperty)
-        {
-            bool isExpanded = (bool)sender.GetValue(dp);
-
-            if (!isExpanded)
-            {
-                sender.SetValue(dp, true);
-            }
-        }
-    }
-
-    private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-        IList<object> target = PlaylistPageItem.MenuItems;
-
-        switch (e.Action)
-        {
-            case NotifyCollectionChangedAction.Add:
-                {
-                    foreach (object item in e.NewItems)
-                    {
-                        if (item is Playlist playlist)
-                        {
-                            MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
-                            target.Add(navItem);
-                        }
-                    }
-                }
-                break;
-            case NotifyCollectionChangedAction.Move:
-                object oldItem = target[e.OldStartingIndex];
-                target.RemoveAt(e.OldStartingIndex);
-                target.Insert(e.NewStartingIndex, oldItem);
-                break;
-            case NotifyCollectionChangedAction.Remove:
-                target.RemoveAt(e.OldStartingIndex);
-                break;
-            case NotifyCollectionChangedAction.Replace:
-                {
-                    object newPlaylist = e.NewItems[0];
-                    if (newPlaylist is Playlist playlist)
-                    {
-                        MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
-                        target[e.OldStartingIndex] = navItem;
-                    }
-                }
-                break;
-            case NotifyCollectionChangedAction.Reset:
-                target.Clear();
-                break;
-            default:
-#if DEBUG
-                Debugger.Break();
-#endif
-                break;
-        }
-    }
-
     private async void OnNetworkStatusChanged(object sender = null)
     {
         if (!CommonValues.IsXbox)
@@ -584,87 +347,6 @@ public sealed partial class MainPage : Page
             {
                 await UIThreadHelper.RunOnUIThread(() => appNotificationControl.Show("UsingMeteredInternet".GetLocalized(), 5000));
             }
-        }
-    }
-
-    private void OnMusicDataPackageDragOver(object sender, DragEventArgs e)
-    {
-        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-            || e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
-            || e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
-            || e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
-        {
-            e.AcceptedOperation = DataPackageOperation.Link;
-            e.DragUIOverride.Caption = "AddToNowPlayingLiteral".GetLocalized();
-        }
-        else
-        {
-            e.AcceptedOperation = DataPackageOperation.None;
-        }
-    }
-
-    private async void OnDropMusicDataPackage(object sender, DragEventArgs e)
-    {
-        if (e.DataView.Contains(CommonValues.MusicAlbumInfoFormatId))
-        {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
-
-            AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
-
-            await CommonValues.AddToNowPlaying(albumInfo);
-        }
-        else if (e.DataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
-        {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
-
-            List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
-
-            await CommonValues.AddToNowPlaying(packs);
-        }
-        else if (e.DataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-        {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
-            List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-
-            await CommonValues.AddToNowPlaying(items);
-        }
-        else if (e.DataView.Contains(CommonValues.MusicPlaylistFormatId))
-        {
-            string json = (string)await e.DataView.GetDataAsync(CommonValues.MusicPlaylistFormatId);
-
-            Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
-
-            await CommonValues.AddToNowPlaying(playlist);
-        }
-    }
-
-    private void OnAutoSuggestBoxAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
-    {
-        Control control = sender as Control;
-        args.Handled = control.Focus(FocusState.Programmatic);
-    }
-
-    private void OnNavigationViewItemAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
-    {
-        if (sender == NavigationView.SettingsItem && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
-        {
-            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
-        }
-        else
-        {
-            var item = sender as Microsoft.UI.Xaml.Controls.NavigationViewItemBase;
-
-            string tag = item.Tag as string;
-            NavigateByNavViewItemTag(tag);
-        }
-    }
-
-    private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
-    {
-        if (sender is Microsoft.UI.Xaml.Controls.NavigationView view && view.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
-        {
-            settings.AccessKeyInvoked += OnNavigationViewItemAccessKeyInvoked;
-            settings.AccessKey = "T";
         }
     }
 
@@ -698,10 +380,87 @@ public sealed partial class MainPage : Page
             }
         }
     }
+}
 
-    internal static Visibility ShowDownloadItemInfoBadge(int count)
+// Drop & Drag 相关方法
+partial class MainPage
+{
+    private void OnMusicDataPackageDragOver(object sender, DragEventArgs e)
     {
-        return XamlHelper.ToVisibility(count > 0);
+        DataPackageView dataView = e.DataView;
+        if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
+            || dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+            || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
+            || dataView.Contains(CommonValues.MusicPlaylistFormatId)
+            || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
+        {
+            e.AcceptedOperation = DataPackageOperation.Link;
+            e.DragUIOverride.Caption = "AddToNowPlayingLiteral".GetLocalized();
+        }
+        else
+        {
+            e.AcceptedOperation = DataPackageOperation.None;
+        }
+    }
+
+    private async void OnDropMusicDataPackage(object sender, DragEventArgs e)
+    {
+        DataPackageView dataView = e.DataView;
+        if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+        {
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+            AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+            await CommonValues.AddToNowPlaying(albumInfo);
+        }
+        else if (dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
+        {
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+
+            List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
+
+            await CommonValues.AddToNowPlaying(packs);
+        }
+        else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+        {
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
+            List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
+
+            await CommonValues.AddToNowPlaying(items);
+        }
+        else if (dataView.Contains(CommonValues.MusicPlaylistFormatId))
+        {
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistFormatId);
+
+            Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
+
+            await CommonValues.AddToNowPlaying(playlist);
+        }
+        else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
+        {
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
+            List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
+
+            await CommonValues.AddToNowPlaying(items);
+        }
+    }
+}
+
+// NavigationView 相关方法
+partial class MainPage
+{
+    private void OnPlaylistPageItemIsExpandedChanged(DependencyObject sender, DependencyProperty dp)
+    {
+        if (dp == MUXCNavigationViewItem.IsExpandedProperty)
+        {
+            bool isExpanded = (bool)sender.GetValue(dp);
+
+            if (!isExpanded)
+            {
+                sender.SetValue(dp, true);
+            }
+        }
     }
 
     private void OnNavigationViewDisplayModeChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs args)
@@ -765,6 +524,62 @@ public sealed partial class MainPage : Page
         flyout.Items.Insert(targetIndex, subItem);
     }
 
+    private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.NavigationView view && view.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
+        {
+            settings.AccessKeyInvoked += OnNavigationViewItemAccessKeyInvoked;
+            settings.AccessKey = "T";
+        }
+    }
+
+    private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        IList<object> target = PlaylistPageItem.MenuItems;
+
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                {
+                    foreach (object item in e.NewItems)
+                    {
+                        if (item is Playlist playlist)
+                        {
+                            MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                            target.Add(navItem);
+                        }
+                    }
+                }
+                break;
+            case NotifyCollectionChangedAction.Move:
+                object oldItem = target[e.OldStartingIndex];
+                target.RemoveAt(e.OldStartingIndex);
+                target.Insert(e.NewStartingIndex, oldItem);
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                target.RemoveAt(e.OldStartingIndex);
+                break;
+            case NotifyCollectionChangedAction.Replace:
+                {
+                    object newPlaylist = e.NewItems[0];
+                    if (newPlaylist is Playlist playlist)
+                    {
+                        MUXCNavigationViewItem navItem = CreateNavItemByPlaylist(playlist);
+                        target[e.OldStartingIndex] = navItem;
+                    }
+                }
+                break;
+            case NotifyCollectionChangedAction.Reset:
+                target.Clear();
+                break;
+            default:
+#if DEBUG
+                Debugger.Break();
+#endif
+                break;
+        }
+    }
+
     private void OnNavigationViewSearchBoxGettingFocus(UIElement sender, GettingFocusEventArgs args)
     {
         if (shouldSuppressAutoSuggestBoxFocusEvent)
@@ -773,5 +588,230 @@ public sealed partial class MainPage : Page
             args.Cancel = true;
             shouldSuppressAutoSuggestBoxFocusEvent = false;
         }
+    }
+
+    private void OnNavigationViewItemAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
+    {
+        if (sender == NavigationView.SettingsItem && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else
+        {
+            var item = sender as Microsoft.UI.Xaml.Controls.NavigationViewItemBase;
+
+            string tag = item.Tag as string;
+            NavigateByNavViewItemTag(tag);
+        }
+    }
+
+    private void OnAutoSuggestBoxAccessKeyInvoked(UIElement sender, AccessKeyInvokedEventArgs args)
+    {
+        Control control = sender as Control;
+        args.Handled = control.Focus(FocusState.Programmatic);
+    }
+
+    private void LoadPlaylistForNavigationView()
+    {
+        PlaylistPageItem.MenuItems.Clear();
+        foreach (Playlist playlist in PlaylistService.TotalPlaylists)
+        {
+            MUXCNavigationViewItem item = CreateNavItemByPlaylist(playlist);
+            PlaylistPageItem.MenuItems.Add(item);
+        }
+    }
+
+    private MUXCNavigationViewItem CreateNavItemByPlaylist(Playlist playlist)
+    {
+        MUXCNavigationViewItem item = new()
+        {
+            DataContext = playlist,
+            ContextFlyout = PlaylistItemFlyout,
+            Tag = playlist,
+            Icon = new FontIcon()
+            {
+                Glyph = "\uEC4F"
+            },
+            IsRightTapEnabled = true,
+            AllowDrop = true,
+            SelectsOnInvoked = false,
+        };
+
+        Binding binding = new()
+        {
+            Path = new PropertyPath("Title")
+        };
+
+        item.SetBinding(ContentControl.ContentProperty, binding);
+
+        item.Tapped += (s, e) =>
+        {
+            if (ContentFrame.Content is PlaylistDetailPage page && page.ViewModel?.CurrentPlaylist == playlist)
+            {
+                return;
+            }
+
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistDetailPage), playlist, CommonValues.DefaultTransitionInfo);
+
+            ChangeSelectedItemOfNavigationView();
+        };
+
+        item.RightTapped += (s, e) =>
+        {
+            ViewModel.SelectedPlaylist = playlist;
+        };
+
+        item.DragOver += (s, e) =>
+        {
+            DataPackageView dataView = e.DataView;
+
+            if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
+                || dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+                || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
+                || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
+            {
+                e.AcceptedOperation = DataPackageOperation.Link;
+                e.DragUIOverride.Caption = string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title);
+            }
+            else
+            {
+                e.AcceptedOperation = DataPackageOperation.None;
+            }
+        };
+
+        item.Drop += async (s, e) =>
+        {
+            DataPackageView dataView = e.DataView;
+
+            if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId))
+            {
+                string json = (string)await dataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
+
+                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
+
+                await CommonValues.AddToPlaylist(playlist, albumInfo);
+            }
+            else if (dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
+            {
+                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+
+                List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
+
+                await CommonValues.AddToPlaylist(playlist, packs);
+            }
+            else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
+            {
+                string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
+
+                List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
+                await CommonValues.AddToPlaylist(playlist, items);
+            }
+            else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
+            {
+                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
+
+                List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
+                await CommonValues.AddToPlaylist(playlist, items);
+            }
+        };
+        return item;
+    }
+
+    private void OnNavigationViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItemContainer is null)
+        {
+            return;
+        }
+
+        string tag = args.InvokedItemContainer.Tag as string;
+        if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(SettingsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else
+        {
+            NavigateByNavViewItemTag(tag);
+        }
+    }
+
+    private void NavigateByNavViewItemTag(string tag)
+    {
+        if (tag == "MusicPage" && ContentFrame.CurrentSourcePageType != typeof(MusicPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(MusicPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else if (tag == "NowPlayingPage" && ContentFrame.CurrentSourcePageType != typeof(NowPlayingPage))
+        {
+            NavigateToNowPlayingPage(true);
+        }
+        else if (tag == "NewsPage" && ContentFrame.CurrentSourcePageType != typeof(NewsPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(NewsPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else if (tag == "DownloadPage" && ContentFrame.CurrentSourcePageType != typeof(DownloadPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(DownloadPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else if (tag == "PlaylistPage" && ContentFrame.CurrentSourcePageType != typeof(PlaylistPage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(PlaylistPage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+        else if (tag == "FavoritePage" && ContentFrame.CurrentSourcePageType != typeof(FavoritePage))
+        {
+            ContentFrameNavigationHelper.Navigate(typeof(FavoritePage), transitionInfo: CommonValues.DefaultTransitionInfo);
+        }
+    }
+
+    /// <summary>
+    /// 改变导航视图的选择项。
+    /// </summary>
+    private void ChangeSelectedItemOfNavigationView()
+    {
+        Type currentSourcePageType = ContentFrame.CurrentSourcePageType;
+
+        if (currentSourcePageType == typeof(MusicPage) || currentSourcePageType == typeof(AlbumDetailPage))
+        {
+            NavigationView.SelectedItem = MusicPageItem;
+        }
+        else if (currentSourcePageType == typeof(NowPlayingPage))
+        {
+            NavigationView.SelectedItem = NowPlayingPageItem;
+        }
+        else if (currentSourcePageType == typeof(DownloadPage))
+        {
+            NavigationView.SelectedItem = DownloadPageItem;
+        }
+        else if (currentSourcePageType == typeof(PlaylistPage) || currentSourcePageType == typeof(PlaylistDetailPage))
+        {
+            NavigationView.SelectedItem = PlaylistPageItem;
+        }
+        else if (currentSourcePageType == typeof(NewsPage) || currentSourcePageType == typeof(NewsDetailPage))
+        {
+            NavigationView.SelectedItem = NewsPageItem;
+        }
+        else if (currentSourcePageType == typeof(SettingsPage))
+        {
+            NavigationView.SelectedItem = NavigationView.SettingsItem;
+        }
+        else if (currentSourcePageType == typeof(FavoritePage))
+        {
+            NavigationView.SelectedItem = FavoritePageItem;
+        }
+        else if (currentSourcePageType == typeof(SearchPage) || currentSourcePageType == typeof(UpdateInfoPage))
+        {
+            NavigationView.SelectedItem = null;
+        }
+#if DEBUG
+        else
+        {
+            Debugger.Break();
+        }
+#endif
+    }
+
+    internal static Visibility ShowDownloadItemInfoBadge(int count)
+    {
+        return XamlHelper.ToVisibility(count > 0);
     }
 }

@@ -447,6 +447,7 @@
 
                         <TextBlock
                             Grid.Column="1"
+                            HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             TextTrimming="CharacterEllipsis"
                             ToolTipService.ToolTip="{x:Bind Converter={StaticResource MediaPlaybackItemToMusicRelatedPropertiesConverter}, ConverterParameter='MusicAlbum'}">

@@ -9,6 +9,7 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:song="using:MonsterSiren.Api.Models.Song"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -31,6 +32,19 @@
                 CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
                 Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="AddToFavorite"
+                Command="{x:Bind ViewModel.AddSongToFavoriteCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="Favorite"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSelectedSongInfoContainsInFavorite), Mode=OneWay}" />
+            <MenuFlyoutItem
+                x:Uid="RemoveFromFavorite"
+                Command="{x:Bind ViewModel.RemoveSongFromFavoriteCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
+                Icon="UnFavorite"
+                Visibility="{x:Bind ViewModel.IsSelectedSongInfoContainsInFavorite, Mode=OneWay}" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForSongInfoCommand}"
@@ -65,6 +79,11 @@
                 Command="{x:Bind ViewModel.PlayNextForListViewSelectedItemCommand}"
                 Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem x:Uid="BatchAddToFavorite" Command="{x:Bind ViewModel.AddSongsToFavoriteForListViewSelectedItemCommand}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE728;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForListViewSelectedItemCommand}"

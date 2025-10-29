@@ -718,4 +718,28 @@ Continue?</value>
   <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
     <value>You can restore the default settings by clearing the text box.</value>
   </data>
+  <data name="AddToFavorite.Text" xml:space="preserve">
+    <value>Add to favorites</value>
+  </data>
+  <data name="RemoveFromFavorite.Text" xml:space="preserve">
+    <value>Remove from favorites</value>
+  </data>
+  <data name="BatchAddToFavorite.Text" xml:space="preserve">
+    <value>Batch add to favorites</value>
+  </data>
+  <data name="FavoriteTextBlock.Text" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="FavoriteNavViewItem.Content" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="SongFavoritePivotItem.Header" xml:space="preserve">
+    <value>Song favorites</value>
+  </data>
+  <data name="FavoriteEmpty.Text" xml:space="preserve">
+    <value>Favorites is empty</value>
+  </data>
+  <data name="AlbumFavoritePivotItem.Header" xml:space="preserve">
+    <value>Album favorites</value>
+  </data>
 </root>

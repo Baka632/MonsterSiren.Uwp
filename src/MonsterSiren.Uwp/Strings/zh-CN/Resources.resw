@@ -798,4 +798,28 @@
   <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
     <value>可以通过清空文本框来还原到默认设置。</value>
   </data>
+  <data name="AddToFavorite.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="RemoveFromFavorite.Text" xml:space="preserve">
+    <value>取消收藏</value>
+  </data>
+  <data name="FavoriteNavViewItem.Content" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="BatchAddToFavorite.Text" xml:space="preserve">
+    <value>批量收藏</value>
+  </data>
+  <data name="FavoriteTextBlock.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="SongFavoritePivotItem.Header" xml:space="preserve">
+    <value>歌曲收藏</value>
+  </data>
+  <data name="FavoriteEmpty.Text" xml:space="preserve">
+    <value>收藏为空</value>
+  </data>
+  <data name="AlbumFavoritePivotItem.Header" xml:space="preserve">
+    <value>专辑收藏</value>
+  </data>
 </root>

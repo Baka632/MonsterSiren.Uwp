@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -21,9 +22,12 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [ObservableProperty]
     private bool isSongsEmpty;
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedSongInfoContainsInFavorite))]
     private SongInfo selectedSongInfo;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
+
+    public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsItem(SelectedSongInfo); }
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -144,6 +148,20 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     }
 
     [RelayCommand]
+    private async Task AddSongToFavorite(SongInfo songInfo)
+    {
+        await CommonValues.AddToFavorite(songInfo, CurrentAlbumDetail);
+        OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
+    }
+
+    [RelayCommand]
+    private async Task RemoveSongFromFavorite(SongInfo songInfo)
+    {
+        await CommonValues.RemoveFromFavorite(songInfo);
+        OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
+    }
+
+    [RelayCommand]
     private async Task AddToPlaylistForSongInfo(Playlist playlist)
     {
         await CommonValues.AddToPlaylist(playlist, SelectedSongInfo, CurrentAlbumDetail);
@@ -248,6 +266,24 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         }
 
         bool isSuccess = await CommonValues.PlayNext(selectedItems, CurrentAlbumDetail);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddSongsToFavoriteForListViewSelectedItem()
+    {
+        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.AddToFavorite(selectedItems, CurrentAlbumDetail);
 
         if (isSuccess)
         {

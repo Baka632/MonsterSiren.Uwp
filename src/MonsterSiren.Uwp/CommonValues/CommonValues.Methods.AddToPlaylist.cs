@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp;
 
@@ -190,6 +191,59 @@ partial class CommonValues
             IAsyncEnumerable<(SongDetail, AlbumDetail)> items = GetSongDetailAlbumDetailPairs(packs, box);
             await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
             box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="SongFavoriteItem"/> 添加到指定的播放列表中。
+    /// </summary>
+    /// <param name="playlist">目标播放列表。</param>
+    /// <param name="favoriteItem">一个 <see cref="SongFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToPlaylist(Playlist playlist, SongFavoriteItem favoriteItem)
+    {
+        try
+        {
+            await PlaylistService.AddItemForPlaylistAsync(playlist, new PlaylistItem(favoriteItem.SongCid,
+                                                                                     favoriteItem.AlbumCid,
+                                                                                     favoriteItem.SongTitle,
+                                                                                     favoriteItem.AlbumTitle,
+                                                                                     favoriteItem.SongDuration));
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将 <see cref="SongFavoriteItem"/> 序列添加到指定的播放列表中。
+    /// </summary>
+    /// <param name="playlist">目标播放列表。</param>
+    /// <param name="songFavoriteItems"><see cref="SongFavoriteItem"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddToPlaylist(Playlist playlist, IEnumerable<SongFavoriteItem> songFavoriteItems)
+    {
+        if (!songFavoriteItems.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            SongFavoriteItem[] items = [.. songFavoriteItems];
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, items);
             return true;
         }
         catch (HttpRequestException)

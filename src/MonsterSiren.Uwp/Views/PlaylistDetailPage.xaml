@@ -31,6 +31,19 @@
                 CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
                 Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem
+                x:Uid="AddToFavorite"
+                Command="{x:Bind ViewModel.AddSongToFavoriteCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
+                Icon="Favorite"
+                Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSelectedItemContainsInFavorite), Mode=OneWay}" />
+            <MenuFlyoutItem
+                x:Uid="RemoveFromFavorite"
+                Command="{x:Bind ViewModel.RemoveSongFromFavoriteCommand}"
+                CommandParameter="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
+                Icon="UnFavorite"
+                Visibility="{x:Bind ViewModel.IsSelectedItemContainsInFavorite, Mode=OneWay}" />
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForItemCommand}"
@@ -70,6 +83,11 @@
                 Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
                 Icon="Forward" />
             <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+            <MenuFlyoutItem x:Uid="BatchAddToFavorite" Command="{x:Bind ViewModel.AddSongsToFavoriteForSelectedItemCommand}">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE728;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForSongListSelectedItemCommand}"
@@ -314,6 +332,7 @@
                         <TextBlock
                             Grid.Column="2"
                             Margin="0,0,5,0"
+                            HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             DataContext="{x:Bind}"
                             Loaded="OnAlbumTitleTextBlockLoaded"

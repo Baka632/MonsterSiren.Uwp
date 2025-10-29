@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -480,6 +481,53 @@ public static class PlaylistService
     /// 向指定的播放列表添加一组歌曲。
     /// </summary>
     /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="items">包含 <see cref="SongFavoriteItem"/> 项的集合。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<SongFavoriteItem> items)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        if (!items.Any())
+        {
+            return;
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (SongFavoriteItem item in items)
+                {
+                    PlaylistItem playlistItem = new(item.SongCid, item.AlbumCid, item.SongTitle, item.AlbumTitle, item.SongDuration); ;
+
+                    if (playlist.Items.Contains(playlistItem))
+                    {
+                        continue;
+                    }
+
+                    playlist.Items.Add(playlistItem);
+                }
+            });
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组歌曲。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
     /// <param name="tuples">包含 <see cref="SongDetail"/> 和 <see cref="AlbumDetail"/> 元组的集合。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="tuples"/> 为 <see langword="null"/>。</exception>
     public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<ValueTuple<SongDetail, AlbumDetail>> tuples)
@@ -663,7 +711,7 @@ public static class PlaylistService
     /// <param name="playlist">指定的播放列表。</param>
     /// <param name="items">包含 <see cref="PlaylistItem"/> 的集合。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
-    public static async Task RemoveItemsForPlaylist(Playlist playlist, IEnumerable<PlaylistItem> items)
+    public static async Task RemoveItemsForPlaylistAsync(Playlist playlist, IEnumerable<PlaylistItem> items)
     {
         if (playlist is null)
         {
@@ -694,7 +742,7 @@ public static class PlaylistService
     /// <param name="playlist">指定的播放列表。</param>
     /// <param name="songCid">歌曲 CID。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    public static void RemoveItemForPlaylist(Playlist playlist, string songCid)
+    public static async Task RemoveItemForPlaylistAsync(Playlist playlist, string songCid)
     {
         if (playlist is null)
         {
@@ -702,7 +750,18 @@ public static class PlaylistService
         }
 
         PlaylistItem targetItem = playlist.Items.FirstOrDefault(item => item.SongCid == songCid);
-        playlist.Items.Remove(targetItem);
+        await UIThreadHelper.RunOnUIThread(() => playlist.Items.Remove(targetItem));
+    }
+
+    /// <summary>
+    /// 检查指定的 <see cref="Playlist"/> 是否包含指定的 <see cref="PlaylistItem"/>。
+    /// </summary>
+    /// <param name="playlist">指定的 <see cref="Playlist"/>。</param>
+    /// <param name="item">指定的 <see cref="PlaylistItem"/>。</param>
+    /// <returns>指示指定项目是否包含在播放列表的值。</returns>
+    public static bool ContainsItem(Playlist playlist, PlaylistItem item)
+    {
+        return playlist.Items.Contains(item);
     }
 
     private static async Task RemovePlaylistFile(Playlist playlist, StorageDeleteOption deleteOption = StorageDeleteOption.PermanentDelete)
@@ -737,9 +796,9 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">播放列表实例。</param>
     /// <returns>指示播放列表中的项目是否全部有效的值。</returns>
-    public static async Task<bool> CheckPlaylistAndMarkInvaildItemAsync(Playlist playlist)
+    public static async Task<bool> CheckPlaylistAndMarkInvalidItemAsync(Playlist playlist)
     {
-        bool isAllVaild = true;
+        bool isAllValid = true;
 
         for (int i = 0; i < playlist.Items.Count; i++)
         {
@@ -753,11 +812,11 @@ public static class PlaylistService
             catch (ArgumentOutOfRangeException)
             {
                 await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-                isAllVaild = false;
+                isAllValid = false;
             }
         }
 
-        return isAllVaild;
+        return isAllValid;
     }
 
     private static string GetPlaylistFileName(string title)

@@ -4,9 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
-using Windows.Media.Playback;
 using Windows.UI.Xaml.Documents;
 
 namespace MonsterSiren.Uwp.Views;
@@ -104,9 +102,9 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// 通知运行时属性已经发生更改
+    /// 通知运行时属性已经发生更改。
     /// </summary>
-    /// <param name="propertyName">发生更改的属性名称,其填充是自动完成的</param>
+    /// <param name="propertyName">发生更改的属性名称，其填充是自动完成的。</param>
     public void OnPropertiesChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

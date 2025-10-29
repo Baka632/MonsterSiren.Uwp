@@ -206,9 +206,9 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 显示针对 <see cref="AggregateException"/> 的错误信息
+    /// 显示针对 <see cref="AggregateException"/> 的错误信息。
     /// </summary>
-    /// <param name="aggregate">指定的 <see cref="AggregateException"/></param>
+    /// <param name="aggregate">指定的 <see cref="AggregateException"/>。</param>
     private static async Task DisplayAggregateExceptionErrorDialog(AggregateException aggregate)
     {
         StringBuilder builder = new(aggregate.InnerExceptions.Count * 10);

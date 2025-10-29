@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="CommonValues\CommonValues.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.AddToNowPlaying.cs" />
+    <Compile Include="CommonValues\CommonValues.Methods.AddToFavorite.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.AddToPlaylist.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.Download.cs" />
@@ -148,6 +149,8 @@
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\ExceptionBox.cs" />
+    <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
+    <Compile Include="Models\Favorites\SongFavoriteList.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
@@ -155,6 +158,7 @@
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Models\Playlist.cs" />
     <Compile Include="Models\PlaylistItem.cs" />
+    <Compile Include="Services\FavoriteService.cs" />
     <Compile Include="Services\MediaCastService.cs" />
     <Compile Include="Services\DownloadService.cs" />
     <Compile Include="Services\MusicInfoService.cs" />
@@ -163,6 +167,8 @@
     <Compile Include="Services\PlaylistService.cs" />
     <Compile Include="ViewModels\AlbumDetailViewModel.cs" />
     <Compile Include="ViewModels\DownloadViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteParts\AlbumFavoriteSectionViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteParts\SongFavoriteSectionViewModel.cs" />
     <Compile Include="ViewModels\GlanceViewViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MusicViewModel.cs" />
@@ -185,6 +191,15 @@
     </Compile>
     <Compile Include="Views\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoritePageParts\AlbumFavoriteSection.xaml.cs">
+      <DependentUpon>AlbumFavoriteSection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoritePageParts\FavoritePage.xaml.cs">
+      <DependentUpon>FavoritePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoritePageParts\SongFavoriteSection.xaml.cs">
+      <DependentUpon>SongFavoriteSection.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GlanceViewPage.xaml.cs">
       <DependentUpon>GlanceViewPage.xaml</DependentUpon>
@@ -285,6 +300,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DownloadPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoritePageParts\AlbumFavoriteSection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoritePageParts\FavoritePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoritePageParts\SongFavoriteSection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

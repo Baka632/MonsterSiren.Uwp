@@ -1,53 +1,20 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
-namespace MonsterSiren.Uwp.Models;
+namespace MonsterSiren.Uwp.Models.Favorites;
 
-/// <summary>
-/// 表示一个播放列表。
-/// </summary>
-[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
+public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteList>
 {
     public event PropertyChangedEventHandler PropertyChanged;
-    private string _title;
-    private string _description;
     private Uri _playlistCoverImageUri;
     private bool isBlocking = false;
 
     /// <summary>
-    /// 播放列表的标题。
-    /// </summary>
-    public string Title
-    {
-        get => _title;
-        set
-        {
-            _title = value;
-            OnPropertiesChanged();
-        }
-    }
-
-    /// <summary>
-    /// 播放列表的描述。
-    /// </summary>
-    public string Description
-    {
-        get => _description;
-        set
-        {
-            _description = value;
-            OnPropertiesChanged();
-        }
-    }
-
-    /// <summary>
-    /// 播放列表的封面图。
+    /// 收藏夹的封面图。
     /// </summary>
     [JsonIgnore]
     public Uri PlaylistCoverImageUri
@@ -61,55 +28,31 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     }
 
     /// <summary>
-    /// 播放列表的总时长。
+    /// 收藏夹的总时长。
     /// </summary>
     public TimeSpan TotalDuration { get; private set; }
 
     /// <summary>
-    /// 播放列表的 ID。
-    /// </summary>
-    public Guid PlaylistId { get; private set; }
-
-    /// <summary>
-    /// 播放列表的保存名称。
-    /// </summary>
-    public string PlaylistSaveName { get; set; }
-
-    /// <summary>
-    /// 当前播放列表的歌曲个数。
+    /// 收藏夹的歌曲个数。
     /// </summary>
     [JsonIgnore]
     public int SongCount { get => Items.Count; }
 
     /// <summary>
-    /// 播放列表的歌曲列表。
+    /// 收藏夹的歌曲列表。
     /// </summary>
-    public ObservableCollection<PlaylistItem> Items { get; private set; } = [];
+    public ObservableCollection<SongFavoriteItem> Items { get; private set; } = [];
 
-    public Playlist(string title, string description)
+
+    public SongFavoriteList()
     {
-        _title = title;
-        _description = description;
-        PlaylistId = Guid.NewGuid();
-        PlaylistSaveName = CommonValues.ReplaceInvalidFileNameChars(title);
-        Items.CollectionChanged += OnItemCollectionChanged;
     }
 
     [JsonConstructor]
-    public Playlist(string title,
-                    string description,
-                    ObservableCollection<PlaylistItem> items,
-                    TimeSpan totalDuration,
-                    Guid playlistId,
-                    string playlistSaveName)
+    public SongFavoriteList(ObservableCollection<SongFavoriteItem> items,
+                    TimeSpan totalDuration)
     {
-        _title = title;
-        _description = description;
         TotalDuration = totalDuration;
-        PlaylistId = playlistId == Guid.Empty ? Guid.NewGuid() : playlistId;
-        PlaylistSaveName = string.IsNullOrWhiteSpace(playlistSaveName)
-            ? CommonValues.ReplaceInvalidFileNameChars(title)
-            : playlistSaveName;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;
         _ = SelectCoverImage();
@@ -135,13 +78,13 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
             await SelectCoverImage();
         }
 
-        await PlaylistService.SavePlaylistAsync(this);
+        await FavoriteService.SaveSongFavoriteList();
     }
 
     private TimeSpan CalculateTotalTimeSpan()
     {
         TimeSpan span = TimeSpan.Zero;
-        foreach (PlaylistItem item in Items)
+        foreach (SongFavoriteItem item in Items)
         {
             span += item.SongDuration;
         }
@@ -152,7 +95,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     {
         if (Items.Count > 0)
         {
-            PlaylistItem item = Items[0];
+            SongFavoriteItem item = Items[0];
 
             try
             {
@@ -180,7 +123,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         }
     }
 
-    public IEnumerator<PlaylistItem> GetEnumerator()
+    public IEnumerator<SongFavoriteItem> GetEnumerator()
     {
         return Items.GetEnumerator();
     }
@@ -197,15 +140,8 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         });
     }
 
-    private string GetDebuggerDisplay() => Title;
-
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as Playlist);
-    }
-
     /// <summary>
-    /// 阻止播放列表在其集合更新时更新自身信息。请务必在完成操作后调用 <see cref="RestoreInfoUpdateAsync"/> 方法。
+    /// 阻止收藏夹在其集合更新时更新自身信息。请务必在完成操作后调用 <see cref="RestoreInfoUpdateAsync"/> 方法。
     /// </summary>
     public void BlockInfoUpdate()
     {
@@ -213,7 +149,7 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
     }
 
     /// <summary>
-    /// 恢复播放列表更新自身信息的功能，并立刻无条件地进行一次信息更新。
+    /// 恢复收藏夹更新自身信息的功能，并立刻无条件地进行一次信息更新。
     /// </summary>
     public async Task RestoreInfoUpdateAsync()
     {
@@ -223,41 +159,40 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         OnPropertiesChanged(nameof(TotalDuration));
         OnPropertiesChanged(nameof(SongCount));
         await SelectCoverImage();
-        await PlaylistService.SavePlaylistAsync(this);
+
+        await FavoriteService.SaveSongFavoriteList();
     }
 
-    public bool Equals(Playlist other)
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as SongFavoriteList);
+    }
+
+    public bool Equals(SongFavoriteList other)
     {
         return other is not null &&
-               Title == other.Title &&
-               Description == other.Description &&
-               TotalDuration == other.TotalDuration &&
+               EqualityComparer<Uri>.Default.Equals(PlaylistCoverImageUri, other.PlaylistCoverImageUri) &&
+               TotalDuration.Equals(other.TotalDuration) &&
                SongCount == other.SongCount &&
-               PlaylistId == other.PlaylistId &&
-               PlaylistSaveName == other.PlaylistSaveName &&
-               Items.SequenceEqual(other.Items);
+               EqualityComparer<ObservableCollection<SongFavoriteItem>>.Default.Equals(Items, other.Items);
     }
 
     public override int GetHashCode()
     {
-        int hashCode = 1910073755;
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
+        int hashCode = 230909774;
         hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(PlaylistCoverImageUri);
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
-        hashCode = hashCode * -1521134295 + PlaylistId.GetHashCode();
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PlaylistSaveName);
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
-        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<PlaylistItem>>.Default.GetHashCode(Items);
+        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongFavoriteItem>>.Default.GetHashCode(Items);
         return hashCode;
     }
 
-    public static bool operator ==(Playlist left, Playlist right)
+    public static bool operator ==(SongFavoriteList left, SongFavoriteList right)
     {
-        return EqualityComparer<Playlist>.Default.Equals(left, right);
+        return EqualityComparer<SongFavoriteList>.Default.Equals(left, right);
     }
 
-    public static bool operator !=(Playlist left, Playlist right)
+    public static bool operator !=(SongFavoriteList left, SongFavoriteList right)
     {
         return !(left == right);
     }

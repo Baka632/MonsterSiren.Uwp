@@ -424,6 +424,7 @@ sealed partial class App : Application
         // 初始化设置
         await DownloadService.Initialize();
         await PlaylistService.Initialize();
+        await FavoriteService.Initialize();
 
         if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
         {

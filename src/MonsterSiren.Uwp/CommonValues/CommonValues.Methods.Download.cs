@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp;
 
@@ -224,5 +225,84 @@ partial class CommonValues
         }
 
         return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 启动下载收藏夹中歌曲的操作。
+    /// </summary>
+    /// <returns>指示下载是否完全成功的值。</returns>
+    public static async Task<bool> StartDownloadSongFavorites()
+    {
+        if (FavoriteService.SongFavoriteList.Items.Count <= 0)
+        {
+            return false;
+        }
+
+        bool isAllSuccess = await StartDownload(FavoriteService.SongFavoriteList.Items);
+        return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 启动下载 <see cref="SongFavoriteItem"/> 序列的操作。
+    /// </summary>
+    /// <param name="songFavoriteItems"><see cref="SongFavoriteItem"/> 序列。</param>
+    /// <returns>指示下载是否完全成功的值。</returns>
+    public static async Task<bool> StartDownload(IEnumerable<SongFavoriteItem> songFavoriteItems)
+    {
+        if (!songFavoriteItems.Any())
+        {
+            return false;
+        }
+
+        bool isAllSuccess = true;
+
+        foreach (SongFavoriteItem playlistItem in songFavoriteItems.ToArray())
+        {
+            try
+            {
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
+                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            }
+            catch (HttpRequestException)
+            {
+                await DisplayInternetErrorDialog();
+                isAllSuccess = false;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                await DisplaySongOrAlbumCidCorruptDialog();
+                isAllSuccess = false;
+            }
+        }
+
+        return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 启动下载 <see cref="SongFavoriteItem"/> 所表示播放列表项的操作。
+    /// </summary>
+    /// <param name="item">一个 <see cref="SongFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartDownload(SongFavoriteItem item)
+    {
+        try
+        {
+            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+            _ = DownloadService.DownloadSong(albumDetail, songDetail);
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            await DisplaySongOrAlbumCidCorruptDialog();
+        }
+
+        return false;
     }
 }

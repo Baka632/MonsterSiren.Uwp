@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp;
@@ -278,6 +279,99 @@ partial class CommonValues
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayAggregateExceptionErrorDialog(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放歌曲收藏夹中的歌曲。
+    /// </summary>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlaySongFavorites()
+    {
+        if (FavoriteService.SongFavoriteList.SongCount == 0)
+        {
+            await DisplayPlaylistEmptyDialog();
+        }
+        else
+        {
+            try
+            {
+                await FavoriteService.PlaySongFavoriteListAsync();
+
+                return true;
+            }
+            catch (AggregateException ex)
+            {
+                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+                await DisplayAggregateExceptionErrorDialog(ex);
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放一个 <see cref="SongFavoriteItem"/> 序列。
+    /// </summary>
+    /// <param name="songFavoriteItems">一个 <see cref="SongFavoriteItem"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlay(IEnumerable<SongFavoriteItem> songFavoriteItems)
+    {
+        if (!songFavoriteItems.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songFavoriteItems], box);
+            await MusicService.ReplaceMusic(items);
+            box.Unbox();
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放 <see cref="SongFavoriteItem"/> 所表示的收藏夹项。
+    /// </summary>
+    /// <param name="favoriteItem"><see cref="SongFavoriteItem"/> 所表示的收藏夹项。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlay(SongFavoriteItem favoriteItem)
+    {
+        try
+        {
+            MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(favoriteItem.SongCid);
+            MusicService.ReplaceMusic(item);
+
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            int targetIndex = FavoriteService.SongFavoriteList.Items.IndexOf(favoriteItem);
+            if (targetIndex != -1)
+            {
+                FavoriteService.SongFavoriteList.Items[targetIndex] = favoriteItem with { IsCorruptedItem = true };
+            }
+
+            await DisplaySongOrAlbumCidCorruptDialog();
         }
 
         return false;

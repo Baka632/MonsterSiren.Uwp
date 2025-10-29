@@ -17,6 +17,7 @@
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Loaded="OnMainPageLoaded"
     mc:Ignorable="d">
@@ -186,6 +187,13 @@
 
                 <muxc:NavigationViewItemSeparator />
 
+                <muxc:NavigationViewItem
+                    x:Name="FavoritePageItem"
+                    x:Uid="FavoriteNavViewItem"
+                    AccessKey="A"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    Icon="Favorite"
+                    Tag="FavoritePage" />
                 <muxc:NavigationViewItem
                     x:Name="PlaylistPageItem"
                     x:Uid="PlaylistNavViewItem"

@@ -1,3 +1,4 @@
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.Media.Playback;
 
 namespace MonsterSiren.Uwp;
@@ -299,6 +300,91 @@ partial class CommonValues
             }
 
             yield return item;
+        }
+    }
+
+    /// <summary>
+    /// 根据 <see cref="SongFavoriteList"/> 获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// </summary>
+    /// <param name="songFavorites"><see cref="SongFavoriteList"/> 实例。</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
+    /// <remarks>
+    /// 当收藏夹中存在无效项时，此方法会跳过无效项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(SongFavoriteList songFavorites, ExceptionBox box)
+    {
+        List<Exception> innerExceptions = new(5);
+
+        for (int i = 0; i < songFavorites.Items.Count; i++)
+        {
+            SongFavoriteItem item = songFavorites.Items[i];
+            MediaPlaybackItem playbackItem = null;
+
+            try
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+                playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.SongCid, albumDetail);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArgumentOutOfRangeException)
+                {
+                    await UIThreadHelper.RunOnUIThread(() => songFavorites.Items[i] = item with { IsCorruptedItem = true });
+                }
+
+                innerExceptions.Add(ex);
+            }
+
+            if (playbackItem is not null)
+            {
+                yield return playbackItem;
+            }
+        }
+
+        if (innerExceptions.Count > 0)
+        {
+            bool allFailed = songFavorites.Items.Count == innerExceptions.Count;
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
+            {
+                Data =
+                {
+                    ["AllFailed"] = allFailed,
+                    ["PlayItem"] = songFavorites,
+                }
+            };
+
+            box.InboxException = aggregate;
+        }
+    }
+
+    /// <summary>
+    /// 根据 <see cref="SongFavoriteItem"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// </summary>
+    /// <param name="songFavoriteItems"><see cref="SongFavoriteItem"/> 序列。</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(SongFavoriteItem[] songFavoriteItems, ExceptionBox box)
+    {
+        foreach (SongFavoriteItem item in songFavoriteItems)
+        {
+            MediaPlaybackItem playbackItem;
+
+            try
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+                playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.SongCid, albumDetail);
+            }
+            catch (Exception ex)
+            {
+                box.InboxException = ex;
+                yield break;
+            }
+
+            yield return playbackItem;
         }
     }
 }

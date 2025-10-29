@@ -64,6 +64,7 @@ internal static partial class CommonValues
     public const string MusicSongInfoAndAlbumDetailPacksFormatId = "Music_SongInfoAndAlbumDetailPacks_DataPackage_FormatId";
     public const string MusicPlaylistFormatId = "Music_Playlist_DataPackage_FormatId";
     public const string MusicPlaylistItemsFormatId = "Music_PlaylistItems_DataPackage_FormatId";
+    public const string MusicSongFavoriteItemsFormatId = "Music_SongFavoriteItems_DataPackage_FormatId";
     #endregion
 
     #region Other Common Things

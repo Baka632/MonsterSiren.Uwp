@@ -10,9 +10,12 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [ObservableProperty]
     private Playlist currentPlaylist;
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedItemContainsInFavorite))]
     private PlaylistItem selectedItem;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
+
+    public bool IsSelectedItemContainsInFavorite { get => FavoriteService.ContainsItem(SelectedItem); }
 
     public void Initialize(Playlist model)
     {
@@ -36,6 +39,20 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task AddItemToNowPlaying(PlaylistItem item)
     {
         await CommonValues.AddToNowPlaying(item, CurrentPlaylist);
+    }
+
+    [RelayCommand]
+    private async Task AddSongToFavorite(PlaylistItem item)
+    {
+        await CommonValues.AddToFavorite(item);
+        OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
+    }
+
+    [RelayCommand]
+    private async Task RemoveSongFromFavorite(PlaylistItem item)
+    {
+        await CommonValues.RemoveFromFavorite(item);
+        OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
     }
 
     [RelayCommand]
@@ -182,6 +199,18 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
+    private async Task AddSongsToFavoriteForSelectedItem()
+    {
+        List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
+        bool isSuccess = await CommonValues.AddToFavorite(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
     private async Task DownloadForSongListSelectedItem()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
@@ -203,7 +232,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
             return;
         }
 
-        await PlaylistService.RemoveItemsForPlaylist(CurrentPlaylist, selectedItems);
+        await PlaylistService.RemoveItemsForPlaylistAsync(CurrentPlaylist, selectedItems);
 
         StopMultipleSelection();
     }
