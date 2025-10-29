@@ -85,12 +85,13 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// 构造一个占位下载项，其不进行实际的下载操作。
     /// </summary>
     /// <param name="displayName">下载项的显示名称。</param>
-    public DownloadItem(string displayName)
+    /// <param name="state">下载项的状态。</param>
+    public DownloadItem(string displayName, DownloadItemState state)
     {
         Operation = null;
         CancelToken = null;
         DisplayName = displayName;
-        State = DownloadItemState.Skipped;
+        State = state;
         Progress = 1d;
     }
 

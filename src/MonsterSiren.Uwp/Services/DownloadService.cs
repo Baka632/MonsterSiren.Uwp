@@ -365,7 +365,7 @@ public static class DownloadService
 
             if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
             {
-                DownloadItem item = new(songTitle);
+                DownloadItem item = new(songTitle, DownloadItemState.Skipped);
                 await AddToList(item);
                 return;
             }
@@ -453,20 +453,19 @@ public static class DownloadService
             StorageFile musicFile = (StorageFile)operation.ResultFile;
             string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
             string musicName = Path.ChangeExtension(musicFile.DisplayName, null);
-            string infoFilePath = Path.Combine(albumFolderPath, $"{musicName}.json.tmp");
 
-            if (File.Exists(infoFilePath))
+            StorageFolder albumFolder = await StorageFolder.GetFolderFromPathAsync(albumFolderPath);
+            IStorageItem infoFile = await albumFolder.TryGetItemAsync($"{musicName}.json.tmp");
+
+            if (infoFile != null)
             {
-                StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
 
-            DirectoryInfo directoryInfo = new(albumFolderPath);
-            if (directoryInfo.Exists
-                && !directoryInfo.EnumerateDirectories().Any()
-                && !directoryInfo.EnumerateFiles().Any())
+            if (!(await albumFolder.GetFoldersAsync()).Any()
+                && !(await albumFolder.GetFilesAsync()).Any())
             {
-                directoryInfo.Delete();
+                await albumFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
         }
     }
