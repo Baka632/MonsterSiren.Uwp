@@ -92,6 +92,48 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 将文件夹名称中结尾的全部“.”替换为指定的非以“.”结尾的字符串，或直接删除结尾全部的“.”。
+    /// </summary>
+    /// <param name="folderName">文件夹名称。</param>
+    /// <param name="replaceString">替换字符串。当此参数为 <see langword="null"/> 时，则直接删除“.”字符。</param>
+    /// <returns>修改后的字符串，其前导及后导空白字符将被删除。</returns>
+    /// <exception cref="ArgumentException"><paramref name="folderName"/> 或 <paramref name="replaceString"/> 的值无效。</exception>
+    public static string RemoveOrReplaceDotEndingInFolderName(string folderName, string replaceString = null)
+    {
+        folderName = folderName?.Trim();
+        replaceString = replaceString?.Trim();
+
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            throw new ArgumentException($"“{nameof(folderName)}”不能为 null 或空白。", nameof(folderName));
+        }
+        else if (folderName.IndexOfAny(InvalidFileNameChars) != -1 || folderName.All(chr => chr == '.'))
+        {
+            throw new ArgumentException("文件夹名称无效。", nameof(folderName));
+        }
+        else if (!folderName.EndsWith('.'))
+        {
+            return folderName;
+        }
+        else if (replaceString != null &&
+            (replaceString.IndexOfAny(InvalidFileNameChars) != -1 || replaceString.EndsWith('.')))
+        {
+            throw new ArgumentException("替换字符串无效。", nameof(replaceString));
+        }
+
+        string newFolderName = folderName.TrimEnd('.');
+
+        if (string.IsNullOrWhiteSpace(replaceString))
+        {
+            return newFolderName;
+        }
+        else
+        {
+            return $"{newFolderName}{replaceString}";
+        }
+    }
+
+    /// <summary>
     /// 创建“添加到”的 <see cref="MenuFlyoutSubItem"/>。
     /// </summary>
     /// <param name="addToNowPlayingCommand">“添加到正在播放”命令。</param>

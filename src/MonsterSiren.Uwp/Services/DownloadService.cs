@@ -341,21 +341,25 @@ public static class DownloadService
             }
 
             string musicFileName = musicFileNameBuilder.ToString();
+            string musicAlbumFolderName = albumTitle;
 
             if (ReplaceInvalidCharInFileName)
             {
                 musicFileName = CommonValues.ReplaceInvalidFileNameChars(musicFileName);
+                musicAlbumFolderName = CommonValues.ReplaceInvalidFileNameChars(musicAlbumFolderName);
             }
             else
             {
                 foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
                 {
                     musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
+                    musicAlbumFolderName = musicAlbumFolderName.Replace(invalidCharStr, string.Empty);
                 }
             }
+            musicAlbumFolderName = CommonValues.RemoveOrReplaceDotEndingInFolderName(musicAlbumFolderName);
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
-            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name?.Trim(), CreationCollisionOption.OpenIfExists);
+            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(musicAlbumFolderName, CreationCollisionOption.OpenIfExists);
 
             string targetFileName = TranscodeDownloadedItem
                 ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
@@ -400,9 +404,10 @@ public static class DownloadService
         try
         {
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
+            item.State = DownloadItemState.Downloading;
+
             if (isNew)
             {
-                item.State = DownloadItemState.Downloading;
                 await operation.StartAsync().AsTask(cts.Token, progressCallback);
             }
             else

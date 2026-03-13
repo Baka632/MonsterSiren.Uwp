@@ -98,6 +98,15 @@ internal static partial class CommonValues
     /// </para>
     /// </summary>
     public static string[] InvalidFileNameCharsStringArray = [.. Path.GetInvalidFileNameChars().Select(chr => chr.ToString())];
+    /// <summary>
+    /// <para>
+    /// 保存不能作为文件名的字符的数组。
+    /// </para>
+    /// <para>
+    /// 此字段是为了缓存 <see cref="Path.GetInvalidFileNameChars"/> 的结果。
+    /// </para>
+    /// </summary>
+    public static char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
 
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()

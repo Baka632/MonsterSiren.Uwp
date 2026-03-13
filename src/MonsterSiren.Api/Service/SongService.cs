@@ -1,4 +1,4 @@
-﻿using MonsterSiren.Api.Models.Song;
+using MonsterSiren.Api.Models.Song;
 
 namespace MonsterSiren.Api.Service;
 
