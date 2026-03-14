@@ -287,79 +287,97 @@ public static class DownloadService
         foreach (DownloadOperation op in downloadsItem)
         {
             string name = op.ResultFile is StorageFile file ? file.DisplayName : op.ResultFile.Name;
-            _ = HandleDownloadOperation(op, name, false);
+            _ = HandleDownloadOperation(() => Task.FromResult(new DownloadItem(op, name)), name, false);
         }
 
         _isInitialized = true;
     }
 
     /// <summary>
-    /// 下载单个歌曲。
+    /// 创建歌曲下载任务，并排队。
     /// </summary>
     /// <param name="albumDetail">歌曲所属专辑信息。</param>
     /// <param name="songDetail">歌曲详细信息。</param>
     /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize"/> 方法。</exception>
-    public static async Task DownloadSong(AlbumDetail albumDetail, SongDetail songDetail)
+    public static void EnqueueSongDownload(AlbumDetail albumDetail, SongDetail songDetail)
     {
         if (_isInitialized != true)
         {
             throw new InvalidOperationException($"请先调用 {nameof(Initialize)} 方法");
         }
 
+        // TODO: 可能存在问题，如果旧 URI 失效而新 URI 替换，这是个问题。
         if (DownloadList.Any(item => songDetail.SourceUrl == item.Operation?.RequestedUri?.ToString()))
         {
             return;
         }
 
-        await Task.Run(async () =>
+        string defaultMsrName = "MSR".GetLocalized();
+        string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
+        CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
+
+        string albumTitle = albumDetail.Name?.Trim();
+        string songTitle = songDetail.Name?.Trim();
+        string artist = songDetail.Artists.FirstOrDefault()?.Trim() ?? defaultMsrName;
+        string artists = string.Join(',', songDetail.Artists);
+        if (string.IsNullOrWhiteSpace(artists))
         {
-            string defaultMsrName = "MSR".GetLocalized();
-            string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
-            CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
+            artists = defaultMsrName;
+        }
 
-            string albumTitle = albumDetail.Name?.Trim();
-            string songTitle = songDetail.Name?.Trim();
-            string artist = songDetail.Artists.FirstOrDefault()?.Trim() ?? defaultMsrName;
-            string artists = string.Join(',', songDetail.Artists);
-            if (string.IsNullOrWhiteSpace(artists))
+        StringBuilder musicFileNameBuilder = new(MusicFileTemplateString);
+        foreach (string template in CommonValues.MusicFilenamePartTemplates)
+        {
+            string content = template switch
             {
-                artists = defaultMsrName;
+                "{AlbumTitle}" => albumTitle,
+                "{SongTitle}" => songTitle,
+                "{Artist}" => artist,
+                "{Artists}" => artists,
+                _ => throw new NotImplementedException("未添加对指定文件名模板的支持。")
+            };
+            musicFileNameBuilder.Replace(template, content);
+        }
+
+        string musicFileName = musicFileNameBuilder.ToString();
+        string musicAlbumFolderName = albumTitle;
+
+        if (ReplaceInvalidCharInFileName)
+        {
+            musicFileName = CommonValues.ReplaceInvalidFileNameChars(musicFileName);
+            musicAlbumFolderName = CommonValues.ReplaceInvalidFileNameChars(musicAlbumFolderName);
+        }
+        else
+        {
+            foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
+            {
+                musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
+                musicAlbumFolderName = musicAlbumFolderName.Replace(invalidCharStr, string.Empty);
             }
+        }
+        musicAlbumFolderName = CommonValues.RemoveOrReplaceDotEndingInFolderName(musicAlbumFolderName);
 
-            StringBuilder musicFileNameBuilder = new(MusicFileTemplateString);
-            foreach (string template in CommonValues.MusicFilenamePartTemplates)
+        HandleDownloadOperation(CreateSongDownloadItem, songTitle, true).ContinueWith(async t =>
+        {
+            if (!t.IsFaulted && t.Result && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                string content = template switch
+                string lyricDownloadDisplayName = $"{songTitle} - {"LyricFile".GetLocalized()}";
+                await HandleDownloadOperation(CreateLyricDownloadItem, lyricDownloadDisplayName, true);
+
+                async Task<DownloadItem> CreateLyricDownloadItem()
                 {
-                    "{AlbumTitle}" => albumTitle,
-                    "{SongTitle}" => songTitle,
-                    "{Artist}" => artist,
-                    "{Artists}" => artists,
-                    _ => throw new NotImplementedException("未添加对指定文件名模板的支持。")
-                };
-                musicFileNameBuilder.Replace(template, content);
-            }
+                    StorageFolder albumFolder = await AcquireAlbumFolder();
 
-            string musicFileName = musicFileNameBuilder.ToString();
-            string musicAlbumFolderName = albumTitle;
-
-            if (ReplaceInvalidCharInFileName)
-            {
-                musicFileName = CommonValues.ReplaceInvalidFileNameChars(musicFileName);
-                musicAlbumFolderName = CommonValues.ReplaceInvalidFileNameChars(musicAlbumFolderName);
-            }
-            else
-            {
-                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
-                {
-                    musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
-                    musicAlbumFolderName = musicAlbumFolderName.Replace(invalidCharStr, string.Empty);
+                    StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", collisionOption);
+                    DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
+                    return new(lrcDownload, lyricDownloadDisplayName);
                 }
             }
-            musicAlbumFolderName = CommonValues.RemoveOrReplaceDotEndingInFolderName(musicAlbumFolderName);
+        });
 
-            StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
-            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(musicAlbumFolderName, CreationCollisionOption.OpenIfExists);
+        async Task<DownloadItem> CreateSongDownloadItem()
+        {
+            StorageFolder albumFolder = await AcquireAlbumFolder();
 
             string targetFileName = TranscodeDownloadedItem
                 ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
@@ -369,37 +387,61 @@ public static class DownloadService
 
             if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
             {
-                DownloadItem item = new(songTitle, DownloadItemState.Skipped);
-                await AddToList(item);
-                return;
+                return new DownloadItem(songTitle, DownloadItemState.Skipped);
             }
 
             StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
 
             StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", collisionOption);
             SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
-            Stream infoFileStream = await infoFile.OpenStreamForWriteAsync();
-            infoFileStream.Seek(0, SeekOrigin.Begin);
-            await JsonSerializer.SerializeAsync(infoFileStream, pack);
-            infoFileStream.Dispose();
+            using (Stream infoFileStream = await infoFile.OpenStreamForWriteAsync())
+            {
+                infoFileStream.Seek(0, SeekOrigin.Begin);
+                await JsonSerializer.SerializeAsync(infoFileStream, pack);
+            }
 
             DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-            bool isSuccess = await HandleDownloadOperation(musicDownload, songTitle, true);
+            DownloadItem downloadItem = new(musicDownload, songTitle);
 
-            if (isSuccess && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
-            {
-                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", collisionOption);
-                DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
-                await HandleDownloadOperation(lrcDownload, $"{songTitle} - {"LyricFile".GetLocalized()}", true);
-            }
-        });
+            return downloadItem;
+        }
+
+        async Task<StorageFolder> AcquireAlbumFolder()
+        {
+            StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
+            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(musicAlbumFolderName, CreationCollisionOption.OpenIfExists);
+
+            return albumFolder;
+        }
     }
 
-    private static async Task<bool> HandleDownloadOperation(DownloadOperation operation, string displayName, bool isNew)
+    private static async Task<bool> HandleDownloadOperation(Func<Task<DownloadItem>> downloadItemFactory, string displayName, bool isNew)
     {
-        CancellationTokenSource cts = new();
-        DownloadItem item = new(operation, displayName, cts);
+        DownloadItem item = null;
+
+        try
+        {
+            item = await downloadItemFactory();
+        }
+        catch (Exception ex)
+        {
+            DownloadItem faultItem = new(displayName, DownloadItemState.Error)
+            {
+                ErrorException = ex
+            };
+            await AddToList(faultItem);
+
+            return false;
+        }
+
+        CancellationTokenSource cts = item.CancelToken;
+        DownloadOperation operation = item.Operation;
         await AddToList(item);
+
+        if (item.State == DownloadItemState.Skipped)
+        {
+            return true;
+        }
 
         try
         {

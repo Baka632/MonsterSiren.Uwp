@@ -1,0 +1,33 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Mobile" />
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Files/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/MonsterSiren.Api.Test/MonsterSiren.Api.Test.csproj">
+    <BuildType Solution="Mobile|*" Project="Release" />
+  </Project>
+  <Project Path="src/MonsterSiren.Api/MonsterSiren.Api.csproj">
+    <BuildType Solution="Mobile|*" Project="Release" />
+  </Project>
+  <Project Path="src/MonsterSiren.Uwp/MonsterSiren.Uwp.csproj" Id="587df05f-ff6f-4e2e-bfdc-810cbbabf057">
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Platform Solution="*|ARM" Project="ARM" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
+</Solution>

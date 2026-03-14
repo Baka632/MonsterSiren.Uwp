@@ -73,12 +73,11 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     /// <param name="op">表示下载操作的 <see cref="DownloadOperation"/>。</param>
     /// <param name="displayName">下载项的显示名称。</param>
-    /// <param name="cancelToken">用于取消下载操作的 <see cref="CancellationTokenSource"/>。</param>
-    public DownloadItem(DownloadOperation op, string displayName, CancellationTokenSource cancelToken)
+    public DownloadItem(DownloadOperation op, string displayName)
     {
         Operation = op;
         DisplayName = displayName;
-        CancelToken = cancelToken;
+        CancelToken = new CancellationTokenSource();
     }
 
     /// <summary>

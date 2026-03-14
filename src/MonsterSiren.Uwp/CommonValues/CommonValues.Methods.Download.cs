@@ -19,7 +19,7 @@ partial class CommonValues
             foreach (SongInfo songInfo in albumDetail.Songs)
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
 
             return true;
@@ -48,7 +48,7 @@ partial class CommonValues
                 foreach (SongInfo songInfo in albumDetail.Songs)
                 {
                     SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                    _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                    DownloadService.EnqueueSongDownload(albumDetail, songDetail);
                 }
             }
 
@@ -79,7 +79,7 @@ partial class CommonValues
             foreach (SongInfo item in albumDetail.Songs)
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid);
-                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
 
             return true;
@@ -103,7 +103,7 @@ partial class CommonValues
         try
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-            _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             // TODO: 此处异常被吞噬，需要使用 W 的异常盒子
 
             return true;
@@ -134,7 +134,7 @@ partial class CommonValues
             foreach (SongInfo songInfo in songInfos.ToArray())
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
 
             return true;
@@ -158,7 +158,7 @@ partial class CommonValues
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-            _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
 
             return true;
         }
@@ -210,7 +210,7 @@ partial class CommonValues
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
                 AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
             catch (HttpRequestException)
             {
@@ -262,7 +262,7 @@ partial class CommonValues
             {
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
                 AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                _ = DownloadService.DownloadSong(albumDetail, songDetail);
+                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
             catch (HttpRequestException)
             {
@@ -290,7 +290,7 @@ partial class CommonValues
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
             AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-            _ = DownloadService.DownloadSong(albumDetail, songDetail);
+            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
 
             return true;
         }
