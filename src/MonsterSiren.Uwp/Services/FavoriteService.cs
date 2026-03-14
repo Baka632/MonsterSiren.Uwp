@@ -30,7 +30,8 @@ public static class FavoriteService
 
         try
         {
-            // TODO: 加上专辑
+            // TODO: 添加收藏备份功能。
+            // TODO: 加上专辑。
             if (SongFavoriteList is null)
             {
                 await InitializeSongFavoriteList();

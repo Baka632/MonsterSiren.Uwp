@@ -392,7 +392,11 @@ sealed partial class App : Application
 
         try
         {
+#if DEBUG
+            StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommandsDebug.xml");
+#else
             StorageFile vcdStorageFile = await Package.Current.InstalledLocation.GetFileAsync("MsrVoiceCommands.xml");
+#endif
             await VoiceCommandDefinitionManager.InstallCommandDefinitionsFromStorageFileAsync(vcdStorageFile);
         }
         catch (Exception ex)
