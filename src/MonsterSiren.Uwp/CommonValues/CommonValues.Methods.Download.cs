@@ -104,7 +104,6 @@ partial class CommonValues
         {
             SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
             DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-            // TODO: 此处异常被吞噬，需要使用 W 的异常盒子
 
             return true;
         }

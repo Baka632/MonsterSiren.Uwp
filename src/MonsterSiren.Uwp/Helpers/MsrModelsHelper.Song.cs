@@ -12,6 +12,9 @@ namespace MonsterSiren.Uwp.Helpers;
 /// </summary>
 public static partial class MsrModelsHelper
 {
+    private const string SongCidKey = "SongCid";
+    private const string AlbumCidKey = "AlbumCid";
+
     /// <summary>
     /// 尝试从 <see cref="MediaPlaybackItem"/> 中获取 <see cref="SongDetail"/>。
     /// </summary>
@@ -54,7 +57,7 @@ public static partial class MsrModelsHelper
     {
         if (string.IsNullOrWhiteSpace(songDetail.SourceUrl))
         {
-            throw new ArgumentNullException(nameof(songDetail), $"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。");
+            throw new ArgumentException($"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。", nameof(songDetail));
         }
 
         Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
@@ -77,8 +80,7 @@ public static partial class MsrModelsHelper
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
 
-        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
-        SetExtraSongAndAlbumCidForMusicProperties(displayProps.MusicProperties, albumDetail, songDetail);
+        SetExtraSongAndAlbumCidForMediaPlaybackItem(playbackItem, albumDetail, songDetail);
 
         Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
         displayProps.Thumbnail = fileCoverUri is not null
@@ -91,29 +93,34 @@ public static partial class MsrModelsHelper
 
         async void TryCacheSongDuration(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs e)
         {
-            if (sender.State == MediaSourceState.Opened && sender.Duration.HasValue)
+            try
             {
-                TimeSpan currentSpan = sender.Duration.Value;
-                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-
-                if (span != currentSpan)
+                if (sender.State == MediaSourceState.Opened && sender.Duration.HasValue)
                 {
-                    SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
+                    TimeSpan currentSpan = sender.Duration.Value;
+                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
 
-                    await semaphore.WaitAsync();
-                    try
+                    if (span != currentSpan)
                     {
-                        await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                        CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
+                        SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
+
+                        await semaphore.WaitAsync();
+                        try
+                        {
+                            await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                            CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
+                        }
                     }
                 }
             }
-
-            sender.OpenOperationCompleted -= TryCacheSongDuration;
+            finally
+            {
+                sender.OpenOperationCompleted -= TryCacheSongDuration;
+            }
         }
     }
 
@@ -294,28 +301,33 @@ public static partial class MsrModelsHelper
         }
     }
 
-    private static void SetExtraSongAndAlbumCidForMusicProperties(MusicDisplayProperties properties, AlbumDetail albumDetail, SongDetail songDetail)
+    private static void SetExtraSongAndAlbumCidForMediaPlaybackItem(MediaPlaybackItem item, AlbumDetail albumDetail, SongDetail songDetail)
     {
-        if (properties is null)
+        if (item is null)
         {
-            throw new ArgumentNullException(nameof(properties));
+            throw new ArgumentNullException(nameof(item));
+        }
+        else if (item.Source is null)
+        {
+            throw new ArgumentException("MediaPlaybackItem 的 Source 不能为空。", nameof(item));
         }
 
-        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
-        // 0 => Song CID
-        // 1 => Album CID
-        properties.Genres.Add(songDetail.Cid);
-        properties.Genres.Add(albumDetail.Cid);
+        MediaSource source = item.Source;
+        source.CustomProperties[SongCidKey] = songDetail.Cid;
+        source.CustomProperties[AlbumCidKey] = albumDetail.Cid;
     }
 
     private static bool TryGetSongCidFromMediaPlaybackItem(MediaPlaybackItem item, out string songCid)
     {
-        if (item is not null)
+        if (item is not null && item.Source is not null)
         {
-            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
-            songCid = props.Genres.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(songCid))
+            MediaSource source = item.Source;
+
+            if (source.CustomProperties.TryGetValue(SongCidKey, out object obj)
+                && obj is string str
+                && !string.IsNullOrWhiteSpace(str))
             {
+                songCid = str;
                 return true;
             }
         }
@@ -326,12 +338,15 @@ public static partial class MsrModelsHelper
 
     private static bool TryGetAlbumCidFromMediaPlaybackItem(MediaPlaybackItem item, out string albumCid)
     {
-        if (item is not null)
+        if (item is not null && item.Source is not null)
         {
-            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
-            albumCid = props.Genres.Skip(1).FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(albumCid))
+            MediaSource source = item.Source;
+
+            if (source.CustomProperties.TryGetValue(AlbumCidKey, out object obj)
+                && obj is string str
+                && !string.IsNullOrWhiteSpace(str))
             {
+                albumCid = str;
                 return true;
             }
         }
