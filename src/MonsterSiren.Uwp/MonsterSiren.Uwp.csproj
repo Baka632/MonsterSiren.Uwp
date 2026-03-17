@@ -238,6 +238,15 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsPageParts\AboutSection.xaml.cs">
+      <DependentUpon>AboutSection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageParts\DownloadSection.xaml.cs">
+      <DependentUpon>DownloadSection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageParts\PresentationSection.xaml.cs">
+      <DependentUpon>PresentationSection.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UpdateInfoPage.xaml.cs">
       <DependentUpon>UpdateInfoPage.xaml</DependentUpon>
     </Compile>
@@ -363,6 +372,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageParts\AboutSection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageParts\DownloadSection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageParts\PresentationSection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
