@@ -195,7 +195,7 @@
     <Compile Include="Views\FavoritePageParts\AlbumFavoriteSection.xaml.cs">
       <DependentUpon>AlbumFavoriteSection.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FavoritePageParts\FavoritePage.xaml.cs">
+    <Compile Include="Views\FavoritePage.xaml.cs">
       <DependentUpon>FavoritePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FavoritePageParts\SongFavoriteSection.xaml.cs">
@@ -319,7 +319,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoritePageParts\FavoritePage.xaml">
+    <Page Include="Views\FavoritePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,4 +1,4 @@
-namespace MonsterSiren.Uwp.Views.FavoritePageParts;
+namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
 /// 收藏页。
