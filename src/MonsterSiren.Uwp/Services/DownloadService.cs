@@ -25,6 +25,7 @@ public static class DownloadService
     private static bool _transcodeDownloadedItem = true;
     private static bool _replaceInvalidCharInFileName = true;
     private static bool _allowUnnecessaryTranscode = true;
+    private static bool _saveCoverFileWhenDownload;
     private static AudioFormat _transcodeFormat;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static string _musicFileTemplateString;
@@ -139,6 +140,19 @@ public static class DownloadService
     }
 
     /// <summary>
+    /// 指示是否在下载过程中保存专辑封面文件。
+    /// </summary>
+    public static bool SaveCoverFileWhenDownload
+    {
+        get => _saveCoverFileWhenDownload;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicSaveCoverFileWhenDownloadSettingsKey, value);
+            _saveCoverFileWhenDownload = value;
+        }
+    }
+
+    /// <summary>
     /// 获取或更改音乐文件的文件名模板。
     /// </summary>
     public static string MusicFileTemplateString
@@ -197,6 +211,11 @@ public static class DownloadService
         {
             AllowUnnecessaryTranscode = SettingsHelper.TryGet(CommonValues.MusicAllowUnnecessaryTranscodeSettingsKey, out bool unnecessaryTranscode)
                                     && unnecessaryTranscode;
+        }
+
+        {
+            SaveCoverFileWhenDownload = SettingsHelper.TryGet(CommonValues.MusicSaveCoverFileWhenDownloadSettingsKey, out bool saveCover)
+                                    && saveCover;
         }
 
         if (SettingsHelper.TryGet(CommonValues.MusicTranscodeFormatSettingsKey, out string formatString) && Enum.TryParse(formatString, out AudioFormat format))
@@ -524,6 +543,8 @@ public static class DownloadService
 
         if (sourceFile.ContentType.Contains("audio"))
         {
+            StorageFolder destinationFolder = await sourceFile.GetParentAsync();
+
             if (TranscodeDownloadedItem)
             {
                 dlItem.Progress = 0d;
@@ -535,8 +556,6 @@ public static class DownloadService
                     || TranscodeFormat == AudioFormat.Mp3
                     || AllowUnnecessaryTranscode)
                 {
-                    StorageFolder destinationFolder = await sourceFile.GetParentAsync();
-
                     string destinationFileExtensions = $".{TranscodeFormat.ToString().ToLower()}";
                     string destinationFileName = Path.ChangeExtension(sourceFile.Name, destinationFileExtensions);
 
@@ -560,54 +579,94 @@ public static class DownloadService
                     destinationFile = sourceFile;
                 }
 
-                await WriteTagsToFile(destinationFile, dlItem);
+                SongDetailAndAlbumDetailPack? pack = await AcquireMusicInfoAsync(destinationFile);
+                if (pack.HasValue)
+                {
+                    await WriteTagsToFile(destinationFile, dlItem, pack.Value);
+                    await TrySaveCoverFileAsync(pack.Value.AlbumDetail, destinationFolder);
+                }
             }
             else
             {
-                await WriteTagsToFile(sourceFile, dlItem);
+                SongDetailAndAlbumDetailPack? pack = await AcquireMusicInfoAsync(sourceFile);
+                if (pack.HasValue)
+                {
+                    await WriteTagsToFile(sourceFile, dlItem, pack.Value);
+                    await TrySaveCoverFileAsync(pack.Value.AlbumDetail, destinationFolder);
+                }
             }
         }
 
         dlItem.State = DownloadItemState.Done;
+
+        static async Task TrySaveCoverFileAsync(AlbumDetail albumDetail, StorageFolder destinationFolder)
+        {
+            if (SaveCoverFileWhenDownload)
+            {
+                Uri coverUri = await AcquireCoverUriAsync(albumDetail);
+
+                RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
+                using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
+                coverStream.Seek(0);
+
+                StorageFile file = await destinationFolder.CreateFileAsync("Cover.jpg", CreationCollisionOption.ReplaceExisting);
+                using IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                fileStream.Size = 0;
+
+                await RandomAccessStream.CopyAndCloseAsync(coverStream, fileStream);
+            }
+        }
+
+        static async Task<SongDetailAndAlbumDetailPack?> AcquireMusicInfoAsync(StorageFile musicFile)
+        {
+            string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
+            string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
+
+            StorageFile infoFile;
+            try
+            {
+                infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+            }
+            catch
+            {
+                return null;
+            }
+
+            try
+            {
+                using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
+                SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
+
+                return pack;
+            }
+            finally
+            {
+                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+        }
     }
 
-    private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem)
+    private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem, SongDetailAndAlbumDetailPack pack)
     {
         if (Path.GetExtension(musicFile.Name) == ".lrc")
         {
             return;
         }
 
-        string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
-        string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
-
-        StorageFile infoFile;
-        try
-        {
-            infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
-        }
-        catch
-        {
-            return;
-        }
-
         if (musicFile.ContentType == "audio/wav")
         {
-            // 给 WAV 写音乐信息会出现奇奇怪怪的问题
-            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            // 给 WAV 写音乐信息会出现奇奇怪怪的问题。
             return;
         }
 
         dlItem.State = DownloadItemState.WritingTag;
 
-        using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
-        SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
         AlbumDetail albumDetail = pack.AlbumDetail;
         SongDetail songDetail = pack.SongDetail;
         using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
         using TagLib.File file = TagLib.File.Create(uwpStorageFile);
 
-        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
+        Uri coverUri = await AcquireCoverUriAsync(albumDetail);
         try
         {
             string defaultMsrName = "MSR".GetLocalized();
@@ -619,15 +678,12 @@ public static class DownloadService
             file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? defaultMsrName];
             file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
 
-            TagLib.Picture picture;
-            coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
-
             RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
             using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
-
             coverStream.Seek(0);
             using Stream stream = coverStream.AsStreamForRead();
-            picture = new(TagLib.ByteVector.FromStream(stream))
+
+            TagLib.Picture picture = new(TagLib.ByteVector.FromStream(stream))
             {
                 MimeType = "image/jpeg"
             };
@@ -636,8 +692,15 @@ public static class DownloadService
         finally
         {
             file.Save();
-            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
+    }
+
+    private static async Task<Uri> AcquireCoverUriAsync(AlbumDetail albumDetail)
+    {
+        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
+        coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+
+        return coverUri;
     }
 
     private static async Task AddToList(DownloadItem item)

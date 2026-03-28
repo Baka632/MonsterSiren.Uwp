@@ -75,6 +75,9 @@
                 <controls:SettingsCard x:Uid="SettingsPage_DownloadLyric">
                     <ToggleSwitch IsOn="{x:Bind ViewModel.DownloadLyric, Mode=TwoWay}" />
                 </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="SettingsPage_DownloadCoverFile">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.SaveCoverFileWhenDownload, Mode=TwoWay}" />
+                </controls:SettingsCard>
                 <controls:SettingsCard x:Uid="SettingsPage_EnableTranscode">
                     <ToggleSwitch IsEnabled="{x:Bind services:DownloadService.IsSupportCommonTranscode}" IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
                 </controls:SettingsCard>

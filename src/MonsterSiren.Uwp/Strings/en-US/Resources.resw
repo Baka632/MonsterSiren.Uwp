@@ -742,4 +742,10 @@ Continue?</value>
   <data name="AlbumFavoritePivotItem.Header" xml:space="preserve">
     <value>Album favorites</value>
   </data>
+  <data name="SettingsPage_DownloadCoverFile.Header" xml:space="preserve">
+    <value>Download album cover</value>
+  </data>
+  <data name="SettingsPage_DownloadCoverFile.Description" xml:space="preserve">
+    <value>When this option is enabled, the album cover will additionally be saved in the album folder.</value>
+  </data>
 </root>

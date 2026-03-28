@@ -37,6 +37,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool transcodeDownloadedMusic = DownloadService.TranscodeDownloadedItem;
     [ObservableProperty]
+    private bool saveCoverFileWhenDownload = DownloadService.SaveCoverFileWhenDownload;
+    [ObservableProperty]
     private bool replaceInvalidCharInDownloadedFileName = DownloadService.ReplaceInvalidCharInFileName;
     [ObservableProperty]
     private int selectedAudioFormatIndex = -1;
@@ -265,6 +267,11 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnAllowUnnecessaryTranscodeChanged(bool value)
     {
         DownloadService.AllowUnnecessaryTranscode = value;
+    }
+
+    partial void OnSaveCoverFileWhenDownloadChanged(bool value)
+    {
+        DownloadService.SaveCoverFileWhenDownload = value;
     }
 
     partial void OnMusicFileTemplateStringChanged(string value)
