@@ -73,32 +73,65 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string musicFileTemplateString = DownloadService.MusicFileTemplateString;
     [ObservableProperty]
+    private string musicAlbumFolderNameTemplateString = DownloadService.MusicAlbumFolderNameTemplateString;
+    [ObservableProperty]
     private string musicFilePartsTemplateExplainText;
+    [ObservableProperty]
+    private string musicAlbumFolderNamePartsTemplateExplainText;
 
     public void Initialize()
     {
-        StringBuilder templateExplainTextBuilder = new(CommonValues.MusicFilenamePartTemplates.Length + (CommonValues.MusicFilenamePartTemplates.Length * 10));
-        for (int i = 0; i < CommonValues.MusicFilenamePartTemplates.Length; i++)
+        #region Explain Text
         {
-            string template = CommonValues.MusicFilenamePartTemplates[i];
-            templateExplainTextBuilder.Append(template);
-            templateExplainTextBuilder.Append(": ");
-            string content = template switch
+            StringBuilder musicFileTemplateExplainTextBuilder = new(CommonValues.MusicFilenamePartTemplates.Length + (CommonValues.MusicFilenamePartTemplates.Length * 10));
+            for (int i = 0; i < CommonValues.MusicFilenamePartTemplates.Length; i++)
             {
-                "{AlbumTitle}" => "AlbumTitleText".GetLocalized(),
-                "{SongTitle}" => "SongTitleText".GetLocalized(),
-                "{Artist}" => "ArtistText".GetLocalized(),
-                "{Artists}" => "ArtistsText".GetLocalized(),
-                _ => throw new NotImplementedException("未添加对指定文件名模板的支持。"),
-            };
+                string template = CommonValues.MusicFilenamePartTemplates[i];
+                musicFileTemplateExplainTextBuilder.Append(template);
+                musicFileTemplateExplainTextBuilder.Append(": ");
+                string content = template switch
+                {
+                    "{AlbumTitle}" => "AlbumTitleText".GetLocalized(),
+                    "{SongTitle}" => "SongTitleText".GetLocalized(),
+                    "{Artist}" => "ArtistText".GetLocalized(),
+                    "{Artists}" => "ArtistsText".GetLocalized(),
+                    _ => throw new NotImplementedException("未添加对指定文件名模板的支持。"),
+                };
 
-            templateExplainTextBuilder.Append(content);
-            if (i + 1 < CommonValues.MusicFilenamePartTemplates.Length)
-            {
-                templateExplainTextBuilder.AppendLine();
+                musicFileTemplateExplainTextBuilder.Append(content);
+                if (i + 1 < CommonValues.MusicFilenamePartTemplates.Length)
+                {
+                    musicFileTemplateExplainTextBuilder.AppendLine();
+                }
             }
+            MusicFilePartsTemplateExplainText = musicFileTemplateExplainTextBuilder.ToString();
         }
-        MusicFilePartsTemplateExplainText = templateExplainTextBuilder.ToString();
+
+        {
+            StringBuilder musicAlbumFolderTemplateExplainTextBuilder = new(CommonValues.MusicAlbumFolderNamePartTemplates.Length + (CommonValues.MusicAlbumFolderNamePartTemplates.Length * 10));
+            for (int i = 0; i < CommonValues.MusicAlbumFolderNamePartTemplates.Length; i++)
+            {
+                string template = CommonValues.MusicAlbumFolderNamePartTemplates[i];
+                musicAlbumFolderTemplateExplainTextBuilder.Append(template);
+                musicAlbumFolderTemplateExplainTextBuilder.Append(": ");
+                string content = template switch
+                {
+                    "{AlbumTitle}" => "AlbumTitleText".GetLocalized(),
+                    "{Artist}" => "ArtistText".GetLocalized(),
+                    "{Artists}" => "ArtistsText".GetLocalized(),
+                    "{SongIndexOneStart}" => "SongIndexOneStartText".GetLocalized(),
+                    _ => throw new NotImplementedException("未添加对指定文件夹名模板的支持。"),
+                };
+
+                musicAlbumFolderTemplateExplainTextBuilder.Append(content);
+                if (i + 1 < CommonValues.MusicAlbumFolderNamePartTemplates.Length)
+                {
+                    musicAlbumFolderTemplateExplainTextBuilder.AppendLine();
+                }
+            }
+            MusicAlbumFolderNamePartsTemplateExplainText = musicAlbumFolderTemplateExplainTextBuilder.ToString();
+        }
+        #endregion
 
         #region Transcoding
         List<AudioFormat> formats = [AudioFormat.Mp3, AudioFormat.Flac];
@@ -303,6 +336,40 @@ public partial class SettingsViewModel : ObservableObject
             else
             {
                 MusicFileTemplateString = value;
+            }
+        }
+    }
+
+    partial void OnMusicAlbumFolderNameTemplateStringChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            MusicAlbumFolderNameTemplateString = CommonValues.DefaultMusicAlbumFolderNameTemplate;
+        }
+        else
+        {
+            string rawValue = value;
+
+            if (ReplaceInvalidCharInDownloadedFileName)
+            {
+                value = CommonValues.ReplaceInvalidFileNameChars(value);
+            }
+            else
+            {
+                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
+                {
+                    value = value.Replace(invalidCharStr, string.Empty);
+                }
+            }
+            value = CommonValues.RemoveOrReplaceDotEndingInFolderName(value);
+
+            if (rawValue == value)
+            {
+                DownloadService.MusicAlbumFolderNameTemplateString = value;
+            }
+            else
+            {
+                MusicAlbumFolderNameTemplateString = value;
             }
         }
     }

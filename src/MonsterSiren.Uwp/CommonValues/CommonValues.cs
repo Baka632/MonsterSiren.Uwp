@@ -44,6 +44,7 @@ internal static partial class CommonValues
     public const string MusicReplaceInvalidCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvalidCharInFileName_SettingsKey";
     public const string MusicAllowUnnecessaryTranscodeSettingsKey = "Download_AllowUnnecessaryTranscode_SettingsKey";
     public const string MusicFileTemplateStringSettingsKey = "Download_MusicFileTemplateStringSettingsKey_SettingsKey";
+    public const string MusicAlbumFolderTemplateStringSettingsKey = "Download_MusicAlbumFolderTemplateStringSettingsKey_SettingsKey";
     public const string MusicSaveCoverFileWhenDownloadSettingsKey = "Download_SaveCoverFileWhenDownload_SettingsKey";
 
     public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
@@ -135,6 +136,14 @@ internal static partial class CommonValues
             "{SongTitle}",
             "{Artist}",
             "{Artists}",
+        ];
+
+    public const string DefaultMusicAlbumFolderNameTemplate = "{AlbumTitle}";
+    public static readonly string[] MusicAlbumFolderNamePartTemplates = [
+            "{AlbumTitle}",
+            "{Artist}",
+            "{Artists}",
+            "{SongIndexOneStart}",
         ];
     #endregion
 }

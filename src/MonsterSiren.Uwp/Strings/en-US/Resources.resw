@@ -748,4 +748,16 @@ Continue?</value>
   <data name="SettingsPage_DownloadCoverFile.Description" xml:space="preserve">
     <value>When this option is enabled, the album cover will additionally be saved in the album folder.</value>
   </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Header" xml:space="preserve">
+    <value>Album folder name format</value>
+  </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Description" xml:space="preserve">
+    <value>You can restore the default settings by clearing the text box.</value>
+  </data>
+  <data name="SongIndexText" xml:space="preserve">
+    <value>Song index (0-based)</value>
+  </data>
+  <data name="SongIndexOneStartText" xml:space="preserve">
+    <value>Song index (1-based)</value>
+  </data>
 </root>
