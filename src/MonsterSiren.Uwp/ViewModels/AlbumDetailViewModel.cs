@@ -1,5 +1,5 @@
 using System.Net.Http;
-using MonsterSiren.Uwp.Models;
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -27,7 +27,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
-    public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsItem(SelectedSongInfo); }
+    public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -86,6 +86,46 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             // 之后再去查完全准确的 AlbumInfo
             CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
                 .Single(info => info.Cid == albumDetail.Cid);
+
+            ErrorVisibility = Visibility.Collapsed;
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorVisibility = Visibility.Visible;
+            ErrorInfo = new ErrorInfo()
+            {
+                Title = "ErrorOccurred".GetLocalized(),
+                Message = "InternetErrorMessage".GetLocalized(),
+                Exception = ex
+            };
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public async Task Initialize(AlbumFavoriteItem favoriteItem)
+    {
+        IsLoading = true;
+        SelectedSongListItemContextFlyout = view.SongContextFlyout;
+
+        try
+        {
+            CurrentAlbumInfo = new(favoriteItem.AlbumCid,
+                                   favoriteItem.AlbumName,
+                                   string.Empty,
+                                   string.Empty,
+                                   string.Empty,
+                                   string.Empty,
+                                   favoriteItem.Artistes);
+            
+            CurrentAlbumDetail = await MsrModelsHelper.GetAlbumDetailAsync(favoriteItem.AlbumCid);
+            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+
+            // 之后再去查完全准确的 AlbumInfo
+            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                .Single(info => info.Cid == favoriteItem.AlbumCid);
 
             ErrorVisibility = Visibility.Collapsed;
         }

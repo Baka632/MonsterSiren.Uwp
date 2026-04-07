@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp;
 
@@ -372,20 +373,6 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 为指定的 <see cref="Image"/> 加载并缓存专辑封面。
-    /// </summary>
-    /// <param name="image">指定的 <see cref="Image"/> 实例。</param>
-    public static async Task LoadAndCacheMusicCover(Image image, AlbumInfo info)
-    {
-        if (image.Source is not BitmapImage bitmapImage)
-        {
-            bitmapImage = new BitmapImage();
-            image.Source = bitmapImage;
-        }
-        await LoadAndCacheMusicCoverCore(bitmapImage, info, () => ReferenceEquals(image.Source, bitmapImage) && (AlbumInfo)image.DataContext == info);
-    }
-
-    /// <summary>
     /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
     /// </summary>
     /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
@@ -404,7 +391,7 @@ partial class CommonValues
             };
         }
 
-        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info, () => (AlbumInfo)image.DataContext == info);
+        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info.CoverUrl, info.Cid, () => (AlbumInfo)image.DataContext == info);
 
         lock (image)
         {
@@ -415,7 +402,38 @@ partial class CommonValues
         }
     }
 
-    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info, Func<bool> detectCanUpdateSource)
+    /// <summary>
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumFavoriteItem item)
+    {
+        bool needModifySource = false;
+
+        if (image.Source is not BitmapImage bitmapImage)
+        {
+            needModifySource = true;
+            bitmapImage = new BitmapImage()
+            {
+                DecodePixelHeight = 250,
+                DecodePixelType = DecodePixelType.Logical,
+                DecodePixelWidth = 250
+            };
+        }
+
+        AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, detail.CoverUrl, detail.Cid, () => (AlbumFavoriteItem)image.DataContext == item);
+
+        lock (image)
+        {
+            if (needModifySource && isSuccess)
+            {
+                image.Source = bitmapImage;
+            }
+        }
+    }
+
+    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, string coverUrl, string albumCid, Func<bool> detectCanUpdateSource)
     {
         if (bitmapImage is null)
         {
@@ -429,7 +447,7 @@ partial class CommonValues
 
         try
         {
-            Uri fileCoverUri = await GetMusicCoverUriCore(info.Cid, info);
+            Uri fileCoverUri = await GetMusicCoverUriCore(coverUrl, albumCid);
 
             if (detectCanUpdateSource())
             {
@@ -458,7 +476,7 @@ partial class CommonValues
         return false;
     }
 
-    private static async Task<Uri> GetMusicCoverUriCore(string albumCid, AlbumInfo info)
+    private static async Task<Uri> GetMusicCoverUriCore(string coverUrl, string albumCid)
     {
         Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumCid);
         if (fileCoverUri is null)
@@ -466,7 +484,7 @@ partial class CommonValues
             await _LoadAndCacheAlbumSemaphore.WaitAsync();
             try
             {
-                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverAsync(info));
+                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverByUriAndCid(coverUrl, albumCid));
             }
             finally
             {

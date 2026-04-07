@@ -253,4 +253,51 @@ partial class CommonValues
 
         return false;
     }
+
+    /// <summary>
+    /// 将 <see cref="AlbumFavoriteItem"/> 中的全部歌曲添加到指定的播放列表中。
+    /// </summary>
+    /// <param name="playlist">目标播放列表。</param>
+    /// <param name="albumItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToPlaylist(Playlist playlist, AlbumFavoriteItem albumItem)
+    {
+        try
+        {
+            await PlaylistService.AddItemForPlaylistAsync(playlist, albumItem);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将 <see cref="AlbumFavoriteItem"/> 序列中的全部歌曲添加到指定的播放列表中。
+    /// </summary>
+    /// <param name="playlist">目标播放列表。</param>
+    /// <param name="albumItems"><see cref="AlbumFavoriteItem"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddToPlaylist(Playlist playlist, IEnumerable<AlbumFavoriteItem> albumItems)
+    {
+        if (albumItems == null || !albumItems.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, albumItems);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
 }

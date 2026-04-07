@@ -110,6 +110,8 @@ internal static partial class CommonValues
     /// </summary>
     public static char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
 
+    public static readonly int TooManyItemThresholdCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+
     public readonly static string SongCountFormat = "SongsCount".GetLocalized();
     public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {

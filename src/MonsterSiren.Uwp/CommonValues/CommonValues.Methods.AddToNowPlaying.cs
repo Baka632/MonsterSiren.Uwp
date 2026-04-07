@@ -430,4 +430,120 @@ partial class CommonValues
 
         return false;
     }
+
+    /// <summary>
+    /// 将一个 <see cref="AlbumFavoriteItem"/> 中的全部歌曲添加到正在播放列表中。
+    /// </summary>
+    /// <param name="favoriteItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddToNowPlaying(AlbumFavoriteItem favoriteItem)
+    {
+        try
+        {
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(favoriteItem.AlbumCid);
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
+            await MusicService.AddMusic(items);
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            AlbumFavoriteList albumFavoriteList = FavoriteService.AlbumFavoriteList;
+
+            int targetIndex = albumFavoriteList.Items.IndexOf(favoriteItem);
+            if (targetIndex != -1)
+            {
+                await UIThreadHelper.RunOnUIThread(() =>
+                {
+                    albumFavoriteList.Items[targetIndex] = favoriteItem with { IsCorruptedItem = true };
+                });
+            }
+
+            await DisplaySongOrAlbumCidCorruptDialog();
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionErrorDialog(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将 <see cref="AlbumFavoriteItem"/> 序列中的全部歌曲添加到正在播放列表中。
+    /// </summary>
+    /// <param name="favoriteItems"><see cref="AlbumFavoriteItem"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<AlbumFavoriteItem> favoriteItems)
+    {
+        AlbumFavoriteItem[] itemsArray = [.. favoriteItems];
+        if (itemsArray.Length == 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(itemsArray, box);
+            await MusicService.AddMusic(items);
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            if (itemsArray.Length == 1)
+            {
+                await DisplaySongOrAlbumCidCorruptDialog();
+            }
+            else
+            {
+                await DisplaySomeSongOrAlbumCidCorruptDialog();
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将专辑收藏夹添加到正在播放列表中。
+    /// </summary>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddAlbumFavoriteToNowPlaying()
+    {
+        if (FavoriteService.AlbumFavoriteList.Items.Count == 0)
+        {
+            await DisplayPlaylistEmptyDialog();
+            return false;
+        }
+
+        try
+        {
+            await FavoriteService.AddAlbumFavoriteListToNowPlayingAsync();
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionErrorDialog(ex);
+        }
+
+        return false;
+    }
 }

@@ -160,6 +160,25 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     private async Task AddSongListSelectedItemToPlaylist(Playlist playlist)
     {
         List<SongFavoriteItem> selectedItems = GetSelectedItem(view.SongList);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
+        {
+            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                StopSongListMultipleSelection();
+                return;
+            }
+        }
+
         await CommonValues.AddToPlaylist(playlist, selectedItems);
     }
 
@@ -182,6 +201,25 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     private async Task DownloadForSongListSelectedItem()
     {
         List<SongFavoriteItem> selectedItems = GetSelectedItem(view.SongList);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
+        {
+            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "DownloadTooManyItemMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                StopSongListMultipleSelection();
+                return;
+            }
+        }
+
         bool isAllSuccess = await CommonValues.StartDownload(selectedItems);
 
         if (isAllSuccess)

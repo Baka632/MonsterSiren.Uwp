@@ -149,6 +149,8 @@
     <Compile Include="Models\ErrorInfo.cs" />
     <Compile Include="Models\CustomObservableCollection.cs" />
     <Compile Include="Models\ExceptionBox.cs" />
+    <Compile Include="Models\Favorites\AlbumFavoriteItem.cs" />
+    <Compile Include="Models\Favorites\AlbumFavoriteList.cs" />
     <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
     <Compile Include="Models\Favorites\SongFavoriteList.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />

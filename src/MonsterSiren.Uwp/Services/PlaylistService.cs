@@ -690,6 +690,144 @@ public static class PlaylistService
     }
 
     /// <summary>
+    /// 向指定的播放列表添加专辑收藏项（将该专辑内的所有歌曲添加到播放列表）。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="albumItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="albumItem"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemForPlaylistAsync(Playlist playlist, AlbumFavoriteItem albumItem)
+    {
+        if (playlist is null)
+            throw new ArgumentNullException(nameof(playlist));
+
+        await AddItemsForPlaylistAsync(playlist, new[] { albumItem });
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组专辑收藏项（将每个专辑内的所有歌曲添加到播放列表）。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="items">包含 <see cref="AlbumFavoriteItem"/> 的集合。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<AlbumFavoriteItem> items)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        List<AlbumFavoriteItem> albumItems = items.ToList();
+        if (albumItems.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+
+            foreach (AlbumFavoriteItem albumItem in albumItems)
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+
+                if (albumDetail.Songs == null)
+                {
+                    continue;
+                }
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                    TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
+
+                    PlaylistItem playlistItem = new(
+                        songInfo.Cid,
+                        albumDetail.Cid,
+                        songInfo.Name,
+                        albumDetail.Name,
+                        duration ?? TimeSpan.Zero);
+
+                    await UIThreadHelper.RunOnUIThread(() =>
+                    {
+                        if (!playlist.Items.Contains(playlistItem))
+                        {
+                            playlist.Items.Add(playlistItem);
+                        }
+                    });
+                }
+            }
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 向指定的播放列表添加一组专辑收藏项。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="items">包含 <see cref="AlbumFavoriteItem"/> 的异步集合。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
+    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<AlbumFavoriteItem> items)
+    {
+        if (playlist is null)
+        {
+            throw new ArgumentNullException(nameof(playlist));
+        }
+
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        try
+        {
+            playlist.BlockInfoUpdate();
+
+            await foreach (AlbumFavoriteItem albumItem in items)
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+
+                if (albumDetail.Songs == null)
+                {
+                    continue;
+                }
+
+                foreach (SongInfo songInfo in albumDetail.Songs)
+                {
+                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                    TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
+
+                    PlaylistItem playlistItem = new(
+                        songInfo.Cid,
+                        albumDetail.Cid,
+                        songInfo.Name,
+                        albumDetail.Name,
+                        duration ?? TimeSpan.Zero);
+
+                    await UIThreadHelper.RunOnUIThread(() =>
+                    {
+                        if (!playlist.Items.Contains(playlistItem))
+                        {
+                            playlist.Items.Add(playlistItem);
+                        }
+                    });
+                }
+            }
+        }
+        finally
+        {
+            await playlist.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
     /// 在指定的播放列表中移除歌曲。
     /// </summary>
     /// <param name="playlist">指定的播放列表。</param>

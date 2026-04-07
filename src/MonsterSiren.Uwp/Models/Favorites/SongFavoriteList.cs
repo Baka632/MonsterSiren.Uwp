@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
@@ -10,22 +9,7 @@ namespace MonsterSiren.Uwp.Models.Favorites;
 public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteList>
 {
     public event PropertyChangedEventHandler PropertyChanged;
-    private Uri _playlistCoverImageUri;
     private bool isBlocking = false;
-
-    /// <summary>
-    /// 收藏夹的封面图。
-    /// </summary>
-    [JsonIgnore]
-    public Uri PlaylistCoverImageUri
-    {
-        get => _playlistCoverImageUri;
-        set
-        {
-            _playlistCoverImageUri = value;
-            OnPropertiesChanged();
-        }
-    }
 
     /// <summary>
     /// 收藏夹的总时长。
@@ -55,7 +39,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
         TotalDuration = totalDuration;
         Items = items;
         Items.CollectionChanged += OnItemCollectionChanged;
-        _ = SelectCoverImage();
     }
 
     private async void OnItemCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -73,11 +56,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
 
         OnPropertiesChanged(nameof(SongCount));
 
-        if (e.NewStartingIndex == 0 || e.OldStartingIndex == 0)
-        {
-            await SelectCoverImage();
-        }
-
         await FavoriteService.SaveSongFavoriteList();
     }
 
@@ -89,38 +67,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
             span += item.SongDuration;
         }
         return span;
-    }
-
-    private async Task SelectCoverImage()
-    {
-        if (Items.Count > 0)
-        {
-            SongFavoriteItem item = Items[0];
-
-            try
-            {
-                Uri uri = await MsrModelsHelper.GetAlbumCoverAsync(item.AlbumCid);
-                if (PlaylistCoverImageUri != uri)
-                {
-                    PlaylistCoverImageUri = uri;
-                }
-            }
-            catch (HttpRequestException)
-            {
-                PlaylistCoverImageUri = null;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                isBlocking = true;
-                Items[0] = item with { IsCorruptedItem = true };
-                isBlocking = false;
-                PlaylistCoverImageUri = null;
-            }
-        }
-        else
-        {
-            PlaylistCoverImageUri = null;
-        }
     }
 
     public IEnumerator<SongFavoriteItem> GetEnumerator()
@@ -158,7 +104,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
         TotalDuration = CalculateTotalTimeSpan();
         OnPropertiesChanged(nameof(TotalDuration));
         OnPropertiesChanged(nameof(SongCount));
-        await SelectCoverImage();
 
         await FavoriteService.SaveSongFavoriteList();
     }
@@ -171,7 +116,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
     public bool Equals(SongFavoriteList other)
     {
         return other is not null &&
-               EqualityComparer<Uri>.Default.Equals(PlaylistCoverImageUri, other.PlaylistCoverImageUri) &&
                TotalDuration.Equals(other.TotalDuration) &&
                SongCount == other.SongCount &&
                EqualityComparer<ObservableCollection<SongFavoriteItem>>.Default.Equals(Items, other.Items);
@@ -180,7 +124,6 @@ public class SongFavoriteList : INotifyPropertyChanged, IEquatable<SongFavoriteL
     public override int GetHashCode()
     {
         int hashCode = 230909774;
-        hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(PlaylistCoverImageUri);
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
         hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongFavoriteItem>>.Default.GetHashCode(Items);

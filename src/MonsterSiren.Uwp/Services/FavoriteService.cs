@@ -20,26 +20,34 @@ public static class FavoriteService
     private static StorageFile songFavoriteFile;
     private static StorageFile albumFavoriteFile;
 
-    private static readonly SemaphoreSlim favoriteFileSemaphore = new(1);
+    private static readonly SemaphoreSlim songFavoriteFileSemaphore = new(1);
+    private static readonly SemaphoreSlim albumFavoriteFileSemaphore = new(1);
 
     public static SongFavoriteList SongFavoriteList { get; private set; }
+    public static AlbumFavoriteList AlbumFavoriteList { get; private set; }
 
     public static async Task Initialize()
     {
-        await favoriteFileSemaphore.WaitAsync();
+        await songFavoriteFileSemaphore.WaitAsync();
+        await albumFavoriteFileSemaphore.WaitAsync();
 
         try
         {
             // TODO: 添加收藏备份功能。
-            // TODO: 加上专辑。
             if (SongFavoriteList is null)
             {
                 await InitializeSongFavoriteList();
             }
+
+            if (AlbumFavoriteList is null)
+            {
+                await InitializeAlbumFavoriteList();
+            }
         }
         finally
         {
-            favoriteFileSemaphore.Release();
+            songFavoriteFileSemaphore.Release();
+            albumFavoriteFileSemaphore.Release();
         }
     }
 
@@ -86,6 +94,45 @@ public static class FavoriteService
         }
     }
 
+    private static async Task InitializeAlbumFavoriteList()
+    {
+        StorageFile file = await GetAlbumFavoriteListFile();
+        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+        Stream fileStream = transaction.Stream.AsStream();
+        fileStream.Seek(0, SeekOrigin.Begin);
+
+        AlbumFavoriteList list;
+        if (fileStream.Length == 0)
+        {
+            list = await CreateAndWriteNewAlbumList(fileStream);
+        }
+        else
+        {
+            try
+            {
+                list = await JsonSerializer.DeserializeAsync<AlbumFavoriteList>(fileStream)
+                    ?? await CreateAndWriteNewAlbumList(fileStream);
+            }
+            catch (JsonException)
+            {
+                list = await CreateAndWriteNewAlbumList(fileStream);
+            }
+        }
+
+        fileStream.Seek(0, SeekOrigin.Begin);
+        await transaction.CommitAsync();
+        AlbumFavoriteList = list;
+
+        async static Task<AlbumFavoriteList> CreateAndWriteNewAlbumList(Stream stream)
+        {
+            AlbumFavoriteList list = new AlbumFavoriteList();
+            stream.SetLength(0);
+            stream.Seek(0, SeekOrigin.Begin);
+            await JsonSerializer.SerializeAsync(stream, list);
+            return list;
+        }
+    }
+
     /// <summary>
     /// 确定 CID 所表示的歌曲是否包含在收藏夹中。
     /// </summary>
@@ -97,11 +144,23 @@ public static class FavoriteService
     }
 
     /// <summary>
+    /// 确定专辑是否已被收藏。
+    /// </summary>
+    public static bool ContainsAlbum(string albumCid)
+    {
+        return AlbumFavoriteList.Items.Any(item => item.AlbumCid == albumCid);
+    }
+
+    public static bool ContainsAlbum(AlbumDetail albumDetail) => ContainsAlbum(albumDetail.Cid);
+
+    public static bool ContainsAlbum(AlbumInfo albumInfo) => ContainsAlbum(albumInfo.Cid);
+
+    /// <summary>
     /// 确定指定的 <see cref="SongInfo"/> 是否包含在收藏夹中。
     /// </summary>
     /// <param name="songInfo">指定的 <see cref="SongInfo"/> 实例。</param>
     /// <returns>指示指定歌曲是否包含在收藏夹中的值。</returns>
-    public static bool ContainsItem(SongInfo songInfo)
+    public static bool ContainsSong(SongInfo songInfo)
     {
         return ContainsSong(songInfo.Cid);
     }
@@ -111,7 +170,7 @@ public static class FavoriteService
     /// </summary>
     /// <param name="songInfo">指定的 <see cref="SongDetail"/> 实例。</param>
     /// <returns>指示指定歌曲是否包含在收藏夹中的值。</returns>
-    public static bool ContainsItem(SongDetail songDetail)
+    public static bool ContainsSong(SongDetail songDetail)
     {
         return ContainsSong(songDetail.Cid);
     }
@@ -121,7 +180,7 @@ public static class FavoriteService
     /// </summary>
     /// <param name="playlistItem">指定的 <see cref="PlaylistItem"/> 实例。</param>
     /// <returns>指示指定歌曲是否包含在收藏夹中的值。</returns>
-    public static bool ContainsItem(PlaylistItem playlistItem)
+    public static bool ContainsSong(PlaylistItem playlistItem)
     {
         return ContainsSong(playlistItem.SongCid);
     }
@@ -131,7 +190,7 @@ public static class FavoriteService
     /// </summary>
     public static async Task SaveSongFavoriteList()
     {
-        await favoriteFileSemaphore.WaitAsync();
+        await songFavoriteFileSemaphore.WaitAsync();
 
         try
         {
@@ -148,7 +207,30 @@ public static class FavoriteService
         }
         finally
         {
-            favoriteFileSemaphore.Release();
+            songFavoriteFileSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// 保存专辑收藏列表。
+    /// </summary>
+    public static async Task SaveAlbumFavoriteList()
+    {
+        await albumFavoriteFileSemaphore.WaitAsync();
+        try
+        {
+            StorageFile file = await GetAlbumFavoriteListFile();
+            using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+            Stream fileStream = transaction.Stream.AsStream();
+            fileStream.SetLength(0);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            await JsonSerializer.SerializeAsync(fileStream, AlbumFavoriteList);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            await transaction.CommitAsync();
+        }
+        finally
+        {
+            albumFavoriteFileSemaphore.Release();
         }
     }
 
@@ -159,17 +241,26 @@ public static class FavoriteService
             StorageFolder folder = await localCacheFolder.CreateFolderAsync(DefaultFavoriteListFolderName, CreationCollisionOption.OpenIfExists);
             IStorageItem storageItem = await folder.TryGetItemAsync(DefaultSongFavoriteListFileName);
 
-            if (storageItem is StorageFile file)
-            {
-                songFavoriteFile = file;
-            }
-            else
-            {
-                songFavoriteFile = await folder.CreateFileAsync(DefaultSongFavoriteListFileName);
-            }
+            songFavoriteFile = storageItem is StorageFile file
+                ? file
+                : await folder.CreateFileAsync(DefaultSongFavoriteListFileName);
         }
 
         return songFavoriteFile;
+    }
+
+    private static async Task<StorageFile> GetAlbumFavoriteListFile()
+    {
+        if (albumFavoriteFile is null)
+        {
+            StorageFolder folder = await localCacheFolder.CreateFolderAsync(DefaultFavoriteListFolderName, CreationCollisionOption.OpenIfExists);
+            IStorageItem storageItem = await folder.TryGetItemAsync(DefaultAlbumFavoriteListFileName);
+            albumFavoriteFile = storageItem is StorageFile file
+                ? file
+                : await folder.CreateFileAsync(DefaultAlbumFavoriteListFileName);
+        }
+
+        return albumFavoriteFile;
     }
 
     /// <summary>
@@ -186,7 +277,7 @@ public static class FavoriteService
             throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
         }
 
-        if (ContainsItem(songDetail))
+        if (ContainsSong(songDetail))
         {
             return;
         }
@@ -298,6 +389,130 @@ public static class FavoriteService
     }
 
     /// <summary>
+    /// 添加专辑到收藏夹。
+    /// </summary>
+    public static async Task AddAlbumToFavoriteAsync(AlbumDetail albumDetail)
+    {
+        if (ContainsAlbum(albumDetail.Cid)) return;
+
+        AlbumInfo albumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                .Single(info => info.Cid == albumDetail.Cid);
+
+        AlbumFavoriteItem item = new(
+            albumInfo.Cid,
+            albumInfo.Name,
+            albumInfo.Artistes);
+
+        await UIThreadHelper.RunOnUIThread(() => AlbumFavoriteList.Items.Add(item));
+    }
+
+    public static async Task AddAlbumToFavoriteAsync(AlbumInfo albumInfo)
+    {
+        if (ContainsAlbum(albumInfo.Cid)) return;
+
+        AlbumFavoriteItem item = new(
+            albumInfo.Cid,
+            albumInfo.Name,
+            albumInfo.Artistes);
+
+        await UIThreadHelper.RunOnUIThread(() => AlbumFavoriteList.Items.Add(item));
+    }
+
+    /// <summary>
+    /// 批量添加专辑到收藏夹。
+    /// </summary>
+    public static async Task AddAlbumsToFavoriteAsync(IEnumerable<AlbumInfo> albums)
+    {
+        if (albums is null) throw new ArgumentNullException(nameof(albums));
+
+        try
+        {
+            AlbumFavoriteList.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (AlbumInfo album in albums)
+                {
+                    if (ContainsAlbum(album.Cid)) continue;
+                    AlbumFavoriteItem item = new(album.Cid, album.Name, album.Artistes);
+                    AlbumFavoriteList.Items.Add(item);
+                }
+            });
+        }
+        finally
+        {
+            await AlbumFavoriteList.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 批量添加专辑到收藏夹。
+    /// </summary>
+    public static async Task AddAlbumsToFavoriteAsync(IEnumerable<AlbumDetail> albums)
+    {
+        if (albums is null) throw new ArgumentNullException(nameof(albums));
+
+        try
+        {
+            AlbumFavoriteList.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(async () =>
+            {
+                foreach (AlbumDetail album in albums)
+                {
+                    if (ContainsAlbum(album.Cid)) continue;
+
+                    AlbumInfo albumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                        .Single(info => info.Cid == album.Cid);
+
+                    AlbumFavoriteItem item = new(albumInfo.Cid, albumInfo.Name, albumInfo.Artistes);
+                    AlbumFavoriteList.Items.Add(item);
+                }
+            });
+        }
+        finally
+        {
+            await AlbumFavoriteList.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
+    /// 从收藏夹移除专辑。
+    /// </summary>
+    public static async Task<bool> RemoveAlbumFromFavoriteAsync(string albumCid)
+    {
+        AlbumFavoriteItem target = AlbumFavoriteList.Items.FirstOrDefault(item => item.AlbumCid == albumCid);
+        if (target.Equals(default)) return false;
+
+        return await RemoveAlbumFromFavoriteAsync(target);
+    }
+
+    public static async Task<bool> RemoveAlbumFromFavoriteAsync(AlbumFavoriteItem item)
+    {
+        return await UIThreadHelper.RunOnUIThread(() => AlbumFavoriteList.Items.Remove(item));
+    }
+
+    /// <summary>
+    /// 批量移除专辑。
+    /// </summary>
+    public static async Task RemoveAlbumsFromFavoriteAsync(IEnumerable<AlbumFavoriteItem> items)
+    {
+        try
+        {
+            AlbumFavoriteList.BlockInfoUpdate();
+            await UIThreadHelper.RunOnUIThread(() =>
+            {
+                foreach (AlbumFavoriteItem item in items)
+                {
+                    AlbumFavoriteList.Items.Remove(item);
+                }
+            });
+        }
+        finally
+        {
+            await AlbumFavoriteList.RestoreInfoUpdateAsync();
+        }
+    }
+
+    /// <summary>
     /// 从歌曲收藏夹移除歌曲。
     /// </summary>
     /// <param name="item">指定的 <see cref="SongFavoriteItem"/>。</param>
@@ -376,6 +591,41 @@ public static class FavoriteService
     {
         ExceptionBox box = new();
         IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(SongFavoriteList, box);
+        await MusicService.PlayNext(items);
+        box.Unbox();
+    }
+
+    /// <summary>
+    /// 播放专辑收藏夹中的歌曲。
+    /// </summary>
+    public static async Task PlayAlbumFavoriteListAsync()
+    {
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(AlbumFavoriteList, box);
+        await MusicService.ReplaceMusic(items);
+        box.Unbox();
+    }
+
+    /// <summary>
+    /// 将专辑收藏夹添加到正在播放列表中。
+    /// </summary>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
+    public static async Task AddAlbumFavoriteListToNowPlayingAsync()
+    {
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(AlbumFavoriteList, box);
+        await MusicService.AddMusic(items);
+        box.Unbox();
+    }
+
+    /// <summary>
+    /// 将歌曲收藏设为下一项播放。
+    /// </summary>
+    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
+    public static async Task PlayNextForAlbumFavoriteListAsync()
+    {
+        ExceptionBox box = new();
+        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(AlbumFavoriteList, box);
         await MusicService.PlayNext(items);
         box.Unbox();
     }

@@ -304,4 +304,76 @@ partial class CommonValues
 
         return false;
     }
+
+    /// <summary>
+    /// 启动下载 <see cref="AlbumFavoriteItem"/> 所表示专辑中所有歌曲的操作。
+    /// </summary>
+    /// <param name="albumItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartDownload(AlbumFavoriteItem albumItem)
+    {
+        try
+        {
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+            return await StartDownload(albumDetail);
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            await DisplaySongOrAlbumCidCorruptDialog();
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 启动下载 <see cref="AlbumFavoriteItem"/> 序列中所有歌曲的操作。
+    /// </summary>
+    /// <param name="albumItems"><see cref="AlbumFavoriteItem"/> 序列。</param>
+    /// <returns>指示下载是否完全成功的值。</returns>
+    public static async Task<bool> StartDownload(IEnumerable<AlbumFavoriteItem> albumItems)
+    {
+        if (!albumItems.Any())
+        {
+            return false;
+        }
+
+        bool isAllSuccess = true;
+        foreach (AlbumFavoriteItem albumItem in albumItems.ToArray())
+        {
+            try
+            {
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+                await StartDownload(albumDetail);
+            }
+            catch (HttpRequestException)
+            {
+                await DisplayInternetErrorDialog();
+                isAllSuccess = false;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                await DisplaySongOrAlbumCidCorruptDialog();
+                isAllSuccess = false;
+            }
+        }
+        return isAllSuccess;
+    }
+
+    /// <summary>
+    /// 启动下载专辑收藏夹中所有歌曲的操作。
+    /// </summary>
+    /// <returns>指示下载是否完全成功的值。</returns>
+    public static async Task<bool> StartDownloadAlbumFavorites()
+    {
+        if (FavoriteService.AlbumFavoriteList.Items.Count == 0)
+        {
+            return false;
+        }
+
+        bool isAllSuccess = await StartDownload(FavoriteService.AlbumFavoriteList.Items);
+        return isAllSuccess;
+    }
 }

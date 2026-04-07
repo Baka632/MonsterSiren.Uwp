@@ -20,11 +20,12 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [ObservableProperty]
     private CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums;
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedAlbumInfoContainsInFavorite))]
     private AlbumInfo selectedAlbumInfo;
     [ObservableProperty]
     private FlyoutBase selectedAlbumInfoContextFlyout;
 
-    private readonly int tooManyItemThresholdCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+    public bool IsSelectedAlbumInfoContainsInFavorite { get => FavoriteService.ContainsAlbum(SelectedAlbumInfo); }
 
     public async Task Initialize()
     {
@@ -122,6 +123,20 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AddAlbumToFavorite(AlbumInfo info)
+    {
+        await CommonValues.AddToFavorite(info);
+        OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
+    }
+
+    [RelayCommand]
+    private async Task RemoveAlbumFromFavorite(AlbumInfo info)
+    {
+        await CommonValues.RemoveFromFavorite(info);
+        OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
+    }
+
+    [RelayCommand]
     private void StartMultipleSelection()
     {
         view.ContentGridView.SelectionMode = ListViewSelectionMode.Multiple;
@@ -213,7 +228,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        if (selectedItems.Count >= tooManyItemThresholdCount)
+        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
         {
             ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
                                                     "AddTooManyItemToPlaylistMessage".GetLocalized(),
@@ -239,7 +254,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        if (selectedItems.Count >= tooManyItemThresholdCount)
+        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
         {
             ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
                                                     "DownloadTooManyItemMessage".GetLocalized(),
@@ -253,6 +268,24 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         }
 
         bool isSuccess = await CommonValues.StartDownload(selectedItems);
+
+        if (isSuccess)
+        {
+            StopMultipleSelection();
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddSelectedItemsToFavorite()
+    {
+        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+
+        if (selectedItems.Count == 0)
+        {
+            return;
+        }
+
+        bool isSuccess = await CommonValues.AddToFavorite(selectedItems);
 
         if (isSuccess)
         {

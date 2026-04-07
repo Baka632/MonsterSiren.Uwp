@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Text.Json;
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -51,6 +52,11 @@ public sealed partial class AlbumDetailPage : Page
         {
             enableBackAnimation = false;
             await ViewModel.Initialize(detail).ConfigureAwait(false);
+        }
+        else if (e.Parameter is AlbumFavoriteItem item)
+        {
+            enableBackAnimation = false;
+            await ViewModel.Initialize(item).ConfigureAwait(false);
         }
     }
 

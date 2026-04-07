@@ -35,6 +35,7 @@ public static class DownloadService
         CostPolicy = BackgroundTransferCostPolicy.Always
     };
     private static readonly LockerHelper<string> albumCoverLocker = new();
+    private static readonly LockerHelper<string> avoidDuplicateLocker = new();
 
     /// <summary>
     /// 获取或设置下载路径。
@@ -398,31 +399,52 @@ public static class DownloadService
 
             (string musicFileName, string musicAlbumFolderName) = await AcquireMusicNameAndAlbumFolderName();
 
-            string targetFileName = TranscodeDownloadedItem
+            bool lockTaken = false;
+            string key = $"{musicFileName}-{musicAlbumFolderName}";
+            SemaphoreSlim semaphoreSlim = avoidDuplicateLocker.GetOrCreateLocker(key);
+
+            try
+            {
+                lockTaken = await semaphoreSlim.WaitAsync(0);
+                if (!lockTaken)
+                {
+                    throw new ManuallyCanceledDownloadException();
+                }
+
+                string targetFileName = TranscodeDownloadedItem
                 ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
                 : $"{musicFileName}{rawMusicExtensions}";
 
-            IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
+                IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
 
-            if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
-            {
-                return new DownloadItem(songTitle, DownloadItemState.Skipped);
+                if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                {
+                    return new DownloadItem(songTitle, DownloadItemState.Skipped);
+                }
+
+                StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
+
+                StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", collisionOption);
+                SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
+                using (Stream infoFileStream = await infoFile.OpenStreamForWriteAsync())
+                {
+                    infoFileStream.Seek(0, SeekOrigin.Begin);
+                    await JsonSerializer.SerializeAsync(infoFileStream, pack);
+                }
+
+                DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
+                DownloadItem downloadItem = new(musicDownload, songTitle);
+
+                return downloadItem;
             }
-
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
-
-            StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", collisionOption);
-            SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
-            using (Stream infoFileStream = await infoFile.OpenStreamForWriteAsync())
+            finally
             {
-                infoFileStream.Seek(0, SeekOrigin.Begin);
-                await JsonSerializer.SerializeAsync(infoFileStream, pack);
+                if (lockTaken)
+                {
+                    semaphoreSlim.Release();
+                }
+                avoidDuplicateLocker.ReturnLocker(key);
             }
-
-            DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-            DownloadItem downloadItem = new(musicDownload, songTitle);
-
-            return downloadItem;
         }
 
         async Task<StorageFolder> AcquireAlbumFolder()
@@ -519,6 +541,10 @@ public static class DownloadService
         try
         {
             item = await downloadItemFactory();
+        }
+        catch (ManuallyCanceledDownloadException)
+        {
+            return false;
         }
         catch (Exception ex)
         {
@@ -940,4 +966,17 @@ internal class UwpStorageFileAbstraction : TagLib.File.IFileAbstraction, IDispos
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+}
+
+
+
+[Serializable]
+file class ManuallyCanceledDownloadException : Exception
+{
+    public ManuallyCanceledDownloadException() { }
+    public ManuallyCanceledDownloadException(string message) : base(message) { }
+    public ManuallyCanceledDownloadException(string message, Exception inner) : base(message, inner) { }
+    protected ManuallyCanceledDownloadException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 }

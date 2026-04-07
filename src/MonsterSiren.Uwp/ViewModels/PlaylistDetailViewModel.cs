@@ -15,7 +15,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
-    public bool IsSelectedItemContainsInFavorite { get => FavoriteService.ContainsItem(SelectedItem); }
+    public bool IsSelectedItemContainsInFavorite { get => FavoriteService.ContainsSong(SelectedItem); }
 
     public void Initialize(Playlist model)
     {

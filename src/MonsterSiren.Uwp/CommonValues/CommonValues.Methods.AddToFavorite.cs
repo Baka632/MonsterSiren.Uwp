@@ -1,5 +1,6 @@
 using System.Net.Http;
 using MonsterSiren.Uwp.Models.Favorites;
+using TagLib.Ape;
 
 namespace MonsterSiren.Uwp;
 
@@ -128,5 +129,112 @@ partial class CommonValues
     public static async Task<bool> RemoveFromFavorite(SongFavoriteItem item)
     {
         return await FavoriteService.RemoveSongFromFavoriteAsync(item);
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="AlbumInfo"/> 添加到专辑收藏夹中。
+    /// </summary>
+    /// <param name="albumInfo">要添加的专辑信息（包含艺术家）。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToFavorite(AlbumInfo albumInfo)
+    {
+        try
+        {
+            await FavoriteService.AddAlbumToFavoriteAsync(albumInfo);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 将一个 <see cref="AlbumDetail"/> 添加到专辑收藏夹中。
+    /// </summary>
+    /// <param name="albumDetail">要添加的专辑详情（不含艺术家）。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToFavorite(AlbumDetail albumDetail)
+    {
+        try
+        {
+            await FavoriteService.AddAlbumToFavoriteAsync(albumDetail);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 将多个 <see cref="AlbumInfo"/> 批量添加到专辑收藏夹中。
+    /// </summary>
+    /// <param name="albumInfos">专辑信息序列。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToFavorite(IEnumerable<AlbumInfo> albumInfos)
+    {
+        if (albumInfos == null || !albumInfos.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            await FavoriteService.AddAlbumsToFavoriteAsync(albumInfos);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 将多个 <see cref="AlbumDetail"/> 批量添加到专辑收藏夹中。
+    /// </summary>
+    /// <param name="albumDetails">专辑详情序列。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> AddToFavorite(IEnumerable<AlbumDetail> albumDetails)
+    {
+        if (albumDetails == null || !albumDetails.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            await FavoriteService.AddAlbumsToFavoriteAsync(albumDetails);
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            await DisplayInternetErrorDialog();
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 从专辑收藏夹中移除指定的专辑项。
+    /// </summary>
+    /// <param name="item">要移除的专辑收藏项。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> RemoveFromFavorite(AlbumFavoriteItem item)
+    {
+        return await FavoriteService.RemoveAlbumFromFavoriteAsync(item);
+    }
+
+    /// <summary>
+    /// 从专辑收藏夹中移除指定的专辑项。
+    /// </summary>
+    /// <param name="info">要移除的专辑。</param>
+    /// <returns>指示操作是否成功的布尔值。</returns>
+    public static async Task<bool> RemoveFromFavorite(AlbumInfo info)
+    {
+        return await FavoriteService.RemoveAlbumFromFavoriteAsync(info.Cid);
     }
 }

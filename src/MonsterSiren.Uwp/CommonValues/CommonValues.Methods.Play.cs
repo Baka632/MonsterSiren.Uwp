@@ -376,4 +376,119 @@ partial class CommonValues
 
         return false;
     }
+
+    /// <summary>
+    /// 播放 <see cref="AlbumFavoriteItem"/> 所表示的专辑收藏项。
+    /// </summary>
+    /// <param name="favoriteItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlay(AlbumFavoriteItem favoriteItem)
+    {
+        try
+        {
+            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(favoriteItem.AlbumCid);
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
+            await MusicService.ReplaceMusic(items);
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            AlbumFavoriteList albumFavoriteList = FavoriteService.AlbumFavoriteList;
+
+            int targetIndex = albumFavoriteList.Items.IndexOf(favoriteItem);
+            if (targetIndex != -1)
+            {
+                await UIThreadHelper.RunOnUIThread(() =>
+                {
+                    albumFavoriteList.Items[targetIndex] = favoriteItem with { IsCorruptedItem = true };
+                });
+            }
+
+            await DisplaySongOrAlbumCidCorruptDialog();
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayAggregateExceptionErrorDialog(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放 <see cref="AlbumFavoriteItem"/> 序列中的专辑收藏项。
+    /// </summary>
+    /// <param name="favoriteItems">一个 <see cref="AlbumFavoriteItem"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlay(IEnumerable<AlbumFavoriteItem> favoriteItems)
+    {
+        if (!favoriteItems.Any())
+        {
+            return false;
+        }
+
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. favoriteItems], box);
+            await MusicService.ReplaceMusic(items);
+            box.Unbox();
+            return true;
+        }
+        catch (HttpRequestException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            await DisplayInternetErrorDialog();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+            if (favoriteItems.Count() == 1)
+            {
+                await DisplaySongOrAlbumCidCorruptDialog();
+            }
+            else
+            {
+                await DisplaySomeSongOrAlbumCidCorruptDialog();
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 播放专辑收藏夹中的歌曲。
+    /// </summary>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlayAlbumFavorites()
+    {
+        if (FavoriteService.AlbumFavoriteList.AlbumCount == 0)
+        {
+            await DisplayPlaylistEmptyDialog();
+        }
+        else
+        {
+            try
+            {
+                await FavoriteService.PlayAlbumFavoriteListAsync();
+                return true;
+            }
+            catch (AggregateException ex)
+            {
+                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+                await DisplayAggregateExceptionErrorDialog(ex);
+            }
+        }
+
+        return false;
+    }
 }

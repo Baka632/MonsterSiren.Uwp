@@ -387,4 +387,130 @@ partial class CommonValues
             yield return playbackItem;
         }
     }
+
+    /// <summary>
+    /// 根据 <see cref="AlbumFavoriteList"/> 获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// </summary>
+    /// <param name="albumFavorites"><see cref="AlbumFavoriteList"/> 实例。</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
+    /// <remarks>
+    /// 当收藏夹中存在无效专辑时，此方法会跳过无效专辑及其歌曲，并将异常信息记录到 <see cref="ExceptionBox"/> 中。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(AlbumFavoriteList albumFavorites, ExceptionBox box)
+    {
+        List<Exception> innerExceptions = new(5);
+        int totalSongCount = 0;
+        int failedSongCount = 0;
+
+        for (int i = 0; i < albumFavorites.Items.Count; i++)
+        {
+            AlbumFavoriteItem albumItem = albumFavorites.Items[i];
+            AlbumDetail albumDetail;
+
+            try
+            {
+                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArgumentOutOfRangeException)
+                {
+                    await UIThreadHelper.RunOnUIThread(() => albumFavorites.Items[i] = albumItem with { IsCorruptedItem = true });
+                }
+                innerExceptions.Add(ex);
+                continue;
+            }
+
+            if (albumDetail.Songs == null)
+            {
+                continue;
+            }
+
+            foreach (SongInfo songInfo in albumDetail.Songs)
+            {
+                totalSongCount++;
+                MediaPlaybackItem playbackItem = null;
+
+                try
+                {
+                    playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(songInfo.Cid, albumDetail);
+                }
+                catch (Exception ex)
+                {
+                    failedSongCount++;
+                    innerExceptions.Add(ex);
+                }
+
+                if (playbackItem is not null)
+                {
+                    yield return playbackItem;
+                }
+            }
+        }
+
+        if (innerExceptions.Count > 0)
+        {
+            bool allFailed = totalSongCount > 0 && failedSongCount == totalSongCount;
+            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
+            {
+                Data =
+                {
+                    ["AllFailed"] = allFailed,
+                    ["PlayItem"] = albumFavorites,
+                }
+            };
+
+            box.InboxException = aggregate;
+        }
+    }
+
+    /// <summary>
+    /// 根据 <see cref="AlbumFavoriteItem"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// </summary>
+    /// <param name="albumFavoriteItems"><see cref="AlbumFavoriteItem"/> 序列。</param>
+    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
+    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
+    /// <remarks>
+    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
+    /// </remarks>
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(AlbumFavoriteItem[] albumFavoriteItems, ExceptionBox box)
+    {
+        foreach (AlbumFavoriteItem albumItem in albumFavoriteItems)
+        {
+            AlbumDetail albumDetail;
+
+            try
+            {
+                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
+            }
+            catch (Exception ex)
+            {
+                box.InboxException = ex;
+                yield break;
+            }
+
+            if (albumDetail.Songs == null)
+            {
+                continue;
+            }
+
+            foreach (SongInfo songInfo in albumDetail.Songs)
+            {
+                MediaPlaybackItem playbackItem;
+
+                try
+                {
+                    playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(songInfo.Cid, albumDetail);
+                }
+                catch (Exception ex)
+                {
+                    box.InboxException = ex;
+                    yield break;
+                }
+
+                yield return playbackItem;
+            }
+        }
+    }
 }
