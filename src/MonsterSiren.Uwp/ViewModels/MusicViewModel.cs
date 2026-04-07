@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
+using MonsterSiren.Uwp.Models.Adapters;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -95,19 +96,19 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [RelayCommand]
     private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.StartPlay(albumInfo);
+        await CommonValues.StartPlay(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.AddToNowPlaying(albumInfo);
+        await CommonValues.AddToNowPlaying(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.PlayNext(albumInfo);
+        await CommonValues.PlayNext(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -174,7 +175,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        bool isSuccess = await CommonValues.StartPlay(selectedItems);
+        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -192,7 +193,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -210,7 +211,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        bool isSuccess = await CommonValues.PlayNext(selectedItems);
+        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

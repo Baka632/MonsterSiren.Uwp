@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -148,13 +149,13 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task PlayForCurrentAlbumDetail()
     {
-        await CommonValues.StartPlay(CurrentAlbumDetail);
+        await CommonValues.StartPlay(CurrentAlbumDetail.ToAdapter());
     }
 
     [RelayCommand]
     private async Task AddToNowPlayingForCurrentAlbumDetail()
     {
-        await CommonValues.AddToNowPlaying(CurrentAlbumDetail);
+        await CommonValues.AddToNowPlaying(CurrentAlbumDetail.ToAdapter());
     }
 
     [RelayCommand]
@@ -170,21 +171,21 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     }
 
     [RelayCommand]
-    private async Task PlayForSongInfo(SongInfo songInfo)
+    private static async Task PlayForSongInfo(SongInfo songInfo)
     {
-        await CommonValues.StartPlay(songInfo, CurrentAlbumDetail);
+        await CommonValues.StartPlay(songInfo.ToAdapter());
     }
 
     [RelayCommand]
-    private async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
+    private static async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
     {
-        await CommonValues.AddToNowPlaying(songInfo, CurrentAlbumDetail);
+        await CommonValues.AddToNowPlaying(songInfo.ToAdapter());
     }
     
     [RelayCommand]
     private async Task PlayNextForSongInfo(SongInfo songInfo)
     {
-        await CommonValues.PlayNext(songInfo, CurrentAlbumDetail);
+        await CommonValues.PlayNext(songInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -269,7 +270,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             return;
         }
 
-        bool isSuccess = await CommonValues.StartPlay(selectedItems, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -287,7 +288,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             return;
         }
 
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -305,7 +306,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             return;
         }
 
-        bool isSuccess = await CommonValues.PlayNext(selectedItems, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

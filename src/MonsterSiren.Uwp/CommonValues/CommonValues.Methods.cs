@@ -256,11 +256,19 @@ partial class CommonValues
     {
         StringBuilder builder = new(aggregate.InnerExceptions.Count * 10);
 
-        if (aggregate.Data["AllFailed"] is not bool allFailed)
+        bool allFailed = false;
+        if (aggregate.Data.Contains("AllFailed"))
         {
-            allFailed = false;
+            allFailed = aggregate.Data["AllFailed"] is bool val && val;
         }
-        object errorPlayItem = aggregate.Data["PlayItem"];
+
+        object errorPlayItem = null;
+        if (aggregate.Data.Contains("PlayItem"))
+        {
+            errorPlayItem = aggregate.Data["PlayItem"];
+        }
+
+        aggregate = aggregate.Flatten();
 
         if (aggregate.InnerExceptions.Any(ex => ex is HttpRequestException))
         {

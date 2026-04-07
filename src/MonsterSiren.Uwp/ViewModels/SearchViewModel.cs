@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Adapters;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -84,19 +85,19 @@ public sealed partial class SearchViewModel : ObservableObject
     [RelayCommand]
     private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.StartPlay(albumInfo);
+        await CommonValues.StartPlay(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.AddToNowPlaying(albumInfo);
+        await CommonValues.AddToNowPlaying(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.PlayNext(albumInfo);
+        await CommonValues.PlayNext(albumInfo.ToAdapter());
     }
 
     [RelayCommand]

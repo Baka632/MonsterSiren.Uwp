@@ -1,3 +1,4 @@
+using MonsterSiren.Uwp.Models.Adapters;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -32,13 +33,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task PlayForItem(PlaylistItem item)
     {
-        await CommonValues.StartPlay(item, CurrentPlaylist);
+        await CommonValues.StartPlay(item.ToAdapter(CurrentPlaylist));
     }
 
     [RelayCommand]
     private async Task AddItemToNowPlaying(PlaylistItem item)
     {
-        await CommonValues.AddToNowPlaying(item, CurrentPlaylist);
+        await CommonValues.AddToNowPlaying(item.ToAdapter(CurrentPlaylist));
     }
 
     [RelayCommand]
@@ -58,7 +59,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task PlayNextForItem(PlaylistItem item)
     {
-        await CommonValues.PlayNext(item, CurrentPlaylist);
+        await CommonValues.PlayNext(item.ToAdapter(CurrentPlaylist));
     }
 
     [RelayCommand]
@@ -159,7 +160,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task PlaySongListSelectedItem()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        bool isSuccess = await CommonValues.StartPlay(selectedItems);
+        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -171,7 +172,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task AddSongListSelectedItemToNowPlaying()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -183,7 +184,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task PlayNextForSelectedItem()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        bool isSuccess = await CommonValues.PlayNext(selectedItems);
+        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

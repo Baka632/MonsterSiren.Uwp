@@ -95,7 +95,6 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CommonValues\CommonValues.cs" />
-    <Compile Include="CommonValues\CommonValues.Methods.AddToNowPlaying.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.AddToFavorite.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.AddToPlaylist.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.cs" />
@@ -103,7 +102,6 @@
     <Compile Include="CommonValues\CommonValues.Methods.GetPlaybackItems.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
-    <Compile Include="CommonValues\CommonValues.Methods.PlayNext.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
@@ -117,6 +115,7 @@
     </Compile>
     <Compile Include="Controls\ThemedToggleButton.cs" />
     <Compile Include="GlobalUsings.cs" />
+    <Compile Include="Helpers\AggregateExceptionHelper.cs" />
     <Compile Include="Helpers\ConnectedAnimations\Connected.cs" />
     <Compile Include="Helpers\ConnectedAnimations\ConnectedAnimationHelper.cs" />
     <Compile Include="Helpers\ConnectedAnimations\ConnectedAnimationListProperty.cs" />
@@ -139,6 +138,21 @@
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
+    <Compile Include="Models\Abstracts\IPlayable.cs" />
+    <Compile Include="Models\Abstracts\ICorruptible.cs" />
+    <Compile Include="Models\Adapters\AlbumCidAdapter.cs" />
+    <Compile Include="Models\Adapters\AlbumDetailAdapter.cs" />
+    <Compile Include="Models\Adapters\AlbumFavoriteItemAdapter.cs" />
+    <Compile Include="Models\Adapters\AlbumFavoriteItemSequenceAdapter.cs" />
+    <Compile Include="Models\Adapters\AlbumInfoAdapter.cs" />
+    <Compile Include="Models\Adapters\AlbumInfoSequenceAdapter.cs" />
+    <Compile Include="Models\Adapters\PlaylistItemAdapter.cs" />
+    <Compile Include="Models\Adapters\PlaylistItemSequenceAdapter.cs" />
+    <Compile Include="Models\Adapters\SongCidAdapter.cs" />
+    <Compile Include="Models\Adapters\SongFavoriteItemAdapter.cs" />
+    <Compile Include="Models\Adapters\SongFavoriteItemSequenceAdapter.cs" />
+    <Compile Include="Models\Adapters\SongInfoAdapter.cs" />
+    <Compile Include="Models\Adapters\SongInfoSequenceAdapter.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
     <Compile Include="Models\AppLanguage.cs" />
@@ -154,6 +168,7 @@
     <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
     <Compile Include="Models\Favorites\SongFavoriteList.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
+    <Compile Include="Models\MusicPlayOperation.cs" />
     <Compile Include="Models\NowPlayingList.cs" />
     <Compile Include="Models\Packs\SongDetailAndAlbumDetailPack.cs" />
     <Compile Include="Models\PlayerRepeatingState.cs" />

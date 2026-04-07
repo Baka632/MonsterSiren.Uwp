@@ -1,10 +1,9 @@
-using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
+using MonsterSiren.Uwp.Models.Adapters;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.VoiceCommands;
 using Windows.Foundation.Metadata;
-using Windows.Media.Playback;
 using Windows.Media.SpeechRecognition;
 using Windows.Storage;
 using Windows.UI;
@@ -245,70 +244,20 @@ sealed partial class App : Application
 
     private static async Task PlayAlbumByCid(string argument)
     {
-        try
-        {
-            ExceptionBox box = new();
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(argument);
-            IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
-
-            await MusicService.ReplaceMusic(items);
-
-            box.Unbox();
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        AlbumCidAdapter adapter = new(argument);
+        await CommonValues.StartPlay(adapter);
     }
 
     private static async Task PlaySongByCid(string argument)
     {
-        try
-        {
-            MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(argument);
-            MusicService.ReplaceMusic(item);
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        SongCidAdapter adapter = new(argument);
+        await CommonValues.StartPlay(adapter);
     }
 
     private static async Task GetAlbumsAndPlay()
     {
-        try
-        {
-            ExceptionBox box = new();
-            AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos.FirstOrDefault();
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(firstAlbum.Cid);
-            IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(albumDetail, box);
-
-            await MusicService.ReplaceMusic(items);
-
-            box.Unbox();
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await CommonValues.DisplayContentDialog("ErrorOccurred".GetLocalized(), "SongOrAlbumCidIncorrectInputMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
-        }
+        AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos.FirstOrDefault();
+        await CommonValues.StartPlay(firstAlbum.ToAdapter());
     }
 
     private static void ShowBakaEurekaToast()

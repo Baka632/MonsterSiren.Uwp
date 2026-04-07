@@ -78,19 +78,11 @@ public sealed partial class AlbumDetailPage : Page
             return;
         }
 
-        List<SongInfoAndAlbumDetailPack> packs = new(e.Items.Count);
+        List<SongInfo> infos = [.. e.Items.Cast<SongInfo>()];
 
-        foreach (object item in e.Items)
-        {
-            if (item is SongInfo songInfo)
-            {
-                packs.Add(new SongInfoAndAlbumDetailPack(songInfo, ViewModel.CurrentAlbumDetail));
-            }
-        }
+        string json = JsonSerializer.Serialize(infos);
 
-        string json = JsonSerializer.Serialize(packs);
-
-        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId, json);
+        e.Data.SetData(CommonValues.MusicSongInfosFormatId, json);
     }
 
     private void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)

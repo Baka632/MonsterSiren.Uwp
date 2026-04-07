@@ -1,3 +1,4 @@
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Views.FavoritePageParts;
 
@@ -37,13 +38,13 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private static async Task PlayAlbumForAlbumItem(AlbumFavoriteItem item)
     {
-        await CommonValues.StartPlay(item);
+        await CommonValues.StartPlay(item.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task PlayNextForAlbumItem(AlbumFavoriteItem item)
     {
-        await CommonValues.PlayNext(item);
+        await CommonValues.PlayNext(item.ToAdapter());
     }
 
     [RelayCommand]
@@ -61,7 +62,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private static async Task AddAlbumToNowPlaying(AlbumFavoriteItem favoriteItem)
     {
-        await CommonValues.AddToNowPlaying(favoriteItem);
+        await CommonValues.AddToNowPlaying(favoriteItem.ToAdapter());
     }
 
     [RelayCommand]
@@ -108,7 +109,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
             return;
         }
 
-        bool isSuccess = await CommonValues.StartPlay(selectedItems);
+        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -126,7 +127,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
             return;
         }
 
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems);
+        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
@@ -144,7 +145,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
             return;
         }
 
-        bool isSuccess = await CommonValues.PlayNext(selectedItems);
+        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

@@ -16,6 +16,7 @@ using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
 using MonsterSiren.Uwp.Models.Favorites;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+using MonsterSiren.Uwp.Models.Adapters;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 
@@ -388,7 +389,7 @@ partial class MainPage
     {
         DataPackageView dataView = e.DataView;
         if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-            || dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+            || dataView.Contains(CommonValues.MusicSongInfosFormatId)
             || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
             || dataView.Contains(CommonValues.MusicPlaylistFormatId)
             || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
@@ -411,22 +412,22 @@ partial class MainPage
 
             AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-            await CommonValues.AddToNowPlaying(albumInfo);
+            await CommonValues.AddToNowPlaying(albumInfo.ToAdapter());
         }
-        else if (dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
+        else if (dataView.Contains(CommonValues.MusicSongInfosFormatId))
         {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfosFormatId);
 
-            List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
+            List<SongInfo> infos = JsonSerializer.Deserialize<List<SongInfo>>(json);
 
-            await CommonValues.AddToNowPlaying(packs);
+            await CommonValues.AddToNowPlaying(infos.ToAdapter());
         }
         else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
         {
             string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
             List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
 
-            await CommonValues.AddToNowPlaying(items);
+            await CommonValues.AddToNowPlaying(items.ToAdapter());
         }
         else if (dataView.Contains(CommonValues.MusicPlaylistFormatId))
         {
@@ -441,7 +442,7 @@ partial class MainPage
             string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
             List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
 
-            await CommonValues.AddToNowPlaying(items);
+            await CommonValues.AddToNowPlaying(items.ToAdapter());
         }
     }
 }
@@ -665,7 +666,7 @@ partial class MainPage
             DataPackageView dataView = e.DataView;
 
             if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-                || dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId)
+                || dataView.Contains(CommonValues.MusicSongInfosFormatId)
                 || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
                 || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
             {
@@ -690,13 +691,14 @@ partial class MainPage
 
                 await CommonValues.AddToPlaylist(playlist, albumInfo);
             }
-            else if (dataView.Contains(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId))
+            else if (dataView.Contains(CommonValues.MusicSongInfosFormatId))
             {
-                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId);
+                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfosFormatId);
 
-                List<SongInfoAndAlbumDetailPack> packs = JsonSerializer.Deserialize<List<SongInfoAndAlbumDetailPack>>(json);
-
-                await CommonValues.AddToPlaylist(playlist, packs);
+                List<SongInfo> infos = JsonSerializer.Deserialize<List<SongInfo>>(json);
+                // todo: add playlist
+                //await CommonValues.AddToPlaylist(playlist, infos);
+                throw new Exception();
             }
             else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
             {
