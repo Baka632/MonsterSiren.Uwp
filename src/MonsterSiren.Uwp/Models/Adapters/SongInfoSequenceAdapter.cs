@@ -1,4 +1,5 @@
 using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp.Models.Adapters;
 
@@ -6,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="SongInfo"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="songInfos">指定的 <see cref="SongInfo"/> 实例。</param>
-public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : IPlayable
+public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : IPlayable, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -14,6 +15,56 @@ public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : I
         {
             yield return info.Cid;
         }
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        await FavoriteService.AddSongsToFavoriteAsync(GetAsyncEnumerable(box));
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveSongsFromFavoriteAsync(GetCids());
+    }
+
+    private async IAsyncEnumerable<string> GetCids()
+    {
+        foreach (SongInfo songInfo in songInfos.ToArray())
+        {
+            yield return songInfo.Cid;
+        }
+    }
+
+    private async IAsyncEnumerable<SongFavoriteItem> GetAsyncEnumerable(ExceptionBox box)
+    {
+        int songCount = 0;
+        AggregateExceptionHelper helper = new();
+
+        foreach (SongInfo info in songInfos)
+        {
+            SongFavoriteItem songFavoriteItem;
+            try
+            {
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(info.Cid);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
+
+                TimeSpan duration = await MsrModelsHelper.GetSongDurationAsync(songDetail) ?? TimeSpan.Zero;
+
+                songFavoriteItem = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration);
+                songCount++;
+            }
+            catch (Exception ex)
+            {
+                helper.Record(ex);
+                continue;
+            }
+
+            yield return songFavoriteItem;
+        }
+
+        bool allFailed = songCount == helper.ExceptionCount;
+        IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, songInfos);
+        box.InboxException = helper.TryGetException(data);
     }
 }
 

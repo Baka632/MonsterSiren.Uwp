@@ -15,7 +15,7 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
 
     public SongFavoriteSectionViewModel ViewModel { get; }
 
-    public bool IsSongFavoriteEmpty { get => FavoriteService.SongFavoriteList.SongCount <= 0; }
+    public bool IsSongFavoriteEmpty { get => FavoriteService.SongFavoriteList.Count <= 0; }
 
     public SongFavoriteSection()
     {

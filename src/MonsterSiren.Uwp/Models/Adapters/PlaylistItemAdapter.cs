@@ -1,4 +1,5 @@
 using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp.Models.Adapters;
 
@@ -7,7 +8,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// </summary>
 /// <param name="playlistItem">指定的 <see cref="PlaylistItem"/> 实例。</param>
 /// <param name="sourcePlaylist"><paramref name="playlistItem"/> 所属的播放列表。</param>
-public sealed class PlaylistItemAdapter(PlaylistItem playlistItem, Playlist sourcePlaylist) : IPlayable, ICorruptible
+public sealed class PlaylistItemAdapter(PlaylistItem playlistItem, Playlist sourcePlaylist) : IPlayable, ICorruptible, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -21,6 +22,21 @@ public sealed class PlaylistItemAdapter(PlaylistItem playlistItem, Playlist sour
         {
             sourcePlaylist.Items[targetIndex] = playlistItem with { IsCorruptedItem = true };
         }
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        SongFavoriteItem item = new(playlistItem.SongCid,
+                   playlistItem.AlbumCid,
+                   playlistItem.SongTitle,
+                   playlistItem.AlbumTitle,
+                   playlistItem.SongDuration);
+        await FavoriteService.AddSongToFavoriteAsync(item);
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveSongFromFavoriteAsync(playlistItem.SongCid);
     }
 }
 

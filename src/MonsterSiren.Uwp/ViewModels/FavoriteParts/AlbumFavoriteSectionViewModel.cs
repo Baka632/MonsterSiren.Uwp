@@ -14,7 +14,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private static async Task PlayForAlbumFavorite()
     {
-        await CommonValues.StartPlayAlbumFavorites();
+        await CommonValues.StartPlayAlbumFavorite();
     }
 
     [RelayCommand]
@@ -56,7 +56,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private static async Task RemoveAlbumFromFavorite(AlbumFavoriteItem item)
     {
-        await CommonValues.RemoveFromFavorite(item);
+        await CommonValues.RemoveFromFavorite(item.ToAdapter());
     }
 
     [RelayCommand]
@@ -90,13 +90,13 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private void SelectAllSongList()
     {
-        view.AlbumGridView.SelectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.AlbumCount));
+        view.AlbumGridView.SelectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.Count));
     }
 
     [RelayCommand]
     private void DeselectAllSongList()
     {
-        view.AlbumGridView.DeselectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.AlbumCount));
+        view.AlbumGridView.DeselectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.Count));
     }
 
     [RelayCommand]
@@ -220,7 +220,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
             return;
         }
 
-        await FavoriteService.RemoveAlbumsFromFavoriteAsync(selectedItems);
+        await CommonValues.RemoveFromFavorite(selectedItems.ToAdapter());
 
         StopMultipleSelection();
     }

@@ -16,7 +16,7 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
 
     public AlbumFavoriteSectionViewModel ViewModel { get; }
 
-    public bool IsAlbumFavoriteEmpty { get => FavoriteService.AlbumFavoriteList.AlbumCount <= 0; }
+    public bool IsAlbumFavoriteEmpty { get => FavoriteService.AlbumFavoriteList.Count <= 0; }
 
     public AlbumFavoriteSection()
     {

@@ -1,4 +1,5 @@
 using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp.Models.Adapters;
 
@@ -6,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="AlbumDetail"/> 提供服务的适配器。
 /// </summary>
 /// <param name="albumDetail">指定的 <see cref="AlbumDetail"/> 实例。</param>
-public sealed class AlbumDetailAdapter(AlbumDetail albumDetail) : IPlayable
+public sealed class AlbumDetailAdapter(AlbumDetail albumDetail) : IPlayable, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -19,6 +20,34 @@ public sealed class AlbumDetailAdapter(AlbumDetail albumDetail) : IPlayable
         {
             yield return song.Cid;
         }
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        AlbumFavoriteItem item;
+
+        try
+        {
+            AlbumInfo albumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+                .Single(info => info.Cid == albumDetail.Cid);
+
+            item = new(
+                albumInfo.Cid,
+                albumInfo.Name,
+                albumInfo.Artistes);
+        }
+        catch (Exception ex)
+        {
+            box.InboxException = ex;
+            return;
+        }
+
+        await FavoriteService.AddAlbumToFavoriteAsync(item);
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveAlbumFromFavoriteAsync(albumDetail.Cid);
     }
 }
 

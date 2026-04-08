@@ -5,6 +5,9 @@ namespace MonsterSiren.Uwp.Models.Favorites;
 /// <summary>
 /// 表示专辑收藏夹中的一个项目。
 /// </summary>
+/// <param name="AlbumCid">专辑 CID。</param>
+/// <param name="AlbumName">专辑名称。</param>
+/// <param name="Artistes">专辑艺术家。</param>
 public record struct AlbumFavoriteItem(
     string AlbumCid,
     string AlbumName,

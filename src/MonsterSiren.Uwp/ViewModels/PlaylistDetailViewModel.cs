@@ -45,14 +45,14 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task AddSongToFavorite(PlaylistItem item)
     {
-        await CommonValues.AddToFavorite(item);
+        await CommonValues.AddToFavorite(item.ToAdapter(CurrentPlaylist));
         OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
     }
 
     [RelayCommand]
     private async Task RemoveSongFromFavorite(PlaylistItem item)
     {
-        await CommonValues.RemoveFromFavorite(item);
+        await CommonValues.RemoveFromFavorite(item.ToAdapter(CurrentPlaylist));
         OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
     }
 
@@ -203,7 +203,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task AddSongsToFavoriteForSelectedItem()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        bool isSuccess = await CommonValues.AddToFavorite(selectedItems);
+        bool isSuccess = await CommonValues.AddToFavorite(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

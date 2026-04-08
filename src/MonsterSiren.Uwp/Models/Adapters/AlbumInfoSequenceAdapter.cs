@@ -1,4 +1,5 @@
 using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp.Models.Adapters;
 
@@ -6,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="AlbumInfo"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="albumInfos">指定的 <see cref="AlbumInfo"/> 实例。</param>
-public sealed class AlbumInfoSequenceAdapter(IEnumerable<AlbumInfo> albumInfos) : IPlayable
+public sealed class AlbumInfoSequenceAdapter(IEnumerable<AlbumInfo> albumInfos) : IPlayable, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -41,6 +42,24 @@ public sealed class AlbumInfoSequenceAdapter(IEnumerable<AlbumInfo> albumInfos) 
         bool allFailed = albumCount == helper.ExceptionCount;
         IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, albumInfos);
         box.InboxException = helper.TryGetException(data);
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        await FavoriteService.AddAlbumsToFavoriteAsync(GetAsyncEnumerable());
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveAlbumsFromFavoriteAsync(GetAsyncEnumerable());
+    }
+
+    private async IAsyncEnumerable<AlbumFavoriteItem> GetAsyncEnumerable()
+    {
+        foreach (AlbumInfo info in albumInfos.ToArray())
+        {
+            yield return new(info.Cid, info.Name, info.Artistes);
+        }
     }
 }
 

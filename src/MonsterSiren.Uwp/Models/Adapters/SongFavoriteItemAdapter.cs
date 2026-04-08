@@ -7,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="SongFavoriteItem"/> 提供服务的适配器。
 /// </summary>
 /// <param name="songFavoriteItem">指定的 <see cref="SongFavoriteItem"/> 实例。</param>
-public sealed class SongFavoriteItemAdapter(SongFavoriteItem songFavoriteItem) : IPlayable, ICorruptible
+public sealed class SongFavoriteItemAdapter(SongFavoriteItem songFavoriteItem) : IPlayable, ICorruptible, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -21,6 +21,16 @@ public sealed class SongFavoriteItemAdapter(SongFavoriteItem songFavoriteItem) :
         {
             FavoriteService.SongFavoriteList.Items[targetIndex] = songFavoriteItem with { IsCorruptedItem = true };
         }
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        await FavoriteService.AddSongToFavoriteAsync(songFavoriteItem);
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveSongFromFavoriteAsync(songFavoriteItem);
     }
 }
 

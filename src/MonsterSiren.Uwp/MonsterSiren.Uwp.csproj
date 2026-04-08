@@ -138,6 +138,7 @@
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
+    <Compile Include="Models\Abstracts\IFavoriteAddable.cs" />
     <Compile Include="Models\Abstracts\IPlayable.cs" />
     <Compile Include="Models\Abstracts\ICorruptible.cs" />
     <Compile Include="Models\Adapters\AlbumCidAdapter.cs" />
@@ -165,8 +166,10 @@
     <Compile Include="Models\ExceptionBox.cs" />
     <Compile Include="Models\Favorites\AlbumFavoriteItem.cs" />
     <Compile Include="Models\Favorites\AlbumFavoriteList.cs" />
+    <Compile Include="Models\Favorites\FavoriteList.cs" />
     <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
     <Compile Include="Models\Favorites\SongFavoriteList.cs" />
+    <Compile Include="Models\FavoriteType.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\MusicPlayOperation.cs" />
     <Compile Include="Models\NowPlayingList.cs" />

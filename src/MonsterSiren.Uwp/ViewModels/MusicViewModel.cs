@@ -126,14 +126,14 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [RelayCommand]
     private async Task AddAlbumToFavorite(AlbumInfo info)
     {
-        await CommonValues.AddToFavorite(info);
+        await CommonValues.AddToFavorite(info.ToAdapter());
         OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
     }
 
     [RelayCommand]
     private async Task RemoveAlbumFromFavorite(AlbumInfo info)
     {
-        await CommonValues.RemoveFromFavorite(info);
+        await CommonValues.RemoveFromFavorite(info.ToAdapter());
         OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
     }
 
@@ -286,7 +286,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             return;
         }
 
-        bool isSuccess = await CommonValues.AddToFavorite(selectedItems);
+        bool isSuccess = await CommonValues.AddToFavorite(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

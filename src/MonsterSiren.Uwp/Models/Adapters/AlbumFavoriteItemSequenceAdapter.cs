@@ -7,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="AlbumFavoriteItem"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="albumFavoriteItems">指定的 <see cref="AlbumFavoriteItem"/> 序列实例。</param>
-public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteItem> albumFavoriteItems) : IPlayable
+public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteItem> albumFavoriteItems) : IPlayable, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
@@ -42,6 +42,24 @@ public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteIt
         bool allFailed = albumCount == helper.ExceptionCount;
         IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, albumFavoriteItems);
         box.InboxException = helper.TryGetException(data);
+    }
+
+    public async Task AddToFavoriteAsync(ExceptionBox box)
+    {
+        await FavoriteService.AddAlbumsToFavoriteAsync(GetAsyncEnumerable());
+    }
+
+    public async Task RemoveFromFavoriteAsync()
+    {
+        await FavoriteService.RemoveAlbumsFromFavoriteAsync(GetAsyncEnumerable());
+    }
+
+    private async IAsyncEnumerable<AlbumFavoriteItem> GetAsyncEnumerable()
+    {
+        foreach (AlbumFavoriteItem item in albumFavoriteItems)
+        {
+            yield return item;
+        }
     }
 }
 
