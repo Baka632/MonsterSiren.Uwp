@@ -8,15 +8,15 @@ namespace MonsterSiren.Uwp;
 partial class CommonValues
 {
     /// <summary>
-    /// 根据 <see cref="IPlayable"/> 获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// 根据 <see cref="ISongCidProvider"/> 获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
     /// </summary>
-    /// <param name="playable"><see cref="IPlayable"/> 实例。</param>
+    /// <param name="playable"><see cref="ISongCidProvider"/> 实例。</param>
     /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
     /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
     /// <remarks>
     /// 当出现异常时，此方法会跳过异常项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(IPlayable playable, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(ISongCidProvider playable, ExceptionBox box)
     {
         if (playable is null)
         {

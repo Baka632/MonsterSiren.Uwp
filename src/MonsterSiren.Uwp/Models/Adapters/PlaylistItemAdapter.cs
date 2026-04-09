@@ -9,7 +9,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// </summary>
 /// <param name="playlistItem">指定的 <see cref="PlaylistItem"/> 实例。</param>
 /// <param name="sourcePlaylist"><paramref name="playlistItem"/> 所属的播放列表。</param>
-public sealed class PlaylistItemAdapter(PlaylistItem playlistItem, Playlist sourcePlaylist) : IPlayable, ICorruptible, IFavoriteAddable
+public sealed class PlaylistItemAdapter(PlaylistItem playlistItem, Playlist sourcePlaylist) : ISongCidProvider, ICorruptible, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

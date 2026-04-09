@@ -139,7 +139,7 @@
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
     <Compile Include="Models\Abstracts\IFavoriteAddable.cs" />
-    <Compile Include="Models\Abstracts\IPlayable.cs" />
+    <Compile Include="Models\Abstracts\ISongCidProvider.cs" />
     <Compile Include="Models\Abstracts\ICorruptible.cs" />
     <Compile Include="Models\Adapters\AlbumCidAdapter.cs" />
     <Compile Include="Models\Adapters\AlbumDetailAdapter.cs" />

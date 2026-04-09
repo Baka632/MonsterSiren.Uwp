@@ -6,7 +6,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为专辑 CID 提供服务的适配器。
 /// </summary>
 /// <param name="albumCid">专辑 CID。</param>
-public sealed class AlbumCidAdapter(string albumCid) : IPlayable
+public sealed class AlbumCidAdapter(string albumCid) : ISongCidProvider
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

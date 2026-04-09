@@ -7,7 +7,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="SongFavoriteItem"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="songFavoriteItems">指定的 <see cref="SongFavoriteItem"/> 序列实例。</param>
-public sealed class SongFavoriteItemSequenceAdapter(IEnumerable<SongFavoriteItem> songFavoriteItems) : IPlayable, IFavoriteAddable
+public sealed class SongFavoriteItemSequenceAdapter(IEnumerable<SongFavoriteItem> songFavoriteItems) : ISongCidProvider, IFavoriteAddable
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
