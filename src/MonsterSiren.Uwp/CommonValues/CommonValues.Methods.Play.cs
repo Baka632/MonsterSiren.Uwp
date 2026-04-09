@@ -1,4 +1,6 @@
 using Windows.Media.Playback;
+using MonsterSiren.Uwp.Models.Playlists;
+using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Abstracts;
 
 namespace MonsterSiren.Uwp;

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.VoiceCommands;
 using Windows.Foundation.Metadata;

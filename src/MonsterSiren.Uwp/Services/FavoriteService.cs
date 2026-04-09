@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -285,15 +286,6 @@ public static class FavoriteService
         IAsyncEnumerable<MediaPlaybackItem> items = GetFavoriteListMediaPlaybackItems(favoriteType, box);
         await MusicService.PlayNext(items);
         box.Unbox();
-    }
-
-    private static SongFavoriteItem ToSongFavoriteItem(PlaylistItem playlistItem)
-    {
-        return new(playlistItem.SongCid,
-                   playlistItem.AlbumCid,
-                   playlistItem.SongTitle,
-                   playlistItem.AlbumTitle,
-                   playlistItem.SongDuration);
     }
 
     private static async Task<T> InitializeFavoriteList<T>(FavoriteType favoriteType) where T : new()

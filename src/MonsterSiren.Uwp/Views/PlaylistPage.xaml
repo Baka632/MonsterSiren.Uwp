@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:playlistModels="using:MonsterSiren.Uwp.Models.Playlists"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -161,7 +162,7 @@
                 </GridView.Resources>
 
                 <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Playlist">
+                    <DataTemplate x:DataType="playlistModels:Playlist">
                         <Grid
                             Padding="5"
                             Background="Transparent"

@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
-namespace MonsterSiren.Uwp.Models;
+namespace MonsterSiren.Uwp.Models.Playlists;
 
 /// <summary>
 /// 表示一个播放列表。

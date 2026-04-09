@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
 using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
 

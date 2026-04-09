@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;

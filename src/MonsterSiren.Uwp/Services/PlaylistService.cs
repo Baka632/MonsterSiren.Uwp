@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
 using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.Media.Playback;
 using Windows.Storage;
 

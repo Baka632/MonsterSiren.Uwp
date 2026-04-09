@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Xaml.Documents;
 
 namespace MonsterSiren.Uwp.Views;

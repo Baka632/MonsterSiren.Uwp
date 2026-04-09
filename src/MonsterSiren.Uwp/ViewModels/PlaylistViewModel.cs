@@ -1,3 +1,5 @@
+using MonsterSiren.Uwp.Models.Playlists;
+
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>

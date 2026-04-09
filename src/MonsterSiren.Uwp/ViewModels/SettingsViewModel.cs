@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.Helpers;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.ApplicationModel.Core;
 using Windows.Media.Core;
 using Windows.Media.MediaProperties;

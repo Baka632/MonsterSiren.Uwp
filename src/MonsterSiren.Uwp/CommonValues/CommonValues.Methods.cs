@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp;
 

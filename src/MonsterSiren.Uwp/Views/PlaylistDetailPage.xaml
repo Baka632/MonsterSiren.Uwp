@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:playlistModels="using:MonsterSiren.Uwp.Models.Playlists"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
@@ -288,7 +289,7 @@
             </ListView.Header>
 
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:PlaylistItem">
+                <DataTemplate x:DataType="playlistModels:PlaylistItem">
                     <Grid
                         Background="Transparent"
                         ContextFlyout="{Binding ElementName=Self, Path=ViewModel.SelectedSongListItemContextFlyout, Mode=OneWay}"

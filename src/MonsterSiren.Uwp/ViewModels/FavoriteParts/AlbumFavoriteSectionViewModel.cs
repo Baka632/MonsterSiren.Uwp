@@ -1,5 +1,6 @@
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Models.Playlists;
 using MonsterSiren.Uwp.Views.FavoritePageParts;
 
 namespace MonsterSiren.Uwp.ViewModels.FavoriteParts;

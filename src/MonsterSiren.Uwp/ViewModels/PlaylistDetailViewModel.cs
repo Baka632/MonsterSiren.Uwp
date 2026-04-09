@@ -1,4 +1,5 @@
 using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;

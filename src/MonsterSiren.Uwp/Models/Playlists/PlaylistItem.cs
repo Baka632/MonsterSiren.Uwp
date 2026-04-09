@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MonsterSiren.Uwp.Models;
+namespace MonsterSiren.Uwp.Models.Playlists;
 
 /// <summary>
 /// 表示播放列表的一个项目。

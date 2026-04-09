@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Media.Animation;
 using MonsterSiren.Uwp.Models.Favorites;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Playlists;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
 

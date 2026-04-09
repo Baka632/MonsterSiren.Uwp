@@ -1,4 +1,4 @@
-namespace MonsterSiren.Uwp.Models;
+namespace MonsterSiren.Uwp.Models.Favorites;
 
 /// <summary>
 /// 表示收藏类型的枚举。
