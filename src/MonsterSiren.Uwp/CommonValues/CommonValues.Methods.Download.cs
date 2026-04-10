@@ -1,4 +1,5 @@
-using System.Net.Http;
+using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
 
@@ -7,171 +8,63 @@ namespace MonsterSiren.Uwp;
 partial class CommonValues
 {
     /// <summary>
-    /// 启动下载 <see cref="AlbumInfo"/> 中歌曲的操作。
+    /// 启动下载 <see cref="ISongCidProvider"/> 中表示歌曲的操作。
     /// </summary>
-    /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(AlbumInfo albumInfo)
+    /// <param name="songCidProvider">可提供歌曲 CID 对象的实例。</param>
+    /// <returns>指示下载操作是否成功开始的值。</returns>
+    public static async Task<bool> StartDownload(ISongCidProvider songCidProvider)
     {
-        try
+        if (songCidProvider is null)
         {
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            throw new ArgumentNullException(nameof(songCidProvider));
+        }
 
-            foreach (SongInfo songInfo in albumDetail.Songs)
+        AggregateExceptionHelper aggregateHelper = new();
+        ExceptionBox box = new();
+        IAsyncEnumerable<string> cids = songCidProvider.GetSongCidsAsync(box);
+
+        int songCount = 0;
+
+        await foreach (string songCid in cids)
+        {
+            try
             {
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
+                songCount++;
+
+                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songCid);
+                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
+
                 DownloadService.EnqueueSongDownload(albumDetail, songDetail);
             }
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="AlbumInfo"/> 序列中歌曲的操作。
-    /// </summary>
-    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列。</param>
-    /// <returns>指示下载操作是否成功开始的值。</returns>
-    public static async Task<bool> StartDownload(IEnumerable<AlbumInfo> albumInfos)
-    {
-        try
-        {
-            foreach (AlbumInfo albumInfo in albumInfos)
+            catch (Exception ex)
             {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+                aggregateHelper.Record(ex);
+            }
+        }
 
-                foreach (SongInfo songInfo in albumDetail.Songs)
+        if (box.InboxException is not null)
+        {
+            aggregateHelper.Record(box.InboxException);
+        }
+
+        if (aggregateHelper.HasException)
+        {
+            bool allFailed = songCount == aggregateHelper.ExceptionCount;
+            AggregateException aggregate = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, songCidProvider));
+
+            if (aggregate.Flatten().InnerExceptions.Any(ex => ex is ArgumentOutOfRangeException))
+            {
+                if (songCidProvider is ICorruptible corruptible)
                 {
-                    SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                    DownloadService.EnqueueSongDownload(albumDetail, songDetail);
+                    corruptible.MarkAsCorrupted();
                 }
             }
 
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="AlbumDetail"/> 中歌曲的操作。
-    /// </summary>
-    /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 的实例。</param>
-    /// <returns>指示下载操作是否成功开始的值。</returns>
-    public static async Task<bool> StartDownload(AlbumDetail albumDetail)
-    {
-        if (albumDetail.Songs is null)
-        {
+            await DisplayAggregateExceptionErrorDialog(aggregate);
             return false;
         }
 
-        try
-        {
-            foreach (SongInfo item in albumDetail.Songs)
-            {
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid);
-                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-            }
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="SongInfo"/> 所表示歌曲的操作。
-    /// </summary>
-    /// <param name="songInfo">一个 <see cref="SongInfo"/> 的实例。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/>。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(SongInfo songInfo, AlbumDetail albumDetail)
-    {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="SongInfo"/> 序列的操作。
-    /// </summary>
-    /// <param name="songInfos"><see cref="SongInfo"/> 序列。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/>。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(IEnumerable<SongInfo> songInfos, AlbumDetail albumDetail)
-    {
-        if (!songInfos.Any())
-        {
-            return false;
-        }
-
-        try
-        {
-            foreach (SongInfo songInfo in songInfos.ToArray())
-            {
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-            }
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="PlaylistItem"/> 所表示播放列表项的操作。
-    /// </summary>
-    /// <param name="playlistItem">一个 <see cref="PlaylistItem"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(PlaylistItem playlistItem)
-    {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            await DisplaySongOrAlbumCidCorruptDialog();
-        }
-
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -186,44 +79,7 @@ partial class CommonValues
             return false;
         }
 
-        bool isAllSuccess = await StartDownload(playlist.Items);
-        return isAllSuccess;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="PlaylistItem"/> 序列的操作。
-    /// </summary>
-    /// <param name="playlistItems"><see cref="PlaylistItem"/> 序列。</param>
-    /// <returns>指示下载是否完全成功的值。</returns>
-    public static async Task<bool> StartDownload(IEnumerable<PlaylistItem> playlistItems)
-    {
-        if (!playlistItems.Any())
-        {
-            return false;
-        }
-
-        bool isAllSuccess = true;
-
-        foreach (PlaylistItem playlistItem in playlistItems.ToArray())
-        {
-            try
-            {
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-            }
-            catch (HttpRequestException)
-            {
-                await DisplayInternetErrorDialog();
-                isAllSuccess = false;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                await DisplaySongOrAlbumCidCorruptDialog();
-                isAllSuccess = false;
-            }
-        }
-
+        bool isAllSuccess = await StartDownload(playlist.Items.ToAdapter());
         return isAllSuccess;
     }
 
@@ -232,149 +88,40 @@ partial class CommonValues
     /// </summary>
     /// <returns>指示下载是否完全成功的值。</returns>
     public static async Task<bool> StartDownloadSongFavorites()
-    {
-        if (FavoriteService.SongFavoriteList.Items.Count <= 0)
-        {
-            return false;
-        }
-
-        bool isAllSuccess = await StartDownload(FavoriteService.SongFavoriteList.Items);
-        return isAllSuccess;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="SongFavoriteItem"/> 序列的操作。
-    /// </summary>
-    /// <param name="songFavoriteItems"><see cref="SongFavoriteItem"/> 序列。</param>
-    /// <returns>指示下载是否完全成功的值。</returns>
-    public static async Task<bool> StartDownload(IEnumerable<SongFavoriteItem> songFavoriteItems)
-    {
-        if (!songFavoriteItems.Any())
-        {
-            return false;
-        }
-
-        bool isAllSuccess = true;
-
-        foreach (SongFavoriteItem playlistItem in songFavoriteItems.ToArray())
-        {
-            try
-            {
-                SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(playlistItem.SongCid);
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(playlistItem.AlbumCid);
-                DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-            }
-            catch (HttpRequestException)
-            {
-                await DisplayInternetErrorDialog();
-                isAllSuccess = false;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                await DisplaySongOrAlbumCidCorruptDialog();
-                isAllSuccess = false;
-            }
-        }
-
-        return isAllSuccess;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="SongFavoriteItem"/> 所表示播放列表项的操作。
-    /// </summary>
-    /// <param name="item">一个 <see cref="SongFavoriteItem"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(SongFavoriteItem item)
-    {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(item.SongCid);
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-            DownloadService.EnqueueSongDownload(albumDetail, songDetail);
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            await DisplaySongOrAlbumCidCorruptDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="AlbumFavoriteItem"/> 所表示专辑中所有歌曲的操作。
-    /// </summary>
-    /// <param name="albumItem">一个 <see cref="AlbumFavoriteItem"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartDownload(AlbumFavoriteItem albumItem)
-    {
-        try
-        {
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
-            return await StartDownload(albumDetail);
-        }
-        catch (HttpRequestException)
-        {
-            await DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            await DisplaySongOrAlbumCidCorruptDialog();
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="AlbumFavoriteItem"/> 序列中所有歌曲的操作。
-    /// </summary>
-    /// <param name="albumItems"><see cref="AlbumFavoriteItem"/> 序列。</param>
-    /// <returns>指示下载是否完全成功的值。</returns>
-    public static async Task<bool> StartDownload(IEnumerable<AlbumFavoriteItem> albumItems)
-    {
-        if (!albumItems.Any())
-        {
-            return false;
-        }
-
-        bool isAllSuccess = true;
-        foreach (AlbumFavoriteItem albumItem in albumItems.ToArray())
-        {
-            try
-            {
-                AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumItem.AlbumCid);
-                await StartDownload(albumDetail);
-            }
-            catch (HttpRequestException)
-            {
-                await DisplayInternetErrorDialog();
-                isAllSuccess = false;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                await DisplaySongOrAlbumCidCorruptDialog();
-                isAllSuccess = false;
-            }
-        }
-        return isAllSuccess;
-    }
+        => await DownloadForFavorites(FavoriteType.Song);
 
     /// <summary>
     /// 启动下载专辑收藏夹中所有歌曲的操作。
     /// </summary>
     /// <returns>指示下载是否完全成功的值。</returns>
     public static async Task<bool> StartDownloadAlbumFavorites()
+        => await DownloadForFavorites(FavoriteType.Album);
+
+    private static async Task<bool> DownloadForFavorites(FavoriteType favoriteType)
     {
-        if (FavoriteService.AlbumFavoriteList.Items.Count == 0)
+        ISongCidProvider provider;
+        int count;
+
+        switch (favoriteType)
+        {
+            case FavoriteType.Song:
+                count = FavoriteService.SongFavoriteList.Count;
+                provider = FavoriteService.SongFavoriteList.Items.ToAdapter();
+                break;
+            case FavoriteType.Album:
+                count = FavoriteService.AlbumFavoriteList.Count;
+                provider = FavoriteService.AlbumFavoriteList.Items.ToAdapter();
+                break;
+            default:
+                throw new NotImplementedException("尚未实现这种收藏类型。");
+        }
+
+        if (count == 0)
         {
             return false;
         }
 
-        bool isAllSuccess = await StartDownload(FavoriteService.AlbumFavoriteList.Items);
+        bool isAllSuccess = await StartDownload(provider);
         return isAllSuccess;
     }
 }

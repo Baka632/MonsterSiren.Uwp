@@ -168,7 +168,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task DownloadForCurrentAlbumDetail()
     {
-        await CommonValues.StartDownload(CurrentAlbumDetail);
+        await CommonValues.StartDownload(CurrentAlbumDetail.ToAdapter());
     }
 
     [RelayCommand]
@@ -210,9 +210,9 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     }
 
     [RelayCommand]
-    private async Task DownloadForSongInfo(SongInfo songInfo)
+    private static async Task DownloadForSongInfo(SongInfo songInfo)
     {
-        await CommonValues.StartDownload(songInfo, CurrentAlbumDetail);
+        await CommonValues.StartDownload(songInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -356,7 +356,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             return;
         }
 
-        bool isSuccess = await CommonValues.StartDownload(selectedItems, CurrentAlbumDetail);
+        bool isSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
 
         if (isSuccess)
         {

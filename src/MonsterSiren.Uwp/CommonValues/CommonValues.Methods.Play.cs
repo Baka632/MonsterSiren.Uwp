@@ -11,7 +11,7 @@ partial class CommonValues
     /// <summary>
     /// 播放 <see cref="ISongCidProvider"/> 所表示的内容。
     /// </summary>
-    /// <param name="playable">可播放对象的实例。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> StartPlay(ISongCidProvider playable)
         => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.Replace);
@@ -19,7 +19,7 @@ partial class CommonValues
     /// <summary>
     /// 将 <see cref="ISongCidProvider"/> 所表示的内容加入到正在播放列表中。
     /// </summary>
-    /// <param name="playable">可播放对象的实例。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> AddToNowPlaying(ISongCidProvider playable)
         => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.Add);
@@ -27,7 +27,7 @@ partial class CommonValues
     /// <summary>
     /// 将 <see cref="ISongCidProvider"/> 所表示的内容设为下一项播放。
     /// </summary>
-    /// <param name="playable">可播放对象的实例。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> PlayNext(ISongCidProvider playable)
         => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.AddNext);
@@ -130,7 +130,7 @@ partial class CommonValues
     /// <summary>
     /// 对正在播放列表进行操作。
     /// </summary>
-    /// <param name="playable">可播放对象的实例。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <param name="operation">指示要对正在播放列表进行的操作。</param>
     /// <returns>指示操作是否成功的值。</returns>
     private static async Task<bool> WorkOnNowPlayingAsync(ISongCidProvider playable, MusicPlayOperation operation)

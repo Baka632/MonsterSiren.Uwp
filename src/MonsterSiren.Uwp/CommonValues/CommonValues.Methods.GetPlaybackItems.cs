@@ -34,12 +34,13 @@ partial class CommonValues
 
         await foreach (string songCid in playable.GetSongCidsAsync(innerBox))
         {
+            songCount++;
+
             MediaPlaybackItem playbackItem;
 
             try
             {
                 playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(songCid);
-                songCount++;
             }
             catch (Exception ex)
             {

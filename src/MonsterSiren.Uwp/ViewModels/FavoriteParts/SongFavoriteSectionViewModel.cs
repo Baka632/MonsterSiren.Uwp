@@ -61,7 +61,7 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     [RelayCommand]
     private static async Task DownloadForSongItem(SongFavoriteItem item)
     {
-        await CommonValues.StartDownload(item);
+        await CommonValues.StartDownload(item.ToAdapter());
     }
 
     [RelayCommand]
@@ -222,7 +222,7 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
             }
         }
 
-        bool isAllSuccess = await CommonValues.StartDownload(selectedItems);
+        bool isAllSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
 
         if (isAllSuccess)
         {

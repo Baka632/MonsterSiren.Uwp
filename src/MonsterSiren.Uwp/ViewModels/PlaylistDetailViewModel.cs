@@ -82,9 +82,9 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
-    private static async Task DownloadForItem(PlaylistItem item)
+    private async Task DownloadForItem(PlaylistItem item)
     {
-        await CommonValues.StartDownload(item);
+        await CommonValues.StartDownload(item.ToAdapter(CurrentPlaylist));
     }
 
     [RelayCommand]
@@ -216,7 +216,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task DownloadForSongListSelectedItem()
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        bool isAllSuccess = await CommonValues.StartDownload(selectedItems);
+        bool isAllSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
 
         if (isAllSuccess)
         {

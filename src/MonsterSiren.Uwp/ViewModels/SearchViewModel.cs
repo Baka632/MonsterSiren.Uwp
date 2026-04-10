@@ -110,7 +110,7 @@ public sealed partial class SearchViewModel : ObservableObject
     [RelayCommand]
     private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.StartDownload(albumInfo);
+        await CommonValues.StartDownload(albumInfo.ToAdapter());
     }
 
     private void ShowInternetError(HttpRequestException ex)

@@ -121,7 +121,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [RelayCommand]
     private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
     {
-        await CommonValues.StartDownload(albumInfo);
+        await CommonValues.StartDownload(albumInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -269,7 +269,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             }
         }
 
-        bool isSuccess = await CommonValues.StartDownload(selectedItems);
+        bool isSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
 
         if (isSuccess)
         {
