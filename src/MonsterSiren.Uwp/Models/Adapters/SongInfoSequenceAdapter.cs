@@ -37,11 +37,13 @@ public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : I
 
     private async IAsyncEnumerable<SongFavoriteItem> GetAsyncEnumerable(ExceptionBox box)
     {
-        int songCount = 0;
+        AllFailedHelper allFailedHelper = new();
         AggregateExceptionHelper helper = new();
 
         foreach (SongInfo info in songInfos)
         {
+            allFailedHelper.Start();
+
             SongFavoriteItem songFavoriteItem;
             try
             {
@@ -51,7 +53,7 @@ public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : I
                 TimeSpan duration = await MsrModelsHelper.GetSongDurationAsync(songDetail) ?? TimeSpan.Zero;
 
                 songFavoriteItem = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration);
-                songCount++;
+                allFailedHelper.Succeed();
             }
             catch (Exception ex)
             {
@@ -62,7 +64,7 @@ public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : I
             yield return songFavoriteItem;
         }
 
-        bool allFailed = songCount == helper.ExceptionCount;
+        bool allFailed = allFailedHelper.IsAllFailed();
         IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, songInfos);
         box.InboxException = helper.TryGetException(data);
     }

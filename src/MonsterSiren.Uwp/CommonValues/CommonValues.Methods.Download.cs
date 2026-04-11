@@ -1,6 +1,5 @@
 using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
-using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp;
 
@@ -18,25 +17,37 @@ partial class CommonValues
             throw new ArgumentNullException(nameof(songCidProvider));
         }
 
+        if (songCidProvider is IContentContainer container && container.IsEmpty)
+        {
+            return false;
+        }
+
         AggregateExceptionHelper aggregateHelper = new();
         ExceptionBox box = new();
         IAsyncEnumerable<string> cids = songCidProvider.GetSongCidsAsync(box);
 
-        int songCount = 0;
+        AllFailedHelper allFailedHelper = new();
 
         await foreach (string songCid in cids)
         {
             try
             {
-                songCount++;
+                allFailedHelper.Start();
 
                 SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songCid);
                 AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
 
                 DownloadService.EnqueueSongDownload(albumDetail, songDetail);
+
+                allFailedHelper.Succeed();
             }
             catch (Exception ex)
             {
+                if (ex is ArgumentOutOfRangeException && songCidProvider is IContentCorruptible contentCorruptible)
+                {
+                    contentCorruptible.MarkItemAsCorrupted(songCid);
+                }
+
                 aggregateHelper.Record(ex);
             }
         }
@@ -48,7 +59,7 @@ partial class CommonValues
 
         if (aggregateHelper.HasException)
         {
-            bool allFailed = songCount == aggregateHelper.ExceptionCount;
+            bool allFailed = allFailedHelper.IsAllFailed();
             AggregateException aggregate = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, songCidProvider));
 
             if (aggregate.Flatten().InnerExceptions.Any(ex => ex is ArgumentOutOfRangeException))
@@ -71,40 +82,12 @@ partial class CommonValues
     /// </summary>
     /// <returns>指示下载是否完全成功的值。</returns>
     public static async Task<bool> StartDownloadSongFavorites()
-        => await DownloadForFavorites(FavoriteType.Song);
+        => await StartDownload(FavoriteService.SongFavoriteList.ToAdapter());
 
     /// <summary>
     /// 启动下载专辑收藏夹中所有歌曲的操作。
     /// </summary>
     /// <returns>指示下载是否完全成功的值。</returns>
     public static async Task<bool> StartDownloadAlbumFavorites()
-        => await DownloadForFavorites(FavoriteType.Album);
-
-    private static async Task<bool> DownloadForFavorites(FavoriteType favoriteType)
-    {
-        ISongCidProvider provider;
-        int count;
-
-        switch (favoriteType)
-        {
-            case FavoriteType.Song:
-                count = FavoriteService.SongFavoriteList.Count;
-                provider = FavoriteService.SongFavoriteList.Items.ToAdapter();
-                break;
-            case FavoriteType.Album:
-                count = FavoriteService.AlbumFavoriteList.Count;
-                provider = FavoriteService.AlbumFavoriteList.Items.ToAdapter();
-                break;
-            default:
-                throw new NotImplementedException("尚未实现这种收藏类型。");
-        }
-
-        if (count == 0)
-        {
-            return false;
-        }
-
-        bool isAllSuccess = await StartDownload(provider);
-        return isAllSuccess;
-    }
+        => await StartDownload(FavoriteService.AlbumFavoriteList.ToAdapter());
 }

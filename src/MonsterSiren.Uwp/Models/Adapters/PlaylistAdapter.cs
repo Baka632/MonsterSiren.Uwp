@@ -25,7 +25,10 @@ public sealed class PlaylistAdapter(Playlist playlist) : ISongCidProvider, ICont
     {
         PlaylistItem item = playlist.Items.First(playlistItem => playlistItem.SongCid == cid);
         int targetIndex = playlist.Items.IndexOf(item);
-        playlist.Items[targetIndex] = item with { IsCorruptedItem = true };
+        if (targetIndex != -1)
+        {
+            playlist.Items[targetIndex] = item with { IsCorruptedItem = true };
+        }
     }
 }
 

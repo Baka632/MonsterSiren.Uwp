@@ -11,16 +11,19 @@ public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteIt
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
-        int albumCount = 0;
+        AllFailedHelper allFailedHelper = new();
+
         AggregateExceptionHelper helper = new();
 
         foreach (AlbumFavoriteItem item in albumFavoriteItems.ToArray())
         {
+            allFailedHelper.Start();
+
             AlbumDetail detail;
             try
             {
                 detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-                albumCount++;
+                allFailedHelper.Succeed();
             }
             catch (Exception ex)
             {
@@ -39,7 +42,7 @@ public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteIt
             }
         }
 
-        bool allFailed = albumCount == helper.ExceptionCount;
+        bool allFailed = allFailedHelper.IsAllFailed();
         IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, albumFavoriteItems);
         box.InboxException = helper.TryGetException(data);
     }

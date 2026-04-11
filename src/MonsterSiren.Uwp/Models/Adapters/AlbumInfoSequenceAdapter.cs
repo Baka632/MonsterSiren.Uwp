@@ -11,16 +11,17 @@ public sealed class AlbumInfoSequenceAdapter(IEnumerable<AlbumInfo> albumInfos) 
 {
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
-        int albumCount = 0;
+        AllFailedHelper allFailedHelper = new();
         AggregateExceptionHelper helper = new();
 
         foreach (AlbumInfo albumInfo in albumInfos.ToArray())
         {
+            allFailedHelper.Start();
             AlbumDetail detail;
             try
             {
                 detail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
-                albumCount++;
+                allFailedHelper.Succeed();
             }
             catch (Exception ex)
             {
@@ -39,7 +40,7 @@ public sealed class AlbumInfoSequenceAdapter(IEnumerable<AlbumInfo> albumInfos) 
             }
         }
 
-        bool allFailed = albumCount == helper.ExceptionCount;
+        bool allFailed = allFailedHelper.IsAllFailed();
         IEnumerable<(string Key, object Value)> data = AggregateExceptionHelper.GetDataForCommonUsage(allFailed, albumInfos);
         box.InboxException = helper.TryGetException(data);
     }

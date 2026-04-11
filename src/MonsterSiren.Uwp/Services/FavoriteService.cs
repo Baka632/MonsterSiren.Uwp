@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
 using Windows.Media.Playback;
@@ -249,45 +250,6 @@ public static class FavoriteService
     public static async Task RemoveAlbumsFromFavoriteAsync(IAsyncEnumerable<string> albumCids)
         => await RemoveItemsFromFavoriteAsync<AlbumFavoriteItem>(albumCids, FavoriteType.Album);
 
-    /// <summary>
-    /// 播放收藏夹中的歌曲。
-    /// </summary>
-    /// <param name="favoriteType">收藏内容类型。</param>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayFavoriteListAsync(FavoriteType favoriteType)
-    {
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = GetFavoriteListMediaPlaybackItems(favoriteType, box);
-        await MusicService.ReplaceMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
-    /// 将收藏夹添加到正在播放列表中。
-    /// </summary>
-    /// <param name="favoriteType">收藏内容类型。</param>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task AddFavoriteListToNowPlayingAsync(FavoriteType favoriteType)
-    {
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = GetFavoriteListMediaPlaybackItems(favoriteType, box);
-        await MusicService.AddMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
-    /// 将收藏夹设为下一项播放。
-    /// </summary>
-    /// <param name="favoriteType">收藏内容类型。</param>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayNextForFavoriteListAsync(FavoriteType favoriteType)
-    {
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = GetFavoriteListMediaPlaybackItems(favoriteType, box);
-        await MusicService.PlayNext(items);
-        box.Unbox();
-    }
-
     private static async Task<T> InitializeFavoriteList<T>(FavoriteType favoriteType) where T : new()
     {
         StorageFile file = await GetFavoriteListFile(favoriteType);
@@ -373,16 +335,6 @@ public static class FavoriteService
         }
 
         return targetFile;
-    }
-
-    private static IAsyncEnumerable<MediaPlaybackItem> GetFavoriteListMediaPlaybackItems(FavoriteType favoriteType, ExceptionBox box)
-    {
-        return favoriteType switch
-        {
-            FavoriteType.Song => CommonValues.GetMediaPlaybackItems(SongFavoriteList, box),
-            FavoriteType.Album => CommonValues.GetMediaPlaybackItems(AlbumFavoriteList, box),
-            _ => throw GetFavoriteTypeNotImplementedException()
-        };
     }
 
     /// <summary>

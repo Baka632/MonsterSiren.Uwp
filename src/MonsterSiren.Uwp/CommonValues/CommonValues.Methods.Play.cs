@@ -1,7 +1,7 @@
 using Windows.Media.Playback;
 using MonsterSiren.Uwp.Models.Playlists;
-using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Adapters;
 
 namespace MonsterSiren.Uwp;
 
@@ -65,42 +65,42 @@ partial class CommonValues
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> StartPlaySongFavorite()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.Replace, FavoriteType.Song);
+        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
 
     /// <summary>
     /// 将歌曲收藏夹添加到正在播放列表中。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> AddSongFavoriteToNowPlaying()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.Add, FavoriteType.Song);
+        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.Add);
 
     /// <summary>
     /// 将歌曲收藏夹中的歌曲设为下一项播放。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> PlayNextForSongFavorite()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.AddNext, FavoriteType.Song);
+        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.AddNext);
 
     /// <summary>
     /// 播放专辑收藏夹中的歌曲。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> StartPlayAlbumFavorite()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.Replace, FavoriteType.Album);
+        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
 
     /// <summary>
     /// 将专辑收藏夹添加到正在播放列表中。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> AddAlbumFavoriteToNowPlaying()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.Add, FavoriteType.Album);
+        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.Add);
 
     /// <summary>
     /// 将专辑收藏夹中的歌曲设为下一项播放。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> PlayNextForAlbumFavorite()
-        => await WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation.AddNext, FavoriteType.Album);
+        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.AddNext);
     #endregion
 
     /// <summary>
@@ -210,56 +210,6 @@ partial class CommonValues
         {
             MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
             await DisplayAggregateExceptionErrorDialog(ex);
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 使用收藏夹的内容对正在播放列表进行操作。
-    /// </summary>
-    /// <param name="favoriteType">收藏内容类型。</param>
-    /// <param name="operation">指示要对正在播放列表进行的操作。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    private static async Task<bool> WorkOnNowPlayingForFavoriteAsync(MusicPlayOperation operation, FavoriteType favoriteType)
-    {
-        int count = favoriteType switch
-        {
-            FavoriteType.Song => FavoriteService.SongFavoriteList.Count,
-            FavoriteType.Album => FavoriteService.AlbumFavoriteList.Count,
-            _ => throw new NotImplementedException("尚未实现这种收藏类型。")
-        };
-
-        if (count == 0)
-        {
-            await DisplayPlaylistEmptyDialog();
-        }
-        else
-        {
-            try
-            {
-                switch (operation)
-                {
-                    case MusicPlayOperation.Replace:
-                        await FavoriteService.PlayFavoriteListAsync(favoriteType);
-                        break;
-                    case MusicPlayOperation.Add:
-                        await FavoriteService.AddFavoriteListToNowPlayingAsync(favoriteType);
-                        break;
-                    case MusicPlayOperation.AddNext:
-                        await FavoriteService.PlayNextForFavoriteListAsync(favoriteType);
-                        break;
-                    default:
-                        throw new NotImplementedException("尚未实现更多播放操作。");
-                }
-
-                return true;
-            }
-            catch (AggregateException ex)
-            {
-                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                await DisplayAggregateExceptionErrorDialog(ex);
-            }
         }
 
         return false;
