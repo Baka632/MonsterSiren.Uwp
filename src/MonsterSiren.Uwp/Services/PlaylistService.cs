@@ -249,25 +249,6 @@ public static class PlaylistService
     }
 
     /// <summary>
-    /// 播放指定的播放列表。
-    /// </summary>
-    /// <param name="playlist">要播放的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayForPlaylistAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.ReplaceMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
     /// 播放指定的播放列表序列。
     /// </summary>
     /// <param name="playlists">要播放的播放列表序列。</param>
@@ -287,25 +268,6 @@ public static class PlaylistService
     }
 
     /// <summary>
-    /// 将指定的播放列表添加到正在播放列表中。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task AddPlaylistToNowPlayingAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.AddMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
     /// 将指定的播放列表序列添加到正在播放列表中。
     /// </summary>
     /// <param name="playlists">指定的播放列表序列。</param>
@@ -321,25 +283,6 @@ public static class PlaylistService
         ExceptionBox box = new();
         IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists.ToArray(), box);
         await MusicService.AddMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
-    /// 将指定的播放列表设为下一项播放。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayNextForPlaylistAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.PlayNext(items);
         box.Unbox();
     }
 
@@ -401,7 +344,7 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        if (playlist.Items.Contains(item))
+        if (playlist.Items.Contains(item) || item.IsCorruptedItem)
         {
             return;
         }

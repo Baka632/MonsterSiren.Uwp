@@ -45,6 +45,12 @@ partial class CommonValues
             catch (Exception ex)
             {
                 aggregateHelper.Record(ex);
+
+                if (ex is ArgumentOutOfRangeException && playable is IContentCorruptible contentCorruptible)
+                {
+                    contentCorruptible.MarkItemAsCorrupted(songCid);
+                }
+
                 continue;
             }
 
@@ -64,18 +70,38 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 根据 <see cref="Playlist"/> 获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
+    /// 根据 <see cref="Playlist"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
     /// </summary>
-    /// <param name="playlist"><see cref="Playlist"/> 实例。</param>
+    /// <param name="playlists"><see cref="Playlist"/> 序列。</param>
     /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
     /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
     /// <remarks>
     /// 当播放列表中存在无效项时，此方法会跳过无效项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
     /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(Playlist playlist, ExceptionBox box)
+    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(Playlist[] playlists, ExceptionBox box)
     {
-        List<Exception> innerExceptions = new(5);
+        AggregateExceptionHelper aggregateHelper = new();
+        int songCount = 0;
 
+        foreach (Playlist playlist in playlists)
+        {
+            songCount += playlist.Items.Count;
+
+            await foreach (MediaPlaybackItem item in GetMediaPlaybackItemsCore(playlist, aggregateHelper))
+            {
+                yield return item;
+            }
+        }
+
+        if (aggregateHelper.HasException)
+        {
+            bool allFailed = songCount == aggregateHelper.ExceptionCount;
+            box.InboxException = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, playlists));
+        }
+    }
+
+    private static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItemsCore(Playlist playlist, AggregateExceptionHelper aggregateHelper)
+    {
         for (int i = 0; i < playlist.Items.Count; i++)
         {
             PlaylistItem item = playlist.Items[i];
@@ -93,88 +119,13 @@ partial class CommonValues
                     await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
                 }
 
-                innerExceptions.Add(ex);
+                aggregateHelper.Record(ex);
             }
 
             if (playbackItem is not null)
             {
                 yield return playbackItem;
             }
-        }
-
-        if (innerExceptions.Count > 0)
-        {
-            bool allFailed = playlist.Items.Count == innerExceptions.Count;
-            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
-            {
-                Data =
-                {
-                    ["AllFailed"] = allFailed,
-                    ["PlayItem"] = playlist,
-                }
-            };
-
-            box.InboxException = aggregate;
-        }
-    }
-
-    /// <summary>
-    /// 根据 <see cref="Playlist"/> 序列获得可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。
-    /// </summary>
-    /// <param name="playlists"><see cref="Playlist"/> 序列。</param>
-    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
-    /// <returns>一个可异步枚举的 <see cref="MediaPlaybackItem"/> 序列。</returns>
-    /// <remarks>
-    /// 当播放列表中存在无效项时，此方法会跳过无效项并将异常信息记录到 <see cref="ExceptionBox"/> 中。
-    /// </remarks>
-    public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(Playlist[] playlists, ExceptionBox box)
-    {
-        List<Exception> innerExceptions = new(5);
-        int songCount = 0;
-
-        foreach (Playlist playlist in playlists)
-        {
-            for (int i = 0; i < playlist.Items.Count; i++)
-            {
-                PlaylistItem item = playlist.Items[i];
-                songCount++;
-                MediaPlaybackItem playbackItem = null;
-
-                try
-                {
-                    AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-                    playbackItem = await MsrModelsHelper.GetMediaPlaybackItemAsync(item.SongCid, albumDetail);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ArgumentOutOfRangeException)
-                    {
-                        await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-                    }
-
-                    innerExceptions.Add(ex);
-                }
-
-                if (playbackItem is not null)
-                {
-                    yield return playbackItem;
-                }
-            }
-        }
-
-        if (innerExceptions.Count > 0)
-        {
-            bool allFailed = songCount == innerExceptions.Count;
-            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
-            {
-                Data =
-                {
-                    ["AllFailed"] = allFailed,
-                    ["PlayItem"] = playlists,
-                }
-            };
-
-            box.InboxException = aggregate;
         }
     }
 
@@ -189,7 +140,7 @@ partial class CommonValues
     /// </remarks>
     public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(SongFavoriteList songFavorites, ExceptionBox box)
     {
-        List<Exception> innerExceptions = new(5);
+        AggregateExceptionHelper aggregateHelper = new();
 
         for (int i = 0; i < songFavorites.Items.Count; i++)
         {
@@ -208,7 +159,7 @@ partial class CommonValues
                     await UIThreadHelper.RunOnUIThread(() => songFavorites.Items[i] = item with { IsCorruptedItem = true });
                 }
 
-                innerExceptions.Add(ex);
+                aggregateHelper.Record(ex);
             }
 
             if (playbackItem is not null)
@@ -217,19 +168,10 @@ partial class CommonValues
             }
         }
 
-        if (innerExceptions.Count > 0)
+        if (aggregateHelper.HasException)
         {
-            bool allFailed = songFavorites.Items.Count == innerExceptions.Count;
-            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
-            {
-                Data =
-                {
-                    ["AllFailed"] = allFailed,
-                    ["PlayItem"] = songFavorites,
-                }
-            };
-
-            box.InboxException = aggregate;
+            bool allFailed = songFavorites.Items.Count == aggregateHelper.ExceptionCount;
+            box.InboxException = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, songFavorites));
         }
     }
 
@@ -244,7 +186,7 @@ partial class CommonValues
     /// </remarks>
     public static async IAsyncEnumerable<MediaPlaybackItem> GetMediaPlaybackItems(AlbumFavoriteList albumFavorites, ExceptionBox box)
     {
-        List<Exception> innerExceptions = new(5);
+        AggregateExceptionHelper aggregateHelper = new();
         int totalSongCount = 0;
         int failedSongCount = 0;
 
@@ -263,7 +205,7 @@ partial class CommonValues
                 {
                     await UIThreadHelper.RunOnUIThread(() => albumFavorites.Items[i] = albumItem with { IsCorruptedItem = true });
                 }
-                innerExceptions.Add(ex);
+                aggregateHelper.Record(ex);
                 continue;
             }
 
@@ -284,7 +226,7 @@ partial class CommonValues
                 catch (Exception ex)
                 {
                     failedSongCount++;
-                    innerExceptions.Add(ex);
+                    aggregateHelper.Record(ex);
                 }
 
                 if (playbackItem is not null)
@@ -294,19 +236,10 @@ partial class CommonValues
             }
         }
 
-        if (innerExceptions.Count > 0)
+        if (aggregateHelper.HasException)
         {
             bool allFailed = totalSongCount > 0 && failedSongCount == totalSongCount;
-            AggregateException aggregate = new("获取一个或多个项目的信息时出现错误，请查看内部异常以获取更多信息。", innerExceptions)
-            {
-                Data =
-                {
-                    ["AllFailed"] = allFailed,
-                    ["PlayItem"] = albumFavorites,
-                }
-            };
-
-            box.InboxException = aggregate;
+            box.InboxException = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, albumFavorites));
         }
     }
 }

@@ -28,7 +28,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task PlayForCurrentPlaylist()
     {
-        await CommonValues.StartPlay(CurrentPlaylist);
+        await CommonValues.StartPlay(CurrentPlaylist.ToAdapter());
     }
 
     [RelayCommand]
@@ -66,7 +66,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task AddCurrentPlaylistToNowPlaying()
     {
-        await CommonValues.AddToNowPlaying(CurrentPlaylist);
+        await CommonValues.AddToNowPlaying(CurrentPlaylist.ToAdapter());
     }
 
     [RelayCommand]
@@ -90,7 +90,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     [RelayCommand]
     private async Task DownloadForCurrentPlaylist()
     {
-        await CommonValues.StartDownload(CurrentPlaylist);
+        await CommonValues.StartDownload(CurrentPlaylist.ToAdapter());
     }
 
     [RelayCommand]

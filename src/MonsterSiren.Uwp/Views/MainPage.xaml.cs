@@ -436,7 +436,7 @@ partial class MainPage
 
             Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
 
-            await CommonValues.AddToNowPlaying(playlist);
+            await CommonValues.AddToNowPlaying(playlist.ToAdapter());
         }
         else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
         {

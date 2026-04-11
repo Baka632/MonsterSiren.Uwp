@@ -138,6 +138,8 @@
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />
+    <Compile Include="Models\Abstracts\IContentContainer.cs" />
+    <Compile Include="Models\Abstracts\IContentCorruptible.cs" />
     <Compile Include="Models\Abstracts\IFavoriteAddable.cs" />
     <Compile Include="Models\Abstracts\ISongCidProvider.cs" />
     <Compile Include="Models\Abstracts\ICorruptible.cs" />
@@ -147,6 +149,7 @@
     <Compile Include="Models\Adapters\AlbumFavoriteItemSequenceAdapter.cs" />
     <Compile Include="Models\Adapters\AlbumInfoAdapter.cs" />
     <Compile Include="Models\Adapters\AlbumInfoSequenceAdapter.cs" />
+    <Compile Include="Models\Adapters\PlaylistAdapter.cs" />
     <Compile Include="Models\Adapters\PlaylistItemAdapter.cs" />
     <Compile Include="Models\Adapters\PlaylistItemSequenceAdapter.cs" />
     <Compile Include="Models\Adapters\SongCidAdapter.cs" />

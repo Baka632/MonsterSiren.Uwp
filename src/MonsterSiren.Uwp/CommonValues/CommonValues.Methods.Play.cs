@@ -35,30 +35,6 @@ partial class CommonValues
 
     #region Playlist
     /// <summary>
-    /// 播放 <see cref="Playlist"/> 所表示的播放列表。
-    /// </summary>
-    /// <param name="playlist">一个 <see cref="Playlist"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(Playlist playlist)
-        => await WorkOnNowPlayingAsync(playlist, MusicPlayOperation.Replace);
-
-    /// <summary>
-    /// 将一个 <see cref="Playlist"/> 添加到正在播放列表中。
-    /// </summary>
-    /// <param name="playlist">一个 <see cref="Playlist"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> AddToNowPlaying(Playlist playlist)
-        => await WorkOnNowPlayingAsync(playlist, MusicPlayOperation.Add);
-
-    /// <summary>
-    /// 将一个 <see cref="Playlist"/> 设为下一项播放。
-    /// </summary>
-    /// <param name="playlist">一个 <see cref="Playlist"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> PlayNext(Playlist playlist)
-        => await WorkOnNowPlayingAsync(playlist, MusicPlayOperation.AddNext);
-
-    /// <summary>
     /// 播放 <see cref="Playlist"/> 序列。
     /// </summary>
     /// <param name="playlists">一个 <see cref="Playlist"/> 序列。</param>
@@ -130,15 +106,21 @@ partial class CommonValues
     /// <summary>
     /// 对正在播放列表进行操作。
     /// </summary>
-    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
+    /// <param name="provider">可提供歌曲 CID 对象的实例。</param>
     /// <param name="operation">指示要对正在播放列表进行的操作。</param>
     /// <returns>指示操作是否成功的值。</returns>
-    private static async Task<bool> WorkOnNowPlayingAsync(ISongCidProvider playable, MusicPlayOperation operation)
+    private static async Task<bool> WorkOnNowPlayingAsync(ISongCidProvider provider, MusicPlayOperation operation)
     {
+        if (provider is IContentContainer container && container.IsEmpty)
+        {
+            await DisplayPlaylistEmptyDialog();
+            return false;
+        }
+
         try
         {
             ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(playable, box);
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(provider, box);
 
             switch (operation)
             {
@@ -164,56 +146,13 @@ partial class CommonValues
 
             if (ex.Flatten().InnerExceptions.Any(ex => ex is ArgumentOutOfRangeException))
             {
-                if (playable is ICorruptible corruptible)
+                if (provider is ICorruptible corruptible)
                 {
                     corruptible.MarkAsCorrupted();
                 }
             }
 
             await DisplayAggregateExceptionErrorDialog(ex);
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 对正在播放列表进行操作。
-    /// </summary>
-    /// <param name="playlist">播放列表的实例。</param>
-    /// <param name="operation">指示要对正在播放列表进行的操作。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    private static async Task<bool> WorkOnNowPlayingAsync(Playlist playlist, MusicPlayOperation operation)
-    {
-        if (playlist.SongCount == 0)
-        {
-            await DisplayPlaylistEmptyDialog();
-        }
-        else
-        {
-            try
-            {
-                switch (operation)
-                {
-                    case MusicPlayOperation.Replace:
-                        await PlaylistService.PlayForPlaylistAsync(playlist);
-                        break;
-                    case MusicPlayOperation.Add:
-                        await PlaylistService.AddPlaylistToNowPlayingAsync(playlist);
-                        break;
-                    case MusicPlayOperation.AddNext:
-                        await PlaylistService.PlayNextForPlaylistAsync(playlist);
-                        break;
-                    default:
-                        throw new NotImplementedException("尚未实现更多播放操作。");
-                }
-
-                return true;
-            }
-            catch (AggregateException ex)
-            {
-                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                await DisplayAggregateExceptionErrorDialog(ex);
-            }
         }
 
         return false;

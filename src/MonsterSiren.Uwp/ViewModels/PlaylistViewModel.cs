@@ -1,3 +1,4 @@
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -21,19 +22,19 @@ public sealed partial class PlaylistViewModel(PlaylistPage view) : ObservableObj
     [RelayCommand]
     private static async Task PlayPlaylist(Playlist playlist)
     {
-        await CommonValues.StartPlay(playlist);
+        await CommonValues.StartPlay(playlist.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task AddToNowPlaying(Playlist playlist)
     {
-        await CommonValues.AddToNowPlaying(playlist);
+        await CommonValues.AddToNowPlaying(playlist.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task PlayNext(Playlist playlist)
     {
-        await CommonValues.PlayNext(playlist);
+        await CommonValues.PlayNext(playlist.ToAdapter());
     }
 
     [RelayCommand]

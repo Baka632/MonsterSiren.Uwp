@@ -1,7 +1,6 @@
 using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
-using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp;
 
@@ -65,22 +64,6 @@ partial class CommonValues
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// 启动下载 <see cref="Playlist"/> 中歌曲的操作。
-    /// </summary>
-    /// <param name="playlist">目标播放列表。</param>
-    /// <returns>指示下载是否完全成功的值。</returns>
-    public static async Task<bool> StartDownload(Playlist playlist)
-    {
-        if (playlist.Items.Count <= 0)
-        {
-            return false;
-        }
-
-        bool isAllSuccess = await StartDownload(playlist.Items.ToAdapter());
-        return isAllSuccess;
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -128,19 +129,19 @@ public partial class MainViewModel : ObservableRecipient
     [RelayCommand]
     private static async Task PlayForPlaylist(Playlist playlist)
     {
-        await CommonValues.StartPlay(playlist);
+        await CommonValues.StartPlay(playlist.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task AddPlaylistToNowPlaying(Playlist playlist)
     {
-        await CommonValues.AddToNowPlaying(playlist);
+        await CommonValues.AddToNowPlaying(playlist.ToAdapter());
     }
 
     [RelayCommand]
     private static async Task PlayNextForPlaylist(Playlist playlist)
     {
-        await CommonValues.PlayNext(playlist);
+        await CommonValues.PlayNext(playlist.ToAdapter());
     }
 
     [RelayCommand]
