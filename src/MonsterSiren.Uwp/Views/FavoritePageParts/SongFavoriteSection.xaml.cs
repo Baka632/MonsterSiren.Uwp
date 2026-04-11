@@ -45,7 +45,7 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
         flyout.Items.Clear();
 
         MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddSongFavoriteToNowPlayingCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddSongFavoriteToPlaylistCommandCommand);
+        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddSongFavoriteToPlaylistCommand);
 
         flyout.Items.Add(addToNowPlayingItem);
         flyout.Items.Add(addToPlaylistSubItem);

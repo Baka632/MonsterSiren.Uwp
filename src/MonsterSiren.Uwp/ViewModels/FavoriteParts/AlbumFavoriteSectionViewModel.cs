@@ -27,7 +27,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private static async Task AddAlbumFavoriteToPlaylistCommand(Playlist target)
     {
-        await PlaylistService.AddItemsForPlaylistAsync(target, FavoriteService.AlbumFavoriteList.Items);
+        await CommonValues.AddToPlaylist(target, FavoriteService.AlbumFavoriteList.ToAdapter());
     }
 
     [RelayCommand]
@@ -69,7 +69,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private async Task AddAlbumToPlaylist(Playlist target)
     {
-        await CommonValues.AddToPlaylist(target, SelectedAlbumItem);
+        await CommonValues.AddToPlaylist(target, SelectedAlbumItem.ToAdapter());
     }
 
     [RelayCommand]
@@ -177,7 +177,7 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
             }
         }
 
-        await CommonValues.AddToPlaylist(playlist, selectedItems);
+        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
     }
 
     [RelayCommand]

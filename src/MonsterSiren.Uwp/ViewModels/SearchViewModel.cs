@@ -104,7 +104,7 @@ public sealed partial class SearchViewModel : ObservableObject
     [RelayCommand]
     private async Task AddAlbumInfoToPlaylist(Playlist playlist)
     {
-        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo);
+        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo.ToAdapter());
     }
 
     [RelayCommand]

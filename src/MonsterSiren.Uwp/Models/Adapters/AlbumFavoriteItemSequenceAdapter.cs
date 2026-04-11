@@ -7,8 +7,10 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="AlbumFavoriteItem"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="albumFavoriteItems">指定的 <see cref="AlbumFavoriteItem"/> 序列实例。</param>
-public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteItem> albumFavoriteItems) : ISongCidProvider, IFavoriteAddable
+public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteItem> albumFavoriteItems) : ISongCidProvider, IFavoriteAddable, IContentContainer
 {
+    public bool IsEmpty => !albumFavoriteItems.Any();
+
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
         AllFailedHelper allFailedHelper = new();

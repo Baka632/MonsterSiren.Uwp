@@ -690,30 +690,28 @@ partial class MainPage
 
                 AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
 
-                await CommonValues.AddToPlaylist(playlist, albumInfo);
+                await CommonValues.AddToPlaylist(playlist, albumInfo.ToAdapter());
             }
             else if (dataView.Contains(CommonValues.MusicSongInfosFormatId))
             {
                 string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfosFormatId);
 
                 List<SongInfo> infos = JsonSerializer.Deserialize<List<SongInfo>>(json);
-                // todo: add playlist
-                //await CommonValues.AddToPlaylist(playlist, infos);
-                throw new Exception();
+                await CommonValues.AddToPlaylist(playlist, infos.ToAdapter());
             }
             else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
             {
                 string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
 
                 List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-                await CommonValues.AddToPlaylist(playlist, items);
+                await CommonValues.AddToPlaylist(playlist, items.ToAdapter());
             }
             else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
             {
                 string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
 
                 List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
-                await CommonValues.AddToPlaylist(playlist, items);
+                await CommonValues.AddToPlaylist(playlist, items.ToAdapter());
             }
         };
         return item;

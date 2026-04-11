@@ -63,6 +63,7 @@ public sealed partial class MusicPage : Page
 
     private void OnGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
+        // TODO: 支持多专辑拖拽。
         object dataContext = e.Items.FirstOrDefault();
 
         if (dataContext is null)

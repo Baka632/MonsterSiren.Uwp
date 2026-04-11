@@ -197,7 +197,7 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private async Task AddSongListSelectedItemToAnotherPlaylist(Playlist playlist)
     {
         List<PlaylistItem> selectedItems = GetSelectedItem(view.SongList);
-        await CommonValues.AddToPlaylist(playlist, selectedItems);
+        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
     }
 
     [RelayCommand]

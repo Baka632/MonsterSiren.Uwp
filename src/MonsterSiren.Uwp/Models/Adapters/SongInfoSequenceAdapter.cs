@@ -7,8 +7,10 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="SongInfo"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="songInfos">指定的 <see cref="SongInfo"/> 实例。</param>
-public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : ISongCidProvider, IFavoriteAddable
+public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : ISongCidProvider, IFavoriteAddable, IContentContainer
 {
+    public bool IsEmpty => !songInfos.Any();
+
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
         foreach (SongInfo info in songInfos.ToArray())

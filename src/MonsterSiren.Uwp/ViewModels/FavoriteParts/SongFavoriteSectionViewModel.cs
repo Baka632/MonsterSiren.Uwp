@@ -29,9 +29,9 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     }
 
     [RelayCommand]
-    private static async Task AddSongFavoriteToPlaylistCommand(Playlist target)
+    private static async Task AddSongFavoriteToPlaylist(Playlist target)
     {
-        await PlaylistService.AddItemsForPlaylistAsync(target, FavoriteService.SongFavoriteList.Items);
+        await CommonValues.AddToPlaylist(target, FavoriteService.SongFavoriteList.ToAdapter());
     }
 
     [RelayCommand]
@@ -84,7 +84,7 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     [RelayCommand]
     private async Task AddSongToPlaylist(Playlist target)
     {
-        await CommonValues.AddToPlaylist(target, SelectedSongItem);
+        await CommonValues.AddToPlaylist(target, SelectedSongItem.ToAdapter());
     }
 
     [RelayCommand]
@@ -181,7 +181,7 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
             }
         }
 
-        await CommonValues.AddToPlaylist(playlist, selectedItems);
+        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
     }
 
     [RelayCommand]

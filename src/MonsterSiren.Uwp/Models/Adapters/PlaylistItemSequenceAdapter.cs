@@ -8,8 +8,10 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="PlaylistItem"/> 序列提供服务的适配器。
 /// </summary>
 /// <param name="playlistItems">指定的 <see cref="PlaylistItem"/> 序列实例。</param>
-public sealed class PlaylistItemSequenceAdapter(IEnumerable<PlaylistItem> playlistItems) : ISongCidProvider, IFavoriteAddable
+public sealed class PlaylistItemSequenceAdapter(IEnumerable<PlaylistItem> playlistItems) : ISongCidProvider, IFavoriteAddable, IContentContainer
 {
+    public bool IsEmpty => !playlistItems.Any();
+
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
         foreach (PlaylistItem item in playlistItems.ToArray())

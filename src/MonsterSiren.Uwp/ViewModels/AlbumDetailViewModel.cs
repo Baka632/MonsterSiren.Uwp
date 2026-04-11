@@ -162,7 +162,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
     {
-        await CommonValues.AddToPlaylist(playlist, CurrentAlbumDetail);
+        await CommonValues.AddToPlaylist(playlist, CurrentAlbumDetail.ToAdapter());
     }
 
     [RelayCommand]
@@ -206,7 +206,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private async Task AddToPlaylistForSongInfo(Playlist playlist)
     {
-        await CommonValues.AddToPlaylist(playlist, SelectedSongInfo, CurrentAlbumDetail);
+        await CommonValues.AddToPlaylist(playlist, SelectedSongInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -343,7 +343,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             return;
         }
 
-        await CommonValues.AddToPlaylist(playlist, selectedItems, CurrentAlbumDetail);
+        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
     }
 
     [RelayCommand]

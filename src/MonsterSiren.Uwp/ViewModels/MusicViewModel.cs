@@ -115,7 +115,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [RelayCommand]
     private async Task AddAlbumInfoToPlaylist(Playlist playlist)
     {
-        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo);
+        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo.ToAdapter());
     }
 
     [RelayCommand]
@@ -243,7 +243,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
             }
         }
 
-        await CommonValues.AddToPlaylist(playlist, selectedItems);
+        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
     }
 
     [RelayCommand]
