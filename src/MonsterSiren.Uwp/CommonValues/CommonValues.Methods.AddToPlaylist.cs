@@ -13,9 +13,23 @@ partial class CommonValues
     /// <returns>指示操作是否成功的布尔值。</returns>
     public static async Task<bool> AddToPlaylist(Playlist playlist, ISongCidProvider provider)
     {
-        if (provider is IContentContainer container && container.IsEmpty)
+        if (provider is IContentContainer container)
         {
-            return false;
+            if (container.IsEmpty)
+            {
+                return false;
+            }
+            else if (container.Count >= TooManyItemThresholdCount)
+            {
+                ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                        "AddTooManyItemToPlaylistMessage".GetLocalized(),
+                                                        "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+                if (result != ContentDialogResult.Primary)
+                {
+                    return false;
+                }
+            }
         }
 
         try

@@ -1,3 +1,4 @@
+using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
@@ -5,12 +6,22 @@ using MonsterSiren.Uwp.Views.FavoritePageParts;
 
 namespace MonsterSiren.Uwp.ViewModels.FavoriteParts;
 
-public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : ObservableObject
+public partial class AlbumFavoriteSectionViewModel : ObservableObject
 {
     [ObservableProperty]
     private AlbumFavoriteItem selectedAlbumItem;
     [ObservableProperty]
     private FlyoutBase selectedAlbumInfoContextFlyout;
+
+    private readonly AlbumFavoriteSection view;
+
+    public Func<ISongCidProvider> SongCidProviderFactory { get; }
+
+    public AlbumFavoriteSectionViewModel(AlbumFavoriteSection albumFavoriteSection)
+    {
+        SongCidProviderFactory = GetSongCidProvider;
+        view = albumFavoriteSection;
+    }
 
     [RelayCommand]
     private static async Task PlayForAlbumFavorite()
@@ -37,54 +48,21 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     }
 
     [RelayCommand]
-    private static async Task PlayAlbumForAlbumItem(AlbumFavoriteItem item)
-    {
-        await CommonValues.StartPlay(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForAlbumItem(AlbumFavoriteItem item)
-    {
-        await CommonValues.PlayNext(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task DownloadForAlbumItem(AlbumFavoriteItem item)
-    {
-        await CommonValues.StartDownload(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task RemoveAlbumFromFavorite(AlbumFavoriteItem item)
-    {
-        await CommonValues.RemoveFromFavorite(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task AddAlbumToNowPlaying(AlbumFavoriteItem favoriteItem)
-    {
-        await CommonValues.AddToNowPlaying(favoriteItem.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddAlbumToPlaylist(Playlist target)
-    {
-        await CommonValues.AddToPlaylist(target, SelectedAlbumItem.ToAdapter());
-    }
-
-    [RelayCommand]
     private void StartMultipleSelection()
     {
-        view.AlbumGridView.SelectionMode = ListViewSelectionMode.Multiple;
-        view.AlbumGridView.IsItemClickEnabled = false;
+        GridView albumGridView = view.AlbumGridView;
+        albumGridView.SelectionMode = ListViewSelectionMode.Multiple;
+        albumGridView.SelectedItem = SelectedAlbumItem;
+        albumGridView.IsItemClickEnabled = false;
         SelectedAlbumInfoContextFlyout = view.AlbumSelectionFlyout;
     }
 
     [RelayCommand]
     private void StopMultipleSelection()
     {
-        view.AlbumGridView.SelectionMode = ListViewSelectionMode.None;
-        view.AlbumGridView.IsItemClickEnabled = true;
+        GridView albumGridView = view.AlbumGridView;
+        albumGridView.SelectionMode = ListViewSelectionMode.None;
+        albumGridView.IsItemClickEnabled = true;
         SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
     }
 
@@ -97,138 +75,15 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
     [RelayCommand]
     private void DeselectAllSongList()
     {
+        // TODO: 取消选择的方法存在先前选择项目残留的问题。
         view.AlbumGridView.DeselectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.Count));
     }
 
-    [RelayCommand]
-    private async Task PlayAlbumForSelectedItem()
+    private List<AlbumFavoriteItem> GetSelectedItems()
     {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
+        GridView gridView = view.AlbumGridView;
 
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToNowPlayingForSelectedItem()
-    {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task PlayNextForSelectedItem()
-    {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddSelectedItemToPlaylist(Playlist playlist)
-    {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
-        {
-            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
-                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
-                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
-
-            if (result != ContentDialogResult.Primary)
-            {
-                StopMultipleSelection();
-                return;
-            }
-        }
-
-        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task DownloadForSelectedItem()
-    {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
-        {
-            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
-                                                    "DownloadTooManyItemMessage".GetLocalized(),
-                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
-
-            if (result != ContentDialogResult.Primary)
-            {
-                StopMultipleSelection();
-                return;
-            }
-        }
-
-        bool isSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task RemoveSelectedItemsFromFavorite()
-    {
-        List<AlbumFavoriteItem> selectedItems = GetSelectedItems(view.AlbumGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        await CommonValues.RemoveFromFavorite(selectedItems.ToAdapter());
-
-        StopMultipleSelection();
-    }
-
-    private List<AlbumFavoriteItem> GetSelectedItems(GridView gridView)
-    {
-        List<AlbumFavoriteItem> selectedItems = new(5);
+        List <AlbumFavoriteItem> selectedItems = new(5);
 
         foreach (ItemIndexRange range in gridView.SelectedRanges)
         {
@@ -237,4 +92,6 @@ public partial class AlbumFavoriteSectionViewModel(AlbumFavoriteSection view) : 
 
         return selectedItems;
     }
+
+    private AlbumFavoriteItemSequenceAdapter GetSongCidProvider() => GetSelectedItems().ToAdapter();
 }

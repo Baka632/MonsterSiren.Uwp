@@ -10,6 +10,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 public sealed class SongInfoSequenceAdapter(IEnumerable<SongInfo> songInfos) : ISongCidProvider, IFavoriteAddable, IContentContainer
 {
     public bool IsEmpty => !songInfos.Any();
+    public int Count => songInfos.Count();
 
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

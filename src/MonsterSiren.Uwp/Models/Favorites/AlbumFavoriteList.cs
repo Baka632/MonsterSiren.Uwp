@@ -49,6 +49,7 @@ public sealed class AlbumFavoriteList : FavoriteList<AlbumFavoriteItem>, IEquata
     {
         int hashCode = -1903991810;
         hashCode = hashCode * -1521134295 + Count.GetHashCode();
+        // TODO: HashCode 实现不正确，集合中的每一个项目都需要参与到 HashCode 计算中
         hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<AlbumFavoriteItem>>.Default.GetHashCode(Items);
         return hashCode;
     }

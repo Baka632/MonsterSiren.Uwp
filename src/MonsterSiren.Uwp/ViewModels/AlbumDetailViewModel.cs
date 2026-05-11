@@ -86,7 +86,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
 
             // 之后再去查完全准确的 AlbumInfo
-            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource
                 .Single(info => info.Cid == albumDetail.Cid);
 
             ErrorVisibility = Visibility.Collapsed;
@@ -126,7 +126,7 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
             IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
 
             // 之后再去查完全准确的 AlbumInfo
-            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource
                 .Single(info => info.Cid == favoriteItem.AlbumCid);
 
             ErrorVisibility = Visibility.Collapsed;

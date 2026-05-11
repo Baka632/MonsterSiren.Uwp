@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Media.Animation;
 namespace MonsterSiren.Uwp.Views;
 
 /// <summary>
-/// 音乐展示页
+/// 音乐展示页。
 /// </summary>
 public sealed partial class MusicPage : Page
 {
@@ -94,36 +94,6 @@ public sealed partial class MusicPage : Page
         AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
 
         ViewModel.SelectedAlbumInfo = albumInfo;
-    }
-
-    private void OnAlbumContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
-                                                                          ViewModel.SelectedAlbumInfo,
-                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
-    private void OnAlbumSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSelectedItemCommand,
-                                                                          null,
-                                                                          ViewModel.AddSelectedItemToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
     }
 
     private void OnContentGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

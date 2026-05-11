@@ -257,7 +257,7 @@ sealed partial class App : Application
 
     private static async Task GetAlbumsAndPlay()
     {
-        AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos.FirstOrDefault();
+        AlbumInfo firstAlbum = (await CommonValues.GetOrFetchAlbums()).CollectionSource.FirstOrDefault();
         await CommonValues.StartPlay(firstAlbum.ToAdapter());
     }
 

@@ -95,21 +95,6 @@ public sealed partial class SearchPage : Page
         ViewModel.SelectedAlbumInfo = albumInfo;
     }
 
-    private void OnAlbumContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
-                                                                          ViewModel.SelectedAlbumInfo,
-                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnAlbumGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
     {
         Grid grid = (Grid)args.ItemContainer.ContentTemplateRoot;

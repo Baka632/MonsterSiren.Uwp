@@ -28,7 +28,7 @@ public sealed class AlbumDetailAdapter(AlbumDetail albumDetail) : ISongCidProvid
 
         try
         {
-            AlbumInfo albumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
+            AlbumInfo albumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource
                 .Single(info => info.Cid == albumDetail.Cid);
 
             item = new(

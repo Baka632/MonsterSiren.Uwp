@@ -1,0 +1,52 @@
+<local:WithAddToMenuFlyout
+    x:Class="MonsterSiren.Uwp.Controls.MenuFlyouts.AlbumMenuFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:MonsterSiren.Uwp.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
+    xmlns:local="using:MonsterSiren.Uwp.Controls.MenuFlyouts"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    Opening="OnAlbumMenuFlyoutOpening"
+    mc:Ignorable="d">
+    <MenuFlyoutItem
+        x:Uid="PlayCommandButton"
+        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        Command="{x:Bind ViewModel.PlayCommand}"
+        Icon="Play" />
+    <MenuFlyoutItem
+        x:Uid="PlayNext"
+        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        Command="{x:Bind ViewModel.PlayNextCommand}"
+        Icon="Forward" />
+    <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
+    <MenuFlyoutItem
+        x:Uid="AddToFavorite"
+        controls:SongCidProviderXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
+        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        Command="{x:Bind ViewModel.AddItemToFavoriteCommand}"
+        Icon="Favorite"
+        Visibility="{x:Bind FavoriteVisibility, Mode=OneWay}" />
+    <MenuFlyoutItem
+        x:Uid="RemoveFromFavorite"
+        controls:SongCidProviderXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
+        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        Command="{x:Bind ViewModel.RemoveItemFromFavoriteCommand}"
+        Icon="UnFavorite"
+        Visibility="{x:Bind UnfavoriteVisibility, Mode=OneWay}" />
+    <MenuFlyoutItem
+        x:Uid="DownloadAlbumCommandButton"
+        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        Command="{x:Bind ViewModel.StartDownloadCommand}"
+        Icon="Download" />
+    <MenuFlyoutSeparator />
+    <MenuFlyoutItem
+        x:Uid="SelectForSongList"
+        Command="{x:Bind StartMultipleSelectionCommand}"
+        Visibility="{x:Bind MultipleSelectionVisibility, Mode=OneWay}">
+        <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xE762;" />
+        </MenuFlyoutItem.Icon>
+    </MenuFlyoutItem>
+</local:WithAddToMenuFlyout>

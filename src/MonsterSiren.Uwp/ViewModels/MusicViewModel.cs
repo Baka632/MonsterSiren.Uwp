@@ -1,15 +1,13 @@
 using System.Net.Http;
-using System.Threading;
-using Microsoft.Toolkit.Collections;
+using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
-using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
 /// 为 <see cref="MusicPage"/> 提供视图模型。
 /// </summary>
-public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
+public sealed partial class MusicViewModel : ObservableObject
 {
     [ObservableProperty]
     private bool isLoading = false;
@@ -27,7 +25,16 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     [ObservableProperty]
     private FlyoutBase selectedAlbumInfoContextFlyout;
 
+    private readonly MusicPage view;
+
     public bool IsSelectedAlbumInfoContainsInFavorite { get => FavoriteService.ContainsAlbum(SelectedAlbumInfo); }
+    public Func<ISongCidProvider> SongCidProviderFactory { get; }
+
+    public MusicViewModel(MusicPage musicPage)
+    {
+        SongCidProviderFactory = GetSongCidProvider;
+        view = musicPage;
+    }
 
     public async Task Initialize()
     {
@@ -58,7 +65,7 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
         {
             IEnumerable<AlbumInfo> albumInfos = await CommonValues.GetAlbumsFromServer();
 
-            if (Albums is null || !Albums.CollectionSource.AlbumInfos.SequenceEqual(albumInfos))
+            if (Albums is null || !Albums.CollectionSource.SequenceEqual(albumInfos))
             {
                 Albums = CommonValues.CreateAlbumInfoIncrementalLoadingCollection(albumInfos);
                 MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(CommonValues.AlbumInfoCacheKey, Albums);
@@ -95,228 +102,61 @@ public sealed partial class MusicViewModel(MusicPage view) : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.StartPlay(albumInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.AddToNowPlaying(albumInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.PlayNext(albumInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddAlbumInfoToPlaylist(Playlist playlist)
-    {
-        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.StartDownload(albumInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddAlbumToFavorite(AlbumInfo info)
-    {
-        await CommonValues.AddToFavorite(info.ToAdapter());
-        OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
-    }
-
-    [RelayCommand]
-    private async Task RemoveAlbumFromFavorite(AlbumInfo info)
-    {
-        await CommonValues.RemoveFromFavorite(info.ToAdapter());
-        OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
-    }
+    private void NotifySelectedAlbumInfoContainsInFavoriteChanged()
+        => OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
 
     [RelayCommand]
     private void StartMultipleSelection()
     {
-        view.ContentGridView.SelectionMode = ListViewSelectionMode.Multiple;
-        view.ContentGridView.IsItemClickEnabled = false;
+        GridView contentGridView = view.ContentGridView;
+        contentGridView.SelectionMode = ListViewSelectionMode.Multiple;
+        contentGridView.SelectedItem = SelectedAlbumInfo;
+        contentGridView.IsItemClickEnabled = false;
         SelectedAlbumInfoContextFlyout = view.AlbumSelectionFlyout;
     }
 
     [RelayCommand]
     private void StopMultipleSelection()
     {
-        view.ContentGridView.SelectionMode = ListViewSelectionMode.None;
-        view.ContentGridView.IsItemClickEnabled = true;
+        GridView contentGridView = view.ContentGridView;
+        contentGridView.SelectionMode = ListViewSelectionMode.None;
+        contentGridView.IsItemClickEnabled = true;
         SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
     }
 
     [RelayCommand]
     private void SelectAllSongList()
     {
-        view.ContentGridView.SelectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.AlbumInfos.Count()));
+        view.ContentGridView.SelectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.Count));
     }
 
     [RelayCommand]
     private void DeselectAllSongList()
     {
-        view.ContentGridView.DeselectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.AlbumInfos.Count()));
+        // TODO: 取消选择的方法存在先前选择项目残留的问题。
+        view.ContentGridView.DeselectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.Count));
     }
 
-    [RelayCommand]
-    private async Task PlayAlbumForSelectedItem()
+    private List<AlbumInfo> GetSelectedItems()
     {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
+        ListViewBase viewBase = view.ContentGridView;
 
-        if (selectedItems.Count == 0)
+        int listCapacity = 0;
+
+        foreach (ItemIndexRange range in viewBase.SelectedRanges)
         {
-            return;
+            listCapacity += (int)range.Length;
         }
 
-        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
+        List<AlbumInfo> selectedItems = new(listCapacity);
 
-        if (isSuccess)
+        foreach (ItemIndexRange range in viewBase.SelectedRanges)
         {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToNowPlayingForSelectedItem()
-    {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task PlayNextForSelectedItem()
-    {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddSelectedItemToPlaylist(Playlist playlist)
-    {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
-        {
-            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
-                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
-                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
-
-            if (result != ContentDialogResult.Primary)
-            {
-                StopMultipleSelection();
-                return;
-            }
-        }
-
-        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task DownloadForSelectedItem()
-    {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        if (selectedItems.Count >= CommonValues.TooManyItemThresholdCount)
-        {
-            ContentDialogResult result = await CommonValues.DisplayContentDialog("WarningOccurred".GetLocalized(),
-                                                    "DownloadTooManyItemMessage".GetLocalized(),
-                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
-
-            if (result != ContentDialogResult.Primary)
-            {
-                StopMultipleSelection();
-                return;
-            }
-        }
-
-        bool isSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddSelectedItemsToFavorite()
-    {
-        List<AlbumInfo> selectedItems = GetSelectedItems(view.ContentGridView);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToFavorite(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    private List<AlbumInfo> GetSelectedItems(GridView gridView)
-    {
-        List<AlbumInfo> selectedItems = new(5);
-
-        foreach (ItemIndexRange range in gridView.SelectedRanges)
-        {
-            selectedItems.AddRange(Albums.CollectionSource.AlbumInfos.Skip(range.FirstIndex).Take((int)range.Length));
+            selectedItems.AddRange(Albums.CollectionSource.Skip(range.FirstIndex).Take((int)range.Length));
         }
 
         return selectedItems;
     }
-}
 
-public class AlbumInfoSource(IEnumerable<AlbumInfo> infos) : IIncrementalSource<AlbumInfo>
-{
-    public IEnumerable<AlbumInfo> AlbumInfos { get; } = new List<AlbumInfo>(infos);
-
-    public async Task<IEnumerable<AlbumInfo>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
-    {
-        return await Task.Run(() =>
-        {
-            return AlbumInfos.Skip(pageIndex * pageSize).Take(pageSize);
-        }, cancellationToken);
-    }
+    private AlbumInfoSequenceAdapter GetSongCidProvider() => GetSelectedItems().ToAdapter();
 }

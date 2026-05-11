@@ -10,6 +10,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 public sealed class PlaylistAdapter(Playlist playlist) : ISongCidProvider, IContentCorruptible, IContentContainer
 {
     public bool IsEmpty => playlist.Items.Count == 0;
+    public int Count => playlist.Items.Count;
 
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

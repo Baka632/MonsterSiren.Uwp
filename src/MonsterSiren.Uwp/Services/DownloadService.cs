@@ -495,10 +495,10 @@ public static class DownloadService
                 {
                     CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums = await CommonValues.GetOrFetchAlbums();
 
-                    int albumCount = albums.CollectionSource.AlbumInfos.Count();
+                    int albumCount = albums.CollectionSource.Count;
                     for (int i = 0; i < albumCount; i++)
                     {
-                        AlbumInfo info = albums.CollectionSource.AlbumInfos.ElementAt(i);
+                        AlbumInfo info = albums.CollectionSource.ElementAt(i);
                         if (info.Cid == albumDetail.Cid)
                         {
                             return albumCount - i;

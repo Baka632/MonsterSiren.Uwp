@@ -17,9 +17,23 @@ partial class CommonValues
             throw new ArgumentNullException(nameof(songCidProvider));
         }
 
-        if (songCidProvider is IContentContainer container && container.IsEmpty)
+        if (songCidProvider is IContentContainer container)
         {
-            return false;
+            if (container.IsEmpty)
+            {
+                return false;
+            }
+            else if (container.Count >= TooManyItemThresholdCount)
+            {
+                ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                        "DownloadTooManyItemMessage".GetLocalized(),
+                                                        "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+                if (result != ContentDialogResult.Primary)
+                {
+                    return false;
+                }
+            }
         }
 
         AggregateExceptionHelper aggregateHelper = new();

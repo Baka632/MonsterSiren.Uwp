@@ -89,7 +89,7 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
 
     private static async Task<AlbumInfo> GetAlbumInfoFromFavoriteItemAsync(AlbumFavoriteItem item)
     {
-        return (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos.First(info => info.Cid == item.AlbumCid);
+        return (await CommonValues.GetOrFetchAlbums()).CollectionSource.First(info => info.Cid == item.AlbumCid);
     }
 
     private async void OnAlbumGridViewDragStarting(object sender, DragItemsStartingEventArgs e)
@@ -113,36 +113,6 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
         AlbumGridView.PrepareConnectedAnimation(CommonValues.AlbumInfoForwardConnectedAnimationKeyForMusicPage, e.ClickedItem, "AlbumImage");
 
         ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), e.ClickedItem, new SuppressNavigationTransitionInfo());
-    }
-
-    private void OnAlbumContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddAlbumToNowPlayingCommand,
-                                                                          ViewModel.SelectedAlbumItem,
-                                                                          ViewModel.AddAlbumToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
-    private void OnAlbumSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSelectedItemCommand,
-                                                                          null,
-                                                                          ViewModel.AddSelectedItemToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
     }
 
     private void OnListViewItemAlbumContextFlyoutOpening(object sender, object e)

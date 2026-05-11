@@ -10,6 +10,7 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 public sealed class AlbumFavoriteItemSequenceAdapter(IEnumerable<AlbumFavoriteItem> albumFavoriteItems) : ISongCidProvider, IFavoriteAddable, IContentContainer
 {
     public bool IsEmpty => !albumFavoriteItems.Any();
+    public int Count => albumFavoriteItems.Count();
 
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

@@ -1,4 +1,4 @@
-﻿using Windows.UI;
+using Windows.UI;
 
 namespace MonsterSiren.Uwp.Controls;
 

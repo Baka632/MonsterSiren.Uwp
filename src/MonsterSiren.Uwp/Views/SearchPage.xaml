@@ -8,6 +8,7 @@
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:menuFlyouts="using:MonsterSiren.Uwp.Controls.MenuFlyouts"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:newsModels="using:MonsterSiren.Api.Models.News"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
@@ -16,25 +17,14 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:SearchViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout x:Name="AlbumContextFlyout" Opening="OnAlbumContextFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem
-                x:Uid="DownloadAlbumCommandButton"
-                Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Download" />
-        </MenuFlyout>
+        <menuFlyouts:AlbumMenuFlyout
+            x:Name="AlbumContextFlyout"
+            x:FieldModifier="public"
+            AddItemToFavoriteCallbackCommand="{x:Bind ViewModel.NotifySelectedAlbumInfoContainsInFavoriteChangedCommand}"
+            FavoriteVisibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSelectedAlbumInfoContainsInFavorite), Mode=OneWay}"
+            MultipleSelectionVisibility="Collapsed"
+            SourceData="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+            UnfavoriteVisibility="{x:Bind ViewModel.IsSelectedAlbumInfoContainsInFavorite, Mode=OneWay}" />
     </Page.Resources>
 
     <Grid>
