@@ -1,21 +1,21 @@
-﻿using MonsterSiren.Api.Models.Album;
+using MonsterSiren.Api.Models.Album;
 using MonsterSiren.Api.Models.News;
 
 namespace MonsterSiren.Api.Service;
 
 /// <summary>
-/// 塞壬唱片搜索服务
+/// 塞壬唱片搜索服务。
 /// </summary>
 public static class SearchService
 {
     /// <summary>
-    /// 搜索专辑及新闻信息
+    /// 搜索专辑及新闻信息。
     /// </summary>
-    /// <param name="keyword">搜索关键字</param>
-    /// <returns>包含专辑及新闻信息的 <see cref="SearchAlbumAndNewsResult"/>，若结果较多，各分类将只返回前十项</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 null 或空白</exception>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="keyword">搜索关键字。</param>
+    /// <returns>包含专辑及新闻信息的 <see cref="SearchAlbumAndNewsResult"/>。若结果较多，各分类将只返回前十项。</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<SearchAlbumAndNewsResult> SearchAlbumAndNewsAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -37,13 +37,13 @@ public static class SearchService
     }
 
     /// <summary>
-    /// 搜索专辑信息
+    /// 搜索专辑信息。
     /// </summary>
-    /// <param name="keyword">搜索关键字</param>
-    /// <returns>包含专辑信息的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 null 或空白</exception>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="keyword">搜索关键字。</param>
+    /// <returns>包含专辑信息的 <see cref="ListPackage{T}"/>。若结果较多，将只返回前十项。</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<ListPackage<AlbumInfo>> SearchAlbumAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -65,14 +65,14 @@ public static class SearchService
     }
 
     /// <summary>
-    /// 搜索专辑信息
+    /// 搜索专辑信息。
     /// </summary>
-    /// <param name="keyword">搜索关键字</param>
-    /// <param name="lastCid">上次请求中，列表最后一项的 CID</param>
-    /// <returns>包含专辑信息的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 null 或空白</exception>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="keyword">搜索关键字。</param>
+    /// <param name="lastCid">上次请求中，列表最后一项的 CID。</param>
+    /// <returns>包含专辑信息的 <see cref="ListPackage{T}"/>。若结果较多，将只返回前十项。</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<ListPackage<AlbumInfo>> SearchAlbumAsync(string keyword, string lastCid)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -99,13 +99,13 @@ public static class SearchService
     }
 
     /// <summary>
-    /// 搜索新闻信息
+    /// 搜索新闻信息。
     /// </summary>
-    /// <param name="keyword">搜索关键字</param>
-    /// <returns>包含新闻信息的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 null 或空白</exception>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="keyword">搜索关键字。</param>
+    /// <returns>包含新闻信息的 <see cref="ListPackage{T}"/>。若结果较多，将只返回前十项。</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<ListPackage<NewsInfo>> SearchNewsAsync(string keyword)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -127,14 +127,14 @@ public static class SearchService
     }
 
     /// <summary>
-    /// 搜索新闻信息
+    /// 搜索新闻信息。
     /// </summary>
-    /// <param name="keyword">搜索关键字</param>
-    /// <param name="lastCid">上次请求中，列表最后一项的 CID</param>
-    /// <returns>包含新闻信息的 <see cref="ListPackage{T}"/>，若结果较多，将只返回前十项</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 null 或空白</exception>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="keyword">搜索关键字。</param>
+    /// <param name="lastCid">上次请求中，列表最后一项的 CID。</param>
+    /// <returns>包含新闻信息的 <see cref="ListPackage{T}"/>。若结果较多，将只返回前十项。</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> 或 <paramref name="lastCid"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<ListPackage<NewsInfo>> SearchNewsAsync(string keyword, string lastCid)
     {
         if (string.IsNullOrWhiteSpace(keyword))

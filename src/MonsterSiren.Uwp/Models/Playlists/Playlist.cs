@@ -248,7 +248,10 @@ public partial class Playlist : INotifyPropertyChanged, IEquatable<Playlist>
         hashCode = hashCode * -1521134295 + PlaylistId.GetHashCode();
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PlaylistSaveName);
         hashCode = hashCode * -1521134295 + SongCount.GetHashCode();
-        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<PlaylistItem>>.Default.GetHashCode(Items);
+        foreach (PlaylistItem item in Items)
+        {
+            hashCode = hashCode * -1521134295 + EqualityComparer<PlaylistItem>.Default.GetHashCode(item);
+        }
         return hashCode;
     }
 

@@ -89,7 +89,10 @@ public sealed class SongFavoriteList : FavoriteList<SongFavoriteItem>, IEquatabl
         int hashCode = 230909774;
         hashCode = hashCode * -1521134295 + TotalDuration.GetHashCode();
         hashCode = hashCode * -1521134295 + Count.GetHashCode();
-        hashCode = hashCode * -1521134295 + EqualityComparer<ObservableCollection<SongFavoriteItem>>.Default.GetHashCode(Items);
+        foreach (SongFavoriteItem item in Items)
+        {
+            hashCode = hashCode * -1521134295 + EqualityComparer<SongFavoriteItem>.Default.GetHashCode(item);
+        }
         return hashCode;
     }
 

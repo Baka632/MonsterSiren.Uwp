@@ -1,33 +1,33 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace MonsterSiren.Api.Models.News;
 
 /// <summary>
-/// 提供新闻基本信息的结构
+/// 提供新闻基本信息的结构。
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct NewsInfo : IEquatable<NewsInfo>
 {
     /// <summary>
-    /// 新闻的 CID
+    /// 新闻的 CID。
     /// </summary>
     public string Cid { get; set; } = string.Empty;
     /// <summary>
-    /// 新闻标题
+    /// 新闻标题。
     /// </summary>
     public string Title { get; set; } = string.Empty;
     /// <summary>
-    /// 新闻分类
+    /// 新闻分类。
     /// </summary>
     [JsonPropertyName("cate")]
     public NewsCategory Category { get; set; }
     /// <summary>
-    /// 新闻日期
+    /// 新闻日期。
     /// </summary>
     public DateTimeOffset Date { get; set; }
 
     /// <summary>
-    /// 使用指定的参数构造 <see cref="NewsInfo"/> 的新实例
+    /// 使用指定的参数构造 <see cref="NewsInfo"/> 的新实例。
     /// </summary>
     public NewsInfo(string cid, string title, NewsCategory category, DateTimeOffset date)
     {
@@ -64,20 +64,20 @@ public struct NewsInfo : IEquatable<NewsInfo>
     }
 
     /// <summary>
-    /// 确定两个 <see cref="NewsInfo"/> 实例是否相等
+    /// 确定两个 <see cref="NewsInfo"/> 实例是否相等。
     /// </summary>
-    /// <param name="left">第一个 <see cref="NewsInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="NewsInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="NewsInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="NewsInfo"/> 实例。</param>
     public static bool operator ==(NewsInfo left, NewsInfo right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    /// 确定两个 <see cref="NewsInfo"/> 实例是否不同
+    /// 确定两个 <see cref="NewsInfo"/> 实例是否不同。
     /// </summary>
-    /// <param name="left">第一个 <see cref="NewsInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="NewsInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="NewsInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="NewsInfo"/> 实例。</param>
     public static bool operator !=(NewsInfo left, NewsInfo right)
     {
         return !(left == right);

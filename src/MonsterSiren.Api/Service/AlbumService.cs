@@ -1,18 +1,18 @@
-﻿using MonsterSiren.Api.Models.Album;
+using MonsterSiren.Api.Models.Album;
 
 namespace MonsterSiren.Api.Service;
 
 /// <summary>
-/// 塞壬唱片专辑服务
+/// 塞壬唱片专辑服务。
 /// </summary>
 public static class AlbumService
 {
     /// <summary>
-    /// 获取全部专辑信息
+    /// 获取全部专辑信息。
     /// </summary>
-    /// <returns>包含全部专辑信息的 <see cref="IEnumerable{T}"/></returns>
-    /// <exception cref="InvalidOperationException">出现未知错误</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <returns>包含全部专辑信息的 <see cref="AlbumInfo"/> 序列。</returns>
+    /// <exception cref="InvalidOperationException">出现未知错误。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<IEnumerable<AlbumInfo>> GetAllAlbumsAsync()
     {
         Stream jsonStream = await HttpClientProvider.HttpClient.GetStreamAsync("albums");
@@ -29,13 +29,13 @@ public static class AlbumService
     }
 
     /// <summary>
-    /// 获取专辑的基本信息
+    /// 获取专辑的基本信息。
     /// </summary>
-    /// <param name="cid">专辑 CID</param>
-    /// <returns>包含专辑基本信息的 <see cref="AlbumInfo"/></returns>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 null 或空白</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="cid">专辑 CID。</param>
+    /// <returns>包含专辑基本信息的 <see cref="AlbumInfo"/>。</returns>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<AlbumInfo> GetAlbumInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
@@ -63,13 +63,13 @@ public static class AlbumService
     }
 
     /// <summary>
-    /// 获取专辑的详细信息
+    /// 获取专辑的详细信息。
     /// </summary>
-    /// <param name="cid">专辑 CID</param>
-    /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/></returns>
-    /// <exception cref="ArgumentOutOfRangeException">参数错误</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 null 或空白</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败</exception>
+    /// <param name="cid">专辑 CID。</param>
+    /// <returns>包含专辑详细信息的 <see cref="AlbumDetail"/>。</returns>
+    /// <exception cref="ArgumentOutOfRangeException">参数错误。</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="cid"/> 为 <see langword="null"/> 或空白。</exception>
+    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
     public static async Task<AlbumDetail> GetAlbumDetailedInfoAsync(string cid)
     {
         if (string.IsNullOrWhiteSpace(cid))
