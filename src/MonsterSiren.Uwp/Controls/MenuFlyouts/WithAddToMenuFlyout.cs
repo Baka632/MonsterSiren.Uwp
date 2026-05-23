@@ -6,7 +6,7 @@ namespace MonsterSiren.Uwp.Controls.MenuFlyouts;
 /// <summary>
 /// 表示为创建“添加到”菜单项目提供帮助方法的 <see cref="MenuFlyout"/>。
 /// </summary>
-public class WithAddToMenuFlyout : MenuFlyout
+public abstract class WithAddToMenuFlyout : MenuFlyout
 {
     /// <summary>
     /// 此事件等效于 <see cref="FlyoutBase.Opening"/> 事件。

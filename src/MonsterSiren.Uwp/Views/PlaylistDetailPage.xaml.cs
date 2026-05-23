@@ -125,22 +125,6 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         flyout.Items.Add(addToPlaylistSubItem);
     }
 
-    private void OnSongSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddSongListSelectedItemToNowPlayingCommand,
-                                                                          null,
-                                                                          ViewModel.AddSongListSelectedItemToAnotherPlaylistCommand,
-                                                                          ViewModel.CurrentPlaylist);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         FrameworkElement element = (FrameworkElement)sender;

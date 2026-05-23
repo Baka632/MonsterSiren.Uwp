@@ -26,43 +26,15 @@
             SourceData="{x:Bind ViewModel.SelectedSongInfo, Mode=OneWay}"
             StartMultipleSelectionCommand="{x:Bind ViewModel.StartMultipleSelectionCommand}"
             UnfavoriteVisibility="{x:Bind ViewModel.IsSelectedSongInfoContainsInFavorite, Mode=OneWay}" />
-
-        <MenuFlyout
+        <menuFlyouts:SongListMenuFlyout
             x:Name="SongSelectionFlyout"
-            x:FieldModifier="Public"
-            Opening="OnSongSelectionFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayMusicTextBlock"
-                Command="{x:Bind ViewModel.PlayForListViewSelectedItemCommand}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForListViewSelectedItemCommand}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem x:Uid="BatchAddToFavorite" Command="{x:Bind ViewModel.AddSongsToFavoriteForListViewSelectedItemCommand}">
-                <MenuFlyoutItem.Icon>
-                    <FontIcon Glyph="&#xE728;" />
-                </MenuFlyoutItem.Icon>
-            </MenuFlyoutItem>
-            <MenuFlyoutItem
-                x:Uid="DownloadTextBlock"
-                Command="{x:Bind ViewModel.DownloadForListViewSelectedItemCommand}"
-                Icon="Download" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem
-                x:Uid="SelectAllForSongList"
-                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
-                Icon="SelectAll" />
-            <MenuFlyoutItem
-                x:Uid="DeselectAllForSongList"
-                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
-                Icon="ClearSelection" />
-            <MenuFlyoutItem
-                x:Uid="DeselectForSongList"
-                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
-                Icon="Cancel" />
-        </MenuFlyout>
+            x:FieldModifier="public"
+            DeselectAllListCommand="{x:Bind ViewModel.DeselectAllSongListCommand}"
+            FavoriteVisibility="Visible"
+            SelectAllListCommand="{x:Bind ViewModel.SelectAllSongListCommand}"
+            SourceData="{x:Bind ViewModel.SongCidProviderFactory}"
+            StopMultipleSelectionCommand="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+            UnfavoriteVisibility="Collapsed" />
     </Page.Resources>
 
     <Grid>

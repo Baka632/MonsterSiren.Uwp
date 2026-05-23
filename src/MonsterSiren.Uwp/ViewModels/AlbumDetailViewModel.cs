@@ -1,16 +1,18 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
 /// 为 <see cref="AlbumDetailPage"/> 提供视图模型。
 /// </summary>
-public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObject
+public partial class AlbumDetailViewModel : ObservableObject
 {
+    private readonly AlbumDetailPage view;
+
     [ObservableProperty]
     private bool isLoading = false;
     [ObservableProperty]
@@ -29,7 +31,14 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
+    public Func<ISongCidProvider> SongCidProviderFactory { get; }
     public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
+
+    public AlbumDetailViewModel(AlbumDetailPage albumDetailPage)
+    {
+        view = albumDetailPage;
+        SongCidProviderFactory = GetSongCidProvider;
+    }
 
     public async Task Initialize(AlbumInfo albumInfo)
     {
@@ -178,15 +187,9 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [RelayCommand]
     private void StartMultipleSelection()
     {
-        // Single 模式只能选一个
-        ItemIndexRange range = view.SongList.SelectedRanges.FirstOrDefault();
-
-        view.SongList.SelectionMode = ListViewSelectionMode.Multiple;
-
-        if (range is not null)
-        {
-            view.SongList.SelectRange(range);
-        }
+        ListView songList = view.SongList;
+        songList.SelectionMode = ListViewSelectionMode.Multiple;
+        songList.SelectedItem = SelectedSongInfo;
 
         SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
     }
@@ -210,112 +213,10 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
     }
 
-    [RelayCommand]
-    private async Task PlayForListViewSelectedItem()
+    private List<SongInfo> GetSelectedItems()
     {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.StartPlay(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToNowPlayingForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task PlayNextForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.PlayNext(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddSongsToFavoriteForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToFavorite(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToPlaylistForListViewSelectedItem(Playlist playlist)
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        await CommonValues.AddToPlaylist(playlist, selectedItems.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task DownloadForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.StartDownload(selectedItems.ToAdapter());
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    private List<SongInfo> GetSelectedItem(ListView listView)
-    {
-        List<SongInfo> selectedItems = new(5);
+        ListView listView = view.SongList;
+        List <SongInfo> selectedItems = new(5);
 
         foreach (ItemIndexRange range in listView.SelectedRanges)
         {
@@ -324,4 +225,6 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
 
         return selectedItems;
     }
+
+    private SongInfoSequenceAdapter GetSongCidProvider() => GetSelectedItems().ToAdapter();
 }

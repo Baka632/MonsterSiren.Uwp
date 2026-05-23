@@ -143,21 +143,6 @@ public sealed partial class AlbumDetailPage : Page
         flyout.Items.Add(addToPlaylistSubItem);
     }
 
-    private void OnSongSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForListViewSelectedItemCommand,
-                                                                          null,
-                                                                          ViewModel.AddToPlaylistForListViewSelectedItemCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnIndexTextBlockLoaded(object sender, RoutedEventArgs e)
     {
         TextBlock textBlock = (TextBlock)sender;

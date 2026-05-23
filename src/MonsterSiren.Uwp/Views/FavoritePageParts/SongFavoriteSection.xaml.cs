@@ -112,21 +112,6 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
         ViewModel.SelectedSongItem = (SongFavoriteItem)button.DataContext;
     }
 
-    private void OnSongSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddSongListSelectedItemToNowPlayingCommand,
-                                                                          null,
-                                                                          ViewModel.AddSongListSelectedItemToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnSongFavoriteSectionLoaded(object sender, RoutedEventArgs e)
     {
         FavoriteService.SongFavoriteList.Items.CollectionChanged += OnSongFavoriteListCollectionChanged;
