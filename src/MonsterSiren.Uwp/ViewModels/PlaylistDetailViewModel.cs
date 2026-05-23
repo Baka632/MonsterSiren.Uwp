@@ -13,10 +13,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     private Playlist currentPlaylist;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSelectedItemContainsInFavorite))]
+    [NotifyPropertyChangedFor(nameof(SelectedItemAdapter))]
     private PlaylistItem selectedItem;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
+
+    public PlaylistItemAdapter SelectedItemAdapter { get => SelectedItem.ToAdapter(CurrentPlaylist); }
     public bool IsSelectedItemContainsInFavorite { get => FavoriteService.ContainsSong(SelectedItem); }
 
     public void Initialize(Playlist model)
@@ -32,47 +35,13 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
-    private async Task PlayForItem(PlaylistItem item)
-    {
-        await CommonValues.StartPlay(item.ToAdapter(CurrentPlaylist));
-    }
-
-    [RelayCommand]
-    private async Task AddItemToNowPlaying(PlaylistItem item)
-    {
-        await CommonValues.AddToNowPlaying(item.ToAdapter(CurrentPlaylist));
-    }
-
-    [RelayCommand]
-    private async Task AddSongToFavorite(PlaylistItem item)
-    {
-        await CommonValues.AddToFavorite(item.ToAdapter(CurrentPlaylist));
+    private void NotifyIsSelectedItemContainsInFavorite() =>
         OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
-    }
-
-    [RelayCommand]
-    private async Task RemoveSongFromFavorite(PlaylistItem item)
-    {
-        await CommonValues.RemoveFromFavorite(item.ToAdapter(CurrentPlaylist));
-        OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
-    }
-
-    [RelayCommand]
-    private async Task PlayNextForItem(PlaylistItem item)
-    {
-        await CommonValues.PlayNext(item.ToAdapter(CurrentPlaylist));
-    }
 
     [RelayCommand]
     private async Task AddCurrentPlaylistToNowPlaying()
     {
         await CommonValues.AddToNowPlaying(CurrentPlaylist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddItemToAnotherPlaylist(Playlist target)
-    {
-        await PlaylistService.AddItemForPlaylistAsync(target, SelectedItem);
     }
 
     [RelayCommand]
@@ -82,26 +51,9 @@ public sealed partial class PlaylistDetailViewModel(PlaylistDetailPage view) : O
     }
 
     [RelayCommand]
-    private async Task DownloadForItem(PlaylistItem item)
-    {
-        await CommonValues.StartDownload(item.ToAdapter(CurrentPlaylist));
-    }
-
-    [RelayCommand]
     private async Task DownloadForCurrentPlaylist()
     {
         await CommonValues.StartDownload(CurrentPlaylist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static void CopySongNameToClipboard(PlaylistItem item)
-    {
-        DataPackage package = new()
-        {
-            RequestedOperation = DataPackageOperation.Copy
-        };
-        package.SetText(item.SongTitle);
-        Clipboard.SetContent(package);
     }
 
     [RelayCommand]

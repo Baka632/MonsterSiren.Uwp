@@ -7,8 +7,10 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="AlbumInfo"/> 提供服务的适配器。
 /// </summary>
 /// <param name="albumInfo">指定的 <see cref="AlbumInfo"/> 实例。</param>
-public sealed class AlbumInfoAdapter(AlbumInfo albumInfo) : ISongCidProvider, IFavoriteAddable
+public sealed class AlbumInfoAdapter(AlbumInfo albumInfo) : ISongCidProvider, IFavoriteAddable, INameProvider
 {
+    public string Name => albumInfo.Name;
+
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
         AlbumDetail detail;

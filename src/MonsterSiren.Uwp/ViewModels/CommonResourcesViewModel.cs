@@ -1,6 +1,7 @@
 using System.Windows.Input;
 using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Playlists;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -13,8 +14,10 @@ public sealed partial class CommonResourcesViewModel
     public ICommand AddToNowPlayingCommand { get; } = new AsyncRelayCommand<CommandParameter>(AddToNowPlaying);
     public ICommand StartDownloadCommand { get; } = new AsyncRelayCommand<CommandParameter>(StartDownload);
     public ICommand AddItemToPlaylistCommand { get; } = new AsyncRelayCommand<CommandParameter>(AddItemToPlaylist);
+    public ICommand RemoveItemFromPlaylistCommand { get; } = new AsyncRelayCommand<CommandParameter>(RemoveItemFromPlaylist);
     public ICommand AddItemToFavoriteCommand { get; } = new AsyncRelayCommand<CommandParameter>(AddItemToFavorite);
     public ICommand RemoveItemFromFavoriteCommand { get; } = new AsyncRelayCommand<CommandParameter>(RemoveItemFromFavorite);
+    public ICommand CopyItemNameToClipboardCommand { get; } = new RelayCommand<CommandParameter>(CopyItemNameToClipboard);
 
     private static async Task Play(CommandParameter parameter)
     {
@@ -53,6 +56,15 @@ public sealed partial class CommonResourcesViewModel
         parameter.Callback?.Execute(result);
     }
 
+    private static async Task RemoveItemFromPlaylist(CommandParameter parameter)
+    {
+        (Playlist playlist, object data) = (ValueTuple<Playlist, object>)parameter.Parameter;
+
+        ISongCidProvider provider = CommonValues.GetSongCidProvider(data);
+        bool result = await CommonValues.RemoveFromPlaylist(playlist, provider);
+        parameter.Callback?.Execute(result);
+    }
+
     private static async Task AddItemToFavorite(CommandParameter parameter)
     {
         IFavoriteAddable favoriteAddable = CommonValues.GetFavoriteAddable(parameter.Parameter);
@@ -65,5 +77,19 @@ public sealed partial class CommonResourcesViewModel
         IFavoriteAddable favoriteAddable = CommonValues.GetFavoriteAddable(parameter.Parameter);
         bool result = await CommonValues.RemoveFromFavorite(favoriteAddable);
         parameter.Callback?.Execute(result);
+    }
+
+    private static void CopyItemNameToClipboard(CommandParameter parameter)
+    {
+        INameProvider nameProvider = CommonValues.GetNameProvider(parameter.Parameter);
+
+        DataPackage package = new()
+        {
+            RequestedOperation = DataPackageOperation.Copy
+        };
+        package.SetText(nameProvider.Name);
+        Clipboard.SetContent(package);
+
+        parameter.Callback?.Execute(true);
     }
 }

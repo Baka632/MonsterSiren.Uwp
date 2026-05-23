@@ -7,10 +7,12 @@ namespace MonsterSiren.Uwp.Models.Adapters;
 /// 为 <see cref="Playlist"/> 提供服务的适配器。
 /// </summary>
 /// <param name="playlist">指定的 <see cref="Playlist"/> 实例。</param>
-public sealed class PlaylistAdapter(Playlist playlist) : ISongCidProvider, IContentCorruptible, IContentContainer
+public sealed class PlaylistAdapter(Playlist playlist) : ISongCidProvider, IContentCorruptible, IContentContainer, INameProvider
 {
     public bool IsEmpty => playlist.Items.Count == 0;
     public int Count => playlist.Items.Count;
+
+    public string Name => playlist.Title;
 
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {

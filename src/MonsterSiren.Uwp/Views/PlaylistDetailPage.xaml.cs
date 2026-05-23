@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Xaml.Documents;
 
@@ -111,22 +112,6 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void OnSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddItemToNowPlayingCommand,
-                                                                          ViewModel.SelectedItem,
-                                                                          ViewModel.AddItemToAnotherPlaylistCommand,
-                                                                          ViewModel.CurrentPlaylist);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
     {
         MenuFlyout flyout = (MenuFlyout)sender;
@@ -161,7 +146,7 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         FrameworkElement element = (FrameworkElement)sender;
         PlaylistItem playlistItem = (PlaylistItem)element.DataContext;
 
-        await ViewModel.PlayForItemCommand.ExecuteAsync(playlistItem);
+        await CommonValues.StartPlay(playlistItem.ToAdapter(ViewModel.CurrentPlaylist));
     }
 
     private async void OnAlbumTitleTextBlockLoaded(object sender, RoutedEventArgs e)

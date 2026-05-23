@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.ViewModels.FavoriteParts;
 using Windows.UI.Xaml.Documents;
@@ -79,7 +80,7 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
         FrameworkElement element = (FrameworkElement)sender;
         SongFavoriteItem favoriteItem = (SongFavoriteItem)element.DataContext;
 
-        await ViewModel.PlayForSongItemCommand.ExecuteAsync(favoriteItem);
+        await CommonValues.StartPlay(favoriteItem.ToAdapter());
     }
 
     private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -109,21 +110,6 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
     {
         Button button = (Button)sender;
         ViewModel.SelectedSongItem = (SongFavoriteItem)button.DataContext;
-    }
-
-    private void OnSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddSongToNowPlayingCommand,
-                                                                          ViewModel.SelectedSongItem,
-                                                                          ViewModel.AddSongToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
     }
 
     private void OnSongSelectionFlyoutOpening(object sender, object e)

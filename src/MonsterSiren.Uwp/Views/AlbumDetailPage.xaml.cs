@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Text.Json;
+using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -129,21 +130,6 @@ public sealed partial class AlbumDetailPage : Page
         ViewModel.SelectedSongInfo = (SongInfo)button.DataContext;
     }
 
-    private void OnSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSongInfoCommand,
-                                                                          ViewModel.SelectedSongInfo,
-                                                                          ViewModel.AddToPlaylistForSongInfoCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
     {
         MenuFlyout flyout = (MenuFlyout)sender;
@@ -184,7 +170,7 @@ public sealed partial class AlbumDetailPage : Page
         FrameworkElement element = (FrameworkElement)sender;
         SongInfo songInfo = (SongInfo)element.DataContext;
 
-        await ViewModel.PlayForSongInfoCommand.ExecuteAsync(songInfo);
+        await CommonValues.StartPlay(songInfo.ToAdapter());
     }
 
     private async void OnAlbumCoverLoaded(object sender, RoutedEventArgs e)

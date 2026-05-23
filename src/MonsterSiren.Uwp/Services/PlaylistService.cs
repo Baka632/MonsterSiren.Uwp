@@ -507,6 +507,42 @@ public static class PlaylistService
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
     public static async Task RemoveItemsForPlaylistAsync(Playlist playlist, IEnumerable<PlaylistItem> items)
     {
+        await RemoveItemsForPlaylistCoreAsync(playlist, RemoveItems);
+
+        Task RemoveItems()
+        {
+            foreach (PlaylistItem item in items)
+            {
+                playlist.Items.Remove(item);
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// 在指定的播放列表中移除一组歌曲。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="songCids">包含歌曲 CID 的集合。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="songCids"/> 为 <see langword="null"/>。</exception>
+    public static async Task RemoveItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<string> songCids)
+    {
+        await RemoveItemsForPlaylistCoreAsync(playlist, RemoveSongCids);
+
+        async Task RemoveSongCids()
+        {
+            await foreach (string songCid in songCids)
+            {
+                ObservableCollection<PlaylistItem> items = playlist.Items;
+                PlaylistItem targetItem = items.FirstOrDefault(item => item.SongCid == songCid);
+                items.Remove(targetItem);
+            }
+        }
+    }
+
+    private static async Task RemoveItemsForPlaylistCoreAsync(Playlist playlist, Func<Task> func)
+    {
         if (playlist is null)
         {
             throw new ArgumentNullException(nameof(playlist));
@@ -516,12 +552,10 @@ public static class PlaylistService
         {
             playlist.BlockInfoUpdate();
 
-            await UIThreadHelper.RunOnUIThread(() =>
+            await UIThreadHelper.RunOnUIThread(async () =>
             {
-                foreach (PlaylistItem item in items)
-                {
-                    playlist.Items.Remove(item);
-                }
+                await func();
+                return true;
             });
         }
         finally

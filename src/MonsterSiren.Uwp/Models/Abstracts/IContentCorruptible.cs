@@ -3,7 +3,6 @@ namespace MonsterSiren.Uwp.Models.Abstracts;
 /// <summary>
 /// 表示其内容可能出现损坏的内容。
 /// </summary>
-/// <typeparam name="T">内容的类型。</typeparam>
 public interface IContentCorruptible
 {
     /// <summary>

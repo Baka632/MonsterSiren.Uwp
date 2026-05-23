@@ -12,32 +12,32 @@
     mc:Ignorable="d">
     <MenuFlyoutItem
         x:Uid="PlayCommandButton"
-        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.PlayCommand}"
         Icon="Play" />
     <MenuFlyoutItem
         x:Uid="PlayNext"
-        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.PlayNextCommand}"
         Icon="Forward" />
     <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
     <MenuFlyoutItem
         x:Uid="AddToFavorite"
-        controls:SongCidProviderXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
-        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.AddItemToFavoriteCommand}"
         Icon="Favorite"
         Visibility="{x:Bind FavoriteVisibility, Mode=OneWay}" />
     <MenuFlyoutItem
         x:Uid="RemoveFromFavorite"
-        controls:SongCidProviderXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
-        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.CallbackCommand="{x:Bind AddItemToFavoriteCallbackCommand, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.RemoveItemFromFavoriteCommand}"
         Icon="UnFavorite"
         Visibility="{x:Bind UnfavoriteVisibility, Mode=OneWay}" />
     <MenuFlyoutItem
         x:Uid="DownloadAlbumCommandButton"
-        controls:SongCidProviderXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
+        controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.StartDownloadCommand}"
         Icon="Download" />
     <MenuFlyoutSeparator />

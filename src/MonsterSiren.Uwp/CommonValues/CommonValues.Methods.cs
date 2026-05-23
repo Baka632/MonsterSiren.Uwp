@@ -631,4 +631,28 @@ partial class CommonValues
             _ => throw new ArgumentException("指定的对象无法转换为 IFavoriteAddable。", nameof(source)),
         };
     }
+
+    /// <summary>
+    /// 从指定的对象中获取 <see cref="INameProvider"/>。
+    /// </summary>
+    /// <param name="source">指定的对象。</param>
+    /// <returns>一个 <see cref="INameProvider"/> 实例。</returns>
+    /// <exception cref="InvalidOperationException"><paramref name="source"/> 的类型是 PlaylistItem，这种情况下请提前将 PlaylistItem 转换为 INameProvider，之后再传入此方法。</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> 无法转换为 <see cref="INameProvider"/>。</exception>
+    public static INameProvider GetNameProvider(object source)
+    {
+        return source switch
+        {
+            AlbumInfo albumInfo => albumInfo.ToAdapter(),
+            AlbumDetail detail => detail.ToAdapter(),
+            SongInfo songInfo => songInfo.ToAdapter(),
+            AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
+            Playlist playlist => playlist.ToAdapter(),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 ISongCidProvider，然后再传入此方法。"),
+            SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
+            INameProvider nameProvider => nameProvider,
+            Func<ISongCidProvider> songCidProviderFactory when songCidProviderFactory.Invoke() is INameProvider name => name,
+            _ => throw new ArgumentException("指定的对象无法转换为 ISongCidProvider。", nameof(source)),
+        };
+    }
 }

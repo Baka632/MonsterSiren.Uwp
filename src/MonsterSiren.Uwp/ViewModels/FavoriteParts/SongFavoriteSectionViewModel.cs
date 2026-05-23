@@ -41,53 +41,6 @@ public partial class SongFavoriteSectionViewModel(SongFavoriteSection view) : Ob
     }
 
     [RelayCommand]
-    private static async Task PlayForSongItem(SongFavoriteItem item)
-    {
-        await CommonValues.StartPlay(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForSongItem(SongFavoriteItem item)
-    {
-        await CommonValues.PlayNext(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task RemoveSongFromFavorite(SongFavoriteItem item)
-    {
-        await CommonValues.RemoveFromFavorite(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task DownloadForSongItem(SongFavoriteItem item)
-    {
-        await CommonValues.StartDownload(item.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static void CopySongNameToClipboard(SongFavoriteItem item)
-    {
-        DataPackage package = new()
-        {
-            RequestedOperation = DataPackageOperation.Copy
-        };
-        package.SetText(item.SongTitle);
-        Clipboard.SetContent(package);
-    }
-
-    [RelayCommand]
-    private static async Task AddSongToNowPlaying(SongFavoriteItem favoriteItem)
-    {
-        await CommonValues.AddToNowPlaying(favoriteItem.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddSongToPlaylist(Playlist target)
-    {
-        await CommonValues.AddToPlaylist(target, SelectedSongItem.ToAdapter());
-    }
-
-    [RelayCommand]
     private void StartSongListMultipleSelection()
     {
         // Single 模式只能选一个

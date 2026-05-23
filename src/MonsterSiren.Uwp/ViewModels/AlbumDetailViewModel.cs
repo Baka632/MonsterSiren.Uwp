@@ -172,59 +172,8 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     }
 
     [RelayCommand]
-    private static async Task PlayForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.StartPlay(songInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.AddToNowPlaying(songInfo.ToAdapter());
-    }
-    
-    [RelayCommand]
-    private async Task PlayNextForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.PlayNext(songInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddSongToFavorite(SongInfo songInfo)
-    {
-        await CommonValues.AddToFavorite(songInfo.ToAdapter());
-        OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
-    }
-
-    [RelayCommand]
-    private async Task RemoveSongFromFavorite(SongInfo songInfo)
-    {
-        await CommonValues.RemoveFromFavorite(songInfo.ToAdapter());
-        OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
-    }
-
-    [RelayCommand]
-    private async Task AddToPlaylistForSongInfo(Playlist playlist)
-    {
-        await CommonValues.AddToPlaylist(playlist, SelectedSongInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task DownloadForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.StartDownload(songInfo.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static void CopySongNameToClipboard(SongInfo songInfo)
-    {
-        DataPackage package = new()
-        {
-            RequestedOperation = DataPackageOperation.Copy
-        };
-        package.SetText(songInfo.Name);
-        Clipboard.SetContent(package);
-    }
+    private void NotifyIsSelectedSongInfoContainsInFavoriteChanged()
+        => OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
 
     [RelayCommand]
     private void StartMultipleSelection()

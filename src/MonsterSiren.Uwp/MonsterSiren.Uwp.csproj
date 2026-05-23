@@ -109,6 +109,9 @@
     <Compile Include="Controls\MenuFlyouts\AlbumMenuFlyout.xaml.cs">
       <DependentUpon>AlbumMenuFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MenuFlyouts\SongMenuFlyout.xaml.cs">
+      <DependentUpon>SongMenuFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MenuFlyouts\WithAddToMenuFlyout.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
@@ -120,7 +123,7 @@
     <Compile Include="Controls\SettingsExpander.xaml.cs">
       <DependentUpon>SettingsExpander.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SongCidProviderXamlHelper.cs" />
+    <Compile Include="Controls\CommandParameterXamlHelper.cs" />
     <Compile Include="Controls\ThemedToggleButton.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Helpers\AggregateExceptionHelper.cs" />
@@ -150,6 +153,7 @@
     <Compile Include="Models\Abstracts\IContentContainer.cs" />
     <Compile Include="Models\Abstracts\IContentCorruptible.cs" />
     <Compile Include="Models\Abstracts\IFavoriteAddable.cs" />
+    <Compile Include="Models\Abstracts\INameProvider.cs" />
     <Compile Include="Models\Abstracts\ISongCidProvider.cs" />
     <Compile Include="Models\Abstracts\ICorruptible.cs" />
     <Compile Include="Models\Adapters\AlbumCidAdapter.cs" />
@@ -311,6 +315,10 @@
     <Page Include="Controls\MenuFlyouts\AlbumMenuFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\MenuFlyouts\SongMenuFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ScrollableTextBlock.xaml">
       <SubType>Designer</SubType>
