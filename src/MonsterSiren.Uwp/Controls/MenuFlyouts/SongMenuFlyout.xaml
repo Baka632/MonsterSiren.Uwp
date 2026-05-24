@@ -1,4 +1,4 @@
-<local:WithAddToMenuFlyout
+<local:ItemMenuFlyoutBase
     x:Class="MonsterSiren.Uwp.Controls.MenuFlyouts.SongMenuFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -51,7 +51,7 @@
         Command="{x:Bind ViewModel.RemoveItemFromPlaylistCommand}"
         Icon="Delete"
         Visibility="{x:Bind RemoveFromPlaylistVisibility, Mode=OneWay}" />
-    <MenuFlyoutSeparator />
+    <MenuFlyoutSeparator Visibility="{x:Bind MultipleSelectionVisibility, Mode=OneWay}" />
     <MenuFlyoutItem
         x:Uid="SelectForSongList"
         Command="{x:Bind StartMultipleSelectionCommand}"
@@ -60,4 +60,4 @@
             <FontIcon Glyph="&#xE762;" />
         </MenuFlyoutItem.Icon>
     </MenuFlyoutItem>
-</local:WithAddToMenuFlyout>
+</local:ItemMenuFlyoutBase>

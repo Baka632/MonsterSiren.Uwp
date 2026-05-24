@@ -109,13 +109,16 @@
     <Compile Include="Controls\MenuFlyouts\AlbumMenuFlyout.xaml.cs">
       <DependentUpon>AlbumMenuFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MenuFlyouts\ItemMenuFlyoutBase.cs" />
+    <Compile Include="Controls\MenuFlyouts\ListMenuFlyoutBase.cs" />
+    <Compile Include="Controls\MenuFlyouts\MsrMenuFlyoutBase.cs" />
     <Compile Include="Controls\MenuFlyouts\SongListMenuFlyout.xaml.cs">
       <DependentUpon>SongListMenuFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\MenuFlyouts\SongMenuFlyout.xaml.cs">
       <DependentUpon>SongMenuFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MenuFlyouts\WithAddToMenuFlyout.cs" />
+    <Compile Include="Controls\MenuFlyouts\AddToMenuFlyoutBase.cs" />
     <Compile Include="Controls\NowPlayingItemGrid.cs" />
     <Compile Include="Controls\ScrollableTextBlock.xaml.cs">
       <DependentUpon>ScrollableTextBlock.xaml</DependentUpon>
@@ -514,7 +517,9 @@
       <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

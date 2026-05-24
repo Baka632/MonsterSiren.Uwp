@@ -1,4 +1,4 @@
-<local:WithAddToMenuFlyout
+<local:ItemMenuFlyoutBase
     x:Class="MonsterSiren.Uwp.Controls.MenuFlyouts.AlbumMenuFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -40,7 +40,7 @@
         controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind ViewModel.StartDownloadCommand}"
         Icon="Download" />
-    <MenuFlyoutSeparator />
+    <MenuFlyoutSeparator Visibility="{x:Bind MultipleSelectionVisibility, Mode=OneWay}" />
     <MenuFlyoutItem
         x:Uid="SelectForSongList"
         Command="{x:Bind StartMultipleSelectionCommand}"
@@ -49,4 +49,4 @@
             <FontIcon Glyph="&#xE762;" />
         </MenuFlyoutItem.Icon>
     </MenuFlyoutItem>
-</local:WithAddToMenuFlyout>
+</local:ItemMenuFlyoutBase>

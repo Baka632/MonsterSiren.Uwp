@@ -1,4 +1,4 @@
-<local:WithAddToMenuFlyout
+<local:ListMenuFlyoutBase
     x:Class="MonsterSiren.Uwp.Controls.MenuFlyouts.AlbumListMenuFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -60,4 +60,4 @@
         controls:CommandParameterXamlHelper.SourceData="{x:Bind SourceData, Mode=OneWay}"
         Command="{x:Bind StopMultipleSelectionCommand, Mode=OneWay}"
         Icon="Cancel" />
-</local:WithAddToMenuFlyout>
+</local:ListMenuFlyoutBase>

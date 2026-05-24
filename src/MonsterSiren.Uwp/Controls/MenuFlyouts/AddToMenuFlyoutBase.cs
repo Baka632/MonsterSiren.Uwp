@@ -6,34 +6,8 @@ namespace MonsterSiren.Uwp.Controls.MenuFlyouts;
 /// <summary>
 /// 表示为创建“添加到”菜单项目提供帮助方法的 <see cref="MenuFlyout"/>。
 /// </summary>
-public abstract class WithAddToMenuFlyout : MenuFlyout
+public abstract class AddToMenuFlyoutBase : MsrMenuFlyoutBase
 {
-    /// <summary>
-    /// 此事件等效于 <see cref="FlyoutBase.Opening"/> 事件。
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// 此事件模拟了 <see cref="FrameworkElement.Loading"/> 事件，用于支持 <c>x:Bind</c> 编译时绑定。
-    /// </para>
-    /// <para>
-    /// 不同点在于引发事件时，事件参数 sender 始终为 <see langword="null"/>，因为本类不是 <see cref="FrameworkElement"/> 的派生类。
-    /// </para>
-    /// </remarks>
-    public event TypedEventHandler<FrameworkElement, object> Loading;
-
-    /// <summary>
-    /// 构造 <see cref="WithAddToMenuFlyoutBase"/> 的新实例。
-    /// </summary>
-    public WithAddToMenuFlyout()
-    {
-        Opening += OnOpening;
-    }
-
-    /// <summary>
-    /// 提供通用命令的 <see cref="CommonResourcesViewModel"/>。
-    /// </summary>
-    public CommonResourcesViewModel ViewModel { get; } = CommonResourcesViewModel.Shared;
-
     /// <summary>
     /// 初始化“添加到”菜单项目。
     /// </summary>
@@ -55,12 +29,5 @@ public abstract class WithAddToMenuFlyout : MenuFlyout
                                                                           optionalModel);
         subItem.Tag = "Placeholder_For_AddTo";
         Items.Insert(targetIndex, subItem);
-    }
-
-    private void OnOpening(object sender, object e)
-    {
-        // 模拟 FrameworkElement 的 Loading 事件。
-        // 用于 x:Bind，毕竟生成的 x:Bind 也不会用这个 sender 参数。
-        Loading?.Invoke(null, e);
     }
 }
