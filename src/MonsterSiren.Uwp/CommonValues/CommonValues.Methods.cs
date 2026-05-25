@@ -145,30 +145,6 @@ partial class CommonValues
     /// <param name="playlistCommand">“添加到播放列表”命令。</param>
     /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身。</param>
     /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例。</returns>
-    public static MenuFlyoutSubItem CreateAddToFlyoutSubItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter, ICommand playlistCommand, Playlist optionalModel = null)
-    {
-        MenuFlyoutSubItem mainSubItem = new()
-        {
-            Icon = new SymbolIcon(Symbol.Add),
-            Text = "AddToPlaylistOrNowPlayingLiteral".GetLocalized()
-        };
-        MenuFlyoutItem addToNowPlayingItem = CreateAddToNowPlayingItem(addToNowPlayingCommand, addToNowPlayingCommandParameter);
-        MenuFlyoutSubItem playlistSubItem = CreateAddToPlaylistSubItem(playlistCommand, optionalModel);
-
-        mainSubItem.Items.Add(addToNowPlayingItem);
-        mainSubItem.Items.Add(playlistSubItem);
-
-        return mainSubItem;
-    }
-
-    /// <summary>
-    /// 创建“添加到”的 <see cref="MenuFlyoutSubItem"/>。
-    /// </summary>
-    /// <param name="addToNowPlayingCommand">“添加到正在播放”命令。</param>
-    /// <param name="addToNowPlayingCommandParameter">“添加到正在播放”命令的参数。</param>
-    /// <param name="playlistCommand">“添加到播放列表”命令。</param>
-    /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身。</param>
-    /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例。</returns>
     public static MenuFlyoutSubItem CreateAddToFlyoutSubItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter, ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel = null)
     {
         MenuFlyoutSubItem mainSubItem = new()
@@ -202,45 +178,21 @@ partial class CommonValues
         };
     }
 
-    /// <summary>
-    /// 创建一个“添加到播放列表”的 <see cref="MenuFlyoutSubItem"/>。
-    /// </summary>
-    /// <param name="playlistCommand">“添加到播放列表”命令。</param>
-    /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身。</param>
-    /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例。</returns>
-    public static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Playlist optionalModel = null)
+    public static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel = null, MenuFlyoutSubItem playlistSubItem = null)
     {
-        MenuFlyoutSubItem playlistSubItem = new()
+        playlistSubItem ??= new()
         {
             Icon = new SymbolIcon(Symbol.List),
             Text = "AddToPlaylistTextLiteral".GetLocalized(),
         };
-
-        if (PlaylistService.TotalPlaylists.Count > 0)
-        {
-            playlistSubItem.IsEnabled = true;
-
-            foreach (Playlist playlist in PlaylistService.TotalPlaylists)
-            {
-                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist, playlistCommand, optionalModel);
-                playlistSubItem.Items.Add(item);
-            }
-        }
-        else
-        {
-            playlistSubItem.IsEnabled = false;
-        }
+        InitializeAddToPlaylistSubItem(playlistCommand, playlistCommandParameterFactory, optionalModel, playlistSubItem);
 
         return playlistSubItem;
     }
 
-    private static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel = null)
+    public static void InitializeAddToPlaylistSubItem(ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel, MenuFlyoutSubItem playlistSubItem)
     {
-        MenuFlyoutSubItem playlistSubItem = new()
-        {
-            Icon = new SymbolIcon(Symbol.List),
-            Text = "AddToPlaylistTextLiteral".GetLocalized(),
-        };
+        playlistSubItem.Items.Clear();
 
         if (PlaylistService.TotalPlaylists.Count > 0)
         {
@@ -256,8 +208,6 @@ partial class CommonValues
         {
             playlistSubItem.IsEnabled = false;
         }
-
-        return playlistSubItem;
     }
 
     private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Playlist optionalModel)

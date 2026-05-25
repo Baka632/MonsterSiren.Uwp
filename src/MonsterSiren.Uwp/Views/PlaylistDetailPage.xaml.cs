@@ -112,19 +112,6 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-
-        flyout.Items.Clear();
-
-        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddCurrentPlaylistToNowPlayingCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddCurrentPlaylistToAnotherPlaylistCommandCommand, ViewModel.CurrentPlaylist);
-
-        flyout.Items.Add(addToNowPlayingItem);
-        flyout.Items.Add(addToPlaylistSubItem);
-    }
-
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         FrameworkElement element = (FrameworkElement)sender;

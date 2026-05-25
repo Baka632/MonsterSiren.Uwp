@@ -33,18 +33,6 @@ public partial class SongFavoriteSectionViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task AddSongFavoriteToNowPlaying()
-    {
-        await CommonValues.AddSongFavoriteToNowPlaying();
-    }
-
-    [RelayCommand]
-    private static async Task AddSongFavoriteToPlaylist(Playlist target)
-    {
-        await CommonValues.AddToPlaylist(target, FavoriteService.SongFavoriteList.ToAdapter());
-    }
-
-    [RelayCommand]
     private static async Task DownloadForSongFavorite()
     {
         await CommonValues.StartDownloadSongFavorites();

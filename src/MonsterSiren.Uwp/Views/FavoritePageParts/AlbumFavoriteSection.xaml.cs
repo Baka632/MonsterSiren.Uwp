@@ -114,17 +114,4 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
 
         ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), e.ClickedItem, new SuppressNavigationTransitionInfo());
     }
-
-    private void OnListViewItemAlbumContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-
-        flyout.Items.Clear();
-
-        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddAlbumFavoriteToNowPlayingCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddAlbumFavoriteToPlaylistCommandCommand);
-
-        flyout.Items.Add(addToNowPlayingItem);
-        flyout.Items.Add(addToPlaylistSubItem);
-    }
 }

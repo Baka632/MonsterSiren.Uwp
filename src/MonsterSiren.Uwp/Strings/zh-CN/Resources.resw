@@ -840,4 +840,10 @@
   <data name="SongIndexOneStartText" xml:space="preserve">
     <value>歌曲索引（1 开始）</value>
   </data>
+  <data name="NowPlayingMenuFlyout.Text" xml:space="preserve">
+    <value>正在播放</value>
+  </data>
+  <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
+    <value>播放列表</value>
+  </data>
 </root>

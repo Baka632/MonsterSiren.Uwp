@@ -130,19 +130,6 @@ public sealed partial class AlbumDetailPage : Page
         ViewModel.SelectedSongInfo = (SongInfo)button.DataContext;
     }
 
-    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-
-        flyout.Items.Clear();
-
-        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddToNowPlayingForCurrentAlbumDetailCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddToPlaylistForCurrentAlbumDetailCommand);
-
-        flyout.Items.Add(addToNowPlayingItem);
-        flyout.Items.Add(addToPlaylistSubItem);
-    }
-
     private void OnIndexTextBlockLoaded(object sender, RoutedEventArgs e)
     {
         TextBlock textBlock = (TextBlock)sender;

@@ -48,18 +48,6 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSelectedItemContainsInFavorite));
 
     [RelayCommand]
-    private async Task AddCurrentPlaylistToNowPlaying()
-    {
-        await CommonValues.AddToNowPlaying(CurrentPlaylist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddCurrentPlaylistToAnotherPlaylistCommand(Playlist target)
-    {
-        await PlaylistService.AddItemForPlaylistAsync(target, CurrentPlaylist);
-    }
-
-    [RelayCommand]
     private async Task DownloadForCurrentPlaylist()
     {
         await CommonValues.StartDownload(CurrentPlaylist.ToAdapter());

@@ -163,18 +163,6 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddToNowPlayingForCurrentAlbumDetail()
-    {
-        await CommonValues.AddToNowPlaying(CurrentAlbumDetail.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
-    {
-        await CommonValues.AddToPlaylist(playlist, CurrentAlbumDetail.ToAdapter());
-    }
-
-    [RelayCommand]
     private async Task DownloadForCurrentAlbumDetail()
     {
         await CommonValues.StartDownload(CurrentAlbumDetail.ToAdapter());

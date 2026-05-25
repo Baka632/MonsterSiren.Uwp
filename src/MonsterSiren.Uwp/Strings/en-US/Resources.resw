@@ -760,4 +760,10 @@ Continue?</value>
   <data name="SongIndexOneStartText" xml:space="preserve">
     <value>Song index (1-based)</value>
   </data>
+  <data name="NowPlayingMenuFlyout.Text" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
 </root>

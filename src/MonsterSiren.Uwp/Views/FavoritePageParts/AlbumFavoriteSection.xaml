@@ -35,6 +35,8 @@
             SourceData="{x:Bind ViewModel.SongCidProviderFactory}"
             StopMultipleSelectionCommand="{x:Bind ViewModel.StopMultipleSelectionCommand}"
             UnfavoriteVisibility="Visible" />
+
+        <menuFlyouts:AddToMenuFlyout x:Name="AddToMenuFlyout" SourceData="{x:Bind services:FavoriteService.AlbumFavoriteList, Mode=OneWay}" />
     </UserControl.Resources>
 
     <Grid>
@@ -66,6 +68,7 @@
                 Margin="0,0,5,0"
                 AccessKey="1"
                 Background="Transparent"
+                Flyout="{StaticResource AddToMenuFlyout}"
                 IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(IsAlbumFavoriteEmpty), Mode=OneWay}">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon
@@ -74,9 +77,6 @@
                         Symbol="Add" />
                     <TextBlock x:Uid="AddToPlaylistOrNowPlayingTextBlock" HorizontalAlignment="Center" />
                 </StackPanel>
-                <Button.Flyout>
-                    <MenuFlyout Opening="OnListViewItemAlbumContextFlyoutOpening" />
-                </Button.Flyout>
             </Button>
 
             <Button AccessKey="2" Background="Transparent">

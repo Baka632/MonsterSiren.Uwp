@@ -39,19 +39,6 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-
-        flyout.Items.Clear();
-
-        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddSongFavoriteToNowPlayingCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddSongFavoriteToPlaylistCommand);
-
-        flyout.Items.Add(addToNowPlayingItem);
-        flyout.Items.Add(addToPlaylistSubItem);
-    }
-
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
         if (e.Items.Count <= 0)

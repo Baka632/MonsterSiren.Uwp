@@ -68,39 +68,11 @@ partial class CommonValues
         => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
 
     /// <summary>
-    /// 将歌曲收藏夹添加到正在播放列表中。
-    /// </summary>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> AddSongFavoriteToNowPlaying()
-        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.Add);
-
-    /// <summary>
-    /// 将歌曲收藏夹中的歌曲设为下一项播放。
-    /// </summary>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> PlayNextForSongFavorite()
-        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.AddNext);
-
-    /// <summary>
     /// 播放专辑收藏夹中的歌曲。
     /// </summary>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> StartPlayAlbumFavorite()
         => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
-
-    /// <summary>
-    /// 将专辑收藏夹添加到正在播放列表中。
-    /// </summary>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> AddAlbumFavoriteToNowPlaying()
-        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.Add);
-
-    /// <summary>
-    /// 将专辑收藏夹中的歌曲设为下一项播放。
-    /// </summary>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> PlayNextForAlbumFavorite()
-        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.AddNext);
     #endregion
 
     /// <summary>

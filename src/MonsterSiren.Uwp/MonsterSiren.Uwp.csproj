@@ -103,6 +103,9 @@
     <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
+    <Compile Include="Controls\MenuFlyouts\AddToMenuFlyout.xaml.cs">
+      <DependentUpon>AddToMenuFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MenuFlyouts\AlbumListMenuFlyout.xaml.cs">
       <DependentUpon>AlbumListMenuFlyout.xaml</DependentUpon>
     </Compile>
@@ -320,6 +323,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\MenuFlyouts\AddToMenuFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\MenuFlyouts\AlbumListMenuFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
