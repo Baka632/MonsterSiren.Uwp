@@ -210,24 +210,6 @@ partial class CommonValues
         }
     }
 
-    private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Playlist optionalModel)
-    {
-        MenuFlyoutItem flyoutItem = new()
-        {
-            DataContext = playlist,
-            Text = playlist.Title,
-            Icon = new FontIcon()
-            {
-                Glyph = "\uEC4F"
-            },
-            Command = playlistCommand,
-            CommandParameter = playlist,
-            IsEnabled = playlist != optionalModel,
-        };
-
-        return flyoutItem;
-    }
-
     private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel)
     {
         MenuFlyoutItem flyoutItem = new()

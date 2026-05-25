@@ -2,7 +2,6 @@ using System.Net.Http;
 using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
-using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
