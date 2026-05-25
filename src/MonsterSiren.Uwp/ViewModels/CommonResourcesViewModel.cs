@@ -18,25 +18,30 @@ public sealed partial class CommonResourcesViewModel
     public ICommand AddItemToFavoriteCommand { get; } = new AsyncRelayCommand<CommandParameter>(AddItemToFavorite);
     public ICommand RemoveItemFromFavoriteCommand { get; } = new AsyncRelayCommand<CommandParameter>(RemoveItemFromFavorite);
     public ICommand CopyItemNameToClipboardCommand { get; } = new RelayCommand<CommandParameter>(CopyItemNameToClipboard);
+    public ICommand ModifyPlaylistCommand { get; } = new AsyncRelayCommand<CommandParameter>(ModifyPlaylist);
+    public ICommand RemovePlaylistCommand { get; } = new AsyncRelayCommand<CommandParameter>(RemovePlaylist);
 
     private static async Task Play(CommandParameter parameter)
     {
-        ISongCidProvider provider = CommonValues.GetSongCidProvider(parameter.Parameter);
-        bool result = await CommonValues.StartPlay(provider);
+        bool result = TryGetPlaylistSequence(parameter.Parameter, out IEnumerable<Playlist> playlists)
+            ? await CommonValues.StartPlay(playlists)
+            : await CommonValues.StartPlay(CommonValues.GetSongCidProvider(parameter.Parameter));
         parameter.Callback?.Execute(result);
     }
 
     private static async Task PlayNext(CommandParameter parameter)
     {
-        ISongCidProvider provider = CommonValues.GetSongCidProvider(parameter.Parameter);
-        bool result = await CommonValues.PlayNext(provider);
+        bool result = TryGetPlaylistSequence(parameter.Parameter, out IEnumerable<Playlist> playlists)
+            ? await CommonValues.PlayNext(playlists)
+            : await CommonValues.PlayNext(CommonValues.GetSongCidProvider(parameter.Parameter));
         parameter.Callback?.Execute(result);
     }
 
     private static async Task AddToNowPlaying(CommandParameter parameter)
     {
-        ISongCidProvider provider = CommonValues.GetSongCidProvider(parameter.Parameter);
-        bool result = await CommonValues.AddToNowPlaying(provider);
+        bool result = TryGetPlaylistSequence(parameter.Parameter, out IEnumerable<Playlist> playlists)
+            ? await CommonValues.AddToNowPlaying(playlists)
+            : await CommonValues.AddToNowPlaying(CommonValues.GetSongCidProvider(parameter.Parameter));
         parameter.Callback?.Execute(result);
     }
 
@@ -51,8 +56,17 @@ public sealed partial class CommonResourcesViewModel
     {
         (Playlist playlist, object data) = (ValueTuple<Playlist, object>)parameter.Parameter;
 
-        ISongCidProvider provider = CommonValues.GetSongCidProvider(data);
-        bool result = await CommonValues.AddToPlaylist(playlist, provider);
+        bool result;
+        if (TryGetPlaylistSequence(data, out IEnumerable<Playlist> playlists))
+        {
+            await PlaylistService.AddItemsForPlaylistAsync(playlist, playlists);
+            result = true;
+        }
+        else
+        {
+            result = await CommonValues.AddToPlaylist(playlist, CommonValues.GetSongCidProvider(data));
+        }
+
         parameter.Callback?.Execute(result);
     }
 
@@ -91,5 +105,34 @@ public sealed partial class CommonResourcesViewModel
         Clipboard.SetContent(package);
 
         parameter.Callback?.Execute(true);
+    }
+
+    private static async Task ModifyPlaylist(CommandParameter parameter)
+    {
+        Playlist playlist = (Playlist)parameter.Parameter;
+        bool result = await CommonValues.ShowModifyPlaylistDialog(playlist);
+        parameter.Callback?.Execute(result);
+    }
+
+    private static async Task RemovePlaylist(CommandParameter parameter)
+    {
+        bool result = TryGetPlaylistSequence(parameter.Parameter, out IEnumerable<Playlist> playlists)
+            ? await CommonValues.RemovePlaylists(playlists)
+            : await CommonValues.RemovePlaylist((Playlist)parameter.Parameter);
+        parameter.Callback?.Execute(result);
+    }
+
+    private static bool TryGetPlaylistSequence(object obj, out IEnumerable<Playlist> playlists)
+    {
+        if (obj is Func<IEnumerable<Playlist>> factory)
+        {
+            playlists = factory();
+            return true;
+        }
+        else
+        {
+            playlists = null;
+            return false;
+        }
     }
 }

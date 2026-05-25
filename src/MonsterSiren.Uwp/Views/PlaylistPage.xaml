@@ -8,6 +8,7 @@
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:menuFlyouts="using:MonsterSiren.Uwp.Controls.MenuFlyouts"
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:playlistModels="using:MonsterSiren.Uwp.Models.Playlists"
@@ -18,70 +19,19 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistViewModel}"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout
+        <menuFlyouts:PlaylistMenuFlyout
             x:Name="PlaylistContextFlyout"
-            x:FieldModifier="Internal"
-            Opening="OnPlaylistContextFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem
-                x:Uid="ModifyCommandButton"
-                Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Edit" />
-            <MenuFlyoutItem
-                x:Uid="DeleteCommandButton"
-                Command="{x:Bind ViewModel.RemovePlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Delete" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem x:Uid="SelectForSongList" Command="{x:Bind ViewModel.StartMultipleSelectionCommand}">
-                <MenuFlyoutItem.Icon>
-                    <FontIcon Glyph="&#xE762;" />
-                </MenuFlyoutItem.Icon>
-            </MenuFlyoutItem>
-        </MenuFlyout>
+            x:FieldModifier="public"
+            SourceData="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
+            StartMultipleSelectionCommand="{x:Bind ViewModel.StartMultipleSelectionCommand}" />
 
-        <MenuFlyout
+        <menuFlyouts:PlaylistListMenuFlyout
             x:Name="PlaylistSelectionFlyout"
-            x:FieldModifier="Internal"
-            Opening="OnPlaylistSelectionFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayPlaylistForSelectedItemCommand}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem
-                x:Uid="DeleteCommandButton"
-                Command="{x:Bind ViewModel.RemoveSelectedPlaylistCommand}"
-                Icon="Delete" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem
-                x:Uid="SelectAllForSongList"
-                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
-                Icon="SelectAll" />
-            <MenuFlyoutItem
-                x:Uid="DeselectAllForSongList"
-                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
-                Icon="ClearSelection" />
-            <MenuFlyoutItem
-                x:Uid="DeselectForSongList"
-                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
-                Icon="Cancel" />
-        </MenuFlyout>
+            x:FieldModifier="public"
+            DeselectAllListCommand="{x:Bind ViewModel.DeselectAllSongListCommand}"
+            SelectAllListCommand="{x:Bind ViewModel.SelectAllSongListCommand}"
+            SourceData="{x:Bind ViewModel.PlaylistFactory, Mode=OneWay}"
+            StopMultipleSelectionCommand="{x:Bind ViewModel.StopMultipleSelectionCommand}" />
     </Page.Resources>
 
     <Grid>

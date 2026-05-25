@@ -112,6 +112,12 @@
     <Compile Include="Controls\MenuFlyouts\ItemMenuFlyoutBase.cs" />
     <Compile Include="Controls\MenuFlyouts\ListMenuFlyoutBase.cs" />
     <Compile Include="Controls\MenuFlyouts\MsrMenuFlyoutBase.cs" />
+    <Compile Include="Controls\MenuFlyouts\PlaylistListMenuFlyout.xaml.cs">
+      <DependentUpon>PlaylistListMenuFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MenuFlyouts\PlaylistMenuFlyout.xaml.cs">
+      <DependentUpon>PlaylistMenuFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MenuFlyouts\SongListMenuFlyout.xaml.cs">
       <DependentUpon>SongListMenuFlyout.xaml</DependentUpon>
     </Compile>
@@ -321,6 +327,14 @@
     <Page Include="Controls\MenuFlyouts\AlbumMenuFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\MenuFlyouts\PlaylistListMenuFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MenuFlyouts\PlaylistMenuFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\MenuFlyouts\SongListMenuFlyout.xaml">
       <SubType>Designer</SubType>

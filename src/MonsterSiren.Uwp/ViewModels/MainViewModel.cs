@@ -126,42 +126,6 @@ public partial class MainViewModel : ObservableRecipient
         await CommonValues.ShowCreatePlaylistDialog();
     }
 
-    [RelayCommand]
-    private static async Task PlayForPlaylist(Playlist playlist)
-    {
-        await CommonValues.StartPlay(playlist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task AddPlaylistToNowPlaying(Playlist playlist)
-    {
-        await CommonValues.AddToNowPlaying(playlist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForPlaylist(Playlist playlist)
-    {
-        await CommonValues.PlayNext(playlist.ToAdapter());
-    }
-
-    [RelayCommand]
-    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
-    {
-        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
-    }
-
-    [RelayCommand]
-    private static async Task ModifyPlaylist(Playlist playlist)
-    {
-        await CommonValues.ShowModifyPlaylistDialog(playlist);
-    }
-
-    [RelayCommand]
-    private static async Task RemovePlaylist(Playlist playlist)
-    {
-        await CommonValues.RemovePlaylist(playlist);
-    }
-
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)
     {
         try

@@ -509,22 +509,6 @@ partial class MainPage
         }
     }
 
-    private void OnPlaylistItemFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddPlaylistToNowPlayingCommand,
-                                                                          ViewModel.SelectedPlaylist,
-                                                                          ViewModel.AddPlaylistToAnotherPlaylistCommand,
-                                                                          ViewModel.SelectedPlaylist);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
     {
         if (sender is Microsoft.UI.Xaml.Controls.NavigationView view && view.SettingsItem is Microsoft.UI.Xaml.Controls.NavigationViewItemBase settings)
