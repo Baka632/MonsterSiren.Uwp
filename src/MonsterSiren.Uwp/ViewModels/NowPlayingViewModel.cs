@@ -9,7 +9,7 @@ namespace MonsterSiren.Uwp.ViewModels;
 /// <summary>
 /// 为 <see cref="NowPlayingPage"/> 提供视图模型。
 /// </summary>
-public partial class NowPlayingViewModel : ObservableObject
+public partial class NowPlayingViewModel : ObservableObject, IDisposable
 {
     private readonly NowPlayingPage view;
 
@@ -35,18 +35,6 @@ public partial class NowPlayingViewModel : ObservableObject
         DetermineMediaCastingButtonString(MediaCastService.IsMediaCasting);
         MediaCastService.MediaCastingStateChanged += OnMediaCastServiceMediaCastingStateChanged;
         MusicInfo.PropertyChanged += OnMusicInfoPropertyChanged;
-    }
-
-    ~NowPlayingViewModel()
-    {
-        DehookAllEvent();
-    }
-
-    public void DehookAllEvent()
-    {
-        MediaCastService.MediaCastingStateChanged -= OnMediaCastServiceMediaCastingStateChanged;
-        MusicInfo.PropertyChanged -= OnMusicInfoPropertyChanged;
-        GC.SuppressFinalize(this);
     }
 
     private void OnMusicInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -137,5 +125,12 @@ public partial class NowPlayingViewModel : ObservableObject
         int index = view.NowPlayingListView.Items.IndexOf(playbackItem);
 
         MusicService.RemoveAt(index);
+    }
+
+    public void Dispose()
+    {
+        MediaCastService.MediaCastingStateChanged -= OnMediaCastServiceMediaCastingStateChanged;
+        MusicInfo.PropertyChanged -= OnMusicInfoPropertyChanged;
+        GC.SuppressFinalize(this);
     }
 }

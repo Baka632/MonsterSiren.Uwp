@@ -90,7 +90,7 @@ public sealed partial class NowPlayingPage : Page
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
         MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
-        ViewModel.DehookAllEvent();
+        ViewModel.Dispose();
     }
 
     private void OnExpandOrFoldNowPlayingList(object sender, RoutedEventArgs e)

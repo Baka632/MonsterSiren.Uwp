@@ -25,7 +25,7 @@ public abstract class AddToMenuFlyoutBase : MsrMenuFlyoutBase
         MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingCommand,
                                                                           new CommandParameter(sourceData, addToNowPlayingCommandCallback),
                                                                           ViewModel.AddItemToPlaylistCommand,
-                                                                          (Playlist playlist) => new CommandParameter((playlist, sourceData), playlistCommandCallback),
+                                                                          playlist => new CommandParameter((playlist, sourceData), playlistCommandCallback),
                                                                           optionalModel);
         subItem.Tag = "Placeholder_For_AddTo";
         Items.Insert(targetIndex, subItem);
