@@ -155,6 +155,7 @@
     <Compile Include="Helpers\Converters\CodecCategoryToStringConverter.cs" />
     <Compile Include="Helpers\Converters\DownloadItemStateToStringConverter.cs" />
     <Compile Include="Helpers\Converters\NewsCategoryToStringConverter.cs" />
+    <Compile Include="Helpers\DragHelper.cs" />
     <Compile Include="Helpers\FileCacheHelper.cs" />
     <Compile Include="Helpers\Converters\MediaPlaybackItemToMusicRelatedPropertiesConverter.cs" />
     <Compile Include="Helpers\Converters\TimeSpanToStringConverter.cs" />

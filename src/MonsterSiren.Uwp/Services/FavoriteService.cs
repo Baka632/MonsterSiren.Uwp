@@ -1,10 +1,8 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
-using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
-using Windows.Media.Playback;
 using Windows.Storage;
 
 namespace MonsterSiren.Uwp.Services;

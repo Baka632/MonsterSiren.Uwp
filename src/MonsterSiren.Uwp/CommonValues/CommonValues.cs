@@ -61,14 +61,6 @@ internal static partial class CommonValues
     public const string AppVersionSettingsKey = "AppVersion_SettingsKey";
     #endregion
 
-    #region Data Package Type
-    public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
-    public const string MusicSongInfosFormatId = "Music_SongInfos_DataPackage_FormatId";
-    public const string MusicPlaylistFormatId = "Music_Playlist_DataPackage_FormatId";
-    public const string MusicPlaylistItemsFormatId = "Music_PlaylistItems_DataPackage_FormatId";
-    public const string MusicSongFavoriteItemsFormatId = "Music_SongFavoriteItems_DataPackage_FormatId";
-    #endregion
-
     #region Other Common Things
     private static bool isDefaultTransitionInfoSet = false;
     private static NavigationTransitionInfo _defaultTransitionInfo;

@@ -76,17 +76,7 @@ public sealed partial class AlbumDetailPage : Page
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        if (e.Items.Count <= 0)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        List<SongInfo> infos = [.. e.Items.Cast<SongInfo>()];
-
-        string json = JsonSerializer.Serialize(infos);
-
-        e.Data.SetData(CommonValues.MusicSongInfosFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<SongInfo>(e);
     }
 
     private void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)

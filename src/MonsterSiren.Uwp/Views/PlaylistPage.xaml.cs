@@ -32,16 +32,7 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 
     private void OnPlaylistItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        string json = JsonSerializer.Serialize((Playlist)dataContext);
-        e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<Playlist>(e);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

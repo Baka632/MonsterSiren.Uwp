@@ -388,63 +388,13 @@ partial class MainPage
 {
     private void OnMusicDataPackageDragOver(object sender, DragEventArgs e)
     {
-        DataPackageView dataView = e.DataView;
-        if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-            || dataView.Contains(CommonValues.MusicSongInfosFormatId)
-            || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
-            || dataView.Contains(CommonValues.MusicPlaylistFormatId)
-            || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
-        {
-            e.AcceptedOperation = DataPackageOperation.Link;
-            e.DragUIOverride.Caption = "AddToNowPlayingLiteral".GetLocalized();
-        }
-        else
-        {
-            e.AcceptedOperation = DataPackageOperation.None;
-        }
+        DragHelper.HandleDragEventArgs(e, "AddToNowPlayingLiteral".GetLocalized());
     }
 
     private async void OnDropMusicDataPackage(object sender, DragEventArgs e)
     {
         DataPackageView dataView = e.DataView;
-        if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId))
-        {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
-
-            AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
-
-            await CommonValues.AddToNowPlaying(albumInfo.ToAdapter());
-        }
-        else if (dataView.Contains(CommonValues.MusicSongInfosFormatId))
-        {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfosFormatId);
-
-            List<SongInfo> infos = JsonSerializer.Deserialize<List<SongInfo>>(json);
-
-            await CommonValues.AddToNowPlaying(infos.ToAdapter());
-        }
-        else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-        {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
-            List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-
-            await CommonValues.AddToNowPlaying(items.ToAdapter());
-        }
-        else if (dataView.Contains(CommonValues.MusicPlaylistFormatId))
-        {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistFormatId);
-
-            Playlist playlist = JsonSerializer.Deserialize<Playlist>(json);
-
-            await CommonValues.AddToNowPlaying(playlist.ToAdapter());
-        }
-        else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
-        {
-            string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
-            List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
-
-            await CommonValues.AddToNowPlaying(items.ToAdapter());
-        }
+        await DragHelper.HandleDataAndPlayNextAsync(dataView);
     }
 }
 
@@ -648,55 +598,13 @@ partial class MainPage
 
         item.DragOver += (s, e) =>
         {
-            DataPackageView dataView = e.DataView;
-
-            if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId)
-                || dataView.Contains(CommonValues.MusicSongInfosFormatId)
-                || dataView.Contains(CommonValues.MusicPlaylistItemsFormatId)
-                || dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
-            {
-                e.AcceptedOperation = DataPackageOperation.Link;
-                e.DragUIOverride.Caption = string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title);
-            }
-            else
-            {
-                e.AcceptedOperation = DataPackageOperation.None;
-            }
+            DragHelper.HandleDragEventArgs(e, string.Format("AddToPlaylistLiteral".GetLocalized(), playlist.Title));
         };
 
         item.Drop += async (s, e) =>
         {
             DataPackageView dataView = e.DataView;
-
-            if (dataView.Contains(CommonValues.MusicAlbumInfoFormatId))
-            {
-                string json = (string)await dataView.GetDataAsync(CommonValues.MusicAlbumInfoFormatId);
-
-                AlbumInfo albumInfo = JsonSerializer.Deserialize<AlbumInfo>(json);
-
-                await CommonValues.AddToPlaylist(playlist, albumInfo.ToAdapter());
-            }
-            else if (dataView.Contains(CommonValues.MusicSongInfosFormatId))
-            {
-                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongInfosFormatId);
-
-                List<SongInfo> infos = JsonSerializer.Deserialize<List<SongInfo>>(json);
-                await CommonValues.AddToPlaylist(playlist, infos.ToAdapter());
-            }
-            else if (dataView.Contains(CommonValues.MusicPlaylistItemsFormatId))
-            {
-                string json = (string)await dataView.GetDataAsync(CommonValues.MusicPlaylistItemsFormatId);
-
-                List<PlaylistItem> items = JsonSerializer.Deserialize<List<PlaylistItem>>(json);
-                await CommonValues.AddToPlaylist(playlist, items.ToAdapter());
-            }
-            else if (dataView.Contains(CommonValues.MusicSongFavoriteItemsFormatId))
-            {
-                string json = (string)await dataView.GetDataAsync(CommonValues.MusicSongFavoriteItemsFormatId);
-
-                List<SongFavoriteItem> items = JsonSerializer.Deserialize<List<SongFavoriteItem>>(json);
-                await CommonValues.AddToPlaylist(playlist, items.ToAdapter());
-            }
+            await DragHelper.HandleDataAndAddToPlaylistAsync(dataView, playlist);
         };
         return item;
     }

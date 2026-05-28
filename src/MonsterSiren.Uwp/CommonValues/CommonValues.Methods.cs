@@ -308,6 +308,29 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 检查指定的 <see cref="IContentContainer"/> 是否超过“添加到播放列表”操作的限制。
+    /// </summary>
+    /// <param name="container">一个 <see cref="IContentContainer"/> 实例。</param>
+    /// <remarks>此方法会在内容数量超过 <see cref="TooManyItemThresholdCount"/> 时弹出对话框询问用户意见。</remarks>
+    /// <returns>指示是否允许添加操作的值。</returns>
+    public async static Task<bool> DetermineIfContentContainerCanAddToPlaylist(IContentContainer container)
+    {
+        if (container.Count >= TooManyItemThresholdCount)
+        {
+            ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// 从服务器中获取全部专辑的信息，并填充艺术家信息及缓存封面信息。
     /// </summary>
     /// <remarks>

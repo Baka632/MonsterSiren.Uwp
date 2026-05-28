@@ -41,25 +41,7 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        if (e.Items.Count <= 0)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        List<SongFavoriteItem> items = new(e.Items.Count);
-
-        foreach (object item in e.Items)
-        {
-            if (item is SongFavoriteItem favoriteItem)
-            {
-                items.Add(favoriteItem);
-            }
-        }
-
-        string json = JsonSerializer.Serialize(items);
-
-        e.Data.SetData(CommonValues.MusicSongFavoriteItemsFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<SongFavoriteItem>(e);
     }
 
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)

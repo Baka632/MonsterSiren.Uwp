@@ -75,16 +75,7 @@ public sealed partial class SearchPage : Page
 
     private void OnAlbumGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
-        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<AlbumInfo>(e);
     }
 
     private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)

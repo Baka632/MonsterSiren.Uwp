@@ -3,7 +3,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
@@ -70,25 +69,7 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        if (e.Items.Count <= 0)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        List<PlaylistItem> items = new(e.Items.Count);
-
-        foreach (object item in e.Items)
-        {
-            if (item is PlaylistItem playlistItem)
-            {
-                items.Add(playlistItem);
-            }
-        }
-
-        string json = JsonSerializer.Serialize(items);
-
-        e.Data.SetData(CommonValues.MusicPlaylistItemsFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<PlaylistItem>(e);
     }
 
     private void OnListViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)

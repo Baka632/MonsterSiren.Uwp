@@ -63,17 +63,7 @@ public sealed partial class MusicPage : Page
 
     private void OnGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        // TODO: 支持多专辑拖拽。
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
-        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<AlbumInfo>(e);
     }
 
     private async void OnRefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)

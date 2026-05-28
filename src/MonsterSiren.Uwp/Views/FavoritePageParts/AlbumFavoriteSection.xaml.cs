@@ -87,25 +87,9 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
         args.Handled = true;
     }
 
-    private static async Task<AlbumInfo> GetAlbumInfoFromFavoriteItemAsync(AlbumFavoriteItem item)
-    {
-        return (await CommonValues.GetOrFetchAlbums()).CollectionSource.First(info => info.Cid == item.AlbumCid);
-    }
-
     private async void OnAlbumGridViewDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        AlbumFavoriteItem item = (AlbumFavoriteItem)dataContext;
-        AlbumInfo info = await GetAlbumInfoFromFavoriteItemAsync(item);
-        string json = JsonSerializer.Serialize(info);
-        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<AlbumFavoriteItem>(e);
     }
 
     private async void OnAlbumGridViewItemClicked(object sender, ItemClickEventArgs e)

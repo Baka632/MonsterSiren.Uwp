@@ -15,20 +15,9 @@ partial class CommonValues
     {
         if (provider is IContentContainer container)
         {
-            if (container.IsEmpty)
+            if (container.IsEmpty || !await DetermineIfContentContainerCanAddToPlaylist(container))
             {
                 return false;
-            }
-            else if (container.Count >= TooManyItemThresholdCount)
-            {
-                ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
-                                                        "AddTooManyItemToPlaylistMessage".GetLocalized(),
-                                                        "Continue".GetLocalized(), "Cancel".GetLocalized());
-
-                if (result != ContentDialogResult.Primary)
-                {
-                    return false;
-                }
             }
         }
 
