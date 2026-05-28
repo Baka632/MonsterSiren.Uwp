@@ -103,6 +103,7 @@
     <Compile Include="CommonValues\CommonValues.Methods.Play.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.Playlist.cs" />
     <Compile Include="CommonValues\CommonValues.Methods.SongAlbumDetailPairs.cs" />
+    <Compile Include="Controls\AlbumCoverHelper.cs" />
     <Compile Include="Controls\MenuFlyouts\AddToMenuFlyout.xaml.cs">
       <DependentUpon>AddToMenuFlyout.xaml</DependentUpon>
     </Compile>
@@ -187,6 +188,7 @@
     <Compile Include="Models\Adapters\SongFavoriteListAdapter.cs" />
     <Compile Include="Models\Adapters\SongInfoAdapter.cs" />
     <Compile Include="Models\Adapters\SongInfoSequenceAdapter.cs" />
+    <Compile Include="Models\AlbumDetailDisplaySource.cs" />
     <Compile Include="Models\AppBackgroundMode.cs" />
     <Compile Include="Models\AppColorTheme.cs" />
     <Compile Include="Models\AppLanguage.cs" />
@@ -204,6 +206,7 @@
     <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
     <Compile Include="Models\Favorites\SongFavoriteList.cs" />
     <Compile Include="Models\Favorites\FavoriteType.cs" />
+    <Compile Include="Models\AlbumCoverLoadArgs.cs" />
     <Compile Include="Models\MsrIncrementalCollection.cs" />
     <Compile Include="Models\MusicPlayOperation.cs" />
     <Compile Include="Models\NowPlayingList.cs" />

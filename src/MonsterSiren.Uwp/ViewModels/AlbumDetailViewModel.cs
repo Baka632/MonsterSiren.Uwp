@@ -1,7 +1,6 @@
 using System.Net.Http;
 using MonsterSiren.Uwp.Models.Abstracts;
 using MonsterSiren.Uwp.Models.Adapters;
-using MonsterSiren.Uwp.Models.Favorites;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -19,16 +18,18 @@ public partial class AlbumDetailViewModel : ObservableObject
     [ObservableProperty]
     private ErrorInfo errorInfo;
     [ObservableProperty]
-    private AlbumInfo _currentAlbumInfo;
-    [ObservableProperty]
-    private AlbumDetail _currentAlbumDetail;
-    [ObservableProperty]
     private bool isSongsEmpty;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSelectedSongInfoContainsInFavorite))]
     private SongInfo selectedSongInfo;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
+    [ObservableProperty]
+    private AlbumDetailDisplaySource displaySource = new() { Artistes = [] };
+    [ObservableProperty]
+    private AlbumCoverLoadArgs coverLoadArgs;
+    [ObservableProperty]
+    private ISongCidProvider albumProvider;
 
     public Func<ISongCidProvider> SongCidProviderFactory { get; }
     public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
@@ -39,21 +40,59 @@ public partial class AlbumDetailViewModel : ObservableObject
         SongCidProviderFactory = GetSongCidProvider;
     }
 
-    public async Task Initialize(AlbumInfo albumInfo)
+    /// <summary>
+    /// 初始化 <see cref="AlbumDetailViewModel"/>。
+    /// </summary>
+    /// <param name="albumName">专辑名称。</param>
+    /// <param name="albumCid">专辑 CID。</param>
+    /// <param name="artistes">专辑艺术家。</param>
+    /// <param name="albumIntro">专辑引言。</param>
+    /// <param name="songs">专辑歌曲列表。</param>
+    /// <param name="coverUri">专辑封面。</param>
+    public async Task Initialize(string albumName, string albumCid, IEnumerable<string> artistes = null, string albumIntro = null, IEnumerable<SongInfo> songs = null, string coverUri = null)
     {
         IsLoading = true;
         SelectedSongListItemContextFlyout = view.SongContextFlyout;
-        CurrentAlbumInfo = albumInfo;
-        AlbumDetail albumDetail;
 
         try
         {
-            albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            AlbumDetailDisplaySource displaySource = new()
+            {
+                AlbumName = albumName,
+                AlbumCid = albumCid,
+                Artistes = artistes switch
+                {
+                    IEnumerable<string> when artistes.Any() => artistes,
+                    _ => (await GetAlbumInfo(albumCid)).Artistes,
+                },
+                AlbumIntro = albumIntro switch
+                {
+                    string => albumIntro,
+                    _ => (await GetAlbumDetail(albumCid)).Intro
+                },
+                Songs = songs switch
+                {
+                    IEnumerable<SongInfo> when songs.Any() => songs,
+                    _ => (await GetAlbumDetail(albumCid)).Songs
+                }
+            };
 
-            CurrentAlbumDetail = albumDetail;
+            CoverLoadArgs = new()
+            {
+                AlbumCid = albumCid,
+                CoverUri = coverUri switch
+                {
+                    string => coverUri,
+                    _ => (await GetAlbumDetail(albumCid)).CoverUrl
+                }
+            };
+
+            AlbumProvider = (await GetAlbumDetail(albumCid)).ToAdapter();
+
+            DisplaySource = displaySource;
+
             ErrorVisibility = Visibility.Collapsed;
-
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+            IsSongsEmpty = displaySource.Songs.Any() != true;
         }
         catch (HttpRequestException ex)
         {
@@ -69,102 +108,30 @@ public partial class AlbumDetailViewModel : ObservableObject
         {
             IsLoading = false;
         }
-    }
 
-    public async Task Initialize(AlbumDetail albumDetail)
-    {
-        IsLoading = true;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-
-        try
+        static async Task<AlbumInfo> GetAlbumInfo(string cid)
         {
-            // 先用比较准确的，计算出来的 AlbumInfo（不那么准确的地方在专辑艺术家这里，笨笨 yj 的锅）。
-            // 如果这里不先顶上，那么会出现异常，
-            // 因为查询准确的 AlbumInfo 是异步操作，因此 UI 线程在查询过程中会先去处理 UI 的其他事情，
-            // 而由于 AlbumInfo 的内容为空，视图方面相关操作会出现问题。
-            CurrentAlbumInfo = new(albumDetail.Cid,
-                                   albumDetail.Name,
-                                   albumDetail.Intro,
-                                   albumDetail.Belong,
-                                   albumDetail.CoverUrl,
-                                   albumDetail.CoverDeUrl,
-                                   [.. albumDetail.Songs.SelectMany(info => info.Artists).Distinct()]);
-            
-            CurrentAlbumDetail = albumDetail;
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
-
-            // 之后再去查完全准确的 AlbumInfo
-            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource
-                .Single(info => info.Cid == albumDetail.Cid);
-
-            ErrorVisibility = Visibility.Collapsed;
+            AlbumInfo info = (await CommonValues.GetOrFetchAlbums()).CollectionSource
+                .Single(info => info.Cid == cid);
+            return info;
         }
-        catch (HttpRequestException ex)
-        {
-            ErrorVisibility = Visibility.Visible;
-            ErrorInfo = new ErrorInfo()
-            {
-                Title = "ErrorOccurred".GetLocalized(),
-                Message = "InternetErrorMessage".GetLocalized(),
-                Exception = ex
-            };
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
 
-    public async Task Initialize(AlbumFavoriteItem favoriteItem)
-    {
-        IsLoading = true;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-
-        try
+        static async Task<AlbumDetail> GetAlbumDetail(string cid)
         {
-            CurrentAlbumInfo = new(favoriteItem.AlbumCid,
-                                   favoriteItem.AlbumName,
-                                   string.Empty,
-                                   string.Empty,
-                                   string.Empty,
-                                   string.Empty,
-                                   favoriteItem.Artistes);
-            
-            CurrentAlbumDetail = await MsrModelsHelper.GetAlbumDetailAsync(favoriteItem.AlbumCid);
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
-
-            // 之后再去查完全准确的 AlbumInfo
-            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource
-                .Single(info => info.Cid == favoriteItem.AlbumCid);
-
-            ErrorVisibility = Visibility.Collapsed;
-        }
-        catch (HttpRequestException ex)
-        {
-            ErrorVisibility = Visibility.Visible;
-            ErrorInfo = new ErrorInfo()
-            {
-                Title = "ErrorOccurred".GetLocalized(),
-                Message = "InternetErrorMessage".GetLocalized(),
-                Exception = ex
-            };
-        }
-        finally
-        {
-            IsLoading = false;
+            return await MsrModelsHelper.GetAlbumDetailAsync(cid);
         }
     }
 
     [RelayCommand]
     private async Task PlayForCurrentAlbumDetail()
     {
-        await CommonValues.StartPlay(CurrentAlbumDetail.ToAdapter());
+        await CommonValues.StartPlay(AlbumProvider);
     }
 
     [RelayCommand]
     private async Task DownloadForCurrentAlbumDetail()
     {
-        await CommonValues.StartDownload(CurrentAlbumDetail.ToAdapter());
+        await CommonValues.StartDownload(AlbumProvider);
     }
 
     [RelayCommand]
@@ -191,13 +158,13 @@ public partial class AlbumDetailViewModel : ObservableObject
     [RelayCommand]
     private void SelectAllSongList()
     {
-        view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
+        view.SongList.SelectRange(new ItemIndexRange(0, (uint)DisplaySource.Songs.Count()));
     }
 
     [RelayCommand]
     private void DeselectAllSongList()
     {
-        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
+        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)DisplaySource.Songs.Count()));
     }
 
     private List<SongInfo> GetSelectedItems()
@@ -207,7 +174,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
         foreach (ItemIndexRange range in listView.SelectedRanges)
         {
-            selectedItems.AddRange(CurrentAlbumDetail.Songs.Skip(range.FirstIndex).Take((int)range.Length));
+            selectedItems.AddRange(DisplaySource.Songs.Skip(range.FirstIndex).Take((int)range.Length));
         }
 
         return selectedItems;

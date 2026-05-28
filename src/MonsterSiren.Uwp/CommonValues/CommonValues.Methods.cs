@@ -389,28 +389,7 @@ partial class CommonValues
     /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
     public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
     {
-        bool needModifySource = false;
-
-        if (image.Source is not BitmapImage bitmapImage)
-        {
-            needModifySource = true;
-            bitmapImage = new BitmapImage()
-            {
-                DecodePixelHeight = 250,
-                DecodePixelType = DecodePixelType.Logical,
-                DecodePixelWidth = 250
-            };
-        }
-
-        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info.CoverUrl, info.Cid, () => (AlbumInfo)image.DataContext == info);
-
-        lock (image)
-        {
-            if (needModifySource && isSuccess)
-            {
-                image.Source = bitmapImage;
-            }
-        }
+        await LoadAndCacheMusicCoverCore(image, info.Cid, info.CoverUrl, () => (AlbumInfo)image.DataContext == info);
     }
 
     /// <summary>
@@ -418,6 +397,23 @@ partial class CommonValues
     /// </summary>
     /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
     public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumFavoriteItem item)
+    {
+        AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+        await LoadAndCacheMusicCoverCore(image, detail.Cid, detail.CoverUrl, () => (AlbumFavoriteItem)image.DataContext == item);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    /// <param name="args">用于加载专辑封面的 <see cref="AlbumCoverLoadArgs"/>。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumCoverLoadArgs args)
+    {
+        (string albumCid, string albumCoverUrl) = args;
+        await LoadAndCacheMusicCoverCore(image, albumCid, albumCoverUrl, () => (AlbumCoverLoadArgs)image.DataContext == args);
+    }
+
+    private static async Task LoadAndCacheMusicCoverCore(ImageEx image, string albumCid, string albumCoverUrl, Func<bool> detectCanUpdateSource)
     {
         bool needModifySource = false;
 
@@ -432,8 +428,7 @@ partial class CommonValues
             };
         }
 
-        AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
-        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, detail.CoverUrl, detail.Cid, () => (AlbumFavoriteItem)image.DataContext == item);
+        bool isSuccess = await TrySetAndCacheCoverForBitmapImage(bitmapImage, albumCoverUrl, albumCid, detectCanUpdateSource);
 
         lock (image)
         {
@@ -444,7 +439,7 @@ partial class CommonValues
         }
     }
 
-    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, string coverUrl, string albumCid, Func<bool> detectCanUpdateSource)
+    private static async Task<bool> TrySetAndCacheCoverForBitmapImage(BitmapImage bitmapImage, string coverUrl, string albumCid, Func<bool> detectCanUpdateSource)
     {
         if (bitmapImage is null)
         {
@@ -554,7 +549,7 @@ partial class CommonValues
             IEnumerable<SongInfo> songInfos => songInfos.ToAdapter(),
             AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
             IEnumerable<AlbumFavoriteItem> albumFavoriteItems => albumFavoriteItems.ToAdapter(),
-            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 ISongCidProvider，然后再传入此方法。"),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 IFavoriteAddable，然后再传入此方法。"),
             IEnumerable<PlaylistItem> playlistItems => playlistItems.ToAdapter(),
             SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
             IEnumerable<SongFavoriteItem> songFavoriteItems => songFavoriteItems.ToAdapter(),
@@ -580,7 +575,7 @@ partial class CommonValues
             SongInfo songInfo => songInfo.ToAdapter(),
             AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
             Playlist playlist => playlist.ToAdapter(),
-            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 ISongCidProvider，然后再传入此方法。"),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 INameProvider，然后再传入此方法。"),
             SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
             INameProvider nameProvider => nameProvider,
             Func<ISongCidProvider> songCidProviderFactory when songCidProviderFactory.Invoke() is INameProvider name => name,

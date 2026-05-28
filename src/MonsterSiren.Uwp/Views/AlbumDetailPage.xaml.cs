@@ -40,24 +40,27 @@ public sealed partial class AlbumDetailPage : Page
 
         if (e.Parameter is AlbumInfo albumInfo)
         {
-            await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+            await ViewModel.Initialize(albumInfo.Name, albumInfo.Cid, albumInfo.Artistes, albumInfo.Intro, null,
+                                       albumInfo.CoverUrl).ConfigureAwait(false);
         }
         else if (e.Parameter is ValueTuple<AlbumInfo, bool> tuple)
         {
             albumInfo = tuple.Item1;
             enableBackAnimation = tuple.Item2;
 
-            await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+            await ViewModel.Initialize(albumInfo.Name, albumInfo.Cid, albumInfo.Artistes, albumInfo.Intro, null,
+                                       albumInfo.CoverUrl).ConfigureAwait(false);
         }
         else if (e.Parameter is AlbumDetail detail)
         {
             enableBackAnimation = false;
-            await ViewModel.Initialize(detail).ConfigureAwait(false);
+            await ViewModel.Initialize(detail.Name, detail.Cid, null, detail.Intro, detail.Songs,
+                                       detail.CoverUrl).ConfigureAwait(false);
         }
         else if (e.Parameter is AlbumFavoriteItem item)
         {
             enableBackAnimation = false;
-            await ViewModel.Initialize(item).ConfigureAwait(false);
+            await ViewModel.Initialize(item.AlbumName, item.AlbumCid, item.Artistes).ConfigureAwait(false);
         }
     }
 
@@ -143,10 +146,5 @@ public sealed partial class AlbumDetailPage : Page
         SongInfo songInfo = (SongInfo)element.DataContext;
 
         await CommonValues.StartPlay(songInfo.ToAdapter());
-    }
-
-    private async void OnAlbumCoverLoaded(object sender, RoutedEventArgs e)
-    {
-        await CommonValues.LoadAndCacheMusicCover(AlbumCover, ViewModel.CurrentAlbumInfo);
     }
 }
