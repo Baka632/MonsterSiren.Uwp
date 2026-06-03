@@ -26,6 +26,7 @@ public sealed partial class MusicViewModel : ObservableObject
     private FlyoutBase selectedAlbumInfoContextFlyout;
 
     private readonly MusicPage view;
+    private SelectionHelper selectionHelper;
 
     public bool IsSelectedAlbumInfoContainsInFavorite { get => FavoriteService.ContainsAlbum(SelectedAlbumInfo); }
     public Func<ISongCidProvider> SongCidProviderFactory { get; }
@@ -38,6 +39,8 @@ public sealed partial class MusicViewModel : ObservableObject
 
     public async Task Initialize()
     {
+        selectionHelper = new(view.ContentGridView, view.AlbumSelectionFlyout, view.AlbumContextFlyout, flyout => SelectedAlbumInfoContextFlyout = flyout);
+
         IsLoading = true;
         ErrorVisibility = Visibility.Collapsed;
         SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
@@ -106,36 +109,16 @@ public sealed partial class MusicViewModel : ObservableObject
         => OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
 
     [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        GridView contentGridView = view.ContentGridView;
-        contentGridView.SelectionMode = ListViewSelectionMode.Multiple;
-        contentGridView.SelectedItem = SelectedAlbumInfo;
-        contentGridView.IsItemClickEnabled = false;
-        SelectedAlbumInfoContextFlyout = view.AlbumSelectionFlyout;
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedAlbumInfo);
 
     [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        GridView contentGridView = view.ContentGridView;
-        contentGridView.SelectionMode = ListViewSelectionMode.None;
-        contentGridView.IsItemClickEnabled = true;
-        SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.ContentGridView.SelectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.Count));
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(Albums.CollectionSource.Count);
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        // TODO: 取消选择的方法存在先前选择项目残留的问题。
-        view.ContentGridView.DeselectRange(new ItemIndexRange(0, (uint)Albums.CollectionSource.Count));
-    }
+    private void DeselectAllSongList() => selectionHelper.DeselectList(Albums.CollectionSource.Count);
 
     private List<AlbumInfo> GetSelectedItems()
     {

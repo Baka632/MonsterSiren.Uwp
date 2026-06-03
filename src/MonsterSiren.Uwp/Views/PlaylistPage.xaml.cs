@@ -22,6 +22,7 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     {
         ViewModel = new PlaylistViewModel(this);
         this.InitializeComponent();
+        ViewModel.Initialize();
         ViewModel.SelectedPlaylistContextFlyout = PlaylistContextFlyout;
     }
 

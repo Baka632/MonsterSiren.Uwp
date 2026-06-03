@@ -31,6 +31,8 @@ public partial class AlbumDetailViewModel : ObservableObject
     [ObservableProperty]
     private ISongCidProvider albumProvider;
 
+    private SelectionHelper selectionHelper;
+
     public Func<ISongCidProvider> SongCidProviderFactory { get; }
     public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
 
@@ -51,6 +53,8 @@ public partial class AlbumDetailViewModel : ObservableObject
     /// <param name="coverUri">专辑封面。</param>
     public async Task Initialize(string albumName, string albumCid, IEnumerable<string> artistes = null, string albumIntro = null, IEnumerable<SongInfo> songs = null, string coverUri = null)
     {
+        selectionHelper = new(view.SongList, view.SongSelectionFlyout, view.SongContextFlyout, flyout => SelectedSongListItemContextFlyout = flyout);
+
         IsLoading = true;
         SelectedSongListItemContextFlyout = view.SongContextFlyout;
 
@@ -139,33 +143,16 @@ public partial class AlbumDetailViewModel : ObservableObject
         => OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
 
     [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        ListView songList = view.SongList;
-        songList.SelectionMode = ListViewSelectionMode.Multiple;
-        songList.SelectedItem = SelectedSongInfo;
-
-        SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedSongInfo);
 
     [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        view.SongList.SelectionMode = ListViewSelectionMode.Single;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.SongList.SelectRange(new ItemIndexRange(0, (uint)DisplaySource.Songs.Count()));
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(DisplaySource.Songs.Count());
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)DisplaySource.Songs.Count()));
-    }
+    private void DeselectAllSongList() => selectionHelper.DeselectList(DisplaySource.Songs.Count());
 
     private List<SongInfo> GetSelectedItems()
     {

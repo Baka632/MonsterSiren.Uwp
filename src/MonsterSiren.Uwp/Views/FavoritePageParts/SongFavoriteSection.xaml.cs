@@ -22,6 +22,7 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
     {
         ViewModel = new(this);
         this.InitializeComponent();
+        ViewModel.Initialize();
         ViewModel.SelectedSongListItemContextFlyout = SongContextFlyout;
     }
 

@@ -11,6 +11,7 @@ namespace MonsterSiren.Uwp.ViewModels.FavoriteParts;
 public partial class SongFavoriteSectionViewModel : ObservableObject
 {
     private readonly SongFavoriteSection view;
+    private SelectionHelper selectionHelper;
 
     [ObservableProperty]
     private SongFavoriteItem selectedSongItem;
@@ -23,6 +24,11 @@ public partial class SongFavoriteSectionViewModel : ObservableObject
     {
         view = songFavoriteSection;
         SongCidProviderFactory = GetSongCidProvider;
+    }
+
+    public void Initialize()
+    {
+        selectionHelper = new(view.SongList, view.SongSelectionFlyout, view.SongContextFlyout, flyout => SelectedSongListItemContextFlyout = flyout);
     }
 
     [RelayCommand]
@@ -38,33 +44,16 @@ public partial class SongFavoriteSectionViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void StartSongListMultipleSelection()
-    {
-        ListView songList = view.SongList;
-        songList.SelectionMode = ListViewSelectionMode.Multiple;
-        songList.SelectedItem = SelectedSongItem;
-
-        SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
-    }
+    private void StartSongListMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedSongItem);
 
     [RelayCommand]
-    private void StopSongListMultipleSelection()
-    {
-        view.SongList.SelectionMode = ListViewSelectionMode.Single;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-    }
+    private void StopSongListMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.SongList.SelectRange(new ItemIndexRange(0, (uint)FavoriteService.SongFavoriteList.Count));
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(FavoriteService.SongFavoriteList.Count);
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)FavoriteService.SongFavoriteList.Count));
-    }
+    private void DeselectAllSongList() => selectionHelper.DeselectList(FavoriteService.SongFavoriteList.Count);
 
     private List<SongFavoriteItem> GetSelectedItems()
     {

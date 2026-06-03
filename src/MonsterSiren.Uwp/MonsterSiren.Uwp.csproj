@@ -164,6 +164,7 @@
     <Compile Include="Helpers\LockerHelper.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Album.cs" />
     <Compile Include="Helpers\MsrModelsHelper.Song.cs" />
+    <Compile Include="Helpers\SelectionHelper.cs" />
     <Compile Include="Helpers\Tile\AdaptiveTileBuilder.cs" />
     <Compile Include="Helpers\Tile\TileCreationExtensions.cs" />
     <Compile Include="Helpers\Tile\TileHelper.cs" />

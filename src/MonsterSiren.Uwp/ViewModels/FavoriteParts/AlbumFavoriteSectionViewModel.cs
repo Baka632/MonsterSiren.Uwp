@@ -13,6 +13,7 @@ public partial class AlbumFavoriteSectionViewModel : ObservableObject
     private FlyoutBase selectedAlbumInfoContextFlyout;
 
     private readonly AlbumFavoriteSection view;
+    private SelectionHelper selectionHelper;
 
     public Func<ISongCidProvider> SongCidProviderFactory { get; }
 
@@ -20,6 +21,11 @@ public partial class AlbumFavoriteSectionViewModel : ObservableObject
     {
         SongCidProviderFactory = GetSongCidProvider;
         view = albumFavoriteSection;
+    }
+
+    public void Initialize()
+    {
+        selectionHelper = new(view.AlbumGridView, view.AlbumSelectionFlyout, view.AlbumContextFlyout, flyout => SelectedAlbumInfoContextFlyout = flyout);
     }
 
     [RelayCommand]
@@ -35,36 +41,16 @@ public partial class AlbumFavoriteSectionViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        GridView albumGridView = view.AlbumGridView;
-        albumGridView.SelectionMode = ListViewSelectionMode.Multiple;
-        albumGridView.SelectedItem = SelectedAlbumItem;
-        albumGridView.IsItemClickEnabled = false;
-        SelectedAlbumInfoContextFlyout = view.AlbumSelectionFlyout;
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedAlbumItem);
 
     [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        GridView albumGridView = view.AlbumGridView;
-        albumGridView.SelectionMode = ListViewSelectionMode.None;
-        albumGridView.IsItemClickEnabled = true;
-        SelectedAlbumInfoContextFlyout = view.AlbumContextFlyout;
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.AlbumGridView.SelectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.Count));
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(FavoriteService.AlbumFavoriteList.Count);
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        // TODO: 取消选择的方法存在先前选择项目残留的问题。
-        view.AlbumGridView.DeselectRange(new ItemIndexRange(0, (uint)FavoriteService.AlbumFavoriteList.Count));
-    }
+    private void DeselectAllSongList() => selectionHelper.DeselectList(FavoriteService.AlbumFavoriteList.Count);
 
     private List<AlbumFavoriteItem> GetSelectedItems()
     {

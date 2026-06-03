@@ -1,4 +1,3 @@
-using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
@@ -9,6 +8,7 @@ namespace MonsterSiren.Uwp.ViewModels;
 public sealed partial class PlaylistViewModel : ObservableObject
 {
     private readonly PlaylistPage view;
+    private SelectionHelper selectionHelper;
 
     [ObservableProperty]
     private Playlist selectedPlaylist;
@@ -23,6 +23,11 @@ public sealed partial class PlaylistViewModel : ObservableObject
         PlaylistFactory = GetSelectedItems;
     }
 
+    public void Initialize()
+    {
+        selectionHelper = new(view.PlaylistGridView, view.PlaylistSelectionFlyout, view.PlaylistContextFlyout, flyout => SelectedPlaylistContextFlyout = flyout);
+    }
+
     [RelayCommand]
     private static async Task CreateNewPlaylist()
     {
@@ -30,34 +35,16 @@ public sealed partial class PlaylistViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        GridView playlistGridView = view.PlaylistGridView;
-        playlistGridView.SelectionMode = ListViewSelectionMode.Multiple;
-        playlistGridView.SelectedItem = SelectedPlaylist;
-        playlistGridView.IsItemClickEnabled = false;
-        SelectedPlaylistContextFlyout = view.PlaylistSelectionFlyout;
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedPlaylist);
 
     [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        view.PlaylistGridView.SelectionMode = ListViewSelectionMode.None;
-        view.PlaylistGridView.IsItemClickEnabled = true;
-        SelectedPlaylistContextFlyout = view.PlaylistContextFlyout;
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.PlaylistGridView.SelectRange(new ItemIndexRange(0, (uint)PlaylistService.TotalPlaylists.Count));
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(PlaylistService.TotalPlaylists.Count);
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        view.PlaylistGridView.DeselectRange(new ItemIndexRange(0, (uint)PlaylistService.TotalPlaylists.Count));
-    }
+    private void DeselectAllSongList() => selectionHelper.DeselectList(PlaylistService.TotalPlaylists.Count);
 
     private List<Playlist> GetSelectedItems()
     {

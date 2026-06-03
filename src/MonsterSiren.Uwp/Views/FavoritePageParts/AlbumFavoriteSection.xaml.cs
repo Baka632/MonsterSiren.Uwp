@@ -2,7 +2,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.ViewModels.FavoriteParts;
@@ -22,6 +21,7 @@ public sealed partial class AlbumFavoriteSection : UserControl, INotifyPropertyC
     {
         ViewModel = new(this);
         this.InitializeComponent();
+        ViewModel.Initialize();
         ViewModel.SelectedAlbumInfoContextFlyout = AlbumContextFlyout;
     }
 

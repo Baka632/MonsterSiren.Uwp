@@ -20,6 +20,8 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
 
+    private SelectionHelper selectionHelper;
+
     public PlaylistItemAdapter SelectedItemAdapter { get => SelectedItem.ToAdapter(CurrentPlaylist); }
     public bool IsSelectedItemContainsInFavorite { get => FavoriteService.ContainsSong(SelectedItem); }
 
@@ -33,6 +35,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
 
     public void Initialize(Playlist model)
     {
+        selectionHelper = new(view.SongList, view.SongSelectionFlyout, view.SongContextFlyout, flyout => SelectedSongListItemContextFlyout = flyout);
         CurrentPlaylist = model ?? throw new ArgumentNullException(nameof(model));
         SelectedSongListItemContextFlyout = view.SongContextFlyout;
     }
@@ -72,20 +75,12 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        ListView songList = view.SongList;
-        songList.SelectionMode = ListViewSelectionMode.Multiple;
-        songList.SelectedItem = SelectedItem;
-
-        SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedItem);
 
     [RelayCommand]
     private void StopMultipleSelection()
     {
-        view.SongList.SelectionMode = ListViewSelectionMode.Single;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
+        selectionHelper.StopMultipleSelection();
     }
 
     [RelayCommand]
