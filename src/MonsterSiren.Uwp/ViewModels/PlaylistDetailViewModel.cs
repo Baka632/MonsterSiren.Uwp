@@ -71,29 +71,24 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task RemovePlaylist()
     {
-        await CommonValues.RemovePlaylist(CurrentPlaylist);
+        bool result = await CommonValues.RemovePlaylist(CurrentPlaylist);
+        if (result)
+        {
+            ContentFrameNavigationHelper.GoBack();
+        }
     }
 
     [RelayCommand]
     private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedItem);
 
     [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        selectionHelper.StopMultipleSelection();
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
-    }
+    private void SelectAllSongList() => view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
 
     [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
-    }
+    private void DeselectAllSongList() => view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
 
     private List<PlaylistItem> GetSelectedItems()
     {
