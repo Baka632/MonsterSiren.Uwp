@@ -10,6 +10,8 @@ namespace MonsterSiren.Uwp.ViewModels;
 public partial class AlbumDetailViewModel : ObservableObject
 {
     private readonly AlbumDetailPage view;
+    private SelectionHelper selectionHelper;
+    private bool supressCurrentAlbumFavoriteStateUpdate;
 
     [ObservableProperty]
     private bool isLoading = false;
@@ -29,9 +31,9 @@ public partial class AlbumDetailViewModel : ObservableObject
     [ObservableProperty]
     private AlbumCoverLoadArgs coverLoadArgs;
     [ObservableProperty]
-    private ISongCidProvider albumProvider;
-
-    private SelectionHelper selectionHelper;
+    private AlbumDetailAdapter albumProvider;
+    [ObservableProperty]
+    private bool currentAlbumFavoriteState;
 
     public Func<ISongCidProvider> SongCidProviderFactory { get; }
     public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
@@ -40,6 +42,23 @@ public partial class AlbumDetailViewModel : ObservableObject
     {
         view = albumDetailPage;
         SongCidProviderFactory = GetSongCidProvider;
+    }
+
+    async partial void OnCurrentAlbumFavoriteStateChanged(bool value)
+    {
+        if (supressCurrentAlbumFavoriteStateUpdate)
+        {
+            return;
+        }
+
+        if (value)
+        {
+            await CommonValues.AddToFavorite(AlbumProvider);
+        }
+        else
+        {
+            await CommonValues.RemoveFromFavorite(AlbumProvider);
+        }
     }
 
     /// <summary>
@@ -97,6 +116,10 @@ public partial class AlbumDetailViewModel : ObservableObject
 
             ErrorVisibility = Visibility.Collapsed;
             IsSongsEmpty = displaySource.Songs.Any() != true;
+
+            supressCurrentAlbumFavoriteStateUpdate = true;
+            CurrentAlbumFavoriteState = FavoriteService.ContainsAlbum(displaySource.AlbumCid);
+            supressCurrentAlbumFavoriteStateUpdate = false;
         }
         catch (HttpRequestException ex)
         {
@@ -127,16 +150,10 @@ public partial class AlbumDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task PlayForCurrentAlbumDetail()
-    {
-        await CommonValues.StartPlay(AlbumProvider);
-    }
+    private async Task PlayForCurrentAlbumDetail() => await CommonValues.StartPlay(AlbumProvider);
 
     [RelayCommand]
-    private async Task DownloadForCurrentAlbumDetail()
-    {
-        await CommonValues.StartDownload(AlbumProvider);
-    }
+    private async Task DownloadForCurrentAlbumDetail() => await CommonValues.StartDownload(AlbumProvider);
 
     [RelayCommand]
     private void NotifyIsSelectedSongInfoContainsInFavoriteChanged()

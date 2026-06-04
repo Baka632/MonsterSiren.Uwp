@@ -37,6 +37,22 @@
             StopMultipleSelectionCommand="{x:Bind ViewModel.StopMultipleSelectionCommand}"
             UnfavoriteVisibility="Collapsed" />
         <menuFlyouts:AddToMenuFlyout x:Name="AddToMenuFlyout" SourceData="{x:Bind ViewModel.AlbumProvider, Mode=OneWay}" />
+        <MenuFlyout x:Name="NarrowAlbumOperationMenuFlyout">
+            <MenuFlyoutItem
+                x:Uid="DownloadTextBlock"
+                Command="{x:Bind ViewModel.DownloadForCurrentAlbumDetailCommand}"
+                Icon="Download"
+                IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}" />
+            <MenuFlyoutSeparator />
+            <ToggleMenuFlyoutItem
+                x:Uid="FavoriteTextBlock"
+                IsChecked="{x:Bind ViewModel.CurrentAlbumFavoriteState, Mode=TwoWay}"
+                IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
+                <ToggleMenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE734;" />
+                </ToggleMenuFlyoutItem.Icon>
+            </ToggleMenuFlyoutItem>
+        </MenuFlyout>
     </Page.Resources>
 
     <Grid>
@@ -180,6 +196,8 @@
                             </Button>
 
                             <Button
+                                x:Name="DownloadButton"
+                                Margin="0,0,5,0"
                                 AccessKey="2"
                                 Background="Transparent"
                                 Command="{x:Bind ViewModel.DownloadForCurrentAlbumDetailCommand}"
@@ -191,6 +209,29 @@
                                         Symbol="Download" />
                                     <TextBlock x:Uid="DownloadTextBlock" HorizontalAlignment="Center" />
                                 </StackPanel>
+                            </Button>
+
+                            <ToggleButton
+                                x:Name="FavoriteToggleButton"
+                                AccessKey="3"
+                                Background="Transparent"
+                                IsChecked="{x:Bind ViewModel.CurrentAlbumFavoriteState, Mode=TwoWay}"
+                                IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon
+                                        Margin="0,0,5,0"
+                                        HorizontalAlignment="Center"
+                                        Glyph="&#xE734;" />
+                                    <TextBlock x:Uid="FavoriteTextBlock" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </ToggleButton>
+
+                            <Button
+                                x:Name="MoreOptionButton"
+                                AccessKey="2"
+                                Background="Transparent"
+                                Flyout="{StaticResource NarrowAlbumOperationMenuFlyout}">
+                                <SymbolIcon Symbol="More" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -295,6 +336,10 @@
                         <Setter Target="AlbumInfoGrid.(Grid.Column)" Value="1" />
                         <Setter Target="AlbumCover.(Grid.Row)" Value="0" />
                         <Setter Target="AlbumCover.(Grid.Column)" Value="1" />
+
+                        <Setter Target="DownloadButton.Visibility" Value="Collapsed" />
+                        <Setter Target="FavoriteToggleButton.Visibility" Value="Collapsed" />
+                        <Setter Target="MoreOptionButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -321,6 +366,10 @@
                         <Setter Target="AlbumInfoGrid.(Grid.Column)" Value="1" />
                         <Setter Target="AlbumCover.(Grid.Row)" Value="1" />
                         <Setter Target="AlbumCover.(Grid.Column)" Value="0" />
+
+                        <Setter Target="DownloadButton.Visibility" Value="Visible" />
+                        <Setter Target="FavoriteToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="MoreOptionButton.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

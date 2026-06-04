@@ -1,5 +1,4 @@
 using System.Net.Http;
-using System.Text.Json;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using Windows.UI.Xaml.Media.Animation;
@@ -68,7 +67,7 @@ public sealed partial class AlbumDetailPage : Page
     {
         base.OnNavigatingFrom(e);
 
-        if (e.NavigationMode == NavigationMode.Back && enableBackAnimation)
+        if (enableBackAnimation && e.NavigationMode == NavigationMode.Back)
         {
             ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage, AlbumCover);
         }
