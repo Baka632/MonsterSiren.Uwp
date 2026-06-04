@@ -766,4 +766,10 @@ Continue?</value>
   <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
     <value>Playlist</value>
   </data>
+  <data name="FavoriteToggleButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="FavoriteAction.Text" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
 </root>

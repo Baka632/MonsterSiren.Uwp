@@ -846,4 +846,10 @@
   <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
     <value>播放列表</value>
   </data>
+  <data name="FavoriteToggleButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="FavoriteAction.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
 </root>

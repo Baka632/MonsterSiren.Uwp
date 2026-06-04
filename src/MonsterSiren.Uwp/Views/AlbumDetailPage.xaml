@@ -41,17 +41,12 @@
             <MenuFlyoutItem
                 x:Uid="DownloadTextBlock"
                 Command="{x:Bind ViewModel.DownloadForCurrentAlbumDetailCommand}"
-                Icon="Download"
                 IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}" />
             <MenuFlyoutSeparator />
             <ToggleMenuFlyoutItem
-                x:Uid="FavoriteTextBlock"
+                x:Uid="FavoriteAction"
                 IsChecked="{x:Bind ViewModel.CurrentAlbumFavoriteState, Mode=TwoWay}"
-                IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}">
-                <ToggleMenuFlyoutItem.Icon>
-                    <FontIcon Glyph="&#xE734;" />
-                </ToggleMenuFlyoutItem.Icon>
-            </ToggleMenuFlyoutItem>
+                IsEnabled="{x:Bind helpers:XamlHelper.ReverseBoolean(ViewModel.IsLoading), Mode=OneWay}" />
         </MenuFlyout>
     </Page.Resources>
 
@@ -222,7 +217,7 @@
                                         Margin="0,0,5,0"
                                         HorizontalAlignment="Center"
                                         Glyph="&#xE734;" />
-                                    <TextBlock x:Uid="FavoriteTextBlock" HorizontalAlignment="Center" />
+                                    <TextBlock x:Uid="FavoriteAction" HorizontalAlignment="Center" />
                                 </StackPanel>
                             </ToggleButton>
 
@@ -295,6 +290,19 @@
                                 VerticalAlignment="Center"
                                 DataContext="{x:Bind}"
                                 Loaded="OnSongDurationTextBlockLoaded" />
+
+                            <ToggleButton
+                                x:Name="SongFavoriteToggleButton"
+                                x:Uid="FavoriteToggleButton"
+                                Margin="5,0,5,0"
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="OnSongFavoriteToggleButtonClick"
+                                DataContext="{x:Bind}"
+                                Loaded="OnSongFavoriteToggleButtonLoaded">
+                                <FontIcon Glyph="&#xE734;" />
+                            </ToggleButton>
 
                             <Button
                                 VerticalAlignment="Center"
