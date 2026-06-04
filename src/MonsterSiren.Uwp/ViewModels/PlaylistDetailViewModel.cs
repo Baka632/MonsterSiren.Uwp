@@ -85,10 +85,10 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private void SelectAllSongList() => view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
+    private void SelectAllSongList() => selectionHelper.SelectList(CurrentPlaylist.SongCount);
 
     [RelayCommand]
-    private void DeselectAllSongList() => view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentPlaylist.SongCount));
+    private void DeselectAllSongList() => selectionHelper.DeselectList(CurrentPlaylist.SongCount);
 
     private List<PlaylistItem> GetSelectedItems()
     {
