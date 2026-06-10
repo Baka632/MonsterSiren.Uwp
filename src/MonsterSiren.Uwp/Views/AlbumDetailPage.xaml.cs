@@ -86,7 +86,11 @@ public sealed partial class AlbumDetailPage : Page
         IEnumerable<SongFavoriteItem> listB = e.OldItems?.Cast<SongFavoriteItem>() ?? [];
         IEnumerable<SongFavoriteItem> list = listA.Concat(listB);
 
-        IEnumerable<SongInfo> targetSongInfos = ViewModel.DisplaySource.Songs.Join(list, info => info.Cid, item => item.SongCid, (info, item) => info);
+        IEnumerable<SongInfo> targetSongInfos = ViewModel.DisplaySource.Songs
+            .Join(list,
+                  info => info.Cid,
+                  item => item.SongCid,
+                  (info, item) => info);
 
         foreach (SongInfo songInfo in targetSongInfos)
         {

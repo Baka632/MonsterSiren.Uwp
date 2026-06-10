@@ -22,10 +22,12 @@
             x:Name="SongContextFlyout"
             x:FieldModifier="public"
             AddItemToFavoriteCallbackCommand="{x:Bind ViewModel.NotifyIsSelectedItemContainsInFavoriteCommand}"
+            FavoriteVisibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSelectedItemContainsInFavorite), Mode=OneWay}"
             OptionalPlaylist="{x:Bind ViewModel.CurrentPlaylist, Mode=OneWay}"
             RemoveFromPlaylistVisibility="Visible"
             SourceData="{x:Bind ViewModel.SelectedItemAdapter, Mode=OneWay}"
-            StartMultipleSelectionCommand="{x:Bind ViewModel.StartMultipleSelectionCommand, Mode=OneWay}" />
+            StartMultipleSelectionCommand="{x:Bind ViewModel.StartMultipleSelectionCommand, Mode=OneWay}"
+            UnfavoriteVisibility="{x:Bind ViewModel.IsSelectedItemContainsInFavorite, Mode=OneWay}" />
 
         <menuFlyouts:SongListMenuFlyout
             x:Name="SongSelectionFlyout"
@@ -282,6 +284,19 @@
                                 Margin="0,0,5,0"
                                 VerticalAlignment="Center"
                                 Text="{x:Bind SongDuration, Converter={StaticResource TimeSpanToStringConverter}}" />
+
+                            <ToggleButton
+                                x:Name="SongFavoriteToggleButton"
+                                x:Uid="FavoriteToggleButton"
+                                Margin="5,0,5,0"
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="OnSongFavoriteToggleButtonClick"
+                                DataContext="{x:Bind}"
+                                Loaded="OnSongFavoriteToggleButtonLoaded">
+                                <FontIcon Glyph="&#xE734;" />
+                            </ToggleButton>
 
                             <Button
                                 VerticalAlignment="Center"

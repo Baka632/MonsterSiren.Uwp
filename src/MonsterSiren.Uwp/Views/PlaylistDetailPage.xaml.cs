@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Xaml.Documents;
 
@@ -53,6 +54,9 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
             ViewModel.Initialize(playlist);
             ViewModel.CurrentPlaylist.Items.CollectionChanged += OnTotalPlaylistsCollectionChanged;
         }
+
+        FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
+        FavoriteService.SongFavoriteList.Items.CollectionChanged += OnSongFavoriteListCollectionChanged;
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -60,6 +64,34 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
         base.OnNavigatingFrom(e);
 
         ViewModel.CurrentPlaylist.Items.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
+        FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
+    }
+
+    private void OnSongFavoriteListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        IEnumerable<SongFavoriteItem> listA = e.NewItems?.Cast<SongFavoriteItem>() ?? [];
+        IEnumerable<SongFavoriteItem> listB = e.OldItems?.Cast<SongFavoriteItem>() ?? [];
+        IEnumerable<SongFavoriteItem> list = listA.Concat(listB);
+
+        IEnumerable<PlaylistItem> targetSongInfos = ViewModel.CurrentPlaylist.Items
+            .Join(list,
+                  playlistItem => playlistItem.SongCid,
+                  favoriteItem => favoriteItem.SongCid,
+                  (playlistItem, favoriteItem) => playlistItem);
+
+        foreach (PlaylistItem item in targetSongInfos)
+        {
+            int index = SongList.Items.IndexOf(item);
+            DependencyObject dep = SongList.ContainerFromIndex(index);
+
+            if (dep is null)
+            {
+                continue;
+            }
+
+            ToggleButton toggleButton = (ToggleButton)dep.FindDescendantByName("SongFavoriteToggleButton");
+            CheckSongInFavoriteAndUpdateToggleButton(toggleButton, item);
+        }
     }
 
     private void OnTotalPlaylistsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -164,5 +196,34 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
             playlist.Items[targetIndex] = targetItem with { AlbumTitle = newTitle };
             await PlaylistService.SavePlaylistAsync(playlist);
         }
+    }
+
+    private async void OnSongFavoriteToggleButtonClick(object sender, RoutedEventArgs e)
+    {
+        ToggleButton toggleButton = (ToggleButton)sender;
+        PlaylistItem playlistItem = (PlaylistItem)toggleButton.DataContext;
+
+        bool isFavorite = FavoriteService.ContainsSong(playlistItem);
+        if (isFavorite)
+        {
+            await CommonValues.RemoveFromFavorite(playlistItem.ToAdapter(ViewModel.CurrentPlaylist));
+        }
+        else
+        {
+            await CommonValues.AddToFavorite(playlistItem.ToAdapter(ViewModel.CurrentPlaylist));
+        }
+    }
+
+    private void OnSongFavoriteToggleButtonLoaded(object sender, RoutedEventArgs e)
+    {
+        ToggleButton toggleButton = (ToggleButton)sender;
+        PlaylistItem playlistItem = (PlaylistItem)toggleButton.DataContext;
+        CheckSongInFavoriteAndUpdateToggleButton(toggleButton, playlistItem);
+    }
+
+    private static void CheckSongInFavoriteAndUpdateToggleButton(ToggleButton toggleButton, PlaylistItem playlistItem)
+    {
+        bool isFavorite = FavoriteService.ContainsSong(playlistItem);
+        toggleButton.IsChecked = isFavorite;
     }
 }
