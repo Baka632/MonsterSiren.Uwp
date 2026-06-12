@@ -581,4 +581,59 @@ public partial class SettingsViewModel : ObservableObject
             Application.Current.Exit();
         }
     }
+
+    [RelayCommand]
+    private static async Task BackupFavorite()
+    {
+        FileSavePicker fileSavePicker = new();
+        fileSavePicker.FileTypeChoices.Add("JSON", [".json"]);
+        fileSavePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        fileSavePicker.SuggestedFileName = $"Sora Records Favorite Backup - {DateTimeOffset.UtcNow:yyyy-MM-dd HH-mm-ss}";
+
+        StorageFile file = await fileSavePicker.PickSaveFileAsync();
+
+        if (file is not null)
+        {
+            try
+            {
+                await FavoriteService.BackupFavoriteAsync(file);
+
+                string msg = string.Format("BackupLocation_WithPlaceholder".GetLocalized(), file.Path);
+                await CommonValues.DisplayContentDialog("BackupSuccess".GetLocalized(), msg, closeButtonText: "Close".GetLocalized());
+            }
+            catch (Exception ex)
+            {
+                string msg = string.Format("BackupOrRestoreError_WithPlaceholder".GetLocalized(), ex.Message);
+                await CommonValues.DisplayContentDialog("BackupFailed".GetLocalized(), msg, closeButtonText: "Close".GetLocalized());
+            }
+        }
+    }
+
+    [RelayCommand]
+    private static async Task RestoreFavorite()
+    {
+        FileOpenPicker fileOpenPicker = new();
+        fileOpenPicker.FileTypeFilter.Add(".json");
+        fileOpenPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+
+        StorageFile file = await fileOpenPicker.PickSingleFileAsync();
+
+        if (file is not null)
+        {
+            try
+            {
+                await FavoriteService.RestoreFavoriteAsync(file);
+                await CommonValues.DisplayContentDialog("RestoreSuccess".GetLocalized(), "RestoreFavoriteSuccessMessage".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            catch (JsonException)
+            {
+                await CommonValues.DisplayContentDialog("RestoreFailed".GetLocalized(), "RestoreFileMayCorrupt".GetLocalized(), closeButtonText: "Close".GetLocalized());
+            }
+            catch (Exception ex)
+            {
+                string msg = string.Format("BackupOrRestoreError_WithPlaceholder".GetLocalized(), ex.Message);
+                await CommonValues.DisplayContentDialog("RestoreFailed".GetLocalized(), msg, closeButtonText: "Close".GetLocalized());
+            }
+        }
+    }
 }

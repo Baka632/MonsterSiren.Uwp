@@ -60,6 +60,22 @@
                 </controls:SettingsCard>
             </controls:SettingsExpander>
 
+            <controls:SettingsExpander x:Uid="SettingsPage_BackupConfig">
+                <controls:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xE777;" />
+                </controls:SettingsExpander.HeaderIcon>
+
+                <controls:SettingsCard x:Uid="SettingsPage_FavoriteBackup">
+                    <StackPanel Orientation="Horizontal">
+                        <Button
+                            x:Uid="BackupButton"
+                            Margin="0,0,5,0"
+                            Command="{x:Bind ViewModel.BackupFavoriteCommand}" />
+                        <Button x:Uid="RestoreButton" Command="{x:Bind ViewModel.RestoreFavoriteCommand}" />
+                    </StackPanel>
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+
             <controls:SettingsExpander x:Uid="SettingsPage_DownloadConfig">
                 <controls:SettingsExpander.HeaderIcon>
                     <FontIcon Glyph="&#xE118;" />

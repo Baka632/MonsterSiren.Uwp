@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
+using TagLib.Ape;
 using Windows.Storage;
 
 namespace MonsterSiren.Uwp.Services;
@@ -22,6 +23,7 @@ public static class FavoriteService
 
     private static readonly SemaphoreSlim songFavoriteFileSemaphore = new(1);
     private static readonly SemaphoreSlim albumFavoriteFileSemaphore = new(1);
+    private static readonly SemaphoreSlim backupSemaphore = new(1);
 
     public static SongFavoriteList SongFavoriteList { get; private set; }
     public static AlbumFavoriteList AlbumFavoriteList { get; private set; }
@@ -36,7 +38,6 @@ public static class FavoriteService
 
         try
         {
-            // TODO: 添加收藏备份功能。
             SongFavoriteList = await InitializeFavoriteList<SongFavoriteList>(FavoriteType.Song);
             AlbumFavoriteList = await InitializeFavoriteList<AlbumFavoriteList>(FavoriteType.Album);
         }
@@ -130,21 +131,13 @@ public static class FavoriteService
         try
         {
             StorageFile file = await GetFavoriteListFile(favoriteType);
-            using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
-            Stream fileStream = transaction.Stream.AsStream();
-            fileStream.SetLength(0);
-            fileStream.Seek(0, SeekOrigin.Begin);
-
             object value = favoriteType switch
             {
                 FavoriteType.Song => SongFavoriteList,
                 FavoriteType.Album => AlbumFavoriteList,
                 _ => throw new NotImplementedException("尚未实现指定的收藏内容。")
             };
-            await JsonSerializer.SerializeAsync(fileStream, value);
-
-            fileStream.Seek(0, SeekOrigin.Begin);
-            await transaction.CommitAsync();
+            await WriteObjectToFileAsync(value, file);
         }
         finally
         {
@@ -248,6 +241,73 @@ public static class FavoriteService
     public static async Task RemoveAlbumsFromFavoriteAsync(IAsyncEnumerable<string> albumCids)
         => await RemoveItemsFromFavoriteAsync<AlbumFavoriteItem>(albumCids, FavoriteType.Album);
 
+    /// <summary>
+    /// 将指定的收藏内容备份到指定的文件中。
+    /// </summary>
+    /// <param name="targetFile">目标文件。</param>
+    public static async Task BackupFavoriteAsync(StorageFile targetFile)
+    {
+        await backupSemaphore.WaitAsync();
+        try
+        {
+            FavoriteBackup backup = new(SongFavoriteList, AlbumFavoriteList);
+            await WriteObjectToFileAsync(backup, targetFile);
+        }
+        finally
+        {
+            backupSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// 从指定的文件中还原收藏。
+    /// </summary>
+    /// <param name="restoreFile">还原内容文件。</param>
+    /// <exception cref="JsonException">当文件格式不正确时抛出。</exception>
+    public static async Task RestoreFavoriteAsync(StorageFile restoreFile)
+    {
+        await backupSemaphore.WaitAsync();
+
+        try
+        {
+            Stream stream = await restoreFile.OpenStreamForReadAsync();
+            stream.Seek(0, SeekOrigin.Begin);
+
+            FavoriteBackup favoriteBackup = await JsonSerializer.DeserializeAsync<FavoriteBackup>(stream);
+            (SongFavoriteList songFavorites, AlbumFavoriteList albumFavorites) = favoriteBackup;
+
+            await AddItemsToFavoriteAsync(songFavorites.Items, FavoriteType.Song);
+            await AddItemsToFavoriteAsync(albumFavorites.Items, FavoriteType.Album);
+        }
+        finally
+        {
+            backupSemaphore.Release();
+        }
+    }
+
+    private static async Task WriteObjectToFileAsync(object obj, StorageFile file)
+    {
+        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, obj));
+    }
+
+    private static async Task WriteObjectToFileAsync<T>(T value, StorageFile file)
+    {
+        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, value));
+    }
+
+    private static async Task WriteObjectToFileCoreAsync(StorageFile file, Func<Stream, Task> serializeDelegate)
+    {
+        using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
+        Stream fileStream = transaction.Stream.AsStream();
+        fileStream.SetLength(0);
+        fileStream.Seek(0, SeekOrigin.Begin);
+
+        await serializeDelegate(fileStream);
+
+        fileStream.Seek(0, SeekOrigin.Begin);
+        await transaction.CommitAsync();
+    }
+
     private static async Task<T> InitializeFavoriteList<T>(FavoriteType favoriteType) where T : new()
     {
         StorageFile file = await GetFavoriteListFile(favoriteType);
@@ -346,8 +406,8 @@ public static class FavoriteService
     {
         return favoriteType switch
         {
-            FavoriteType.Song => SongFavoriteList as FavoriteList<T>,
-            FavoriteType.Album => AlbumFavoriteList as FavoriteList<T>,
+            FavoriteType.Song => SongFavoriteList as FavoriteList<T> ?? throw new ArgumentException("传入的收藏类型与方法的类型参数不匹配。"),
+            FavoriteType.Album => AlbumFavoriteList as FavoriteList<T> ?? throw new ArgumentException("传入的收藏类型与方法的类型参数不匹配。"),
             _ => throw GetFavoriteTypeNotImplementedException()
         };
     }
@@ -438,22 +498,49 @@ public static class FavoriteService
             throw new ArgumentNullException(nameof(items));
         }
 
+        await AddItemsToFavoriteCoreAsync<T>(favoriteType, async favoriteList =>
+        {
+            await foreach (T item in items)
+            {
+                if (favoriteList.Items.Contains(item))
+                {
+                    continue;
+                }
+                favoriteList.Items.Add(item);
+            }
+        });
+    }
+
+    private static async Task AddItemsToFavoriteAsync<T>(IEnumerable<T> items, FavoriteType favoriteType)
+    {
+        if (items is null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        await AddItemsToFavoriteCoreAsync<T>(favoriteType, favoriteList =>
+        {
+            foreach (T item in items)
+            {
+                if (favoriteList.Items.Contains(item))
+                {
+                    continue;
+                }
+                favoriteList.Items.Add(item);
+            }
+
+            return Task.CompletedTask;
+        });
+    }
+
+    private static async Task AddItemsToFavoriteCoreAsync<T>(FavoriteType favoriteType, Func<FavoriteList<T>, Task> addToOperation)
+    {
         FavoriteList<T> favoriteList = GetFavoriteList<T>(favoriteType);
 
         try
         {
             favoriteList.BlockInfoUpdate();
-            await UIThreadHelper.RunOnUIThread(async () =>
-            {
-                await foreach (T item in items)
-                {
-                    if (favoriteList.Items.Contains(item))
-                    {
-                        continue;
-                    }
-                    favoriteList.Items.Add(item);
-                }
-            });
+            await UIThreadHelper.RunOnUIThread(async () => await addToOperation(favoriteList));
         }
         finally
         {

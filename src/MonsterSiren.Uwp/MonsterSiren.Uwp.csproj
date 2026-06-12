@@ -204,6 +204,7 @@
     <Compile Include="Models\ExceptionBox.cs" />
     <Compile Include="Models\Favorites\AlbumFavoriteItem.cs" />
     <Compile Include="Models\Favorites\AlbumFavoriteList.cs" />
+    <Compile Include="Models\Favorites\FavoriteBackup.cs" />
     <Compile Include="Models\Favorites\FavoriteList.cs" />
     <Compile Include="Models\Favorites\SongFavoriteItem.cs" />
     <Compile Include="Models\Favorites\SongFavoriteList.cs" />
