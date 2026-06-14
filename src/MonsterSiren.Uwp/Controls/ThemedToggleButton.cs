@@ -4,6 +4,11 @@ namespace MonsterSiren.Uwp.Controls;
 
 public sealed class ThemedToggleButton : ToggleButton
 {
+    public ThemedToggleButton()
+    {
+        DefaultStyleKey = typeof(ThemedToggleButton);
+    }
+
     public SolidColorBrush ThemeBackground
     {
         get => (SolidColorBrush)GetValue(ThemeBackgroundProperty);

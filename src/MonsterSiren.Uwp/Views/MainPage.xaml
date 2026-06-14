@@ -337,7 +337,7 @@
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
                     </Style>
-                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                    <Style TargetType="msrControls:ThemedToggleButton">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
                         <Setter Property="Background" Value="Transparent" />
@@ -408,12 +408,17 @@
                         <Flyout>
                             <StackPanel>
                                 <StackPanel.Resources>
-                                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                                    <Style TargetType="msrControls:ThemedToggleButton">
                                         <Setter Property="Background" Value="Transparent" />
                                     </Style>
                                 </StackPanel.Resources>
 
-                                <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
                                     <msrControls:ThemedToggleButton
                                         Width="35"
                                         Height="35"
@@ -427,14 +432,14 @@
                                         <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                                     </msrControls:ThemedToggleButton>
                                     <Slider
-                                        Width="100"
+                                        Grid.Column="1"
                                         HorizontalAlignment="Stretch"
                                         Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                                         Maximum="100"
                                         PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
                                         Style="{StaticResource ThemedSlider}"
                                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
-                                </StackPanel>
+                                </Grid>
                                 <msrControls:ThemedToggleButton
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
@@ -452,7 +457,7 @@
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
                                 <msrControls:ThemedToggleButton
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="RP"
                                     BorderThickness="0"
@@ -468,7 +473,7 @@
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
                                 <Button
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CP"
                                     Background="Transparent"
@@ -485,6 +490,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CA"
                                     Background="Transparent"
@@ -501,6 +507,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="DC"
                                     Background="Transparent"
@@ -517,7 +524,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="GL"
                                     Background="Transparent"
@@ -533,6 +540,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CL"
                                     Background="Transparent"
@@ -630,8 +638,7 @@
                         AccessKey="MU"
                         Background="Transparent"
                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                        IsThreeState="False"
-                        Style="{StaticResource MediaControlToggleButton}">
+                        IsThreeState="False">
                         <msrControls:ThemedToggleButton.ThemeBackground>
                             <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
                         </msrControls:ThemedToggleButton.ThemeBackground>

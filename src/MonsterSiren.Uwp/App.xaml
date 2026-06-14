@@ -20,7 +20,6 @@
 
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="/ResourcesDictionaries/MediaControlToggleButton.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/ThemedSlider.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml" />
                 <ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItem.xaml" />

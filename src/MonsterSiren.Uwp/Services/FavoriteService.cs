@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Threading;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
-using TagLib.Ape;
 using Windows.Storage;
 
 namespace MonsterSiren.Uwp.Services;

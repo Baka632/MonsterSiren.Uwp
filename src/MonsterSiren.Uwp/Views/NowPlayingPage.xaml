@@ -209,7 +209,7 @@
                                 <Setter Property="Margin" Value="5,0,5,0" />
                                 <Setter Property="Padding" Value="0" />
                             </Style>
-                            <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                            <Style TargetType="msrControls:ThemedToggleButton">
                                 <Setter Property="Height" Value="35" />
                                 <Setter Property="Width" Value="35" />
                                 <Setter Property="Background" Value="Transparent" />
@@ -281,8 +281,7 @@
                                             AccessKey="MU"
                                             Background="Transparent"
                                             IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                                            IsThreeState="False"
-                                            Style="{StaticResource MediaControlToggleButton}">
+                                            IsThreeState="False">
                                             <msrControls:ThemedToggleButton.ThemeBackground>
                                                 <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
                                             </msrControls:ThemedToggleButton.ThemeBackground>
