@@ -78,6 +78,27 @@ public sealed record DownloadItem : INotifyPropertyChanged
         Operation = op;
         DisplayName = displayName;
         CancelToken = new CancellationTokenSource();
+
+        BackgroundDownloadProgress progress = op.Progress;
+        Progress = progress.TotalBytesToReceive == 0 ? 0d : (double)progress.BytesReceived / progress.TotalBytesToReceive;
+        State = op.Progress.Status switch
+        {
+            BackgroundTransferStatus.Running => DownloadItemState.Downloading,
+            BackgroundTransferStatus.Idle
+                or BackgroundTransferStatus.PausedByApplication
+                or BackgroundTransferStatus.PausedSystemPolicy
+                or BackgroundTransferStatus.PausedRecoverableWebErrorStatus
+                or BackgroundTransferStatus.PausedCostedNetwork
+                or BackgroundTransferStatus.PausedNoNetwork => DownloadItemState.Paused,
+            BackgroundTransferStatus.Error => DownloadItemState.Error,
+            BackgroundTransferStatus.Canceled => DownloadItemState.Canceled,
+            BackgroundTransferStatus.Completed => DownloadItemState.Done,
+#if DEBUG
+            _ => throw new NotImplementedException("未知的 BackgroundTransferStatus 值。")
+#else
+            _ => default
+#endif
+        };
     }
 
     /// <summary>
@@ -107,7 +128,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
         Operation.Resume();
         State = DownloadItemState.Downloading;
     }
-    
+
     /// <summary>
     /// 暂停下载。
     /// </summary>

@@ -3,10 +3,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:contract13NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,13)"
     xmlns:contract13Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,13)">
-    <Style BasedOn="{StaticResource Win11ListViewItemStyle}" TargetType="ListViewItem" />
+    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem" />
 
     <Thickness x:Key="ListItemMargin">4</Thickness>
-    <Style x:Key="Win11ListViewItemStyle" TargetType="ListViewItem">
+    <Style x:Key="DefaultListViewItemStyle" TargetType="ListViewItem">
         <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
         <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
         <Setter Property="BorderBrush" Value="{x:Null}" />

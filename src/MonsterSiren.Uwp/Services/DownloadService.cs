@@ -412,8 +412,8 @@ public static class DownloadService
                 }
 
                 string targetFileName = TranscodeDownloadedItem
-                ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
-                : $"{musicFileName}{rawMusicExtensions}";
+                    ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
+                    : $"{musicFileName}{rawMusicExtensions}";
 
                 IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
 
@@ -569,10 +569,10 @@ public static class DownloadService
         try
         {
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
-            item.State = DownloadItemState.Downloading;
 
             if (isNew)
             {
+                item.State = DownloadItemState.Downloading;
                 await operation.StartAsync().AsTask(cts.Token, progressCallback);
             }
             else
@@ -858,9 +858,9 @@ public static class DownloadService
         }
 
         BackgroundDownloadProgress progress = op.Progress;
-        item.Progress = op.Progress.TotalBytesToReceive == 0
+        item.Progress = progress.TotalBytesToReceive == 0
             ? 0d
-            : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
+            : (double)progress.BytesReceived / progress.TotalBytesToReceive;
     }
 
     private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, AudioFormat format, AudioEncodingQuality quality, DownloadItem dlItem)
