@@ -3,6 +3,7 @@ using System.Threading;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MonsterSiren.Uwp.Helpers;
@@ -52,18 +53,51 @@ public static partial class MsrModelsHelper
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/>，其中存储了音乐的关键信息。</param>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/>，其中存储了音乐专辑的封面信息。</param>
+    /// <param name="useDownloadedFile">一个布尔值，指示是否使用已下载的文件。</param>
     /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/>。</returns>
     public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(SongDetail songDetail, AlbumDetail albumDetail)
     {
+        // 默认值：使用已经下载的文件。
+        bool useDownloadedFile = !SettingsHelper.TryGet(CommonValues.MusicPlaybackUseDownloadedFileSettingsKey, out bool isUseDownloadedFile) || isUseDownloadedFile;
+
         if (string.IsNullOrWhiteSpace(songDetail.SourceUrl))
         {
             throw new ArgumentException($"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。", nameof(songDetail));
         }
 
-        Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-
         List<SongInfo> songs = [.. albumDetail.Songs];
-        MediaSource source = MediaSource.CreateFromUri(musicUri);
+
+        MediaSource source = null;
+        if (useDownloadedFile)
+        {
+            try
+            {
+                (string musicFileName, string albumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(
+                    CommonValues.GetMusicMetadataForDownload(albumDetail, songDetail),
+                    albumDetail);
+
+                StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadService.DownloadPath);
+                StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumFolderName, CreationCollisionOption.OpenIfExists);
+
+                string[] searchExtensions = [".wav", $".{DownloadService.TranscodeFormat.ToString().ToLower()}"];
+                foreach (string extension in searchExtensions)
+                {
+                    IStorageItem targetItem = await albumFolder.TryGetItemAsync($"{musicFileName}{extension}");
+                    if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                    {
+                        source = MediaSource.CreateFromStorageFile((StorageFile)targetItem);
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
+            {
+                // Swallow!
+            }
+        }
+
+        source ??= MediaSource.CreateFromUri(new Uri(songDetail.SourceUrl, UriKind.Absolute));
+
         MediaPlaybackItem playbackItem = new(source);
 
         if (!MemoryCacheHelper<TimeSpan>.Default.TryGetData(songDetail.Cid, out _))

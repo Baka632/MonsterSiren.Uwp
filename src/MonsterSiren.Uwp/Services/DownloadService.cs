@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using Windows.Media.Core;
@@ -361,30 +360,26 @@ public static class DownloadService
         string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
         CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
 
-        string albumTitle = albumDetail.Name?.Trim();
-        string songTitle = songDetail.Name?.Trim();
-        string artist = songDetail.Artists.FirstOrDefault()?.Trim() ?? defaultMsrName;
-        string artists = string.Join(',', songDetail.Artists);
-        if (string.IsNullOrWhiteSpace(artists))
-        {
-            artists = defaultMsrName;
-        }
+        (string AlbumTitle, string SongTitle, string Artist, string Artists) metadataTuple = CommonValues.GetMusicMetadataForDownload(albumDetail, songDetail);
 
-        string musicFileNameCache = null;
-        string musicAlbumFolderNameCache = null;
+        string musicFileName = null;
+        string musicAlbumFolderName = null;
 
-        HandleDownloadOperation(CreateSongDownloadItem, songTitle, true).ContinueWith(async t =>
+        HandleDownloadOperation(CreateSongDownloadItem, metadataTuple.SongTitle, true).ContinueWith(async t =>
         {
             if (!t.IsFaulted && t.Result && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                string lyricDownloadDisplayName = $"{songTitle} - {"LyricFile".GetLocalized()}";
+                string lyricDownloadDisplayName = $"{metadataTuple.SongTitle} - {"LyricFile".GetLocalized()}";
                 await HandleDownloadOperation(CreateLyricDownloadItem, lyricDownloadDisplayName, true);
 
                 async Task<DownloadItem> CreateLyricDownloadItem()
                 {
                     StorageFolder albumFolder = await AcquireAlbumFolder();
 
-                    (string musicFileName, _) = await AcquireMusicNameAndAlbumFolderName();
+                    if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+                    {
+                        (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
+                    }
 
                     StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", collisionOption);
                     DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
@@ -397,7 +392,10 @@ public static class DownloadService
         {
             StorageFolder albumFolder = await AcquireAlbumFolder();
 
-            (string musicFileName, string musicAlbumFolderName) = await AcquireMusicNameAndAlbumFolderName();
+            if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+            {
+                (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
+            }
 
             bool lockTaken = false;
             string key = $"{musicFileName}-{musicAlbumFolderName}";
@@ -419,7 +417,7 @@ public static class DownloadService
 
                 if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
                 {
-                    return new DownloadItem(songTitle, DownloadItemState.Skipped);
+                    return new DownloadItem(metadataTuple.SongTitle, DownloadItemState.Skipped);
                 }
 
                 StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
@@ -433,7 +431,7 @@ public static class DownloadService
                 }
 
                 DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-                DownloadItem downloadItem = new(musicDownload, songTitle);
+                DownloadItem downloadItem = new(musicDownload, metadataTuple.SongTitle);
 
                 return downloadItem;
             }
@@ -449,88 +447,15 @@ public static class DownloadService
 
         async Task<StorageFolder> AcquireAlbumFolder()
         {
-            (_, string musicAlbumFolderName) = await AcquireMusicNameAndAlbumFolderName();
+            if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+            {
+                (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
+            }
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
             StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(musicAlbumFolderName, CreationCollisionOption.OpenIfExists);
 
             return albumFolder;
-        }
-
-        async Task<(string MusicName, string AlbumFolderName)> AcquireMusicNameAndAlbumFolderName()
-        {
-            if (musicFileNameCache != null && musicAlbumFolderNameCache != null)
-            {
-                return (musicFileNameCache, musicAlbumFolderNameCache);
-            }
-
-            StringBuilder musicFileNameBuilder = new(MusicFileTemplateString);
-            foreach (string template in CommonValues.MusicFilenamePartTemplates)
-            {
-                string content = template switch
-                {
-                    "{AlbumTitle}" => albumTitle,
-                    "{SongTitle}" => songTitle,
-                    "{Artist}" => artist,
-                    "{Artists}" => artists,
-                    _ => throw new NotImplementedException("未添加对指定文件名模板的支持。")
-                };
-                musicFileNameBuilder.Replace(template, content);
-            }
-
-            StringBuilder musicAlbumFolderNameBuilder = new(MusicAlbumFolderNameTemplateString);
-            foreach (string template in CommonValues.MusicAlbumFolderNamePartTemplates)
-            {
-                string content = template switch
-                {
-                    "{AlbumTitle}" => albumTitle,
-                    "{SongIndexOneStart}" => (await GetAlbumIndexAsync(albumDetail)).ToString(),
-                    "{Artist}" => artist,
-                    "{Artists}" => artists,
-                    _ => throw new NotImplementedException("未添加对指定文件夹名称模板的支持。")
-                };
-                musicAlbumFolderNameBuilder.Replace(template, content);
-
-                async Task<int> GetAlbumIndexAsync(AlbumDetail albumDetail)
-                {
-                    CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> albums = await CommonValues.GetOrFetchAlbums();
-
-                    int albumCount = albums.CollectionSource.Count;
-                    for (int i = 0; i < albumCount; i++)
-                    {
-                        AlbumInfo info = albums.CollectionSource.ElementAt(i);
-                        if (info.Cid == albumDetail.Cid)
-                        {
-                            return albumCount - i;
-                        }
-                    }
-
-                    return -1;
-                }
-            }
-
-            string musicFileName = musicFileNameBuilder.ToString();
-            string musicAlbumFolderName = musicAlbumFolderNameBuilder.ToString();
-
-            if (ReplaceInvalidCharInFileName)
-            {
-                musicFileName = CommonValues.ReplaceInvalidFileNameChars(musicFileName);
-                musicAlbumFolderName = CommonValues.ReplaceInvalidFileNameChars(musicAlbumFolderName);
-            }
-            else
-            {
-                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
-                {
-                    musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
-                    musicAlbumFolderName = musicAlbumFolderName.Replace(invalidCharStr, string.Empty);
-                }
-            }
-            musicAlbumFolderName = CommonValues.RemoveOrReplaceDotEndingInFolderName(musicAlbumFolderName);
-
-            musicFileNameCache = musicFileName;
-            musicAlbumFolderNameCache = musicAlbumFolderName;
-
-            return (musicFileName, musicAlbumFolderName);
         }
     }
 

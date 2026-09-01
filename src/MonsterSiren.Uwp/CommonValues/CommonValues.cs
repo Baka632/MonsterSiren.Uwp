@@ -28,6 +28,7 @@ internal static partial class CommonValues
     #endregion
 
     #region Settings Key
+    public const string MusicPlaybackUseDownloadedFileSettingsKey = "Music_PlaybackUseDownloadedFile_SettingsKey";
     public const string MusicVolumeSettingsKey = "Music_Volume_SettingsKey";
     public const string MusicMuteStateSettingsKey = "Music_MuteState_SettingsKey";
     public const string MusicShuffleStateSettingsKey = "Music_ShuffleState_SettingsKey";

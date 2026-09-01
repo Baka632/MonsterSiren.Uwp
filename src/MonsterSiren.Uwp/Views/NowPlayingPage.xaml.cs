@@ -175,16 +175,22 @@ public sealed partial class NowPlayingPage : Page
         TextBlock textBlock = (TextBlock)sender;
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
         MediaSource source = playbackItem.Source;
-        string sourceUri = source.Uri.ToString();
 
         textBlock.Text = "-:-";
 
-        if (source.Duration.HasValue)
+        if (source.IsOpen && source.Duration.HasValue)
         {
-            textBlock.Text = source.Duration.Value.ToString(@"m\:ss");
+            SetDurationForTextBlock(textBlock, source.Duration);
+        }
+        else if (!source.IsOpen && source.Uri is null)
+        {
+            // TODO: 这里保持了原来的逻辑，但是这也意味着这里也占用了许多内存（媒体解码很耗资源！），未来需要讨论如何优化。
+            await source.OpenAsync();
+            SetDurationForTextBlock(textBlock, source.Duration);
         }
         else
         {
+            string sourceUri = source.Uri.ToString();
             SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(sourceUri);
 
             try
@@ -198,22 +204,14 @@ public sealed partial class NowPlayingPage : Page
 
                     if (span.HasValue)
                     {
-                        textBlock.Text = span.Value.ToString(@"m\:ss");
+                        SetDurationForTextBlock(textBlock, span);
                         return;
                     }
                 }
 
                 await source.OpenAsync();
                 TimeSpan? duration = source.Duration;
-
-                if (duration.HasValue)
-                {
-                    textBlock.Text = duration.Value.ToString(@"m\:ss");
-                }
-                else
-                {
-                    textBlock.Text = "-:-";
-                }
+                SetDurationForTextBlock(textBlock, duration);
             }
             catch (Exception ex) when (ex.HResult == -1072877849)
             {
@@ -224,6 +222,11 @@ public sealed partial class NowPlayingPage : Page
                 semaphore.Release();
                 CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
             }
+        }
+
+        static void SetDurationForTextBlock(TextBlock textBlock, TimeSpan? duration)
+        {
+            textBlock.Text = duration.HasValue ? duration.Value.ToString(@"m\:ss") : "-:-";
         }
     }
 

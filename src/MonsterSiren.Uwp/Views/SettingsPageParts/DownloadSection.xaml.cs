@@ -9,7 +9,7 @@ public sealed partial class DownloadSection : UserControl
     }
 
     public static readonly DependencyProperty ViewModelProperty =
-        DependencyProperty.Register(nameof(ViewModel), typeof(SettingsViewModel), typeof(PresentationSection), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(ViewModel), typeof(SettingsViewModel), typeof(DownloadSection), new PropertyMetadata(null));
 
     public DownloadSection()
     {

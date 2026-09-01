@@ -9,7 +9,7 @@ public sealed partial class AboutSection : UserControl
     }
 
     public static readonly DependencyProperty ViewModelProperty =
-        DependencyProperty.Register(nameof(ViewModel), typeof(SettingsViewModel), typeof(PresentationSection), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(ViewModel), typeof(SettingsViewModel), typeof(AboutSection), new PropertyMetadata(null));
 
     public AboutSection()
     {

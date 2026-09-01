@@ -79,6 +79,8 @@ public partial class SettingsViewModel : ObservableObject
     private string musicFilePartsTemplateExplainText;
     [ObservableProperty]
     private string musicAlbumFolderNamePartsTemplateExplainText;
+    [ObservableProperty]
+    private bool musicPlaybackUseDownloadedFile;
 
     public void Initialize()
     {
@@ -213,7 +215,6 @@ public partial class SettingsViewModel : ObservableObject
         else
         {
             EnableGlanceBurnProtection = true;
-            SettingsHelper.Set(CommonValues.AppGlanceModeBurnProtectionSettingsKey, true);
         }
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, out bool useLowerBrightness))
@@ -223,7 +224,6 @@ public partial class SettingsViewModel : ObservableObject
         else
         {
             GlanceModeUseLowerBrightness = true;
-            SettingsHelper.Set(CommonValues.AppGlanceModeUseLowerBrightnessSettingsKey, true);
         }
 
         if (SettingsHelper.TryGet(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, out bool remainDisplayOn))
@@ -233,7 +233,6 @@ public partial class SettingsViewModel : ObservableObject
         else
         {
             GlanceModeRemainDisplayOn = true;
-            SettingsHelper.Set(CommonValues.AppGlanceModeRemainDisplayOnSettingsKey, true);
         }
         #endregion
 
@@ -245,6 +244,22 @@ public partial class SettingsViewModel : ObservableObject
         SelectedAppLanguageIndex = appLanguages.IndexOf(currentLanguage);
         ShowLanguageChangedInfoBar = false; // 为了防止初始化时就显示重启应用通知（毕竟这里不是用户修改的）
         #endregion
+
+        #region Playback
+        if (SettingsHelper.TryGet(CommonValues.MusicPlaybackUseDownloadedFileSettingsKey, out bool useDownloadedFile))
+        {
+            MusicPlaybackUseDownloadedFile = useDownloadedFile;
+        }
+        else
+        {
+            MusicPlaybackUseDownloadedFile = true;
+        }
+        #endregion
+    }
+
+    partial void OnMusicPlaybackUseDownloadedFileChanged(bool value)
+    {
+        SettingsHelper.Set(CommonValues.MusicPlaybackUseDownloadedFileSettingsKey, value);
     }
 
     partial void OnGlanceModeRemainDisplayOnChanged(bool value)

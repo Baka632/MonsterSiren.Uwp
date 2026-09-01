@@ -38,6 +38,10 @@
                 <parts:PresentationSection ViewModel="{x:Bind ViewModel}" />
             </PivotItem>
 
+            <PivotItem x:Uid="PlaybackSectionPivotItem">
+                <parts:PlaybackSection ViewModel="{x:Bind ViewModel}" />
+            </PivotItem>
+
             <PivotItem x:Uid="DownloadPivotItem">
                 <parts:DownloadSection ViewModel="{x:Bind ViewModel}" />
             </PivotItem>

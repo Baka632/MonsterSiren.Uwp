@@ -743,7 +743,7 @@ Continue?</value>
     <value>Album favorites</value>
   </data>
   <data name="SettingsPage_DownloadCoverFile.Header" xml:space="preserve">
-    <value>Download album cover</value>
+    <value>Save album cover</value>
   </data>
   <data name="SettingsPage_DownloadCoverFile.Description" xml:space="preserve">
     <value>When this option is enabled, the album cover will additionally be saved in the album folder.</value>
@@ -807,5 +807,17 @@ Continue?</value>
   </data>
   <data name="RestoreFavoriteSuccessMessage" xml:space="preserve">
     <value>Favorites restored successfully.</value>
+  </data>
+  <data name="PlaybackSectionPivotItem.Header" xml:space="preserve">
+    <value>Playback settings</value>
+  </data>
+  <data name="SettingsPage_PlaybackConfig.Header" xml:space="preserve">
+    <value>Playback options</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Header" xml:space="preserve">
+    <value>Prefer downloaded music during playback</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Description" xml:space="preserve">
+    <value>When this option is enabled, the player will prefer downloaded music.</value>
   </data>
 </root>

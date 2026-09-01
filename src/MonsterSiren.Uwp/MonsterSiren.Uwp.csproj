@@ -21,7 +21,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA512</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
@@ -307,6 +307,9 @@
     <Compile Include="Views\SettingsPageParts\DownloadSection.xaml.cs">
       <DependentUpon>DownloadSection.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsPageParts\PlaybackSection.xaml.cs">
+      <DependentUpon>PlaybackSection.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsPageParts\PresentationSection.xaml.cs">
       <DependentUpon>PresentationSection.xaml</DependentUpon>
     </Compile>
@@ -475,6 +478,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageParts\DownloadSection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageParts\PlaybackSection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
