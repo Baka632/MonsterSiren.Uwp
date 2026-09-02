@@ -21,22 +21,22 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxDefaultHashAlgorithmId>SHA512</AppxDefaultHashAlgorithmId>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA512</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <NoWarn>$(NoWarn);2008</NoWarn>
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <PackageCertificateKeyFile />
     <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageCertificateThumbprint Condition="$(Configuration) != 'Release'">70211FC3C97E403131B9A07F4D5F11FB3C59A2A4</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint Condition="$(Configuration) != 'Release'">A94D21B83D5D823F56D61FD96DBB8BA1B6CE0E12</PackageCertificateThumbprint>
     <PackageCertificateThumbprint Condition="$(Configuration) == 'Release'">D9B5F2BA3F9EC73CFE90208E263D1F5704100BAE</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemGroup>
