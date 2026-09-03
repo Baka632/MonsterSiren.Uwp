@@ -657,7 +657,14 @@ public static class MusicService
             throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        mediaPlaybackList.MoveTo(index);
+        if (mediaPlaybackList.CurrentItemIndex == index)
+        {
+            mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+        }
+        else
+        {
+            mediaPlaybackList.MoveTo(index);
+        }
     }
 
     /// <summary>
@@ -677,7 +684,14 @@ public static class MusicService
             throw new ArgumentOutOfRangeException(nameof(item), "指定的项目不在正在播放列表中。");
         }
 
-        mediaPlaybackList.MoveTo((uint)index);
+        if (mediaPlaybackList.CurrentItemIndex == index)
+        {
+            mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+        }
+        else
+        {
+            mediaPlaybackList.MoveTo((uint)index);
+        }
     }
 
     /// <summary>

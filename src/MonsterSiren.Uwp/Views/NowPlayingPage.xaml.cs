@@ -316,4 +316,13 @@ public sealed partial class NowPlayingPage : Page
             }
         }
     }
+
+    private void OnNowPlayingItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        MediaPlaybackItem playbackItem = (MediaPlaybackItem)element.DataContext;
+
+        MusicService.MoveTo(playbackItem);
+        MusicService.PlayMusic();
+    }
 }

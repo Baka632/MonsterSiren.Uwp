@@ -111,11 +111,9 @@ public partial class NowPlayingViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private void MoveToIndex(MediaPlaybackItem playbackItem)
+    private static void MoveToIndex(MediaPlaybackItem playbackItem)
     {
-        int index = view.NowPlayingListView.Items.IndexOf(playbackItem);
-
-        MusicService.MoveTo((uint)index);
+        MusicService.MoveTo(playbackItem);
         MusicService.PlayMusic();
     }
     

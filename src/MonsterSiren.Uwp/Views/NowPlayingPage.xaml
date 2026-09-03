@@ -396,7 +396,8 @@
                     <controls:NowPlayingItemGrid
                         Name="NowPlayingItemGrid"
                         Padding="0,0,10,0"
-                        Background="Transparent">
+                        Background="Transparent"
+                        DoubleTapped="OnNowPlayingItemGridDoubleTapped">
                         <controls:NowPlayingItemGrid.ContextFlyout>
                             <muxc:MenuBarItemFlyout>
                                 <MenuFlyoutItem
