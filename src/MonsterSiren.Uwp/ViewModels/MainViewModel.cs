@@ -125,6 +125,18 @@ public partial class MainViewModel : ObservableRecipient
         await CommonValues.ShowCreatePlaylistDialog();
     }
 
+    [RelayCommand]
+    private static async Task PlaySongFavorite()
+    {
+        await CommonValues.StartPlaySongFavorite();
+    }
+
+    [RelayCommand]
+    private static async Task PlayAlbumFavorite()
+    {
+        await CommonValues.StartPlayAlbumFavorite();
+    }
+
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)
     {
         try

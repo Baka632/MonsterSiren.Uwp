@@ -175,7 +175,22 @@
                     AccessKey="A"
                     AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
                     Icon="Favorite"
-                    Tag="FavoritePage" />
+                    Tag="FavoritePage">
+                    <muxc:NavigationViewItem.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem x:Uid="FavoriteNavViewItem_PlaySongFavorite" Command="{x:Bind ViewModel.PlaySongFavoriteCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xEC4F;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem x:Uid="FavoriteNavViewItem_PlayAlbumFavorite" Command="{x:Bind ViewModel.PlayAlbumFavoriteCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE93C;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </muxc:NavigationViewItem.ContextFlyout>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem
                     x:Name="PlaylistPageItem"
                     x:Uid="PlaylistNavViewItem"

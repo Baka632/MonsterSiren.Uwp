@@ -820,4 +820,10 @@ Continue?</value>
   <data name="SettingsPage_PlaybackUseDownloadedFile.Description" xml:space="preserve">
     <value>When this option is enabled, the player will prefer downloaded music.</value>
   </data>
+  <data name="FavoriteNavViewItem_PlayAlbumFavorite.Text" xml:space="preserve">
+    <value>Play album favorite</value>
+  </data>
+  <data name="FavoriteNavViewItem_PlaySongFavorite.Text" xml:space="preserve">
+    <value>Play song favorite</value>
+  </data>
 </root>
