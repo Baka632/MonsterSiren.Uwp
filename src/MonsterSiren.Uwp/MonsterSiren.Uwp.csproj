@@ -373,6 +373,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ResourcesDictionaries\Win11GridViewItems.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ResourcesDictionaries\Win11ListViewItemCompact.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

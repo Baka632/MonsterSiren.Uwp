@@ -26,6 +26,7 @@
                 <ResourceDictionary Source="/ResourcesDictionaries/RightAlignedCompactToggleSwitch.xaml" />
                 <contract13Present:ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItemNative.xaml" />
                 <contract13NotPresent:ResourceDictionary Source="/ResourcesDictionaries/Win11ListViewItemCompact.xaml" />
+                <contract13Present:ResourceDictionary Source="/ResourcesDictionaries/Win11GridViewItems.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
