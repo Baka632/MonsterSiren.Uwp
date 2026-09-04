@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+    xmlns:connected="using:MonsterSiren.Uwp.Helpers.ConnectedAnimations"
     xmlns:app="using:MonsterSiren.Uwp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
@@ -83,8 +84,8 @@
             <GridView
                 x:Name="PlaylistGridView"
                 Grid.Row="1"
-                animations:Connected.ListItemElementName="PlaylistCoverImage"
-                animations:Connected.ListItemKey="PlaylistItemToDetailAnimationKey"
+                connected:Connected.ListItemElementName="PlaylistCoverImage"
+                connected:Connected.ListItemKey="PlaylistItemToDetailAnimationKey"
                 animations:ReorderGridAnimation.Duration="500"
                 x:FieldModifier="Internal"
                 CanDragItems="True"

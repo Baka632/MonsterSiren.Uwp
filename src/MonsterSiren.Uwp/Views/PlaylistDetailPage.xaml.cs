@@ -7,6 +7,7 @@ using Microsoft.Toolkit.Uwp.UI.Extensions;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
+using MonsterSiren.Uwp.Helpers.ConnectedAnimations;
 using Windows.UI.Xaml.Documents;
 
 namespace MonsterSiren.Uwp.Views;
@@ -57,6 +58,8 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
         FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
         FavoriteService.SongFavoriteList.Items.CollectionChanged += OnSongFavoriteListCollectionChanged;
+
+        this.RegisterElementForConnectedAnimation("PlaylistItemToDetailAnimationKey", SongList);
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
