@@ -3,6 +3,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.Json;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MonsterSiren.Uwp.Views;
@@ -21,6 +22,7 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     {
         ViewModel = new PlaylistViewModel(this);
         this.InitializeComponent();
+        ViewModel.Initialize();
         ViewModel.SelectedPlaylistContextFlyout = PlaylistContextFlyout;
     }
 
@@ -31,16 +33,7 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
 
     private void OnPlaylistItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        string json = JsonSerializer.Serialize((Playlist)dataContext);
-        e.Data.SetData(CommonValues.MusicPlaylistFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<Playlist>(e);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -66,36 +59,5 @@ public sealed partial class PlaylistPage : Page, INotifyPropertyChanged
     {
         FrameworkElement element = (FrameworkElement)sender;
         ViewModel.SelectedPlaylist = (Playlist)element.DataContext;
-    }
-
-    private void OnPlaylistContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingCommand,
-                                                                          ViewModel.SelectedPlaylist,
-                                                                          ViewModel.AddPlaylistToAnotherPlaylistCommand,
-                                                                          ViewModel.SelectedPlaylist);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
-    private void OnPlaylistSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSelectedItemCommand,
-                                                                          null,
-                                                                          ViewModel.AddSelectedItemToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
     }
 }

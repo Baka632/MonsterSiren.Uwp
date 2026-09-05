@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using Windows.Media.Core;
@@ -25,13 +24,17 @@ public static class DownloadService
     private static bool _transcodeDownloadedItem = true;
     private static bool _replaceInvalidCharInFileName = true;
     private static bool _allowUnnecessaryTranscode = true;
+    private static bool _saveCoverFileWhenDownload;
     private static AudioFormat _transcodeFormat;
     private static AudioEncodingQuality _transcodeQuality = AudioEncodingQuality.High;
     private static string _musicFileTemplateString;
+    private static string _musicAlbumFolderNameTemplateString;
     private static readonly BackgroundDownloader Downloader = new()
     {
         CostPolicy = BackgroundTransferCostPolicy.Always
     };
+    private static readonly LockerHelper<string> albumCoverLocker = new();
+    private static readonly LockerHelper<string> avoidDuplicateLocker = new();
 
     /// <summary>
     /// 获取或设置下载路径。
@@ -139,6 +142,19 @@ public static class DownloadService
     }
 
     /// <summary>
+    /// 指示是否在下载过程中保存专辑封面文件。
+    /// </summary>
+    public static bool SaveCoverFileWhenDownload
+    {
+        get => _saveCoverFileWhenDownload;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicSaveCoverFileWhenDownloadSettingsKey, value);
+            _saveCoverFileWhenDownload = value;
+        }
+    }
+
+    /// <summary>
     /// 获取或更改音乐文件的文件名模板。
     /// </summary>
     public static string MusicFileTemplateString
@@ -150,6 +166,20 @@ public static class DownloadService
             _musicFileTemplateString = value;
         }
     }
+
+    /// <summary>
+    /// 获取或更改音乐专辑文件夹的名称模板。
+    /// </summary>
+    public static string MusicAlbumFolderNameTemplateString
+    {
+        get => _musicAlbumFolderNameTemplateString;
+        set
+        {
+            SettingsHelper.Set(CommonValues.MusicAlbumFolderTemplateStringSettingsKey, value);
+            _musicAlbumFolderNameTemplateString = value;
+        }
+    }
+
 
     /// <summary>
     /// 获取下载列表。
@@ -199,6 +229,11 @@ public static class DownloadService
                                     && unnecessaryTranscode;
         }
 
+        {
+            SaveCoverFileWhenDownload = SettingsHelper.TryGet(CommonValues.MusicSaveCoverFileWhenDownloadSettingsKey, out bool saveCover)
+                                    && saveCover;
+        }
+
         if (SettingsHelper.TryGet(CommonValues.MusicTranscodeFormatSettingsKey, out string formatString) && Enum.TryParse(formatString, out AudioFormat format))
         {
             TranscodeFormat = format;
@@ -222,13 +257,22 @@ public static class DownloadService
             TranscodeFormat = AudioFormat.Mp3;
         }
 
-        if (SettingsHelper.TryGet(CommonValues.MusicFileTemplateStringSettingsKey, out string template) && !string.IsNullOrWhiteSpace(template))
+        if (SettingsHelper.TryGet(CommonValues.MusicFileTemplateStringSettingsKey, out string fileTemplate) && !string.IsNullOrWhiteSpace(fileTemplate))
         {
-            MusicFileTemplateString = template;
+            MusicFileTemplateString = fileTemplate;
         }
         else
         {
             MusicFileTemplateString = CommonValues.DefaultMusicFilenameTemplate;
+        }
+
+        if (SettingsHelper.TryGet(CommonValues.MusicAlbumFolderTemplateStringSettingsKey, out string folderTemplate) && !string.IsNullOrWhiteSpace(folderTemplate))
+        {
+            MusicAlbumFolderNameTemplateString = folderTemplate;
+        }
+        else
+        {
+            MusicAlbumFolderNameTemplateString = CommonValues.DefaultMusicAlbumFolderNameTemplate;
         }
 
         if (EnvironmentHelper.IsWindowsMobile)
@@ -287,119 +331,170 @@ public static class DownloadService
         foreach (DownloadOperation op in downloadsItem)
         {
             string name = op.ResultFile is StorageFile file ? file.DisplayName : op.ResultFile.Name;
-            _ = HandleDownloadOperation(op, name, false);
+            _ = HandleDownloadOperation(() => Task.FromResult(new DownloadItem(op, name)), name, false);
         }
 
         _isInitialized = true;
     }
 
     /// <summary>
-    /// 下载单个歌曲。
+    /// 创建歌曲下载任务，并排队。
     /// </summary>
     /// <param name="albumDetail">歌曲所属专辑信息。</param>
     /// <param name="songDetail">歌曲详细信息。</param>
     /// <exception cref="InvalidOperationException">未调用 <see cref="Initialize"/> 方法。</exception>
-    public static async Task DownloadSong(AlbumDetail albumDetail, SongDetail songDetail)
+    public static void EnqueueSongDownload(AlbumDetail albumDetail, SongDetail songDetail)
     {
         if (_isInitialized != true)
         {
             throw new InvalidOperationException($"请先调用 {nameof(Initialize)} 方法");
         }
 
+        // TODO: 可能存在问题，如果旧 URI 失效而新 URI 替换，这是个问题。
         if (DownloadList.Any(item => songDetail.SourceUrl == item.Operation?.RequestedUri?.ToString()))
         {
             return;
         }
 
-        await Task.Run(async () =>
+        string defaultMsrName = "MSR".GetLocalized();
+        string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
+        CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
+
+        (string AlbumTitle, string SongTitle, string Artist, string Artists) metadataTuple = CommonValues.GetMusicMetadataForDownload(albumDetail, songDetail);
+
+        string musicFileName = null;
+        string musicAlbumFolderName = null;
+
+        HandleDownloadOperation(CreateSongDownloadItem, metadataTuple.SongTitle, true).ContinueWith(async t =>
         {
-            string defaultMsrName = "MSR".GetLocalized();
-            string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
-            CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
-
-            string albumTitle = albumDetail.Name?.Trim();
-            string songTitle = songDetail.Name?.Trim();
-            string artist = songDetail.Artists.FirstOrDefault()?.Trim() ?? defaultMsrName;
-            string artists = string.Join(',', songDetail.Artists);
-            if (string.IsNullOrWhiteSpace(artists))
+            if (!t.IsFaulted && t.Result && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
             {
-                artists = defaultMsrName;
-            }
+                string lyricDownloadDisplayName = $"{metadataTuple.SongTitle} - {"LyricFile".GetLocalized()}";
+                await HandleDownloadOperation(CreateLyricDownloadItem, lyricDownloadDisplayName, true);
 
-            StringBuilder musicFileNameBuilder = new(MusicFileTemplateString);
-            foreach (string template in CommonValues.MusicFilenamePartTemplates)
-            {
-                string content = template switch
+                async Task<DownloadItem> CreateLyricDownloadItem()
                 {
-                    "{AlbumTitle}" => albumTitle,
-                    "{SongTitle}" => songTitle,
-                    "{Artist}" => artist,
-                    "{Artists}" => artists,
-                    _ => throw new NotImplementedException("未添加对指定文件名模板的支持。")
-                };
-                musicFileNameBuilder.Replace(template, content);
-            }
+                    StorageFolder albumFolder = await AcquireAlbumFolder();
 
-            string musicFileName = musicFileNameBuilder.ToString();
+                    if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+                    {
+                        (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
+                    }
 
-            if (ReplaceInvalidCharInFileName)
-            {
-                musicFileName = CommonValues.ReplaceInvalidFileNameChars(musicFileName);
-            }
-            else
-            {
-                foreach (string invalidCharStr in CommonValues.InvalidFileNameCharsStringArray)
-                {
-                    musicFileName = musicFileName.Replace(invalidCharStr, string.Empty);
+                    StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", collisionOption);
+                    DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
+                    return new(lrcDownload, lyricDownloadDisplayName);
                 }
+            }
+        });
+
+        async Task<DownloadItem> CreateSongDownloadItem()
+        {
+            StorageFolder albumFolder = await AcquireAlbumFolder();
+
+            if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+            {
+                (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
+            }
+
+            bool lockTaken = false;
+            string key = $"{musicFileName}-{musicAlbumFolderName}";
+            SemaphoreSlim semaphoreSlim = avoidDuplicateLocker.GetOrCreateLocker(key);
+
+            try
+            {
+                lockTaken = await semaphoreSlim.WaitAsync(0);
+                if (!lockTaken)
+                {
+                    throw new ManuallyCanceledDownloadException();
+                }
+
+                string targetFileName = TranscodeDownloadedItem
+                    ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
+                    : $"{musicFileName}{rawMusicExtensions}";
+
+                IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
+
+                if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                {
+                    return new DownloadItem(metadataTuple.SongTitle, DownloadItemState.Skipped);
+                }
+
+                StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
+
+                StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", collisionOption);
+                SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
+                using (Stream infoFileStream = await infoFile.OpenStreamForWriteAsync())
+                {
+                    infoFileStream.Seek(0, SeekOrigin.Begin);
+                    await JsonSerializer.SerializeAsync(infoFileStream, pack);
+                }
+
+                DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
+                DownloadItem downloadItem = new(musicDownload, metadataTuple.SongTitle);
+
+                return downloadItem;
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    semaphoreSlim.Release();
+                }
+                avoidDuplicateLocker.ReturnLocker(key);
+            }
+        }
+
+        async Task<StorageFolder> AcquireAlbumFolder()
+        {
+            if (string.IsNullOrWhiteSpace(musicFileName) || string.IsNullOrWhiteSpace(musicAlbumFolderName))
+            {
+                (musicFileName, musicAlbumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(metadataTuple, albumDetail);
             }
 
             StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadPath);
-            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumDetail.Name?.Trim(), CreationCollisionOption.OpenIfExists);
+            StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(musicAlbumFolderName, CreationCollisionOption.OpenIfExists);
 
-            string targetFileName = TranscodeDownloadedItem
-                ? $"{musicFileName}.{TranscodeFormat.ToString().ToLower()}"
-                : $"{musicFileName}{rawMusicExtensions}";
-
-            IStorageItem targetItem = await albumFolder.TryGetItemAsync(targetFileName);
-
-            if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
-            {
-                DownloadItem item = new(songTitle);
-                await AddToList(item);
-                return;
-            }
-
-            StorageFile musicFile = await albumFolder.CreateFileAsync($"{musicFileName}{rawMusicExtensions}.tmp", collisionOption);
-
-            StorageFile infoFile = await albumFolder.CreateFileAsync($"{musicFileName}.json.tmp", collisionOption);
-            SongDetailAndAlbumDetailPack pack = new(songDetail, albumDetail);
-            Stream infoFileStream = await infoFile.OpenStreamForWriteAsync();
-            infoFileStream.Seek(0, SeekOrigin.Begin);
-            await JsonSerializer.SerializeAsync(infoFileStream, pack);
-            infoFileStream.Dispose();
-
-            DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
-            bool isSuccess = await HandleDownloadOperation(musicDownload, songTitle, true);
-
-            if (isSuccess && DownloadLyric && Uri.TryCreate(songDetail.LyricUrl, UriKind.Absolute, out Uri lrcUri))
-            {
-                StorageFile lrcFile = await albumFolder.CreateFileAsync($"{musicFileName}.lrc.tmp", collisionOption);
-                DownloadOperation lrcDownload = Downloader.CreateDownload(lrcUri, lrcFile);
-                await HandleDownloadOperation(lrcDownload, $"{songTitle} - {"LyricFile".GetLocalized()}", true);
-            }
-        });
+            return albumFolder;
+        }
     }
 
-    private static async Task<bool> HandleDownloadOperation(DownloadOperation operation, string displayName, bool isNew)
+    private static async Task<bool> HandleDownloadOperation(Func<Task<DownloadItem>> downloadItemFactory, string displayName, bool isNew)
     {
-        CancellationTokenSource cts = new();
-        DownloadItem item = new(operation, displayName, cts);
+        DownloadItem item = null;
+
+        try
+        {
+            item = await downloadItemFactory();
+        }
+        catch (ManuallyCanceledDownloadException)
+        {
+            return false;
+        }
+        catch (Exception ex)
+        {
+            DownloadItem faultItem = new(displayName, DownloadItemState.Error)
+            {
+                ErrorException = ex
+            };
+            await AddToList(faultItem);
+
+            return false;
+        }
+
+        CancellationTokenSource cts = item.CancelToken;
+        DownloadOperation operation = item.Operation;
         await AddToList(item);
+
+        if (item.State == DownloadItemState.Skipped)
+        {
+            return true;
+        }
 
         try
         {
             Progress<DownloadOperation> progressCallback = new(OnDownloadProgress);
+
             if (isNew)
             {
                 item.State = DownloadItemState.Downloading;
@@ -453,20 +548,19 @@ public static class DownloadService
             StorageFile musicFile = (StorageFile)operation.ResultFile;
             string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
             string musicName = Path.ChangeExtension(musicFile.DisplayName, null);
-            string infoFilePath = Path.Combine(albumFolderPath, $"{musicName}.json.tmp");
 
-            if (File.Exists(infoFilePath))
+            StorageFolder albumFolder = await StorageFolder.GetFolderFromPathAsync(albumFolderPath);
+            IStorageItem infoFile = await albumFolder.TryGetItemAsync($"{musicName}.json.tmp");
+
+            if (infoFile != null)
             {
-                StorageFile infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
                 await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
 
-            DirectoryInfo directoryInfo = new(albumFolderPath);
-            if (directoryInfo.Exists
-                && !directoryInfo.EnumerateDirectories().Any()
-                && !directoryInfo.EnumerateFiles().Any())
+            if (!(await albumFolder.GetFoldersAsync()).Any()
+                && !(await albumFolder.GetFilesAsync()).Any())
             {
-                directoryInfo.Delete();
+                await albumFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
         }
     }
@@ -478,6 +572,8 @@ public static class DownloadService
 
         if (sourceFile.ContentType.Contains("audio"))
         {
+            StorageFolder destinationFolder = await sourceFile.GetParentAsync();
+
             if (TranscodeDownloadedItem)
             {
                 dlItem.Progress = 0d;
@@ -489,8 +585,6 @@ public static class DownloadService
                     || TranscodeFormat == AudioFormat.Mp3
                     || AllowUnnecessaryTranscode)
                 {
-                    StorageFolder destinationFolder = await sourceFile.GetParentAsync();
-
                     string destinationFileExtensions = $".{TranscodeFormat.ToString().ToLower()}";
                     string destinationFileName = Path.ChangeExtension(sourceFile.Name, destinationFileExtensions);
 
@@ -514,54 +608,119 @@ public static class DownloadService
                     destinationFile = sourceFile;
                 }
 
-                await WriteTagsToFile(destinationFile, dlItem);
+                SongDetailAndAlbumDetailPack? pack = await AcquireMusicInfoAsync(destinationFile);
+                if (pack.HasValue)
+                {
+                    await WriteTagsToFile(destinationFile, dlItem, pack.Value);
+                    await TrySaveCoverFileAsync(pack.Value.AlbumDetail, destinationFolder);
+                }
             }
             else
             {
-                await WriteTagsToFile(sourceFile, dlItem);
+                SongDetailAndAlbumDetailPack? pack = await AcquireMusicInfoAsync(sourceFile);
+                if (pack.HasValue)
+                {
+                    await WriteTagsToFile(sourceFile, dlItem, pack.Value);
+                    await TrySaveCoverFileAsync(pack.Value.AlbumDetail, destinationFolder);
+                }
             }
         }
 
         dlItem.State = DownloadItemState.Done;
+
+        static async Task TrySaveCoverFileAsync(AlbumDetail albumDetail, StorageFolder destinationFolder)
+        {
+            if (SaveCoverFileWhenDownload)
+            {
+                const string CoverFileName = "Cover.jpg";
+
+                SemaphoreSlim semaphore = albumCoverLocker.GetOrCreateLocker(albumDetail.Cid);
+                bool lockTaken = false;
+
+                try
+                {
+                    await semaphore.WaitAsync();
+                    lockTaken = true;
+
+                    IStorageItem targetFile = await destinationFolder.TryGetItemAsync(CoverFileName);
+                    if (targetFile is not null && targetFile.IsOfType(StorageItemTypes.File) && (await targetFile.GetBasicPropertiesAsync()).Size != 0)
+                    {
+                        return;
+                    }
+
+                    Uri coverUri = await AcquireCoverUriAsync(albumDetail);
+
+                    RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
+                    using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
+                    coverStream.Seek(0);
+
+                    StorageFile file = await destinationFolder.CreateFileAsync(CoverFileName, CreationCollisionOption.ReplaceExisting);
+                    using IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                    fileStream.Size = 0;
+
+                    await RandomAccessStream.CopyAndCloseAsync(coverStream, fileStream);
+                }
+                finally
+                {
+                    if (lockTaken)
+                    {
+                        semaphore.Release();
+                    }
+                    albumCoverLocker.ReturnLocker(albumDetail.Cid);
+                }
+            }
+        }
+
+        static async Task<SongDetailAndAlbumDetailPack?> AcquireMusicInfoAsync(StorageFile musicFile)
+        {
+            string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
+            string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
+
+            StorageFile infoFile;
+            try
+            {
+                infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
+            }
+            catch
+            {
+                return null;
+            }
+
+            try
+            {
+                using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
+                SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
+
+                return pack;
+            }
+            finally
+            {
+                await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+        }
     }
 
-    private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem)
+    private static async Task WriteTagsToFile(StorageFile musicFile, DownloadItem dlItem, SongDetailAndAlbumDetailPack pack)
     {
         if (Path.GetExtension(musicFile.Name) == ".lrc")
         {
             return;
         }
 
-        string albumFolderPath = Path.GetDirectoryName(musicFile.Path);
-        string infoFilePath = Path.Combine(albumFolderPath, $"{musicFile.DisplayName}.json.tmp");
-
-        StorageFile infoFile;
-        try
-        {
-            infoFile = await StorageFile.GetFileFromPathAsync(infoFilePath);
-        }
-        catch
-        {
-            return;
-        }
-
         if (musicFile.ContentType == "audio/wav")
         {
-            // 给 WAV 写音乐信息会出现奇奇怪怪的问题
-            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            // 给 WAV 写音乐信息会出现奇奇怪怪的问题。
             return;
         }
 
         dlItem.State = DownloadItemState.WritingTag;
 
-        using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
-        SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
         AlbumDetail albumDetail = pack.AlbumDetail;
         SongDetail songDetail = pack.SongDetail;
         using UwpStorageFileAbstraction uwpStorageFile = new(musicFile);
         using TagLib.File file = TagLib.File.Create(uwpStorageFile);
 
-        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
+        Uri coverUri = await AcquireCoverUriAsync(albumDetail);
         try
         {
             string defaultMsrName = "MSR".GetLocalized();
@@ -573,15 +732,12 @@ public static class DownloadService
             file.Tag.AlbumArtists = [songDetail.Artists.FirstOrDefault() ?? defaultMsrName];
             file.Tag.Track = (uint)songs.FindIndex(info => info.Cid == songDetail.Cid) + 1;
 
-            TagLib.Picture picture;
-            coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
-
             RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromUri(coverUri);
             using IRandomAccessStream coverStream = await streamReference.OpenReadAsync();
-
             coverStream.Seek(0);
             using Stream stream = coverStream.AsStreamForRead();
-            picture = new(TagLib.ByteVector.FromStream(stream))
+
+            TagLib.Picture picture = new(TagLib.ByteVector.FromStream(stream))
             {
                 MimeType = "image/jpeg"
             };
@@ -590,8 +746,15 @@ public static class DownloadService
         finally
         {
             file.Save();
-            await infoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
+    }
+
+    private static async Task<Uri> AcquireCoverUriAsync(AlbumDetail albumDetail)
+    {
+        Uri coverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
+        coverUri ??= await FileCacheHelper.StoreAlbumCoverAsync(albumDetail);
+
+        return coverUri;
     }
 
     private static async Task AddToList(DownloadItem item)
@@ -620,9 +783,9 @@ public static class DownloadService
         }
 
         BackgroundDownloadProgress progress = op.Progress;
-        item.Progress = op.Progress.TotalBytesToReceive == 0
+        item.Progress = progress.TotalBytesToReceive == 0
             ? 0d
-            : (double)progress.BytesReceived / op.Progress.TotalBytesToReceive;
+            : (double)progress.BytesReceived / progress.TotalBytesToReceive;
     }
 
     private static async Task TranscodeFile(IStorageFile sourceFile, IStorageFile destinationFile, AudioFormat format, AudioEncodingQuality quality, DownloadItem dlItem)
@@ -728,4 +891,17 @@ internal class UwpStorageFileAbstraction : TagLib.File.IFileAbstraction, IDispos
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+}
+
+
+
+[Serializable]
+file class ManuallyCanceledDownloadException : Exception
+{
+    public ManuallyCanceledDownloadException() { }
+    public ManuallyCanceledDownloadException(string message) : base(message) { }
+    public ManuallyCanceledDownloadException(string message, Exception inner) : base(message, inner) { }
+    protected ManuallyCanceledDownloadException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 }

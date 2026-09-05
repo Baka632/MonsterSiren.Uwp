@@ -73,24 +73,45 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     /// <param name="op">表示下载操作的 <see cref="DownloadOperation"/>。</param>
     /// <param name="displayName">下载项的显示名称。</param>
-    /// <param name="cancelToken">用于取消下载操作的 <see cref="CancellationTokenSource"/>。</param>
-    public DownloadItem(DownloadOperation op, string displayName, CancellationTokenSource cancelToken)
+    public DownloadItem(DownloadOperation op, string displayName)
     {
         Operation = op;
         DisplayName = displayName;
-        CancelToken = cancelToken;
+        CancelToken = new CancellationTokenSource();
+
+        BackgroundDownloadProgress progress = op.Progress;
+        Progress = progress.TotalBytesToReceive == 0 ? 0d : (double)progress.BytesReceived / progress.TotalBytesToReceive;
+        State = op.Progress.Status switch
+        {
+            BackgroundTransferStatus.Running => DownloadItemState.Downloading,
+            BackgroundTransferStatus.Idle
+                or BackgroundTransferStatus.PausedByApplication
+                or BackgroundTransferStatus.PausedSystemPolicy
+                or BackgroundTransferStatus.PausedRecoverableWebErrorStatus
+                or BackgroundTransferStatus.PausedCostedNetwork
+                or BackgroundTransferStatus.PausedNoNetwork => DownloadItemState.Paused,
+            BackgroundTransferStatus.Error => DownloadItemState.Error,
+            BackgroundTransferStatus.Canceled => DownloadItemState.Canceled,
+            BackgroundTransferStatus.Completed => DownloadItemState.Done,
+#if DEBUG
+            _ => throw new NotImplementedException("未知的 BackgroundTransferStatus 值。")
+#else
+            _ => default
+#endif
+        };
     }
 
     /// <summary>
     /// 构造一个占位下载项，其不进行实际的下载操作。
     /// </summary>
     /// <param name="displayName">下载项的显示名称。</param>
-    public DownloadItem(string displayName)
+    /// <param name="state">下载项的状态。</param>
+    public DownloadItem(string displayName, DownloadItemState state)
     {
         Operation = null;
         CancelToken = null;
         DisplayName = displayName;
-        State = DownloadItemState.Skipped;
+        State = state;
         Progress = 1d;
     }
 
@@ -107,7 +128,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
         Operation.Resume();
         State = DownloadItemState.Downloading;
     }
-    
+
     /// <summary>
     /// 暂停下载。
     /// </summary>

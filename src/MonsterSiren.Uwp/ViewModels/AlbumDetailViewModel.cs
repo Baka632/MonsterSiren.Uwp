@@ -1,13 +1,18 @@
 using System.Net.Http;
-using Windows.ApplicationModel.DataTransfer;
+using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Adapters;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
 /// <summary>
 /// 为 <see cref="AlbumDetailPage"/> 提供视图模型。
 /// </summary>
-public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObject
+public partial class AlbumDetailViewModel : ObservableObject
 {
+    private readonly AlbumDetailPage view;
+    private SelectionHelper selectionHelper;
+    private bool supressCurrentAlbumFavoriteStateUpdate;
+
     [ObservableProperty]
     private bool isLoading = false;
     [ObservableProperty]
@@ -15,31 +20,106 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
     [ObservableProperty]
     private ErrorInfo errorInfo;
     [ObservableProperty]
-    private AlbumInfo _currentAlbumInfo;
-    [ObservableProperty]
-    private AlbumDetail _currentAlbumDetail;
-    [ObservableProperty]
     private bool isSongsEmpty;
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedSongInfoContainsInFavorite))]
     private SongInfo selectedSongInfo;
     [ObservableProperty]
     private FlyoutBase selectedSongListItemContextFlyout;
+    [ObservableProperty]
+    private AlbumDetailDisplaySource displaySource = new() { Artistes = [] };
+    [ObservableProperty]
+    private AlbumCoverLoadArgs coverLoadArgs;
+    [ObservableProperty]
+    private AlbumDetailAdapter albumProvider;
+    [ObservableProperty]
+    private bool currentAlbumFavoriteState;
 
-    public async Task Initialize(AlbumInfo albumInfo)
+    public Func<ISongCidProvider> SongCidProviderFactory { get; }
+    public bool IsSelectedSongInfoContainsInFavorite { get => FavoriteService.ContainsSong(SelectedSongInfo); }
+
+    public AlbumDetailViewModel(AlbumDetailPage albumDetailPage)
     {
+        view = albumDetailPage;
+        SongCidProviderFactory = GetSongCidProvider;
+    }
+
+    async partial void OnCurrentAlbumFavoriteStateChanged(bool value)
+    {
+        if (supressCurrentAlbumFavoriteStateUpdate)
+        {
+            return;
+        }
+
+        if (value)
+        {
+            await CommonValues.AddToFavorite(AlbumProvider);
+        }
+        else
+        {
+            await CommonValues.RemoveFromFavorite(AlbumProvider);
+        }
+    }
+
+    /// <summary>
+    /// 初始化 <see cref="AlbumDetailViewModel"/>。
+    /// </summary>
+    /// <param name="albumName">专辑名称。</param>
+    /// <param name="albumCid">专辑 CID。</param>
+    /// <param name="artistes">专辑艺术家。</param>
+    /// <param name="albumIntro">专辑引言。</param>
+    /// <param name="songs">专辑歌曲列表。</param>
+    /// <param name="coverUri">专辑封面。</param>
+    public async Task Initialize(string albumName, string albumCid, IEnumerable<string> artistes = null, string albumIntro = null, IEnumerable<SongInfo> songs = null, string coverUri = null)
+    {
+        selectionHelper = new(view.SongList, view.SongSelectionFlyout, view.SongContextFlyout, flyout => SelectedSongListItemContextFlyout = flyout);
+
         IsLoading = true;
         SelectedSongListItemContextFlyout = view.SongContextFlyout;
-        CurrentAlbumInfo = albumInfo;
-        AlbumDetail albumDetail;
 
         try
         {
-            albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+            AlbumDetailDisplaySource displaySource = new()
+            {
+                AlbumName = albumName,
+                AlbumCid = albumCid,
+                Artistes = artistes switch
+                {
+                    IEnumerable<string> when artistes.Any() => artistes,
+                    _ => (await GetAlbumInfo(albumCid)).Artistes,
+                },
+                AlbumIntro = albumIntro switch
+                {
+                    string => albumIntro,
+                    _ => (await GetAlbumDetail(albumCid)).Intro
+                },
+                Songs = songs switch
+                {
+                    IEnumerable<SongInfo> when songs.Any() => songs,
+                    _ => (await GetAlbumDetail(albumCid)).Songs
+                }
+            };
 
-            CurrentAlbumDetail = albumDetail;
+            CoverLoadArgs = new()
+            {
+                AlbumCid = albumCid,
+                CoverUri = coverUri switch
+                {
+                    string => coverUri,
+                    _ => (await GetAlbumDetail(albumCid)).CoverUrl
+                }
+            };
+
+            AlbumProvider = (await GetAlbumDetail(albumCid)).ToAdapter();
+
+            DisplaySource = displaySource;
+
             ErrorVisibility = Visibility.Collapsed;
+            IsSongsEmpty = displaySource.Songs.Any() != true;
 
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
+            supressCurrentAlbumFavoriteStateUpdate = true;
+            CurrentAlbumFavoriteState = FavoriteService.ContainsAlbum(displaySource.AlbumCid);
+            supressCurrentAlbumFavoriteStateUpdate = false;
         }
         catch (HttpRequestException ex)
         {
@@ -55,246 +135,54 @@ public partial class AlbumDetailViewModel(AlbumDetailPage view) : ObservableObje
         {
             IsLoading = false;
         }
-    }
 
-    public async Task Initialize(AlbumDetail albumDetail)
-    {
-        IsLoading = true;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-
-        try
+        static async Task<AlbumInfo> GetAlbumInfo(string cid)
         {
-            // 先用比较准确的，计算出来的 AlbumInfo（不那么准确的地方在专辑艺术家这里，笨笨 yj 的锅）。
-            // 如果这里不先顶上，那么会出现异常，
-            // 因为查询准确的 AlbumInfo 是异步操作，因此 UI 线程在查询过程中会先去处理 UI 的其他事情，
-            // 而由于 AlbumInfo 的内容为空，视图方面相关操作会出现问题。
-            CurrentAlbumInfo = new(albumDetail.Cid,
-                                   albumDetail.Name,
-                                   albumDetail.Intro,
-                                   albumDetail.Belong,
-                                   albumDetail.CoverUrl,
-                                   albumDetail.CoverDeUrl,
-                                   [.. albumDetail.Songs.SelectMany(info => info.Artists).Distinct()]);
-            
-            CurrentAlbumDetail = albumDetail;
-            IsSongsEmpty = CurrentAlbumDetail.Songs.Any() != true;
-
-            // 之后再去查完全准确的 AlbumInfo
-            CurrentAlbumInfo = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos
-                .Single(info => info.Cid == albumDetail.Cid);
-
-            ErrorVisibility = Visibility.Collapsed;
+            AlbumInfo info = (await CommonValues.GetOrFetchAlbums()).CollectionSource
+                .Single(info => info.Cid == cid);
+            return info;
         }
-        catch (HttpRequestException ex)
+
+        static async Task<AlbumDetail> GetAlbumDetail(string cid)
         {
-            ErrorVisibility = Visibility.Visible;
-            ErrorInfo = new ErrorInfo()
-            {
-                Title = "ErrorOccurred".GetLocalized(),
-                Message = "InternetErrorMessage".GetLocalized(),
-                Exception = ex
-            };
-        }
-        finally
-        {
-            IsLoading = false;
+            return await MsrModelsHelper.GetAlbumDetailAsync(cid);
         }
     }
 
     [RelayCommand]
-    private async Task PlayForCurrentAlbumDetail()
-    {
-        await CommonValues.StartPlay(CurrentAlbumDetail);
-    }
+    private async Task PlayForCurrentAlbumDetail() => await CommonValues.StartPlay(AlbumProvider);
 
     [RelayCommand]
-    private async Task AddToNowPlayingForCurrentAlbumDetail()
-    {
-        await CommonValues.AddToNowPlaying(CurrentAlbumDetail);
-    }
+    private async Task DownloadForCurrentAlbumDetail() => await CommonValues.StartDownload(AlbumProvider);
 
     [RelayCommand]
-    private async Task AddToPlaylistForCurrentAlbumDetail(Playlist playlist)
-    {
-        await CommonValues.AddToPlaylist(playlist, CurrentAlbumDetail);
-    }
+    private void NotifyIsSelectedSongInfoContainsInFavoriteChanged()
+        => OnPropertyChanged(nameof(IsSelectedSongInfoContainsInFavorite));
 
     [RelayCommand]
-    private async Task DownloadForCurrentAlbumDetail()
-    {
-        await CommonValues.StartDownload(CurrentAlbumDetail);
-    }
+    private void StartMultipleSelection() => selectionHelper.StartMultipleSelection(SelectedSongInfo);
 
     [RelayCommand]
-    private async Task PlayForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.StartPlay(songInfo, CurrentAlbumDetail);
-    }
+    private void StopMultipleSelection() => selectionHelper.StopMultipleSelection();
 
     [RelayCommand]
-    private async Task AddToNowPlayingForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.AddToNowPlaying(songInfo, CurrentAlbumDetail);
-    }
-    
-    [RelayCommand]
-    private async Task PlayNextForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.PlayNext(songInfo, CurrentAlbumDetail);
-    }
+    private void SelectAllSongList() => selectionHelper.SelectList(DisplaySource.Songs.Count());
 
     [RelayCommand]
-    private async Task AddToPlaylistForSongInfo(Playlist playlist)
+    private void DeselectAllSongList() => selectionHelper.DeselectList(DisplaySource.Songs.Count());
+
+    private List<SongInfo> GetSelectedItems()
     {
-        await CommonValues.AddToPlaylist(playlist, SelectedSongInfo, CurrentAlbumDetail);
-    }
-
-    [RelayCommand]
-    private async Task DownloadForSongInfo(SongInfo songInfo)
-    {
-        await CommonValues.StartDownload(songInfo, CurrentAlbumDetail);
-    }
-
-    [RelayCommand]
-    private static void CopySongNameToClipboard(SongInfo songInfo)
-    {
-        DataPackage package = new()
-        {
-            RequestedOperation = DataPackageOperation.Copy
-        };
-        package.SetText(songInfo.Name);
-        Clipboard.SetContent(package);
-    }
-
-    [RelayCommand]
-    private void StartMultipleSelection()
-    {
-        // Single 模式只能选一个
-        ItemIndexRange range = view.SongList.SelectedRanges.FirstOrDefault();
-
-        view.SongList.SelectionMode = ListViewSelectionMode.Multiple;
-
-        if (range is not null)
-        {
-            view.SongList.SelectRange(range);
-        }
-
-        SelectedSongListItemContextFlyout = view.SongSelectionFlyout;
-    }
-
-    [RelayCommand]
-    private void StopMultipleSelection()
-    {
-        view.SongList.SelectionMode = ListViewSelectionMode.Single;
-        SelectedSongListItemContextFlyout = view.SongContextFlyout;
-    }
-
-    [RelayCommand]
-    private void SelectAllSongList()
-    {
-        view.SongList.SelectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
-    }
-
-    [RelayCommand]
-    private void DeselectAllSongList()
-    {
-        view.SongList.DeselectRange(new ItemIndexRange(0, (uint)CurrentAlbumDetail.Songs.Count()));
-    }
-
-    [RelayCommand]
-    private async Task PlayForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.StartPlay(selectedItems, CurrentAlbumDetail);
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToNowPlayingForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.AddToNowPlaying(selectedItems, CurrentAlbumDetail);
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task PlayNextForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.PlayNext(selectedItems, CurrentAlbumDetail);
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddToPlaylistForListViewSelectedItem(Playlist playlist)
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        await CommonValues.AddToPlaylist(playlist, selectedItems, CurrentAlbumDetail);
-    }
-
-    [RelayCommand]
-    private async Task DownloadForListViewSelectedItem()
-    {
-        List<SongInfo> selectedItems = GetSelectedItem(view.SongList);
-
-        if (selectedItems.Count == 0)
-        {
-            return;
-        }
-
-        bool isSuccess = await CommonValues.StartDownload(selectedItems, CurrentAlbumDetail);
-
-        if (isSuccess)
-        {
-            StopMultipleSelection();
-        }
-    }
-
-    private List<SongInfo> GetSelectedItem(ListView listView)
-    {
-        List<SongInfo> selectedItems = new(5);
+        ListView listView = view.SongList;
+        List <SongInfo> selectedItems = new(5);
 
         foreach (ItemIndexRange range in listView.SelectedRanges)
         {
-            selectedItems.AddRange(CurrentAlbumDetail.Songs.Skip(range.FirstIndex).Take((int)range.Length));
+            selectedItems.AddRange(DisplaySource.Songs.Skip(range.FirstIndex).Take((int)range.Length));
         }
 
         return selectedItems;
     }
+
+    private SongInfoSequenceAdapter GetSongCidProvider() => GetSelectedItems().ToAdapter();
 }

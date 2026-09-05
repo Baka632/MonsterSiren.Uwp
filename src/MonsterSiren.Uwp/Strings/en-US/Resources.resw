@@ -698,7 +698,7 @@ Continue?</value>
     <value>Some transcoding operations are unnecessary (for example, converting MP3 to FLAC) and are therefore disabled by default.</value>
   </data>
   <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
-    <value>Some song titles contain characters that are invalid for filenames, enabling this feature will replace some invalid characters with similar ones.</value>
+    <value>Some song titles contain characters that are invalid for filenames; enabling this feature will replace some invalid characters with similar ones, instead of directly deleting them.</value>
   </data>
   <data name="SettingsPage_MusicFilenameTemplateString.Header" xml:space="preserve">
     <value>Filename format</value>
@@ -717,5 +717,113 @@ Continue?</value>
   </data>
   <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
     <value>You can restore the default settings by clearing the text box.</value>
+  </data>
+  <data name="AddToFavorite.Text" xml:space="preserve">
+    <value>Add to favorites</value>
+  </data>
+  <data name="RemoveFromFavorite.Text" xml:space="preserve">
+    <value>Remove from favorites</value>
+  </data>
+  <data name="BatchAddToFavorite.Text" xml:space="preserve">
+    <value>Batch add to favorites</value>
+  </data>
+  <data name="FavoriteTextBlock.Text" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="FavoriteNavViewItem.Content" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="SongFavoritePivotItem.Header" xml:space="preserve">
+    <value>Song favorites</value>
+  </data>
+  <data name="FavoriteEmpty.Text" xml:space="preserve">
+    <value>Favorites is empty</value>
+  </data>
+  <data name="AlbumFavoritePivotItem.Header" xml:space="preserve">
+    <value>Album favorites</value>
+  </data>
+  <data name="SettingsPage_DownloadCoverFile.Header" xml:space="preserve">
+    <value>Save album cover</value>
+  </data>
+  <data name="SettingsPage_DownloadCoverFile.Description" xml:space="preserve">
+    <value>When this option is enabled, the album cover will additionally be saved in the album folder.</value>
+  </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Header" xml:space="preserve">
+    <value>Album folder name format</value>
+  </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Description" xml:space="preserve">
+    <value>You can restore the default settings by clearing the text box.</value>
+  </data>
+  <data name="SongIndexText" xml:space="preserve">
+    <value>Song index (0-based)</value>
+  </data>
+  <data name="SongIndexOneStartText" xml:space="preserve">
+    <value>Song index (1-based)</value>
+  </data>
+  <data name="NowPlayingMenuFlyout.Text" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
+    <value>Playlist</value>
+  </data>
+  <data name="FavoriteToggleButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="FavoriteAction.Text" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="SettingsPage_BackupConfig.Header" xml:space="preserve">
+    <value>Backup &amp; Restore</value>
+  </data>
+  <data name="SettingsPage_FavoriteBackup.Header" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="BackupButton.Content" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="RestoreButton.Content" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="BackupSuccess" xml:space="preserve">
+    <value>Backup successful</value>
+  </data>
+  <data name="BackupFailed" xml:space="preserve">
+    <value>Backup failed</value>
+  </data>
+  <data name="BackupLocation_WithPlaceholder" xml:space="preserve">
+    <value>Backup location: {0}</value>
+  </data>
+  <data name="BackupOrRestoreError_WithPlaceholder" xml:space="preserve">
+    <value>Error occurred: {0}</value>
+  </data>
+  <data name="RestoreSuccess" xml:space="preserve">
+    <value>Restore successful</value>
+  </data>
+  <data name="RestoreFailed" xml:space="preserve">
+    <value>Restore failed</value>
+  </data>
+  <data name="RestoreFileMayCorrupt" xml:space="preserve">
+    <value>The file may be corrupted.</value>
+  </data>
+  <data name="RestoreFavoriteSuccessMessage" xml:space="preserve">
+    <value>Favorites restored successfully.</value>
+  </data>
+  <data name="PlaybackSectionPivotItem.Header" xml:space="preserve">
+    <value>Playback settings</value>
+  </data>
+  <data name="SettingsPage_PlaybackConfig.Header" xml:space="preserve">
+    <value>Playback options</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Header" xml:space="preserve">
+    <value>Prefer downloaded music during playback</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Description" xml:space="preserve">
+    <value>When this option is enabled, the player will prefer downloaded music.</value>
+  </data>
+  <data name="FavoriteNavViewItem_PlayAlbumFavorite.Text" xml:space="preserve">
+    <value>Play album favorite</value>
+  </data>
+  <data name="FavoriteNavViewItem_PlaySongFavorite.Text" xml:space="preserve">
+    <value>Play song favorite</value>
   </data>
 </root>

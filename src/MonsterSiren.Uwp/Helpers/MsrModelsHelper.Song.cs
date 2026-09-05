@@ -3,6 +3,7 @@ using System.Threading;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace MonsterSiren.Uwp.Helpers;
@@ -12,6 +13,9 @@ namespace MonsterSiren.Uwp.Helpers;
 /// </summary>
 public static partial class MsrModelsHelper
 {
+    private const string SongCidKey = "SongCid";
+    private const string AlbumCidKey = "AlbumCid";
+
     /// <summary>
     /// 尝试从 <see cref="MediaPlaybackItem"/> 中获取 <see cref="SongDetail"/>。
     /// </summary>
@@ -49,18 +53,51 @@ public static partial class MsrModelsHelper
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/>，其中存储了音乐的关键信息。</param>
     /// <param name="albumDetail">一个 <see cref="AlbumDetail"/>，其中存储了音乐专辑的封面信息。</param>
+    /// <param name="useDownloadedFile">一个布尔值，指示是否使用已下载的文件。</param>
     /// <returns>已设置好媒体信息且可供播放器播放的 <see cref="MediaPlaybackItem"/>。</returns>
     public static async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync(SongDetail songDetail, AlbumDetail albumDetail)
     {
+        // 默认值：使用已经下载的文件。
+        bool useDownloadedFile = !SettingsHelper.TryGet(CommonValues.MusicPlaybackUseDownloadedFileSettingsKey, out bool isUseDownloadedFile) || isUseDownloadedFile;
+
         if (string.IsNullOrWhiteSpace(songDetail.SourceUrl))
         {
-            throw new ArgumentNullException(nameof(songDetail), $"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。");
+            throw new ArgumentException($"歌曲{(string.IsNullOrWhiteSpace(songDetail.Name) ? string.Empty : $"《{songDetail.Name}》")}没有音频链接信息，无法播放。", nameof(songDetail));
         }
 
-        Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-
         List<SongInfo> songs = [.. albumDetail.Songs];
-        MediaSource source = MediaSource.CreateFromUri(musicUri);
+
+        MediaSource source = null;
+        if (useDownloadedFile)
+        {
+            try
+            {
+                (string musicFileName, string albumFolderName) = await CommonValues.AcquireMusicNameAndAlbumFolderName(
+                    CommonValues.GetMusicMetadataForDownload(albumDetail, songDetail),
+                    albumDetail);
+
+                StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadService.DownloadPath);
+                StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumFolderName, CreationCollisionOption.OpenIfExists);
+
+                string[] searchExtensions = [".wav", $".{DownloadService.TranscodeFormat.ToString().ToLower()}"];
+                foreach (string extension in searchExtensions)
+                {
+                    IStorageItem targetItem = await albumFolder.TryGetItemAsync($"{musicFileName}{extension}");
+                    if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                    {
+                        source = MediaSource.CreateFromStorageFile((StorageFile)targetItem);
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or UnauthorizedAccessException)
+            {
+                // Swallow!
+            }
+        }
+
+        source ??= MediaSource.CreateFromUri(new Uri(songDetail.SourceUrl, UriKind.Absolute));
+
         MediaPlaybackItem playbackItem = new(source);
 
         if (!MemoryCacheHelper<TimeSpan>.Default.TryGetData(songDetail.Cid, out _))
@@ -77,8 +114,7 @@ public static partial class MsrModelsHelper
         displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
 
-        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
-        SetExtraSongAndAlbumCidForMusicProperties(displayProps.MusicProperties, albumDetail, songDetail);
+        SetExtraSongAndAlbumCidForMediaPlaybackItem(playbackItem, albumDetail, songDetail);
 
         Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumDetail);
         displayProps.Thumbnail = fileCoverUri is not null
@@ -91,29 +127,34 @@ public static partial class MsrModelsHelper
 
         async void TryCacheSongDuration(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs e)
         {
-            if (sender.State == MediaSourceState.Opened && sender.Duration.HasValue)
+            try
             {
-                TimeSpan currentSpan = sender.Duration.Value;
-                TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-
-                if (span != currentSpan)
+                if (sender.IsOpen && sender.Duration.HasValue)
                 {
-                    SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
+                    TimeSpan currentSpan = sender.Duration.Value;
+                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
 
-                    await semaphore.WaitAsync();
-                    try
+                    if (span != currentSpan)
                     {
-                        await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                        CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
+                        SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.SourceUrl);
+
+                        await semaphore.WaitAsync();
+                        try
+                        {
+                            await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, currentSpan);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                            CommonValues.SongDurationLocker.ReturnLocker(songDetail.SourceUrl);
+                        }
                     }
                 }
             }
-
-            sender.OpenOperationCompleted -= TryCacheSongDuration;
+            finally
+            {
+                sender.OpenOperationCompleted -= TryCacheSongDuration;
+            }
         }
     }
 
@@ -154,38 +195,82 @@ public static partial class MsrModelsHelper
     /// </summary>
     /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例。</param>
     /// <returns>一个 <see cref="System.TimeSpan"/> 实例。</returns>
+    public static async Task<TimeSpan?> GetSongDurationAsync(MediaPlaybackItem playbackItem)
+    {
+        (bool canGetSongDetail, SongDetail songDetail) = await TryGetSongDetailFromMediaPlaybackItem(playbackItem);
+
+        MediaSource source = playbackItem.Source;
+        if (canGetSongDetail)
+        {
+            return await GetSongDurationAsync(new Uri(songDetail.SourceUrl, UriKind.Absolute), songDetail.Cid, source);
+        }
+        else
+        {
+            return await GetSongDurationAsync(source.Uri, null, source);
+        }
+    }
+
+    /// <summary>
+    /// 获取歌曲的时长。
+    /// </summary>
+    /// <param name="songDetail">一个 <see cref="SongDetail"/> 实例。</param>
+    /// <returns>一个 <see cref="System.TimeSpan"/> 实例。</returns>
     public static async Task<TimeSpan?> GetSongDurationAsync(SongDetail songDetail)
     {
-        SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(songDetail.Cid);
+        return await GetSongDurationAsync(new Uri(songDetail.SourceUrl, UriKind.Absolute), songDetail.Cid);
+    }
 
+    private static async Task<TimeSpan?> GetSongDurationAsync(Uri uri, string songCid, MediaSource optionalSource = null)
+    {
+        if (optionalSource is not null && optionalSource.IsOpen && optionalSource.Duration.HasValue)
+        {
+            return optionalSource.Duration.Value;
+        }
+
+        string lockKey = uri.ToString();
+        SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(lockKey);
         await semaphore.WaitAsync();
+
         try
         {
-            TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-            if (span.HasValue)
+            TimeSpan? cache = await FileCacheHelper.GetSongDurationAsync(songCid);
+            if (cache.HasValue)
             {
-                return span;
+                return cache;
             }
-            else
+
+            TimeSpan? duration;
+
+            try
             {
-                Uri musicUri = new(songDetail.SourceUrl, UriKind.Absolute);
-                using MediaSource source = MediaSource.CreateFromUri(musicUri);
-                await source.OpenAsync();
-
-                TimeSpan? duration = source.Duration;
-
-                if (duration.HasValue)
+                duration = await SongService.GetSongDurationAsync(uri);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or NotImplementedException or InvalidDataException)
+            {
+                if (optionalSource is not null)
                 {
-                    await FileCacheHelper.StoreSongDurationAsync(songDetail.Cid, duration.Value);
+                    await optionalSource.OpenAsync();
+                    duration = optionalSource.Duration;
                 }
-
-                return duration;
+                else
+                {
+                    using MediaSource source = MediaSource.CreateFromUri(uri);
+                    await source.OpenAsync();
+                    duration = source.Duration;
+                }
             }
+
+            if (duration.HasValue && songCid is not null)
+            {
+                await FileCacheHelper.StoreSongDurationAsync(songCid, duration.Value);
+            }
+
+            return duration;
         }
         finally
         {
             semaphore.Release();
-            CommonValues.SongDurationLocker.ReturnLocker(songDetail.Cid);
+            CommonValues.SongDurationLocker.ReturnLocker(lockKey);
         }
     }
 
@@ -294,28 +379,33 @@ public static partial class MsrModelsHelper
         }
     }
 
-    private static void SetExtraSongAndAlbumCidForMusicProperties(MusicDisplayProperties properties, AlbumDetail albumDetail, SongDetail songDetail)
+    private static void SetExtraSongAndAlbumCidForMediaPlaybackItem(MediaPlaybackItem item, AlbumDetail albumDetail, SongDetail songDetail)
     {
-        if (properties is null)
+        if (item is null)
         {
-            throw new ArgumentNullException(nameof(properties));
+            throw new ArgumentNullException(nameof(item));
+        }
+        else if (item.Source is null)
+        {
+            throw new ArgumentException("MediaPlaybackItem 的 Source 不能为空。", nameof(item));
         }
 
-        // 为了将 MediaPlaybackItem 与 SongDetail 联系起来，于是借用了 Genres，qwq
-        // 0 => Song CID
-        // 1 => Album CID
-        properties.Genres.Add(songDetail.Cid);
-        properties.Genres.Add(albumDetail.Cid);
+        MediaSource source = item.Source;
+        source.CustomProperties[SongCidKey] = songDetail.Cid;
+        source.CustomProperties[AlbumCidKey] = albumDetail.Cid;
     }
 
     private static bool TryGetSongCidFromMediaPlaybackItem(MediaPlaybackItem item, out string songCid)
     {
-        if (item is not null)
+        if (item is not null && item.Source is not null)
         {
-            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
-            songCid = props.Genres.FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(songCid))
+            MediaSource source = item.Source;
+
+            if (source.CustomProperties.TryGetValue(SongCidKey, out object obj)
+                && obj is string str
+                && !string.IsNullOrWhiteSpace(str))
             {
+                songCid = str;
                 return true;
             }
         }
@@ -326,12 +416,15 @@ public static partial class MsrModelsHelper
 
     private static bool TryGetAlbumCidFromMediaPlaybackItem(MediaPlaybackItem item, out string albumCid)
     {
-        if (item is not null)
+        if (item is not null && item.Source is not null)
         {
-            MusicDisplayProperties props = item.GetDisplayProperties().MusicProperties;
-            albumCid = props.Genres.Skip(1).FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(albumCid))
+            MediaSource source = item.Source;
+
+            if (source.CustomProperties.TryGetValue(AlbumCidKey, out object obj)
+                && obj is string str
+                && !string.IsNullOrWhiteSpace(str))
             {
+                albumCid = str;
                 return true;
             }
         }

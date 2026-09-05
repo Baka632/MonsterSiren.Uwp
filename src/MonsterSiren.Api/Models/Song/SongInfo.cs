@@ -1,35 +1,35 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace MonsterSiren.Api.Models.Song;
 
 /// <summary>
-/// 提供歌曲基本信息的结构
+/// 提供歌曲基本信息的结构。
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct SongInfo : IEquatable<SongInfo>
 {
     /// <summary>
-    /// 歌曲的 CID
+    /// 歌曲的 CID。
     /// </summary>
     public string Cid { get; set; } = string.Empty;
     /// <summary>
-    /// 歌曲名称
+    /// 歌曲名称。
     /// </summary>
     public string Name { get; set; } = string.Empty;
     /// <summary>
-    /// 歌曲所属专辑 CID
+    /// 歌曲所属专辑 CID。
     /// </summary>
     /// <remarks>
-    /// 如果此实例是从 <see cref="Album.AlbumDetail"/> 中获取的，那么此值始终为空
+    /// 如果此实例是从 <see cref="Album.AlbumDetail"/> 中获取的，那么此值始终为空。
     /// </remarks>
     public string AlbumCid { get; set; } = string.Empty;
     /// <summary>
-    /// 歌曲艺术家
+    /// 歌曲艺术家。
     /// </summary>
     public IEnumerable<string> Artists { get; set; } = [];
 
     /// <summary>
-    /// 使用指定的参数构造 <see cref="SongInfo"/> 的新实例
+    /// 使用指定的参数构造 <see cref="SongInfo"/> 的新实例。
     /// </summary>
     public SongInfo(string cid, string name, string albumCid, IEnumerable<string> artists)
     {
@@ -65,25 +65,28 @@ public struct SongInfo : IEquatable<SongInfo>
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Cid);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AlbumCid);
-        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<string>>.Default.GetHashCode(Artists);
+        foreach (string artist in Artists)
+        {
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(artist);
+        }
         return hashCode;
     }
 
     /// <summary>
-    /// 确定两个 <see cref="SongInfo"/> 实例是否相等
+    /// 确定两个 <see cref="SongInfo"/> 实例是否相等。
     /// </summary>
-    /// <param name="left">第一个 <see cref="SongInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="SongInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="SongInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="SongInfo"/> 实例。</param>
     public static bool operator ==(SongInfo left, SongInfo right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    /// 确定两个 <see cref="SongInfo"/> 实例是否不同
+    /// 确定两个 <see cref="SongInfo"/> 实例是否不同。
     /// </summary>
-    /// <param name="left">第一个 <see cref="SongInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="SongInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="SongInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="SongInfo"/> 实例。</param>
     public static bool operator !=(SongInfo left, SongInfo right)
     {
         return !(left == right);

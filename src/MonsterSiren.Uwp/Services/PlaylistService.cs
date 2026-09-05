@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Helpers;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.Media.Playback;
 using Windows.Storage;
 
@@ -247,25 +247,6 @@ public static class PlaylistService
     }
 
     /// <summary>
-    /// 播放指定的播放列表。
-    /// </summary>
-    /// <param name="playlist">要播放的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayForPlaylistAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.ReplaceMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
     /// 播放指定的播放列表序列。
     /// </summary>
     /// <param name="playlists">要播放的播放列表序列。</param>
@@ -285,25 +266,6 @@ public static class PlaylistService
     }
 
     /// <summary>
-    /// 将指定的播放列表添加到正在播放列表中。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task AddPlaylistToNowPlayingAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.AddMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
     /// 将指定的播放列表序列添加到正在播放列表中。
     /// </summary>
     /// <param name="playlists">指定的播放列表序列。</param>
@@ -319,25 +281,6 @@ public static class PlaylistService
         ExceptionBox box = new();
         IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlists.ToArray(), box);
         await MusicService.AddMusic(items);
-        box.Unbox();
-    }
-
-    /// <summary>
-    /// 将指定的播放列表设为下一项播放。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="AggregateException">包含一个或多个异常信息的 <see cref="AggregateException"/>。</exception>
-    public static async Task PlayNextForPlaylistAsync(Playlist playlist)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        ExceptionBox box = new();
-        IAsyncEnumerable<MediaPlaybackItem> items = CommonValues.GetMediaPlaybackItems(playlist, box);
-        await MusicService.PlayNext(items);
         box.Unbox();
     }
 
@@ -364,32 +307,6 @@ public static class PlaylistService
     /// 向指定的播放列表添加歌曲。
     /// </summary>
     /// <param name="playlist">指定的播放列表。</param>
-    /// <param name="songDetail">表示歌曲详细信息的 <see cref="SongDetail"/> 实例。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑详细信息的 <see cref="AlbumDetail"/> 实例。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    /// <exception cref="ArgumentException"><paramref name="songDetail"/> 中所属专辑的 CID 和 <paramref name="albumDetail"/> 中的 CID 不符。</exception>
-    /// <exception cref="HttpRequestException">由于网络问题，操作失败。</exception>
-    public static async Task AddItemForPlaylistAsync(Playlist playlist, SongDetail songDetail, AlbumDetail albumDetail)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        if (songDetail.AlbumCid != albumDetail.Cid)
-        {
-            throw new ArgumentException("歌曲信息中所属专辑的 CID 和专辑信息中的 CID 不符。");
-        }
-
-        TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
-        PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration ?? TimeSpan.Zero);
-        await AddItemForPlaylistAsync(playlist, item);
-    }
-
-    /// <summary>
-    /// 向指定的播放列表添加歌曲。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
     /// <param name="item">一个 <see cref="PlaylistItem"/> 实例。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
     public static async Task AddItemForPlaylistAsync(Playlist playlist, PlaylistItem item)
@@ -399,7 +316,7 @@ public static class PlaylistService
             throw new ArgumentNullException(nameof(playlist));
         }
 
-        if (playlist.Items.Contains(item))
+        if (playlist.Items.Contains(item) || item.IsCorruptedItem)
         {
             return;
         }
@@ -460,81 +377,6 @@ public static class PlaylistService
             await UIThreadHelper.RunOnUIThread(() =>
             {
                 foreach (PlaylistItem item in items)
-                {
-                    if (playlist.Items.Contains(item))
-                    {
-                        continue;
-                    }
-
-                    playlist.Items.Add(item);
-                }
-            });
-        }
-        finally
-        {
-            await playlist.RestoreInfoUpdateAsync();
-        }
-    }
-
-    /// <summary>
-    /// 向指定的播放列表添加一组歌曲。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <param name="tuples">包含 <see cref="SongDetail"/> 和 <see cref="AlbumDetail"/> 元组的集合。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="tuples"/> 为 <see langword="null"/>。</exception>
-    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IEnumerable<ValueTuple<SongDetail, AlbumDetail>> tuples)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        if (tuples is null)
-        {
-            throw new ArgumentNullException(nameof(tuples));
-        }
-
-        List<PlaylistItem> items = new(tuples.Count());
-
-        foreach ((SongDetail songDetail, AlbumDetail albumDetail) in tuples)
-        {
-            if (songDetail.AlbumCid != albumDetail.Cid)
-            {
-                throw new ArgumentException($"歌曲信息中，{songDetail.Name} 所属专辑的 CID 和专辑信息 {albumDetail.Name} 中的 CID 不符。");
-            }
-
-            TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(songDetail);
-            PlaylistItem item = new(songDetail.Cid, albumDetail.Cid, songDetail.Name, albumDetail.Name, duration ?? TimeSpan.Zero);
-            items.Add(item);
-        }
-
-        await AddItemsForPlaylistAsync(playlist, items);
-    }
-
-    /// <summary>
-    /// 向指定的播放列表添加一组歌曲。
-    /// </summary>
-    /// <param name="playlist">指定的播放列表。</param>
-    /// <param name="items">包含 <see cref="PlaylistItem"/> 项的集合。</param>
-    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
-    public static async Task AddItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<PlaylistItem> items)
-    {
-        if (playlist is null)
-        {
-            throw new ArgumentNullException(nameof(playlist));
-        }
-
-        if (items is null)
-        {
-            throw new ArgumentNullException(nameof(items));
-        }
-
-        try
-        {
-            playlist.BlockInfoUpdate();
-            await UIThreadHelper.RunOnUIThread(async () =>
-            {
-                await foreach (PlaylistItem item in items)
                 {
                     if (playlist.Items.Contains(item))
                     {
@@ -663,7 +505,43 @@ public static class PlaylistService
     /// <param name="playlist">指定的播放列表。</param>
     /// <param name="items">包含 <see cref="PlaylistItem"/> 的集合。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="items"/> 为 <see langword="null"/>。</exception>
-    public static async Task RemoveItemsForPlaylist(Playlist playlist, IEnumerable<PlaylistItem> items)
+    public static async Task RemoveItemsForPlaylistAsync(Playlist playlist, IEnumerable<PlaylistItem> items)
+    {
+        await RemoveItemsForPlaylistCoreAsync(playlist, RemoveItems);
+
+        Task RemoveItems()
+        {
+            foreach (PlaylistItem item in items)
+            {
+                playlist.Items.Remove(item);
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// 在指定的播放列表中移除一组歌曲。
+    /// </summary>
+    /// <param name="playlist">指定的播放列表。</param>
+    /// <param name="songCids">包含歌曲 CID 的集合。</param>
+    /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 或 <paramref name="songCids"/> 为 <see langword="null"/>。</exception>
+    public static async Task RemoveItemsForPlaylistAsync(Playlist playlist, IAsyncEnumerable<string> songCids)
+    {
+        await RemoveItemsForPlaylistCoreAsync(playlist, RemoveSongCids);
+
+        async Task RemoveSongCids()
+        {
+            await foreach (string songCid in songCids)
+            {
+                ObservableCollection<PlaylistItem> items = playlist.Items;
+                PlaylistItem targetItem = items.FirstOrDefault(item => item.SongCid == songCid);
+                items.Remove(targetItem);
+            }
+        }
+    }
+
+    private static async Task RemoveItemsForPlaylistCoreAsync(Playlist playlist, Func<Task> func)
     {
         if (playlist is null)
         {
@@ -674,12 +552,10 @@ public static class PlaylistService
         {
             playlist.BlockInfoUpdate();
 
-            await UIThreadHelper.RunOnUIThread(() =>
+            await UIThreadHelper.RunOnUIThread(async () =>
             {
-                foreach (PlaylistItem item in items)
-                {
-                    playlist.Items.Remove(item);
-                }
+                await func();
+                return true;
             });
         }
         finally
@@ -694,7 +570,7 @@ public static class PlaylistService
     /// <param name="playlist">指定的播放列表。</param>
     /// <param name="songCid">歌曲 CID。</param>
     /// <exception cref="ArgumentNullException"><paramref name="playlist"/> 为 <see langword="null"/>。</exception>
-    public static void RemoveItemForPlaylist(Playlist playlist, string songCid)
+    public static async Task RemoveItemForPlaylistAsync(Playlist playlist, string songCid)
     {
         if (playlist is null)
         {
@@ -702,7 +578,18 @@ public static class PlaylistService
         }
 
         PlaylistItem targetItem = playlist.Items.FirstOrDefault(item => item.SongCid == songCid);
-        playlist.Items.Remove(targetItem);
+        await UIThreadHelper.RunOnUIThread(() => playlist.Items.Remove(targetItem));
+    }
+
+    /// <summary>
+    /// 检查指定的 <see cref="Playlist"/> 是否包含指定的 <see cref="PlaylistItem"/>。
+    /// </summary>
+    /// <param name="playlist">指定的 <see cref="Playlist"/>。</param>
+    /// <param name="item">指定的 <see cref="PlaylistItem"/>。</param>
+    /// <returns>指示指定项目是否包含在播放列表的值。</returns>
+    public static bool ContainsItem(Playlist playlist, PlaylistItem item)
+    {
+        return playlist.Items.Contains(item);
     }
 
     private static async Task RemovePlaylistFile(Playlist playlist, StorageDeleteOption deleteOption = StorageDeleteOption.PermanentDelete)
@@ -737,9 +624,9 @@ public static class PlaylistService
     /// </summary>
     /// <param name="playlist">播放列表实例。</param>
     /// <returns>指示播放列表中的项目是否全部有效的值。</returns>
-    public static async Task<bool> CheckPlaylistAndMarkInvaildItemAsync(Playlist playlist)
+    public static async Task<bool> CheckPlaylistAndMarkInvalidItemAsync(Playlist playlist)
     {
-        bool isAllVaild = true;
+        bool isAllValid = true;
 
         for (int i = 0; i < playlist.Items.Count; i++)
         {
@@ -753,11 +640,11 @@ public static class PlaylistService
             catch (ArgumentOutOfRangeException)
             {
                 await UIThreadHelper.RunOnUIThread(() => playlist.Items[i] = item with { IsCorruptedItem = true });
-                isAllVaild = false;
+                isAllValid = false;
             }
         }
 
-        return isAllVaild;
+        return isAllValid;
     }
 
     private static string GetPlaylistFileName(string title)

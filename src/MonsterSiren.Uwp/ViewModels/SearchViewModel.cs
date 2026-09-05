@@ -1,4 +1,6 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Playlists;
 
 namespace MonsterSiren.Uwp.ViewModels;
 
@@ -22,7 +24,10 @@ public sealed partial class SearchViewModel : ObservableObject
     [ObservableProperty]
     private bool isNewsListEmpty;
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedAlbumInfoContainsInFavorite))]
     private AlbumInfo selectedAlbumInfo;
+
+    public bool IsSelectedAlbumInfoContainsInFavorite { get => FavoriteService.ContainsAlbum(SelectedAlbumInfo); }
 
     partial void OnAlbumListChanged(MsrIncrementalCollection<AlbumInfo> value)
     {
@@ -82,34 +87,8 @@ public sealed partial class SearchViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static async Task PlayAlbumForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.StartPlay(albumInfo);
-    }
-
-    [RelayCommand]
-    private static async Task AddToNowPlayingForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.AddToNowPlaying(albumInfo);
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.PlayNext(albumInfo);
-    }
-
-    [RelayCommand]
-    private async Task AddAlbumInfoToPlaylist(Playlist playlist)
-    {
-        await CommonValues.AddToPlaylist(playlist, SelectedAlbumInfo);
-    }
-
-    [RelayCommand]
-    private static async Task DownloadForAlbumInfo(AlbumInfo albumInfo)
-    {
-        await CommonValues.StartDownload(albumInfo);
-    }
+    private void NotifySelectedAlbumInfoContainsInFavoriteChanged()
+        => OnPropertyChanged(nameof(IsSelectedAlbumInfoContainsInFavorite));
 
     private void ShowInternetError(HttpRequestException ex)
     {

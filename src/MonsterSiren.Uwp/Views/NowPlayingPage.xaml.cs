@@ -1,4 +1,3 @@
-using System.Threading;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -90,7 +89,7 @@ public sealed partial class NowPlayingPage : Page
         MusicService.PlayerPlayItemChanged -= OnPlayerPlayItemChanged;
         MusicProcessSlider.RemoveHandler(PointerReleasedEvent, new PointerEventHandler(OnPositionSliderPointerReleased));
         MusicProcessSlider.RemoveHandler(PointerPressedEvent, new PointerEventHandler(OnPositionSliderPointerPressed));
-        ViewModel.DehookAllEvent();
+        ViewModel.Dispose();
     }
 
     private void OnExpandOrFoldNowPlayingList(object sender, RoutedEventArgs e)
@@ -172,58 +171,23 @@ public sealed partial class NowPlayingPage : Page
 
     private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
     {
+        const string emptyTime = "-:-";
+
         TextBlock textBlock = (TextBlock)sender;
+        textBlock.Text = emptyTime;
+
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
-        MediaSource source = playbackItem.Source;
-        string sourceUri = source.Uri.ToString();
 
-        textBlock.Text = "-:-";
-
-        if (source.Duration.HasValue)
+        try
         {
-            textBlock.Text = source.Duration.Value.ToString(@"m\:ss");
+            TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(playbackItem);
+            textBlock.Text = duration.HasValue
+                ? duration.Value.ToString(@"m\:ss")
+                : emptyTime;
         }
-        else
+        catch
         {
-            SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(sourceUri);
-
-            try
-            {
-                await semaphore.WaitAsync();
-
-                if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
-                {
-                    SongDetail songDetail = details.FirstOrDefault();
-                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-
-                    if (span.HasValue)
-                    {
-                        textBlock.Text = span.Value.ToString(@"m\:ss");
-                        return;
-                    }
-                }
-
-                await source.OpenAsync();
-                TimeSpan? duration = source.Duration;
-
-                if (duration.HasValue)
-                {
-                    textBlock.Text = duration.Value.ToString(@"m\:ss");
-                }
-                else
-                {
-                    textBlock.Text = "-:-";
-                }
-            }
-            catch (Exception ex) when (ex.HResult == -1072877849)
-            {
-                textBlock.Text = "-:-";
-            }
-            finally
-            {
-                semaphore.Release();
-                CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
-            }
+            textBlock.Text = emptyTime;
         }
     }
 
@@ -312,5 +276,14 @@ public sealed partial class NowPlayingPage : Page
                 ContentFrameNavigationHelper.Navigate(typeof(AlbumDetailPage), detail, CommonValues.DefaultTransitionInfo);
             }
         }
+    }
+
+    private void OnNowPlayingItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        FrameworkElement element = (FrameworkElement)sender;
+        MediaPlaybackItem playbackItem = (MediaPlaybackItem)element.DataContext;
+
+        MusicService.MoveTo(playbackItem);
+        MusicService.PlayMusic();
     }
 }

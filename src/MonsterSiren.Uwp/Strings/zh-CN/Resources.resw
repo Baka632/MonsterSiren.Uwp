@@ -778,7 +778,7 @@
     <value>某些转码操作是不必要的（例如将 MP3 转码为 FLAC），因此默认不会进行这些操作。</value>
   </data>
   <data name="SettingsPage_ReplaceInvalidCharsInDownloadedFileName.Description" xml:space="preserve">
-    <value>某些歌曲的歌曲名中包含不能作为文件名的字符，启用此功能会将一些无效字符替换为相近字符。</value>
+    <value>某些歌曲的歌曲名中包含不能作为文件名的字符，启用此功能会将一些无效字符替换为相近字符，而不是直接删除这些字符。</value>
   </data>
   <data name="SettingsPage_MusicFilenameTemplateString.Header" xml:space="preserve">
     <value>文件名格式</value>
@@ -797,5 +797,113 @@
   </data>
   <data name="SettingsPage_MusicFilenameTemplateString.Description" xml:space="preserve">
     <value>可以通过清空文本框来还原到默认设置。</value>
+  </data>
+  <data name="AddToFavorite.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="RemoveFromFavorite.Text" xml:space="preserve">
+    <value>取消收藏</value>
+  </data>
+  <data name="FavoriteNavViewItem.Content" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="BatchAddToFavorite.Text" xml:space="preserve">
+    <value>批量收藏</value>
+  </data>
+  <data name="FavoriteTextBlock.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="SongFavoritePivotItem.Header" xml:space="preserve">
+    <value>歌曲收藏</value>
+  </data>
+  <data name="FavoriteEmpty.Text" xml:space="preserve">
+    <value>收藏为空</value>
+  </data>
+  <data name="AlbumFavoritePivotItem.Header" xml:space="preserve">
+    <value>专辑收藏</value>
+  </data>
+  <data name="SettingsPage_DownloadCoverFile.Header" xml:space="preserve">
+    <value>保存专辑封面</value>
+  </data>
+  <data name="SettingsPage_DownloadCoverFile.Description" xml:space="preserve">
+    <value>启用此选项后，将额外在专辑文件夹保存专辑封面。</value>
+  </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Header" xml:space="preserve">
+    <value>专辑文件夹名称格式</value>
+  </data>
+  <data name="SettingsPage_MusicAlbumFolderNameTemplateString.Description" xml:space="preserve">
+    <value>可以通过清空文本框来还原到默认设置。</value>
+  </data>
+  <data name="SongIndexText" xml:space="preserve">
+    <value>歌曲索引（0 开始）</value>
+  </data>
+  <data name="SongIndexOneStartText" xml:space="preserve">
+    <value>歌曲索引（1 开始）</value>
+  </data>
+  <data name="NowPlayingMenuFlyout.Text" xml:space="preserve">
+    <value>正在播放</value>
+  </data>
+  <data name="AddToPlaylistMenuFlyout.Text" xml:space="preserve">
+    <value>播放列表</value>
+  </data>
+  <data name="FavoriteToggleButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="FavoriteAction.Text" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="SettingsPage_BackupConfig.Header" xml:space="preserve">
+    <value>备份与还原</value>
+  </data>
+  <data name="SettingsPage_FavoriteBackup.Header" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="BackupButton.Content" xml:space="preserve">
+    <value>备份</value>
+  </data>
+  <data name="RestoreButton.Content" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="BackupSuccess" xml:space="preserve">
+    <value>备份成功</value>
+  </data>
+  <data name="BackupFailed" xml:space="preserve">
+    <value>备份失败</value>
+  </data>
+  <data name="BackupLocation_WithPlaceholder" xml:space="preserve">
+    <value>保存位置：{0}</value>
+  </data>
+  <data name="BackupOrRestoreError_WithPlaceholder" xml:space="preserve">
+    <value>出现错误：{0}</value>
+  </data>
+  <data name="RestoreSuccess" xml:space="preserve">
+    <value>还原成功</value>
+  </data>
+  <data name="RestoreFailed" xml:space="preserve">
+    <value>还原失败</value>
+  </data>
+  <data name="RestoreFileMayCorrupt" xml:space="preserve">
+    <value>文件可能已损坏。</value>
+  </data>
+  <data name="RestoreFavoriteSuccessMessage" xml:space="preserve">
+    <value>成功还原收藏。</value>
+  </data>
+  <data name="PlaybackSectionPivotItem.Header" xml:space="preserve">
+    <value>播放设置</value>
+  </data>
+  <data name="SettingsPage_PlaybackConfig.Header" xml:space="preserve">
+    <value>播放设置</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Header" xml:space="preserve">
+    <value>播放时优先使用已下载的音乐</value>
+  </data>
+  <data name="SettingsPage_PlaybackUseDownloadedFile.Description" xml:space="preserve">
+    <value>启用此选项后，播放器将优先使用已下载的音乐。</value>
+  </data>
+  <data name="FavoriteNavViewItem_PlayAlbumFavorite.Text" xml:space="preserve">
+    <value>播放专辑收藏</value>
+  </data>
+  <data name="FavoriteNavViewItem_PlaySongFavorite.Text" xml:space="preserve">
+    <value>播放歌曲收藏</value>
   </data>
 </root>

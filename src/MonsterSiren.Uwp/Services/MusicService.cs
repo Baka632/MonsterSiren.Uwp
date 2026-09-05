@@ -455,21 +455,21 @@ public static class MusicService
         }
         else
         {
-            List<MediaPlaybackItem> shuffledPlaybacklist = null;
+            List<MediaPlaybackItem> shuffledPlaybackList = null;
             if (IsPlayerShuffleEnabled)
             {
-                shuffledPlaybacklist = new(CurrentShuffledMediaPlaybackList.Count + 1);
-                shuffledPlaybacklist.AddRange(CurrentShuffledMediaPlaybackList);
+                shuffledPlaybackList = new(CurrentShuffledMediaPlaybackList.Count + 1);
+                shuffledPlaybackList.AddRange(CurrentShuffledMediaPlaybackList);
             }
 
             CurrentMediaPlaybackList.Insert((int)mediaPlaybackList.CurrentItemIndex + 1, item);
 
-            if (shuffledPlaybacklist is not null)
+            if (shuffledPlaybackList is not null)
             {
-                int currentItemIndex = shuffledPlaybacklist.IndexOf(CurrentMediaPlaybackItem);
-                shuffledPlaybacklist.Insert(currentItemIndex + 1, item);
+                int currentItemIndex = shuffledPlaybackList.IndexOf(CurrentMediaPlaybackItem);
+                shuffledPlaybackList.Insert(currentItemIndex + 1, item);
 
-                mediaPlaybackList.SetShuffledItems(shuffledPlaybacklist);
+                mediaPlaybackList.SetShuffledItems(shuffledPlaybackList);
             }
         }
     }
@@ -493,13 +493,13 @@ public static class MusicService
             int currentIndex = (int)mediaPlaybackList.CurrentItemIndex;
 
             int currentShuffledIndex = -1;
-            List<MediaPlaybackItem> shuffledPlaybacklist = null;
+            List<MediaPlaybackItem> shuffledPlaybackList = null;
             if (IsPlayerShuffleEnabled)
             {
-                shuffledPlaybacklist = [.. CurrentShuffledMediaPlaybackList];
-                currentShuffledIndex = shuffledPlaybacklist.IndexOf(CurrentMediaPlaybackItem);
+                shuffledPlaybackList = [.. CurrentShuffledMediaPlaybackList];
+                currentShuffledIndex = shuffledPlaybackList.IndexOf(CurrentMediaPlaybackItem);
             }
-            bool shouldAddToShuffleList = shuffledPlaybacklist is not null;
+            bool shouldAddToShuffleList = shuffledPlaybackList is not null;
 
             MusicStopping += OnMusicStopping;
 
@@ -515,7 +515,7 @@ public static class MusicService
 
                 if (shouldAddToShuffleList)
                 {
-                    shuffledPlaybacklist.Insert(currentShuffledIndex + indexOffset, item);
+                    shuffledPlaybackList.Insert(currentShuffledIndex + indexOffset, item);
                 }
 
                 indexOffset++;
@@ -523,7 +523,7 @@ public static class MusicService
 
             if (IsPlayerShuffleEnabled && !isStopping && shouldAddToShuffleList)
             {
-                mediaPlaybackList.SetShuffledItems(shuffledPlaybacklist);
+                mediaPlaybackList.SetShuffledItems(shuffledPlaybackList);
             }
         }
         finally
@@ -657,7 +657,14 @@ public static class MusicService
             throw new ArgumentOutOfRangeException(nameof(index));
         }
 
-        mediaPlaybackList.MoveTo(index);
+        if (mediaPlaybackList.CurrentItemIndex == index)
+        {
+            mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+        }
+        else
+        {
+            mediaPlaybackList.MoveTo(index);
+        }
     }
 
     /// <summary>
@@ -677,7 +684,14 @@ public static class MusicService
             throw new ArgumentOutOfRangeException(nameof(item), "指定的项目不在正在播放列表中。");
         }
 
-        mediaPlaybackList.MoveTo((uint)index);
+        if (mediaPlaybackList.CurrentItemIndex == index)
+        {
+            mediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+        }
+        else
+        {
+            mediaPlaybackList.MoveTo((uint)index);
+        }
     }
 
     /// <summary>

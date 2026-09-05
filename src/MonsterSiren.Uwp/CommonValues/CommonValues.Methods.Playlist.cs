@@ -1,3 +1,5 @@
+using MonsterSiren.Uwp.Models.Playlists;
+
 namespace MonsterSiren.Uwp;
 
 partial class CommonValues
@@ -25,7 +27,7 @@ partial class CommonValues
     /// 显示修改播放列表的对话框。
     /// </summary>
     /// <param name="playlist">目标播放列表。</param>
-    public static async Task ShowModifyPlaylistDialog(Playlist playlist)
+    public static async Task<bool> ShowModifyPlaylistDialog(Playlist playlist)
     {
         PlaylistInfoDialog dialog = new()
         {
@@ -41,6 +43,11 @@ partial class CommonValues
         if (result == ContentDialogResult.Primary)
         {
             await PlaylistService.ModifyPlaylistAsync(playlist, dialog.PlaylistTitle, dialog.PlaylistDescription);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -51,17 +58,51 @@ partial class CommonValues
     /// 在移除指定的播放列表之前，会显示再次确认的对话框。
     /// </remarks>
     /// <param name="playlist">目标播放列表。</param>
-    /// <param name="suppressWarning">指示是否要取消删除警告的值。</param>
-    public static async Task RemovePlaylist(Playlist playlist, bool suppressWarning = false)
+    public static async Task<bool> RemovePlaylist(Playlist playlist)
     {
-        ContentDialogResult result = !suppressWarning
-            ? await DisplayContentDialog("EnsureDelete".GetLocalized(), "", "OK".GetLocalized(),
-                                                "Cancel".GetLocalized())
-            : ContentDialogResult.None;
+        ContentDialogResult result = await DisplayContentDialog("EnsureDelete".GetLocalized(), "", "OK".GetLocalized(),
+                                                "Cancel".GetLocalized());
 
-        if (suppressWarning || result == ContentDialogResult.Primary)
+        if (result == ContentDialogResult.Primary)
         {
             await PlaylistService.RemovePlaylistAsync(playlist);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 移除指定的播放列表序列。
+    /// </summary>
+    /// <remarks>
+    /// 在移除指定的播放列表之前，会显示再次确认的对话框。
+    /// </remarks>
+    /// <param name="playlist">目标播放列表序列。</param>
+    public static async Task<bool> RemovePlaylists(IEnumerable<Playlist> playlists)
+    {
+        if (!playlists.Any())
+        {
+            return false;
+        }
+
+        ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "DeleteMultiplePlaylistsMessage".GetLocalized(),
+                                                    "OK".GetLocalized(), "Cancel".GetLocalized());
+
+        if (result == ContentDialogResult.Primary)
+        {
+            foreach (Playlist playlist in playlists)
+            {
+                await PlaylistService.RemovePlaylistAsync(playlist);
+            }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

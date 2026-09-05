@@ -8,6 +8,10 @@ using System.Diagnostics;
 using System.Windows.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using MonsterSiren.Uwp.Models.Favorites;
+using MonsterSiren.Uwp.Models.Playlists;
+using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Abstracts;
 
 namespace MonsterSiren.Uwp;
 
@@ -92,6 +96,48 @@ partial class CommonValues
     }
 
     /// <summary>
+    /// 将文件夹名称中结尾的全部“.”替换为指定的非以“.”结尾的字符串，或直接删除结尾全部的“.”。
+    /// </summary>
+    /// <param name="folderName">文件夹名称。</param>
+    /// <param name="replaceString">替换字符串。当此参数为 <see langword="null"/> 时，则直接删除“.”字符。</param>
+    /// <returns>修改后的字符串，其前导及后导空白字符将被删除。</returns>
+    /// <exception cref="ArgumentException"><paramref name="folderName"/> 或 <paramref name="replaceString"/> 的值无效。</exception>
+    public static string RemoveOrReplaceDotEndingInFolderName(string folderName, string replaceString = null)
+    {
+        folderName = folderName?.Trim();
+        replaceString = replaceString?.Trim();
+
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            throw new ArgumentException($"“{nameof(folderName)}”不能为 null 或空白。", nameof(folderName));
+        }
+        else if (folderName.IndexOfAny(InvalidFileNameChars) != -1 || folderName.All(chr => chr == '.'))
+        {
+            throw new ArgumentException("文件夹名称无效。", nameof(folderName));
+        }
+        else if (!folderName.EndsWith('.'))
+        {
+            return folderName;
+        }
+        else if (replaceString != null &&
+            (replaceString.IndexOfAny(InvalidFileNameChars) != -1 || replaceString.EndsWith('.')))
+        {
+            throw new ArgumentException("替换字符串无效。", nameof(replaceString));
+        }
+
+        string newFolderName = folderName.TrimEnd('.');
+
+        if (string.IsNullOrWhiteSpace(replaceString))
+        {
+            return newFolderName;
+        }
+        else
+        {
+            return $"{newFolderName}{replaceString}";
+        }
+    }
+
+    /// <summary>
     /// 创建“添加到”的 <see cref="MenuFlyoutSubItem"/>。
     /// </summary>
     /// <param name="addToNowPlayingCommand">“添加到正在播放”命令。</param>
@@ -99,7 +145,7 @@ partial class CommonValues
     /// <param name="playlistCommand">“添加到播放列表”命令。</param>
     /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身。</param>
     /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例。</returns>
-    public static MenuFlyoutSubItem CreateAddToFlyoutSubItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter, ICommand playlistCommand, Playlist optionalModel = null)
+    public static MenuFlyoutSubItem CreateAddToFlyoutSubItem(ICommand addToNowPlayingCommand, object addToNowPlayingCommandParameter, ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel = null)
     {
         MenuFlyoutSubItem mainSubItem = new()
         {
@@ -107,7 +153,7 @@ partial class CommonValues
             Text = "AddToPlaylistOrNowPlayingLiteral".GetLocalized()
         };
         MenuFlyoutItem addToNowPlayingItem = CreateAddToNowPlayingItem(addToNowPlayingCommand, addToNowPlayingCommandParameter);
-        MenuFlyoutSubItem playlistSubItem = CreateAddToPlaylistSubItem(playlistCommand, optionalModel);
+        MenuFlyoutSubItem playlistSubItem = CreateAddToPlaylistSubItem(playlistCommand, playlistCommandParameterFactory, optionalModel);
 
         mainSubItem.Items.Add(addToNowPlayingItem);
         mainSubItem.Items.Add(playlistSubItem);
@@ -132,19 +178,21 @@ partial class CommonValues
         };
     }
 
-    /// <summary>
-    /// 创建一个“添加到播放列表”的 <see cref="MenuFlyoutSubItem"/>。
-    /// </summary>
-    /// <param name="playlistCommand">“添加到播放列表”命令。</param>
-    /// <param name="optionalModel">可选的模型类，用于防止播放列表添加自身。</param>
-    /// <returns>一个 <see cref="MenuFlyoutSubItem"/> 实例。</returns>
-    public static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Playlist optionalModel = null)
+    public static MenuFlyoutSubItem CreateAddToPlaylistSubItem(ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel = null, MenuFlyoutSubItem playlistSubItem = null)
     {
-        MenuFlyoutSubItem playlistSubItem = new()
+        playlistSubItem ??= new()
         {
             Icon = new SymbolIcon(Symbol.List),
             Text = "AddToPlaylistTextLiteral".GetLocalized(),
         };
+        InitializeAddToPlaylistSubItem(playlistCommand, playlistCommandParameterFactory, optionalModel, playlistSubItem);
+
+        return playlistSubItem;
+    }
+
+    public static void InitializeAddToPlaylistSubItem(ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel, MenuFlyoutSubItem playlistSubItem)
+    {
+        playlistSubItem.Items.Clear();
 
         if (PlaylistService.TotalPlaylists.Count > 0)
         {
@@ -152,7 +200,7 @@ partial class CommonValues
 
             foreach (Playlist playlist in PlaylistService.TotalPlaylists)
             {
-                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist, playlistCommand, optionalModel);
+                MenuFlyoutItem item = CreateMenuFlyoutItemByPlaylist(playlist, playlistCommand, playlistCommandParameterFactory, optionalModel);
                 playlistSubItem.Items.Add(item);
             }
         }
@@ -160,11 +208,9 @@ partial class CommonValues
         {
             playlistSubItem.IsEnabled = false;
         }
-
-        return playlistSubItem;
     }
 
-    private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Playlist optionalModel)
+    private static MenuFlyoutItem CreateMenuFlyoutItemByPlaylist(Playlist playlist, ICommand playlistCommand, Func<Playlist, CommandParameter> playlistCommandParameterFactory, Playlist optionalModel)
     {
         MenuFlyoutItem flyoutItem = new()
         {
@@ -175,7 +221,7 @@ partial class CommonValues
                 Glyph = "\uEC4F"
             },
             Command = playlistCommand,
-            CommandParameter = playlist,
+            CommandParameter = playlistCommandParameterFactory(playlist),
             IsEnabled = playlist != optionalModel,
         };
 
@@ -206,18 +252,26 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 显示针对 <see cref="AggregateException"/> 的错误信息
+    /// 显示针对 <see cref="AggregateException"/> 的错误信息。
     /// </summary>
-    /// <param name="aggregate">指定的 <see cref="AggregateException"/></param>
+    /// <param name="aggregate">指定的 <see cref="AggregateException"/>。</param>
     private static async Task DisplayAggregateExceptionErrorDialog(AggregateException aggregate)
     {
         StringBuilder builder = new(aggregate.InnerExceptions.Count * 10);
 
-        if (aggregate.Data["AllFailed"] is not bool allFailed)
+        bool allFailed = false;
+        if (aggregate.Data.Contains("AllFailed"))
         {
-            allFailed = false;
+            allFailed = aggregate.Data["AllFailed"] is bool val && val;
         }
-        object errorPlayItem = aggregate.Data["PlayItem"];
+
+        object errorPlayItem = null;
+        if (aggregate.Data.Contains("PlayItem"))
+        {
+            errorPlayItem = aggregate.Data["PlayItem"];
+        }
+
+        aggregate = aggregate.Flatten();
 
         if (aggregate.InnerExceptions.Any(ex => ex is HttpRequestException))
         {
@@ -251,6 +305,29 @@ partial class CommonValues
         string dialogTitle = allFailed ? "ErrorOccurred".GetLocalized() : "WarningOccurred".GetLocalized();
         string dialogMessage = builder.ToString().Trim();
         await DisplayContentDialog(dialogTitle, dialogMessage, closeButtonText: "Close".GetLocalized());
+    }
+
+    /// <summary>
+    /// 检查指定的 <see cref="IContentContainer"/> 是否超过“添加到播放列表”操作的限制。
+    /// </summary>
+    /// <param name="container">一个 <see cref="IContentContainer"/> 实例。</param>
+    /// <remarks>此方法会在内容数量超过 <see cref="TooManyItemThresholdCount"/> 时弹出对话框询问用户意见。</remarks>
+    /// <returns>指示是否允许添加操作的值。</returns>
+    public async static Task<bool> DetermineIfContentContainerCanAddToPlaylist(IContentContainer container)
+    {
+        if (container.Count >= TooManyItemThresholdCount)
+        {
+            ContentDialogResult result = await DisplayContentDialog("WarningOccurred".GetLocalized(),
+                                                    "AddTooManyItemToPlaylistMessage".GetLocalized(),
+                                                    "Continue".GetLocalized(), "Cancel".GetLocalized());
+
+            if (result != ContentDialogResult.Primary)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -301,7 +378,7 @@ partial class CommonValues
 
                 CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo> incrementalCollection = CreateAlbumInfoIncrementalLoadingCollection(albums);
 
-                if (incrementalCollection.CollectionSource.AlbumInfos.Any())
+                if (incrementalCollection.CollectionSource.Count != 0)
                 {
                     MemoryCacheHelper<CustomIncrementalLoadingCollection<AlbumInfoSource, AlbumInfo>>.Default.Store(AlbumInfoCacheKey, incrementalCollection);
                 }
@@ -319,7 +396,7 @@ partial class CommonValues
     /// 为 <see cref="AlbumInfo"/> 列表创建实现增量加载的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 集合。
     /// </summary>
     /// <remarks>
-    /// 请注意，在使用 <see cref="IEnumerable{T}"/> 相关的扩展方法时，请务必使用 <see cref="CustomIncrementalLoadingCollection{TSource, IType}.CollectionSource"/> 成员中的集合来获取正确结果。否则，由于增量加载的缘故，<see cref="IEnumerable{T}"/> 相关的扩展方法可能会出现预期外的结果。
+    /// 请注意，在使用 <see cref="IEnumerable{T}"/> 相关的扩展方法时，请务必使用 <see cref="CustomIncrementalLoadingCollection{TSource, IType}.CollectionSource"/> 成员来获取正确结果。否则，由于增量加载的缘故，<see cref="IEnumerable{T}"/> 相关的扩展方法可能会出现预期外的结果。
     /// </remarks>
     /// <param name="albums">包含专辑信息的 <see cref="AlbumInfo"/> 列表。</param>
     /// <returns>新的 <see cref="CustomIncrementalLoadingCollection{TSource, IType}"/> 实例。</returns>
@@ -330,24 +407,36 @@ partial class CommonValues
     }
 
     /// <summary>
-    /// 为指定的 <see cref="Image"/> 加载并缓存专辑封面。
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
     /// </summary>
-    /// <param name="image">指定的 <see cref="Image"/> 实例。</param>
-    public static async Task LoadAndCacheMusicCover(Image image, AlbumInfo info)
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
     {
-        if (image.Source is not BitmapImage bitmapImage)
-        {
-            bitmapImage = new BitmapImage();
-            image.Source = bitmapImage;
-        }
-        await LoadAndCacheMusicCoverCore(bitmapImage, info, () => ReferenceEquals(image.Source, bitmapImage) && (AlbumInfo)image.DataContext == info);
+        await LoadAndCacheMusicCoverCore(image, info.Cid, info.CoverUrl, () => (AlbumInfo)image.DataContext == info);
     }
 
     /// <summary>
     /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
     /// </summary>
     /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
-    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumInfo info)
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumFavoriteItem item)
+    {
+        AlbumDetail detail = await MsrModelsHelper.GetAlbumDetailAsync(item.AlbumCid);
+        await LoadAndCacheMusicCoverCore(image, detail.Cid, detail.CoverUrl, () => (AlbumFavoriteItem)image.DataContext == item);
+    }
+
+    /// <summary>
+    /// 为指定的 <see cref="ImageEx"/> 加载并缓存专辑封面。
+    /// </summary>
+    /// <param name="image">指定的 <see cref="ImageEx"/> 实例。</param>
+    /// <param name="args">用于加载专辑封面的 <see cref="AlbumCoverLoadArgs"/>。</param>
+    public static async Task LoadAndCacheMusicCover(ImageEx image, AlbumCoverLoadArgs args)
+    {
+        (string albumCid, string albumCoverUrl) = args;
+        await LoadAndCacheMusicCoverCore(image, albumCid, albumCoverUrl, () => (AlbumCoverLoadArgs)image.DataContext == args);
+    }
+
+    private static async Task LoadAndCacheMusicCoverCore(ImageEx image, string albumCid, string albumCoverUrl, Func<bool> detectCanUpdateSource)
     {
         bool needModifySource = false;
 
@@ -362,7 +451,7 @@ partial class CommonValues
             };
         }
 
-        bool isSuccess = await LoadAndCacheMusicCoverCore(bitmapImage, info, () => (AlbumInfo)image.DataContext == info);
+        bool isSuccess = await TrySetAndCacheCoverForBitmapImage(bitmapImage, albumCoverUrl, albumCid, detectCanUpdateSource);
 
         lock (image)
         {
@@ -373,7 +462,7 @@ partial class CommonValues
         }
     }
 
-    private static async Task<bool> LoadAndCacheMusicCoverCore(BitmapImage bitmapImage, AlbumInfo info, Func<bool> detectCanUpdateSource)
+    private static async Task<bool> TrySetAndCacheCoverForBitmapImage(BitmapImage bitmapImage, string coverUrl, string albumCid, Func<bool> detectCanUpdateSource)
     {
         if (bitmapImage is null)
         {
@@ -387,7 +476,7 @@ partial class CommonValues
 
         try
         {
-            Uri fileCoverUri = await GetMusicCoverUriCore(info.Cid, info);
+            Uri fileCoverUri = await GetMusicCoverUriCore(coverUrl, albumCid);
 
             if (detectCanUpdateSource())
             {
@@ -416,7 +505,7 @@ partial class CommonValues
         return false;
     }
 
-    private static async Task<Uri> GetMusicCoverUriCore(string albumCid, AlbumInfo info)
+    private static async Task<Uri> GetMusicCoverUriCore(string coverUrl, string albumCid)
     {
         Uri fileCoverUri = await FileCacheHelper.GetAlbumCoverUriAsync(albumCid);
         if (fileCoverUri is null)
@@ -424,7 +513,7 @@ partial class CommonValues
             await _LoadAndCacheAlbumSemaphore.WaitAsync();
             try
             {
-                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverAsync(info));
+                fileCoverUri = await Task.Run(async () => await FileCacheHelper.StoreAlbumCoverByUriAndCid(coverUrl, albumCid));
             }
             finally
             {
@@ -432,5 +521,88 @@ partial class CommonValues
             }
         }
         return fileCoverUri;
+    }
+
+    /// <summary>
+    /// 从指定的对象中获取 <see cref="ISongCidProvider"/>。
+    /// </summary>
+    /// <param name="source">指定的对象。</param>
+    /// <returns>一个 <see cref="ISongCidProvider"/> 实例。</returns>
+    /// <exception cref="InvalidOperationException"><paramref name="source"/> 的类型是 PlaylistItem，这种情况下请提前将 PlaylistItem 转换为 ISongCidProvider，之后再传入此方法。</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> 无法转换为 <see cref="ISongCidProvider"/>。</exception>
+    public static ISongCidProvider GetSongCidProvider(object source)
+    {
+        return source switch
+        {
+            AlbumInfo albumInfo => albumInfo.ToAdapter(),
+            IEnumerable<AlbumInfo> albumInfos => albumInfos.ToAdapter(),
+            AlbumDetail detail => detail.ToAdapter(),
+            SongInfo songInfo => songInfo.ToAdapter(),
+            IEnumerable<SongInfo> songInfos => songInfos.ToAdapter(),
+            AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
+            IEnumerable<AlbumFavoriteItem> albumFavoriteItems => albumFavoriteItems.ToAdapter(),
+            AlbumFavoriteList albumFavoriteList => albumFavoriteList.ToAdapter(),
+            Playlist playlist => playlist.ToAdapter(),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 ISongCidProvider，然后再传入此方法。"),
+            IEnumerable<PlaylistItem> playlistItems => playlistItems.ToAdapter(),
+            SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
+            IEnumerable<SongFavoriteItem> songFavoriteItems => songFavoriteItems.ToAdapter(),
+            SongFavoriteList songFavoriteList => songFavoriteList.ToAdapter(),
+            ISongCidProvider songCidProvider => songCidProvider,
+            Func<ISongCidProvider> songCidProviderFactory => songCidProviderFactory.Invoke(),
+            _ => throw new ArgumentException("指定的对象无法转换为 ISongCidProvider。", nameof(source)),
+        };
+    }
+
+    /// <summary>
+    /// 从指定的对象中获取 <see cref="IFavoriteAddable"/>。
+    /// </summary>
+    /// <param name="source">指定的对象。</param>
+    /// <returns>一个 <see cref="IFavoriteAddable"/> 实例。</returns>
+    /// <exception cref="InvalidOperationException"><paramref name="source"/> 的类型是 PlaylistItem，这种情况下请提前将 PlaylistItem 转换为 ISongCidProvider，之后再传入此方法。</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> 无法转换为 <see cref="IFavoriteAddable"/>。</exception>
+    public static IFavoriteAddable GetFavoriteAddable(object source)
+    {
+        return source switch
+        {
+            AlbumInfo albumInfo => albumInfo.ToAdapter(),
+            IEnumerable<AlbumInfo> albumInfos => albumInfos.ToAdapter(),
+            AlbumDetail detail => detail.ToAdapter(),
+            SongInfo songInfo => songInfo.ToAdapter(),
+            IEnumerable<SongInfo> songInfos => songInfos.ToAdapter(),
+            AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
+            IEnumerable<AlbumFavoriteItem> albumFavoriteItems => albumFavoriteItems.ToAdapter(),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 IFavoriteAddable，然后再传入此方法。"),
+            IEnumerable<PlaylistItem> playlistItems => playlistItems.ToAdapter(),
+            SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
+            IEnumerable<SongFavoriteItem> songFavoriteItems => songFavoriteItems.ToAdapter(),
+            IFavoriteAddable favoriteAddable => favoriteAddable,
+            Func<ISongCidProvider> songCidProviderFactory when songCidProviderFactory.Invoke() is IFavoriteAddable addable => addable,
+            _ => throw new ArgumentException("指定的对象无法转换为 IFavoriteAddable。", nameof(source)),
+        };
+    }
+
+    /// <summary>
+    /// 从指定的对象中获取 <see cref="INameProvider"/>。
+    /// </summary>
+    /// <param name="source">指定的对象。</param>
+    /// <returns>一个 <see cref="INameProvider"/> 实例。</returns>
+    /// <exception cref="InvalidOperationException"><paramref name="source"/> 的类型是 PlaylistItem，这种情况下请提前将 PlaylistItem 转换为 INameProvider，之后再传入此方法。</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> 无法转换为 <see cref="INameProvider"/>。</exception>
+    public static INameProvider GetNameProvider(object source)
+    {
+        return source switch
+        {
+            AlbumInfo albumInfo => albumInfo.ToAdapter(),
+            AlbumDetail detail => detail.ToAdapter(),
+            SongInfo songInfo => songInfo.ToAdapter(),
+            AlbumFavoriteItem albumFavoriteItem => albumFavoriteItem.ToAdapter(),
+            Playlist playlist => playlist.ToAdapter(),
+            PlaylistItem _ => throw new InvalidOperationException("对于 PlaylistItem，请提前转换为 INameProvider，然后再传入此方法。"),
+            SongFavoriteItem songFavoriteItem => songFavoriteItem.ToAdapter(),
+            INameProvider nameProvider => nameProvider,
+            Func<ISongCidProvider> songCidProviderFactory when songCidProviderFactory.Invoke() is INameProvider name => name,
+            _ => throw new ArgumentException("指定的对象无法转换为 ISongCidProvider。", nameof(source)),
+        };
     }
 }

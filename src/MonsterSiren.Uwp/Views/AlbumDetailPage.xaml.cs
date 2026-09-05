@@ -1,5 +1,8 @@
+using System.Collections.Specialized;
 using System.Net.Http;
-using System.Text.Json;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
+using MonsterSiren.Uwp.Models.Adapters;
+using MonsterSiren.Uwp.Models.Favorites;
 using Windows.UI.Xaml.Media.Animation;
 
 // https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
@@ -38,53 +41,75 @@ public sealed partial class AlbumDetailPage : Page
 
         if (e.Parameter is AlbumInfo albumInfo)
         {
-            await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+            await ViewModel.Initialize(albumInfo.Name, albumInfo.Cid, albumInfo.Artistes, albumInfo.Intro, null,
+                                       albumInfo.CoverUrl).ConfigureAwait(false);
         }
         else if (e.Parameter is ValueTuple<AlbumInfo, bool> tuple)
         {
             albumInfo = tuple.Item1;
             enableBackAnimation = tuple.Item2;
 
-            await ViewModel.Initialize(albumInfo).ConfigureAwait(false);
+            await ViewModel.Initialize(albumInfo.Name, albumInfo.Cid, albumInfo.Artistes, albumInfo.Intro, null,
+                                       albumInfo.CoverUrl).ConfigureAwait(false);
         }
         else if (e.Parameter is AlbumDetail detail)
         {
             enableBackAnimation = false;
-            await ViewModel.Initialize(detail).ConfigureAwait(false);
+            await ViewModel.Initialize(detail.Name, detail.Cid, null, detail.Intro, detail.Songs,
+                                       detail.CoverUrl).ConfigureAwait(false);
         }
+        else if (e.Parameter is AlbumFavoriteItem item)
+        {
+            enableBackAnimation = false;
+            await ViewModel.Initialize(item.AlbumName, item.AlbumCid, item.Artistes).ConfigureAwait(false);
+        }
+
+        FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
+        FavoriteService.SongFavoriteList.Items.CollectionChanged += OnSongFavoriteListCollectionChanged;
     }
 
     protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
     {
         base.OnNavigatingFrom(e);
 
-        if (e.NavigationMode == NavigationMode.Back && enableBackAnimation)
+        FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
+
+        if (enableBackAnimation && e.NavigationMode == NavigationMode.Back)
         {
             ConnectedAnimationService.GetForCurrentView().PrepareToAnimate(CommonValues.AlbumInfoBackConnectedAnimationKeyForMusicPage, AlbumCover);
         }
     }
 
+    private void OnSongFavoriteListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        IEnumerable<SongFavoriteItem> listA = e.NewItems?.Cast<SongFavoriteItem>() ?? [];
+        IEnumerable<SongFavoriteItem> listB = e.OldItems?.Cast<SongFavoriteItem>() ?? [];
+        IEnumerable<SongFavoriteItem> list = listA.Concat(listB);
+
+        IEnumerable<SongInfo> targetSongInfos = ViewModel.DisplaySource.Songs
+            .Join(list,
+                  info => info.Cid,
+                  item => item.SongCid,
+                  (info, item) => info);
+
+        foreach (SongInfo songInfo in targetSongInfos)
+        {
+            int index = SongList.Items.IndexOf(songInfo);
+            DependencyObject dep = SongList.ContainerFromIndex(index);
+
+            if (dep is null)
+            {
+                continue;
+            }
+
+            ToggleButton toggleButton = (ToggleButton)dep.FindDescendantByName("SongFavoriteToggleButton");
+            CheckSongInFavoriteAndUpdateToggleButton(toggleButton, songInfo);
+        }
+    }
+
     private void OnSongListViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        if (e.Items.Count <= 0)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        List<SongInfoAndAlbumDetailPack> packs = new(e.Items.Count);
-
-        foreach (object item in e.Items)
-        {
-            if (item is SongInfo songInfo)
-            {
-                packs.Add(new SongInfoAndAlbumDetailPack(songInfo, ViewModel.CurrentAlbumDetail));
-            }
-        }
-
-        string json = JsonSerializer.Serialize(packs);
-
-        e.Data.SetData(CommonValues.MusicSongInfoAndAlbumDetailPacksFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<SongInfo>(e);
     }
 
     private void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
@@ -131,49 +156,6 @@ public sealed partial class AlbumDetailPage : Page
         ViewModel.SelectedSongInfo = (SongInfo)button.DataContext;
     }
 
-    private void OnSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForSongInfoCommand,
-                                                                          ViewModel.SelectedSongInfo,
-                                                                          ViewModel.AddToPlaylistForSongInfoCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
-    private void OnListViewItemSongContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-
-        flyout.Items.Clear();
-
-        MenuFlyoutItem addToNowPlayingItem = CommonValues.CreateAddToNowPlayingItem(ViewModel.AddToNowPlayingForCurrentAlbumDetailCommand, null);
-        MenuFlyoutSubItem addToPlaylistSubItem = CommonValues.CreateAddToPlaylistSubItem(ViewModel.AddToPlaylistForCurrentAlbumDetailCommand);
-
-        flyout.Items.Add(addToNowPlayingItem);
-        flyout.Items.Add(addToPlaylistSubItem);
-    }
-
-    private void OnSongSelectionFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForListViewSelectedItemCommand,
-                                                                          null,
-                                                                          ViewModel.AddToPlaylistForListViewSelectedItemCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
-    }
-
     private void OnIndexTextBlockLoaded(object sender, RoutedEventArgs e)
     {
         TextBlock textBlock = (TextBlock)sender;
@@ -186,11 +168,35 @@ public sealed partial class AlbumDetailPage : Page
         FrameworkElement element = (FrameworkElement)sender;
         SongInfo songInfo = (SongInfo)element.DataContext;
 
-        await ViewModel.PlayForSongInfoCommand.ExecuteAsync(songInfo);
+        await CommonValues.StartPlay(songInfo.ToAdapter());
     }
 
-    private async void OnAlbumCoverLoaded(object sender, RoutedEventArgs e)
+    private void OnSongFavoriteToggleButtonLoaded(object sender, RoutedEventArgs e)
     {
-        await CommonValues.LoadAndCacheMusicCover(AlbumCover, ViewModel.CurrentAlbumInfo);
+        ToggleButton toggleButton = (ToggleButton)sender;
+        SongInfo songInfo = (SongInfo)toggleButton.DataContext;
+        CheckSongInFavoriteAndUpdateToggleButton(toggleButton, songInfo);
+    }
+
+    private async void OnSongFavoriteToggleButtonClick(object sender, RoutedEventArgs e)
+    {
+        ToggleButton toggleButton = (ToggleButton)sender;
+        SongInfo songInfo = (SongInfo)toggleButton.DataContext;
+
+        bool isFavorite = FavoriteService.ContainsSong(songInfo);
+        if (isFavorite)
+        {
+            await CommonValues.RemoveFromFavorite(songInfo.ToAdapter());
+        }
+        else
+        {
+            await CommonValues.AddToFavorite(songInfo.ToAdapter());
+        }
+    }
+
+    private static void CheckSongInFavoriteAndUpdateToggleButton(ToggleButton toggleButton, SongInfo songInfo)
+    {
+        bool isFavorite = FavoriteService.ContainsSong(songInfo);
+        toggleButton.IsChecked = isFavorite;
     }
 }

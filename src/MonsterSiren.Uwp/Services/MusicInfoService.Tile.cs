@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MonsterSiren.Uwp.Helpers.Tile;
 using Windows.Media;
@@ -11,7 +11,7 @@ namespace MonsterSiren.Uwp.Services;
 public partial class MusicInfoService : IDisposable
 {
     private const string DefaultTileImageFolderName = "TileImage";
-    private static readonly StorageFolder tempFolder = ApplicationData.Current.LocalCacheFolder;
+    private static readonly StorageFolder localCacheFolder = ApplicationData.Current.LocalCacheFolder;
     private static readonly SemaphoreSlim tileFileSemaphore = new(1);
     private bool isUpdatingTile;
     private bool disposedValue;
@@ -37,7 +37,7 @@ public partial class MusicInfoService : IDisposable
                 RandomAccessStreamReference cover = currentMediaItem.GetDisplayProperties().Thumbnail;
                 using IRandomAccessStreamWithContentType coverStream = await cover.OpenReadAsync();
 
-                StorageFolder tileFolder = await tempFolder.CreateFolderAsync(DefaultTileImageFolderName, CreationCollisionOption.OpenIfExists);
+                StorageFolder tileFolder = await localCacheFolder.CreateFolderAsync(DefaultTileImageFolderName, CreationCollisionOption.OpenIfExists);
                 StorageFile file = await tileFolder.CreateFileAsync("Tile.png", CreationCollisionOption.OpenIfExists);
 
                 StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();

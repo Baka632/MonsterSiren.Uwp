@@ -9,6 +9,7 @@
     xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:menuFlyouts="using:MonsterSiren.Uwp.Controls.MenuFlyouts"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -18,65 +19,24 @@
     Unloaded="OnMusicPageUnloaded"
     mc:Ignorable="d">
     <Page.Resources>
-        <MenuFlyout
+        <menuFlyouts:AlbumMenuFlyout
             x:Name="AlbumContextFlyout"
-            x:FieldModifier="Public"
-            Opening="OnAlbumContextFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayAlbumForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem
-                x:Uid="DownloadAlbumCommandButton"
-                Command="{x:Bind ViewModel.DownloadForAlbumInfoCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
-                Icon="Download" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem x:Uid="SelectForSongList" Command="{x:Bind ViewModel.StartMultipleSelectionCommand}">
-                <MenuFlyoutItem.Icon>
-                    <FontIcon Glyph="&#xE762;" />
-                </MenuFlyoutItem.Icon>
-            </MenuFlyoutItem>
-        </MenuFlyout>
+            x:FieldModifier="public"
+            AddItemToFavoriteCallbackCommand="{x:Bind ViewModel.NotifySelectedAlbumInfoContainsInFavoriteChangedCommand}"
+            FavoriteVisibility="{x:Bind helpers:XamlHelper.ReverseVisibility(ViewModel.IsSelectedAlbumInfoContainsInFavorite), Mode=OneWay}"
+            SourceData="{x:Bind ViewModel.SelectedAlbumInfo, Mode=OneWay}"
+            StartMultipleSelectionCommand="{x:Bind ViewModel.StartMultipleSelectionCommand}"
+            UnfavoriteVisibility="{x:Bind ViewModel.IsSelectedAlbumInfoContainsInFavorite, Mode=OneWay}" />
 
-        <MenuFlyout
+        <menuFlyouts:AlbumListMenuFlyout
             x:Name="AlbumSelectionFlyout"
-            x:FieldModifier="Public"
-            Opening="OnAlbumSelectionFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayAlbumForSelectedItemCommand}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForSelectedItemCommand}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem
-                x:Uid="DownloadAlbumCommandButton"
-                Command="{x:Bind ViewModel.DownloadForSelectedItemCommand}"
-                Icon="Download" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem
-                x:Uid="SelectAllForSongList"
-                Command="{x:Bind ViewModel.SelectAllSongListCommand}"
-                Icon="SelectAll" />
-            <MenuFlyoutItem
-                x:Uid="DeselectAllForSongList"
-                Command="{x:Bind ViewModel.DeselectAllSongListCommand}"
-                Icon="ClearSelection" />
-            <MenuFlyoutItem
-                x:Uid="DeselectForSongList"
-                Command="{x:Bind ViewModel.StopMultipleSelectionCommand}"
-                Icon="Cancel" />
-        </MenuFlyout>
+            x:FieldModifier="public"
+            DeselectAllListCommand="{x:Bind ViewModel.DeselectAllSongListCommand}"
+            FavoriteVisibility="Visible"
+            SelectAllListCommand="{x:Bind ViewModel.SelectAllSongListCommand}"
+            SourceData="{x:Bind ViewModel.SongCidProviderFactory}"
+            StopMultipleSelectionCommand="{x:Bind ViewModel.StopMultipleSelectionCommand}"
+            UnfavoriteVisibility="Collapsed" />
     </Page.Resources>
 
 
@@ -133,22 +93,6 @@
                 ItemsSource="{x:Bind ViewModel.Albums, Mode=OneWay}"
                 SelectionMode="None"
                 ShowsScrollingPlaceholders="False">
-                <GridView.Resources>
-                    <SolidColorBrush x:Key="SystemControlTransparentRevealBackgroundBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="SystemControlTransparentRevealBorderBrush" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBorderBrush" Color="Transparent" />
-                    <Thickness x:Key="ListViewItemRevealBorderThemeThickness">0</Thickness>
-                    <Thickness x:Key="GridViewItemRevealBorderThemeThickness">0</Thickness>
-                    <SolidColorBrush x:Key="ListViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
-                    <SolidColorBrush x:Key="ListViewItemRevealPlaceholderBackground" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackground" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundPointerOver" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundPressed" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelected" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPointerOver" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealBackgroundSelectedPressed" Color="Transparent" />
-                    <SolidColorBrush x:Key="GridViewItemRevealPlaceholderBackground" Color="Transparent" />
-                </GridView.Resources>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="albumModels:AlbumInfo">
                         <Grid
@@ -174,6 +118,7 @@
                                 Stretch="UniformToFill" />
                             <TextBlock
                                 Grid.Row="1"
+                                Width="170"
                                 HorizontalAlignment="Left"
                                 FontWeight="SemiBold"
                                 Text="{x:Bind Name}"
@@ -181,6 +126,7 @@
                                 ToolTipService.ToolTip="{x:Bind Name}" />
                             <TextBlock
                                 Grid.Row="2"
+                                Width="170"
                                 Margin="0,0,0,5"
                                 HorizontalAlignment="Left"
                                 Foreground="#8f8f8f"
