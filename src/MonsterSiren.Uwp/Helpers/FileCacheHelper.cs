@@ -248,6 +248,11 @@ internal static class FileCacheHelper
     /// <returns>表示歌曲时长的 <see cref="System.TimeSpan"/>。</returns>
     public static async Task<TimeSpan?> GetSongDurationAsync(string songCid)
     {
+        if (songCid is null)
+        {
+            return null;
+        }
+
         StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
 
         string fileName = $"{songCid}.json";
@@ -279,6 +284,11 @@ internal static class FileCacheHelper
     /// <param name="timeSpan">歌曲时长。</param>
     public static async Task StoreSongDurationAsync(string songCid, TimeSpan timeSpan)
     {
+        if (songCid is null)
+        {
+            return;
+        }
+
         StorageFolder durationFolder = await tempFolder.CreateFolderAsync(DefaultSongDurationCacheFolderName, CreationCollisionOption.OpenIfExists);
         StorageFile file = await durationFolder.CreateFileAsync($"{songCid}.json", CreationCollisionOption.ReplaceExisting);
 

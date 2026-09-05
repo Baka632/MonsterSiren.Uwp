@@ -1,4 +1,3 @@
-using System.Threading;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -172,61 +171,23 @@ public sealed partial class NowPlayingPage : Page
 
     private async void OnSongDurationTextBlockLoaded(object sender, RoutedEventArgs e)
     {
+        const string emptyTime = "-:-";
+
         TextBlock textBlock = (TextBlock)sender;
+        textBlock.Text = emptyTime;
+
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)textBlock.DataContext;
-        MediaSource source = playbackItem.Source;
 
-        textBlock.Text = "-:-";
-
-        if (source.IsOpen && source.Duration.HasValue)
+        try
         {
-            SetDurationForTextBlock(textBlock, source.Duration);
+            TimeSpan? duration = await MsrModelsHelper.GetSongDurationAsync(playbackItem);
+            textBlock.Text = duration.HasValue
+                ? duration.Value.ToString(@"m\:ss")
+                : emptyTime;
         }
-        else if (!source.IsOpen && source.Uri is null)
+        catch
         {
-            // TODO: 这里保持了原来的逻辑，但是这也意味着这里也占用了许多内存（媒体解码很耗资源！），未来需要讨论如何优化。
-            await source.OpenAsync();
-            SetDurationForTextBlock(textBlock, source.Duration);
-        }
-        else
-        {
-            string sourceUri = source.Uri.ToString();
-            SemaphoreSlim semaphore = CommonValues.SongDurationLocker.GetOrCreateLocker(sourceUri);
-
-            try
-            {
-                await semaphore.WaitAsync();
-
-                if (MemoryCacheHelper<SongDetail>.Default.TryQueryData(detail => new Uri(detail.SourceUrl, UriKind.Absolute) == source.Uri, out IEnumerable<SongDetail> details))
-                {
-                    SongDetail songDetail = details.FirstOrDefault();
-                    TimeSpan? span = await FileCacheHelper.GetSongDurationAsync(songDetail.Cid);
-
-                    if (span.HasValue)
-                    {
-                        SetDurationForTextBlock(textBlock, span);
-                        return;
-                    }
-                }
-
-                await source.OpenAsync();
-                TimeSpan? duration = source.Duration;
-                SetDurationForTextBlock(textBlock, duration);
-            }
-            catch (Exception ex) when (ex.HResult == -1072877849)
-            {
-                textBlock.Text = "-:-";
-            }
-            finally
-            {
-                semaphore.Release();
-                CommonValues.SongDurationLocker.ReturnLocker(sourceUri);
-            }
-        }
-
-        static void SetDurationForTextBlock(TextBlock textBlock, TimeSpan? duration)
-        {
-            textBlock.Text = duration.HasValue ? duration.Value.ToString(@"m\:ss") : "-:-";
+            textBlock.Text = emptyTime;
         }
     }
 
