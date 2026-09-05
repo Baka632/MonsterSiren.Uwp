@@ -272,7 +272,7 @@ public static class FavoriteService
             Stream stream = await restoreFile.OpenStreamForReadAsync();
             stream.Seek(0, SeekOrigin.Begin);
 
-            FavoriteBackup favoriteBackup = await JsonSerializer.DeserializeAsync<FavoriteBackup>(stream);
+            FavoriteBackup favoriteBackup = await JsonSerializer.DeserializeAsync<FavoriteBackup>(stream, CommonValues.DefaultJsonSerializerOptions);
             (SongFavoriteList songFavorites, AlbumFavoriteList albumFavorites) = favoriteBackup;
 
             await AddItemsToFavoriteAsync(songFavorites.Items, FavoriteType.Song);
@@ -286,12 +286,12 @@ public static class FavoriteService
 
     private static async Task WriteObjectToFileAsync(object obj, StorageFile file)
     {
-        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, obj));
+        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, obj, CommonValues.DefaultJsonSerializerOptions));
     }
 
     private static async Task WriteObjectToFileAsync<T>(T value, StorageFile file)
     {
-        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, value));
+        await WriteObjectToFileCoreAsync(file, async stream => await JsonSerializer.SerializeAsync(stream, value, CommonValues.DefaultJsonSerializerOptions));
     }
 
     private static async Task WriteObjectToFileCoreAsync(StorageFile file, Func<Stream, Task> serializeDelegate)
@@ -324,7 +324,7 @@ public static class FavoriteService
         {
             try
             {
-                list = await JsonSerializer.DeserializeAsync<T>(fileStream)
+                list = await JsonSerializer.DeserializeAsync<T>(fileStream, CommonValues.DefaultJsonSerializerOptions)
                     ?? await CreateAndWriteNewList<T>(fileStream);
             }
             catch (JsonException)
@@ -345,7 +345,7 @@ public static class FavoriteService
 
         stream.SetLength(0);
         stream.Seek(0, SeekOrigin.Begin);
-        await JsonSerializer.SerializeAsync(stream, target);
+        await JsonSerializer.SerializeAsync(stream, target, CommonValues.DefaultJsonSerializerOptions);
 
         return target;
     }

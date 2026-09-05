@@ -114,7 +114,7 @@ partial class CommonValues
     /// <returns>一个包含音乐元数据的元组。</returns>
     public static (string AlbumTitle, string SongTitle, string Artist, string Artists) GetMusicMetadataForDownload(AlbumDetail albumDetail, SongDetail songDetail)
     {
-        string defaultMsrName = "MSR".GetLocalized();
+        string defaultMsrName = MSR;
 
         string albumTitle = albumDetail.Name?.Trim();
         string songTitle = songDetail.Name?.Trim();

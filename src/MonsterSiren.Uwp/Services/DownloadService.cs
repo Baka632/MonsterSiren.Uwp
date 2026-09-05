@@ -356,7 +356,7 @@ public static class DownloadService
             return;
         }
 
-        string defaultMsrName = "MSR".GetLocalized();
+        string defaultMsrName = CommonValues.MSR;
         string rawMusicExtensions = Path.GetExtension(songDetail.SourceUrl) ?? ".wav";
         CreationCollisionOption collisionOption = CreationCollisionOption.ReplaceExisting;
 
@@ -427,7 +427,7 @@ public static class DownloadService
                 using (Stream infoFileStream = await infoFile.OpenStreamForWriteAsync())
                 {
                     infoFileStream.Seek(0, SeekOrigin.Begin);
-                    await JsonSerializer.SerializeAsync(infoFileStream, pack);
+                    await JsonSerializer.SerializeAsync(infoFileStream, pack, CommonValues.DefaultJsonSerializerOptions);
                 }
 
                 DownloadOperation musicDownload = Downloader.CreateDownload(new Uri(songDetail.SourceUrl, UriKind.Absolute), musicFile);
@@ -689,7 +689,7 @@ public static class DownloadService
             try
             {
                 using Stream infoFileStream = await infoFile.OpenStreamForReadAsync();
-                SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream);
+                SongDetailAndAlbumDetailPack pack = await JsonSerializer.DeserializeAsync<SongDetailAndAlbumDetailPack>(infoFileStream, CommonValues.DefaultJsonSerializerOptions);
 
                 return pack;
             }
@@ -723,7 +723,7 @@ public static class DownloadService
         Uri coverUri = await AcquireCoverUriAsync(albumDetail);
         try
         {
-            string defaultMsrName = "MSR".GetLocalized();
+            string defaultMsrName = CommonValues.MSR;
 
             List<SongInfo> songs = [.. albumDetail.Songs];
             file.Tag.Performers = songDetail.Artists.Any() ? [.. songDetail.Artists] : [defaultMsrName];

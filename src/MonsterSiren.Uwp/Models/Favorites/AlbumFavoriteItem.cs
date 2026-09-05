@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using MonsterSiren.Api.Helpers.Converters;
 
 namespace MonsterSiren.Uwp.Models.Favorites;
 
@@ -11,6 +12,7 @@ namespace MonsterSiren.Uwp.Models.Favorites;
 public record struct AlbumFavoriteItem(
     string AlbumCid,
     string AlbumName,
+    [property: JsonConverter(typeof(InternedStringArrayConverter))]
     IEnumerable<string> Artistes) : IEquatable<AlbumFavoriteItem>
 {
     /// <summary>

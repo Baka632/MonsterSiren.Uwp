@@ -298,7 +298,7 @@ sealed partial class App : Application
                 {
                     StorageFile file = (StorageFile)item;
                     using Stream stream = await file.OpenStreamForReadAsync();
-                    Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(stream);
+                    Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(stream, CommonValues.DefaultJsonSerializerOptions);
 
                     playlistItemCount += playlist.SongCount;
 

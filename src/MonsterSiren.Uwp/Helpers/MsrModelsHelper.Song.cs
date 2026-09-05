@@ -107,11 +107,11 @@ public static partial class MsrModelsHelper
 
         MediaItemDisplayProperties displayProps = playbackItem.GetDisplayProperties();
         displayProps.Type = MediaPlaybackType.Music;
-        displayProps.MusicProperties.Artist = songDetail.Artists.Any() ? string.Join('/', songDetail.Artists) : "MSR".GetLocalized();
+        displayProps.MusicProperties.Artist = songDetail.Artists.Any() ? string.Join('/', songDetail.Artists) : CommonValues.MSR;
         displayProps.MusicProperties.Title = songDetail.Name;
         displayProps.MusicProperties.TrackNumber = (uint)songs.FindIndex(songInfo => songInfo.Cid == songDetail.Cid) + 1;
         displayProps.MusicProperties.AlbumTitle = albumDetail.Name;
-        displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? "MSR".GetLocalized();
+        displayProps.MusicProperties.AlbumArtist = songDetail.Artists.FirstOrDefault() ?? CommonValues.MSR;
         displayProps.MusicProperties.AlbumTrackCount = (uint)songs.Count;
 
         SetExtraSongAndAlbumCidForMediaPlaybackItem(playbackItem, albumDetail, songDetail);
@@ -317,7 +317,7 @@ public static partial class MsrModelsHelper
     {
         if (songInfo.Artists is null || songInfo.Artists.Any() != true)
         {
-            songInfo = songInfo with { Artists = ["MSR".GetLocalized()] };
+            songInfo = songInfo with { Artists = [CommonValues.MSR] };
 
             return (true, songInfo);
         }
@@ -369,7 +369,7 @@ public static partial class MsrModelsHelper
     {
         if (songDetail.Artists is null || songDetail.Artists.Any() != true)
         {
-            songDetail = songDetail with { Artists = ["MSR".GetLocalized()] };
+            songDetail = songDetail with { Artists = [CommonValues.MSR] };
 
             return (true, songDetail);
         }

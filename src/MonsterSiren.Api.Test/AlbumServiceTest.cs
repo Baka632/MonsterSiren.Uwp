@@ -1,4 +1,4 @@
-﻿using MonsterSiren.Api.Models.Album;
+using MonsterSiren.Api.Models.Album;
 
 namespace MonsterSiren.Api.Test;
 

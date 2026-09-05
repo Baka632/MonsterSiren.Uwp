@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using MonsterSiren.Api.Helpers.Converters;
 
 namespace MonsterSiren.Api.Models.Album;
 
@@ -35,6 +36,7 @@ public struct AlbumInfo : IEquatable<AlbumInfo>
     /// <summary>
     /// 专辑艺术家。
     /// </summary>
+    [JsonConverter(typeof(InternedStringArrayConverter))]
     public IEnumerable<string> Artistes { get; set; } = [];
 
     /// <summary>

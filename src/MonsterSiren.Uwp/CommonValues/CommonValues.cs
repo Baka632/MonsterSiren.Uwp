@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.Unicode;
 using Windows.Foundation.Metadata;
 using Windows.System.Profile;
@@ -105,11 +106,13 @@ internal static partial class CommonValues
 
     public static readonly int TooManyItemThresholdCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
 
-    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
-    public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
+    public static readonly string MSR = string.Intern("MSR".GetLocalized());
+    public static readonly string SongCountFormat = "SongsCount".GetLocalized();
+    public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         WriteIndented = true,
-        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver()
     };
 
     /// <summary>
@@ -141,4 +144,9 @@ internal static partial class CommonValues
             "{SongIndexOneStart}",
         ];
     #endregion
+
+    static CommonValues()
+    {
+        DefaultJsonSerializerOptions.MakeReadOnly();
+    }
 }

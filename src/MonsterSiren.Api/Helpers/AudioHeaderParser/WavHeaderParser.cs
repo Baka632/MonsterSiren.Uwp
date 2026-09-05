@@ -1,19 +1,19 @@
 using System.Buffers.Binary;
 
-namespace MonsterSiren.Api.Helpers;
+namespace MonsterSiren.Api.Helpers.AudioHeaderParser;
 
 internal static class WavHeaderParser
 {
-    public static (bool IsWavHeader, int Length) IsWavHeader(Span<byte> bytes)
+    public static bool IsWavHeader(Span<byte> bytes)
     {
         if (bytes.Length < 12)
         {
-            return (false, -1);
+            return false;
         }
         ReadOnlySpan<byte> riff = "RIFF"u8;
         ReadOnlySpan<byte> wave = "WAVE"u8;
-        return (bytes[..4].SequenceEqual(riff)
-            && bytes[8..12].SequenceEqual(wave), BinaryPrimitives.ReadInt32LittleEndian(bytes[4..8]));
+        return bytes[..4].SequenceEqual(riff)
+            && bytes[8..12].SequenceEqual(wave);
     }
 
     public static TimeSpan GetWavDuration(Span<byte> bytes)

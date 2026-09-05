@@ -84,7 +84,7 @@ public static class PlaylistService
             try
             {
                 using Stream utf8Json = await item.OpenStreamForReadAsync();
-                Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(utf8Json);
+                Playlist playlist = await JsonSerializer.DeserializeAsync<Playlist>(utf8Json, CommonValues.DefaultJsonSerializerOptions);
                 TotalPlaylists.Add(playlist);
             }
             catch (JsonException)
@@ -165,7 +165,7 @@ public static class PlaylistService
                     try
                     {
                         using Stream formerFileStream = await formerFile.OpenStreamForReadAsync();
-                        Playlist formerPlaylist = await JsonSerializer.DeserializeAsync<Playlist>(formerFileStream);
+                        Playlist formerPlaylist = await JsonSerializer.DeserializeAsync<Playlist>(formerFileStream, CommonValues.DefaultJsonSerializerOptions);
 
                         if (formerPlaylist.PlaylistId == playlist.PlaylistId)
                         {
@@ -189,7 +189,7 @@ public static class PlaylistService
 
                 try
                 {
-                    Playlist mayDuplicatePlaylist = await JsonSerializer.DeserializeAsync<Playlist>(duplicateFileStream);
+                    Playlist mayDuplicatePlaylist = await JsonSerializer.DeserializeAsync<Playlist>(duplicateFileStream, CommonValues.DefaultJsonSerializerOptions);
                     option = mayDuplicatePlaylist.PlaylistId == playlist.PlaylistId
                         ? CreationCollisionOption.OpenIfExists
                         : CreationCollisionOption.GenerateUniqueName;

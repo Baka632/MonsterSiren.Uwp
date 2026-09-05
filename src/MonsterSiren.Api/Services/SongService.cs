@@ -1,6 +1,6 @@
 using System.Buffers;
-using MonsterSiren.Api.Helpers;
 using MonsterSiren.Api.Models.Song;
+using MonsterSiren.Api.Helpers.AudioHeaderParser;
 
 namespace MonsterSiren.Api.Services;
 
@@ -93,16 +93,17 @@ public static partial class SongService
             int bytesRead = await stream.ReadAsync(array, 0, bufferSize);
             Span<byte> buffer = array.AsSpan(0, bytesRead);
 
-            (bool isWavHeader, _) = WavHeaderParser.IsWavHeader(buffer);
-            if (isWavHeader)
+            if (WavHeaderParser.IsWavHeader(buffer))
             {
-                TimeSpan duration = WavHeaderParser.GetWavDuration(buffer);
-                return duration;
+                return WavHeaderParser.GetWavDuration(buffer);
+            }
+            else if (Mp3HeaderParser.IsMp3Header(buffer))
+            {
+                return Mp3HeaderParser.GetMp3Duration(buffer);
             }
             else
             {
-                // 在未来 MP3 相关内容添加时再检查长度。
-                throw new NotImplementedException();
+                throw new NotImplementedException("尚未实现对其他音频格式的支持");
             }
         }
         finally

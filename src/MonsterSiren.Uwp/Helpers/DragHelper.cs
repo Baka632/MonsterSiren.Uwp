@@ -118,12 +118,12 @@ public static class DragHelper
 
         (string formatId, string json) = values switch
         {
-            IEnumerable<SongInfo> songInfos => (MusicSongInfosFormatId, JsonSerializer.Serialize(songInfos)),
-            IEnumerable<AlbumInfo> albumInfos => (MusicAlbumInfosFormatId, JsonSerializer.Serialize(albumInfos)),
-            IEnumerable<Playlist> playlists => (MusicPlaylistsFormatId, JsonSerializer.Serialize(playlists)),
-            IEnumerable<PlaylistItem> playlistItems => (MusicPlaylistItemsFormatId, JsonSerializer.Serialize(playlistItems)),
-            IEnumerable<SongFavoriteItem> songFavoriteItems => (MusicSongFavoriteItemsFormatId, JsonSerializer.Serialize(songFavoriteItems)),
-            IEnumerable<AlbumFavoriteItem> albumFavoriteItems => (MusicAlbumFavoriteItemsFormatId, JsonSerializer.Serialize(albumFavoriteItems)),
+            IEnumerable<SongInfo> songInfos => (MusicSongInfosFormatId, JsonSerializer.Serialize(songInfos, CommonValues.DefaultJsonSerializerOptions)),
+            IEnumerable<AlbumInfo> albumInfos => (MusicAlbumInfosFormatId, JsonSerializer.Serialize(albumInfos, CommonValues.DefaultJsonSerializerOptions)),
+            IEnumerable<Playlist> playlists => (MusicPlaylistsFormatId, JsonSerializer.Serialize(playlists, CommonValues.DefaultJsonSerializerOptions)),
+            IEnumerable<PlaylistItem> playlistItems => (MusicPlaylistItemsFormatId, JsonSerializer.Serialize(playlistItems, CommonValues.DefaultJsonSerializerOptions)),
+            IEnumerable<SongFavoriteItem> songFavoriteItems => (MusicSongFavoriteItemsFormatId, JsonSerializer.Serialize(songFavoriteItems, CommonValues.DefaultJsonSerializerOptions)),
+            IEnumerable<AlbumFavoriteItem> albumFavoriteItems => (MusicAlbumFavoriteItemsFormatId, JsonSerializer.Serialize(albumFavoriteItems, CommonValues.DefaultJsonSerializerOptions)),
             _ => throw new NotImplementedException("尚未实现这类模型的处理流程。")
         };
 
@@ -137,27 +137,27 @@ public static class DragHelper
         if (dataView.Contains(MusicAlbumInfosFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicAlbumInfosFormatId);
-            provider = JsonSerializer.Deserialize<IEnumerable<AlbumInfo>>(json).ToAdapter();
+            provider = JsonSerializer.Deserialize<IEnumerable<AlbumInfo>>(json, CommonValues.DefaultJsonSerializerOptions).ToAdapter();
         }
         else if (dataView.Contains(MusicSongInfosFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicSongInfosFormatId);
-            provider = JsonSerializer.Deserialize<IEnumerable<SongInfo>>(json).ToAdapter();
+            provider = JsonSerializer.Deserialize<IEnumerable<SongInfo>>(json, CommonValues.DefaultJsonSerializerOptions).ToAdapter();
         }
         else if (dataView.Contains(MusicPlaylistItemsFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicPlaylistItemsFormatId);
-            provider = JsonSerializer.Deserialize<IEnumerable<PlaylistItem>>(json).ToAdapter();
+            provider = JsonSerializer.Deserialize<IEnumerable<PlaylistItem>>(json, CommonValues.DefaultJsonSerializerOptions).ToAdapter();
         }
         else if (dataView.Contains(MusicSongFavoriteItemsFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicSongFavoriteItemsFormatId);
-            provider = JsonSerializer.Deserialize<IEnumerable<SongFavoriteItem>>(json).ToAdapter();
+            provider = JsonSerializer.Deserialize<IEnumerable<SongFavoriteItem>>(json, CommonValues.DefaultJsonSerializerOptions).ToAdapter();
         }
         else if (dataView.Contains(MusicAlbumFavoriteItemsFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicAlbumFavoriteItemsFormatId);
-            provider = JsonSerializer.Deserialize<IEnumerable<AlbumFavoriteItem>>(json).ToAdapter();
+            provider = JsonSerializer.Deserialize<IEnumerable<AlbumFavoriteItem>>(json, CommonValues.DefaultJsonSerializerOptions).ToAdapter();
         }
         else
         {
@@ -176,7 +176,7 @@ public static class DragHelper
         if (dataView.Contains(MusicPlaylistsFormatId))
         {
             string json = (string)await dataView.GetDataAsync(MusicPlaylistsFormatId);
-            IEnumerable<Playlist> playlists = JsonSerializer.Deserialize<IEnumerable<Playlist>>(json);
+            IEnumerable<Playlist> playlists = JsonSerializer.Deserialize<IEnumerable<Playlist>>(json, CommonValues.DefaultJsonSerializerOptions);
             await successOperation?.Invoke(playlists);
             return true;
         }

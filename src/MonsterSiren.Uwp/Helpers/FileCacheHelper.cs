@@ -263,7 +263,7 @@ internal static class FileCacheHelper
                 StorageFile file = await durationFolder.GetFileAsync(fileName);
                 using Stream utf8Json = await file.OpenStreamForReadAsync();
 
-                TimeSpan duration = JsonSerializer.Deserialize<TimeSpan>(utf8Json);
+                TimeSpan duration = await JsonSerializer.DeserializeAsync<TimeSpan>(utf8Json, CommonValues.DefaultJsonSerializerOptions);
                 return duration;
             }
             catch (JsonException)
@@ -293,7 +293,7 @@ internal static class FileCacheHelper
         StorageFile file = await durationFolder.CreateFileAsync($"{songCid}.json", CreationCollisionOption.ReplaceExisting);
 
         using Stream stream = await file.OpenStreamForWriteAsync();
-        await JsonSerializer.SerializeAsync(stream, timeSpan);
+        await JsonSerializer.SerializeAsync(stream, timeSpan, CommonValues.DefaultJsonSerializerOptions);
     }
 
     [Obsolete("暂时不使用此方法")]
@@ -304,7 +304,7 @@ internal static class FileCacheHelper
 
         using StorageStreamTransaction transaction = await file.OpenTransactedWriteAsync();
         using Stream utf8Json = transaction.Stream.AsStreamForWrite();
-        await JsonSerializer.SerializeAsync(utf8Json, info);
+        await JsonSerializer.SerializeAsync(utf8Json, info, CommonValues.DefaultJsonSerializerOptions);
         await transaction.CommitAsync();
     }
 }
