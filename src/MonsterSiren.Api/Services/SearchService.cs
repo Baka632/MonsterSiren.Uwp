@@ -1,7 +1,7 @@
 using MonsterSiren.Api.Models.Album;
 using MonsterSiren.Api.Models.News;
 
-namespace MonsterSiren.Api.Service;
+namespace MonsterSiren.Api.Services;
 
 /// <summary>
 /// 塞壬唱片搜索服务。

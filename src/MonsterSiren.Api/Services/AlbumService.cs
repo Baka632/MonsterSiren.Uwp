@@ -1,6 +1,6 @@
 using MonsterSiren.Api.Models.Album;
 
-namespace MonsterSiren.Api.Service;
+namespace MonsterSiren.Api.Services;
 
 /// <summary>
 /// 塞壬唱片专辑服务。
