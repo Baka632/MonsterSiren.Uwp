@@ -1,6 +1,7 @@
-using System.Buffers;
 using MonsterSiren.Api.Models.Song;
 using MonsterSiren.Api.Helpers.AudioHeaderParser;
+using Microsoft.IO;
+using System.Buffers;
 
 namespace MonsterSiren.Api.Services;
 
@@ -9,6 +10,18 @@ namespace MonsterSiren.Api.Services;
 /// </summary>
 public static partial class SongService
 {
+    private static readonly RecyclableMemoryStreamManager recyclableMemoryStreamManager = new(new RecyclableMemoryStreamManager.Options()
+    {
+        BlockSize = 2048, // 2KB
+        LargeBufferMultiple = 32 * 1024, // 32KB
+        UseExponentialLargeBuffer = true,
+        MaximumBufferSize = 512 * 1024, // 512KB
+        MaximumSmallPoolFreeBytes = 1 * 1024 * 1024,
+        MaximumLargePoolFreeBytes = 5 * 1024 * 1024,
+        ZeroOutBuffer = false,
+        GenerateCallStacks = false,
+    });
+
     /// <summary>
     /// 获取歌曲详细信息。
     /// </summary>
@@ -65,50 +78,75 @@ public static partial class SongService
     }
 
     /// <summary>
-    /// 获取歌曲时长。
+    /// 通过部分读取文件，获取歌曲时长。
     /// </summary>
+    /// <remarks>
+    /// <para>本方法至多通过网络读取 512 KB 的数据，如果仍无法解析出时长，则会抛出 <see cref="InvalidOperationException"/>。</para>
+    /// <para>请在此情况下下载完整文件后交由其他库解析。</para>
+    /// </remarks>
     /// <param name="uri">歌曲文件的 <see cref="Uri"/>。</param>
     /// <returns>歌曲的时长。</returns>
+    /// <exception cref="HttpRequestException">HTTP 请求出错。</exception>
     /// <exception cref="ArgumentException">URI 格式不正确。</exception>
     /// <exception cref="InvalidDataException">数据格式错误。</exception>
     /// <exception cref="NotImplementedException">不支持的音频格式。</exception>
+    /// <exception cref="InvalidOperationException">已达到最大大小限制，解析仍未成功。请下载完整文件后交由其他库解析。</exception>
     public static async Task<TimeSpan> GetSongDurationAsync(Uri uri)
     {
         if (!uri.IsAbsoluteUri)
         {
             throw new ArgumentException("Uri 必须是绝对 Uri。", nameof(uri));
         }
-        using HttpRequestMessage request = new(HttpMethod.Get, uri);
-        // 只请求前 16384 字节以获取文件头信息
-        const int bufferSize = 16384;
-        request.Headers.Range = new(0, bufferSize - 1);
 
-        using HttpResponseMessage response = await HttpClientProvider.HttpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        // 初始 2 KB。
+        int audioFileExpectedLength = 2048;
+        // 最大 512 KB。
+        const int maxSize = 512 * 1024;
+        long actualFileSize = -1;
 
-        byte[] array = ArrayPool<byte>.Shared.Rent(bufferSize);
-        try
+        using RecyclableMemoryStream stream = recyclableMemoryStreamManager.GetStream("AudioParser", 2048);
+
+        while (stream.Length < maxSize
+            && audioFileExpectedLength < (actualFileSize == -1 ? maxSize : Math.Min(actualFileSize, maxSize)))
         {
-            using Stream stream = await response.Content.ReadAsStreamAsync();
-            int bytesRead = await stream.ReadAsync(array, 0, bufferSize);
-            Span<byte> buffer = array.AsSpan(0, bytesRead);
+            stream.Position = stream.Length;
 
-            if (WavHeaderParser.IsWavHeader(buffer))
+            using HttpRequestMessage request = new(HttpMethod.Get, uri);
+            request.Headers.Range = new(stream.Length, audioFileExpectedLength - 1);
+
+            using HttpResponseMessage response = await HttpClientProvider.HttpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            actualFileSize = response.Content.Headers.ContentRange?.Length ?? -1;
+
+            using Stream webstream = await response.Content.ReadAsStreamAsync();
+            webstream.CopyTo(stream);
+
+            ReadOnlySequence<byte> sequence = stream.GetReadOnlySequence().Slice(0, audioFileExpectedLength);
+
+            try
             {
-                return WavHeaderParser.GetWavDuration(buffer);
+                if (WavHeaderParser.IsWavHeader(sequence))
+                {
+                    return WavHeaderParser.GetWavDuration(sequence);
+                }
+                else if (Mp3HeaderParser.IsMp3Header(sequence))
+                {
+                    return Mp3HeaderParser.GetMp3Duration(sequence, actualFileSize);
+                }
+                else
+                {
+#if DEBUG
+                    System.Diagnostics.Debugger.Break();
+#endif
+                    throw new NotImplementedException("尚未实现对其他音频格式的支持");
+                }
             }
-            else if (Mp3HeaderParser.IsMp3Header(buffer))
+            catch (InsufficientDataException insufficientData)
             {
-                return Mp3HeaderParser.GetMp3Duration(buffer);
-            }
-            else
-            {
-                throw new NotImplementedException("尚未实现对其他音频格式的支持");
+                audioFileExpectedLength = insufficientData.RequiredBytes;
             }
         }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(array);
-        }
+
+        throw new InvalidOperationException("已达到最大大小限制，解析仍未成功。");
     }
 }

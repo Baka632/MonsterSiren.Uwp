@@ -1,52 +1,65 @@
+using System.Buffers;
 using System.Buffers.Binary;
 
 namespace MonsterSiren.Api.Helpers.AudioHeaderParser;
 
 internal static class WavHeaderParser
 {
-    public static bool IsWavHeader(Span<byte> bytes)
+    public static bool IsWavHeader(ReadOnlySequence<byte> sequence)
     {
-        if (bytes.Length < 12)
+        if (sequence.Length < 12)
         {
             return false;
         }
+
         ReadOnlySpan<byte> riff = "RIFF"u8;
         ReadOnlySpan<byte> wave = "WAVE"u8;
-        return bytes[..4].SequenceEqual(riff)
-            && bytes[8..12].SequenceEqual(wave);
+        Span<byte> sequenceByte1 = stackalloc byte[4];
+        Span<byte> sequenceByte2 = stackalloc byte[4];
+
+        sequence.Slice(0, 4).CopyTo(sequenceByte1);
+        sequence.Slice(8, 4).CopyTo(sequenceByte2);
+
+        return sequenceByte1.SequenceEqual(riff) && sequenceByte2.SequenceEqual(wave);
     }
 
-    public static TimeSpan GetWavDuration(Span<byte> bytes)
+    public static TimeSpan GetWavDuration(ReadOnlySequence<byte> sequence)
     {
-        if (bytes.Length < 44)
+        if (sequence.Length < 44)
         {
-            throw new InvalidDataException("传入的数据长度不足");
+            throw new InsufficientDataException(44);
         }
 
-        (bool foundFmt, int fmtStartIndex, int fmtChunkSize) = FindChunk(bytes, "fmt "u8);
+        (int fmtStartIndex, int fmtChunkSize) = FindChunkOrThrow(sequence, "fmt "u8);
 
-        if (!foundFmt || fmtChunkSize < 16)
+        if (fmtChunkSize < 16)
         {
-            throw new InvalidDataException("WAV 文件格式不正确（找不到 fmt 块或其大小不足）。");
+            throw new InvalidDataException("WAV 文件格式不正确（fmt 块大小不足）。");
+        }
+        else if (fmtStartIndex + 8 + fmtChunkSize > sequence.Length)
+        {
+            throw new InsufficientDataException(fmtStartIndex + 8 + fmtChunkSize);
         }
 
-        int fmtContentStartIndex = fmtStartIndex + 8;
-        short format = BinaryPrimitives.ReadInt16LittleEndian(bytes.Slice(fmtContentStartIndex, 2));
+        Span<byte> fmtContent = fmtChunkSize < 256 ? stackalloc byte[fmtChunkSize] : new byte[fmtChunkSize];
+        sequence.Slice(fmtStartIndex + 8, fmtChunkSize).CopyTo(fmtContent);
+        short format = BinaryPrimitives.ReadInt16LittleEndian(fmtContent[..2]);
         if (format != 1 && format != 3)
         {
             throw new NotImplementedException("当前仅支持未压缩的 PCM 及采用 IEEE Float 格式的 WAV 文件。");
         }
-        short channelNumber = BinaryPrimitives.ReadInt16LittleEndian(bytes.Slice(fmtContentStartIndex + 2, 2));
-        int sampleRate = BinaryPrimitives.ReadInt32LittleEndian(bytes.Slice(fmtContentStartIndex + 2 + 2, 4));
+        short channelNumber = BinaryPrimitives.ReadInt16LittleEndian(fmtContent.Slice(2, 2));
+        int sampleRate = BinaryPrimitives.ReadInt32LittleEndian(fmtContent.Slice(2 + 2, 4));
+        // 跳过的：
         // Byte Rate (4 bytes): + 2 + 2 + 4
         // Block Align (2 bytes): + 2 + 2 + 4 + 4
-        short bitsPerSample = BinaryPrimitives.ReadInt16LittleEndian(bytes.Slice(fmtContentStartIndex + 2 + 2 + 4 + 4 + 2, 2));
+        short bitsPerSample = BinaryPrimitives.ReadInt16LittleEndian(fmtContent.Slice(2 + 2 + 4 + 4 + 2, 2));
 
-        (bool foundData, _, int dataChunkSize) = FindChunk(bytes, "data"u8);
+        (_, int dataChunkSize) = FindChunkOrThrow(sequence, "data"u8);
 
-        if (!foundData || dataChunkSize <= 0)
+        if (dataChunkSize <= 0)
         {
-            throw new InvalidDataException("WAV 文件格式不正确（找不到 data 块或其大小不正确）。");
+            throw new InvalidDataException("WAV 文件格式不正确（data 块大小不正确）。");
         }
 
         double bytesPerSecond = sampleRate * channelNumber * (bitsPerSample / 8.0);
@@ -54,20 +67,26 @@ internal static class WavHeaderParser
         return TimeSpan.FromSeconds(durationInSeconds);
     }
 
-    private static (bool ChunkFound, int StartIndex, int ChunkSize) FindChunk(ReadOnlySpan<byte> bytes, ReadOnlySpan<byte> chunkName)
+    private static (int StartIndex, int ChunkSize) FindChunkOrThrow(ReadOnlySequence<byte> sequence, ReadOnlySpan<byte> chunkName)
     {
         // 跳过 RIFF、文件长度及 WAVE 标识
         int index = 12;
-        while (index + 8 <= bytes.Length)
+        Span<byte> currentChunkName = stackalloc byte[4];
+        Span<byte> currentChunkSizeSpan = stackalloc byte[4];
+        while (index + 8 <= sequence.Length)
         {
-            ReadOnlySpan<byte> currentChunkName = bytes.Slice(index, 4);
-            int currentChunkSize = BinaryPrimitives.ReadInt32LittleEndian(bytes.Slice(index + 4, 4));
+            sequence.Slice(index, 4).CopyTo(currentChunkName);
+            sequence.Slice(index + 4, 4).CopyTo(currentChunkSizeSpan);
+            int currentChunkSize = BinaryPrimitives.ReadInt32LittleEndian(currentChunkSizeSpan);
             if (currentChunkName.SequenceEqual(chunkName))
             {
-                return (true, index, currentChunkSize);
+                return (index, currentChunkSize);
             }
+
+            // 4 字节的块名 + 4 字节的块大小 + 块内容大小
             index += 8 + currentChunkSize;
         }
-        return (false, -1, -1);
+
+        throw new InsufficientDataException(index + 8);
     }
 }
