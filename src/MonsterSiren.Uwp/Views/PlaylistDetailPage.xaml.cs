@@ -130,6 +130,11 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
+        if (SongList.SelectionMode == ListViewSelectionMode.Multiple)
+        {
+            return;
+        }
+
         FrameworkElement element = (FrameworkElement)sender;
         PlaylistItem playlistItem = (PlaylistItem)element.DataContext;
 

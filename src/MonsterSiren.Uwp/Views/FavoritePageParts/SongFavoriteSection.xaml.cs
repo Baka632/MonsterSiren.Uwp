@@ -47,6 +47,11 @@ public sealed partial class SongFavoriteSection : UserControl, INotifyPropertyCh
 
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
+        if (SongList.SelectionMode == ListViewSelectionMode.Multiple)
+        {
+            return;
+        }
+
         FrameworkElement element = (FrameworkElement)sender;
         SongFavoriteItem favoriteItem = (SongFavoriteItem)element.DataContext;
 

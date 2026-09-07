@@ -165,6 +165,10 @@ public sealed partial class AlbumDetailPage : Page
 
     private async void OnListViewItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
+        if (SongList.SelectionMode == ListViewSelectionMode.Multiple)
+        {
+            return;
+        }
         FrameworkElement element = (FrameworkElement)sender;
         SongInfo songInfo = (SongInfo)element.DataContext;
 

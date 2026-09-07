@@ -280,6 +280,11 @@ public sealed partial class NowPlayingPage : Page
 
     private void OnNowPlayingItemGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
+        if (NowPlayingListView.SelectionMode == ListViewSelectionMode.Multiple)
+        {
+            return;
+        }
+
         FrameworkElement element = (FrameworkElement)sender;
         MediaPlaybackItem playbackItem = (MediaPlaybackItem)element.DataContext;
 
