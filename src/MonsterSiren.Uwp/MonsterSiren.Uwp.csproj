@@ -186,6 +186,7 @@
     <Compile Include="Models\Adapters\PlaylistItemAdapter.cs" />
     <Compile Include="Models\Adapters\PlaylistItemSequenceAdapter.cs" />
     <Compile Include="Models\Adapters\SongCidAdapter.cs" />
+    <Compile Include="Models\Adapters\SongDetailAdapter.cs" />
     <Compile Include="Models\Adapters\SongFavoriteItemAdapter.cs" />
     <Compile Include="Models\Adapters\SongFavoriteItemSequenceAdapter.cs" />
     <Compile Include="Models\Adapters\SongFavoriteListAdapter.cs" />

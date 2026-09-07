@@ -5,7 +5,6 @@ using Windows.Services.Store;
 using Microsoft.Services.Store.Engagement;
 #endregion
 using System.Collections.Specialized;
-using System.Text.Json;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
@@ -14,9 +13,7 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Xaml.Media.Animation;
-using MonsterSiren.Uwp.Models.Favorites;
 using MUXCNavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
-using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Playlists;
 
 // https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x804 上介绍了“空白页”项模板
@@ -149,7 +146,7 @@ public sealed partial class MainPage : Page
             case AppBackgroundMode.Acrylic:
                 return AcrylicHelper.TrySetAcrylicBrush(this);
             case AppBackgroundMode.Mica:
-                // 设置 Mica 时，要将控件背景设置为透明
+                // 设置 Mica 时，要将控件背景设置为透明。
                 Background = new SolidColorBrush(Colors.Transparent);
                 return MicaHelper.TrySetMica(this);
             case AppBackgroundMode.PureColor:

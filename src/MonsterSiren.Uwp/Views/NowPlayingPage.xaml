@@ -28,6 +28,15 @@
                 To="1"
                 Duration="0:0:0.2" />
         </Storyboard>
+
+        <Style x:Name="MusicThemeToggleButton" TargetType="msrControls:ThemedToggleButton">
+            <Setter Property="ThemeBackground">
+                <Setter.Value>
+                    <SolidColorBrush Color="{Binding ElementName=Self, Path=ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style BasedOn="{StaticResource MusicThemeToggleButton}" TargetType="msrControls:ThemedToggleButton" />
     </Page.Resources>
 
     <Grid PointerWheelChanged="OnRootGridPointerWheelChanged">
@@ -212,18 +221,13 @@
                                 <Setter Property="Margin" Value="5,0,5,0" />
                                 <Setter Property="Padding" Value="0" />
                             </Style>
-                            <Style TargetType="msrControls:ThemedToggleButton">
+                            <Style BasedOn="{StaticResource MusicThemeToggleButton}" TargetType="msrControls:ThemedToggleButton">
                                 <Setter Property="Height" Value="35" />
                                 <Setter Property="Width" Value="35" />
                                 <Setter Property="Background" Value="Transparent" />
                                 <Setter Property="BorderThickness" Value="0" />
                                 <Setter Property="Margin" Value="5,0,5,0" />
                                 <Setter Property="Padding" Value="0" />
-                                <Setter Property="ThemeBackground">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="{Binding ElementName=Self, Path=ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
-                                    </Setter.Value>
-                                </Setter>
                             </Style>
                         </StackPanel.Resources>
 
@@ -285,10 +289,6 @@
                                             Background="Transparent"
                                             IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                                             IsThreeState="False">
-                                            <msrControls:ThemedToggleButton.ThemeBackground>
-                                                <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
-                                            </msrControls:ThemedToggleButton.ThemeBackground>
-
                                             <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                                         </msrControls:ThemedToggleButton>
                                         <Slider
