@@ -148,7 +148,10 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Grid x:Name="MusicProcessContainer" Grid.Row="0">
+                <Grid
+                    x:Name="MusicProcessContainer"
+                    Grid.Row="0"
+                    MinHeight="32">
                     <Grid
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
