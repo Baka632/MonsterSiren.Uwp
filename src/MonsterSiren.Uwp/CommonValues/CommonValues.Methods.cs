@@ -12,6 +12,7 @@ using MonsterSiren.Uwp.Models.Favorites;
 using MonsterSiren.Uwp.Models.Playlists;
 using MonsterSiren.Uwp.Models.Adapters;
 using MonsterSiren.Uwp.Models.Abstracts;
+using Windows.UI.Text;
 
 namespace MonsterSiren.Uwp;
 
@@ -605,4 +606,15 @@ partial class CommonValues
             _ => throw new ArgumentException("指定的对象无法转换为 ISongCidProvider。", nameof(source)),
         };
     }
+
+    /// <summary>
+    /// 根据项目是否损坏，返回对应的 <see cref="FontStyle"/>。
+    /// </summary>
+    /// <param name="isCorrupt">指示项目是否损坏的值。</param>
+    /// <returns>对应的 <see cref="FontStyle"/>。</returns>
+    public static FontStyle GetFontStyleFromItemCorruptState(bool isCorrupt) => isCorrupt switch
+    {
+        true => FontStyle.Italic,
+        false => FontStyle.Normal
+    };
 }

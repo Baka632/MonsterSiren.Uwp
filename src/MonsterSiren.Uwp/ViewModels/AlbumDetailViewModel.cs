@@ -11,10 +11,12 @@ public partial class AlbumDetailViewModel : ObservableObject
 {
     private readonly AlbumDetailPage view;
     private SelectionHelper selectionHelper;
-    private bool supressCurrentAlbumFavoriteStateUpdate;
+    private bool suppressCurrentAlbumFavoriteStateUpdate;
 
     [ObservableProperty]
     private bool isLoading = false;
+    [ObservableProperty]
+    private bool isMediaControlEnabled = false;
     [ObservableProperty]
     private Visibility errorVisibility = Visibility.Collapsed;
     [ObservableProperty]
@@ -46,7 +48,7 @@ public partial class AlbumDetailViewModel : ObservableObject
 
     async partial void OnCurrentAlbumFavoriteStateChanged(bool value)
     {
-        if (supressCurrentAlbumFavoriteStateUpdate)
+        if (suppressCurrentAlbumFavoriteStateUpdate)
         {
             return;
         }
@@ -75,6 +77,7 @@ public partial class AlbumDetailViewModel : ObservableObject
         selectionHelper = new(view.SongList, view.SongSelectionFlyout, view.SongContextFlyout, flyout => SelectedSongListItemContextFlyout = flyout);
 
         IsLoading = true;
+        IsMediaControlEnabled = false;
         SelectedSongListItemContextFlyout = view.SongContextFlyout;
 
         try
@@ -116,10 +119,11 @@ public partial class AlbumDetailViewModel : ObservableObject
 
             ErrorVisibility = Visibility.Collapsed;
             IsSongsEmpty = displaySource.Songs.Any() != true;
+            IsMediaControlEnabled = true;
 
-            supressCurrentAlbumFavoriteStateUpdate = true;
+            suppressCurrentAlbumFavoriteStateUpdate = true;
             CurrentAlbumFavoriteState = FavoriteService.ContainsAlbum(displaySource.AlbumCid);
-            supressCurrentAlbumFavoriteStateUpdate = false;
+            suppressCurrentAlbumFavoriteStateUpdate = false;
         }
         catch (HttpRequestException ex)
         {
@@ -130,6 +134,18 @@ public partial class AlbumDetailViewModel : ObservableObject
                 Message = "InternetErrorMessage".GetLocalized(),
                 Exception = ex
             };
+            IsMediaControlEnabled = false;
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            ErrorVisibility = Visibility.Visible;
+            ErrorInfo = new ErrorInfo()
+            {
+                Title = "ErrorOccurred".GetLocalized(),
+                Message = "SongOrAlbumCidCorruptMessage".GetLocalized(),
+                Exception = ex
+            };
+            IsMediaControlEnabled = false;
         }
         finally
         {

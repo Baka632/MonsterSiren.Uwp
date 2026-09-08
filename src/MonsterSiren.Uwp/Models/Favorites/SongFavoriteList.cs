@@ -16,6 +16,7 @@ public sealed class SongFavoriteList : FavoriteList<SongFavoriteItem>, IEquatabl
 
     public SongFavoriteList()
     {
+        Items.CollectionChanged += OnItemCollectionChanged;
     }
 
     [JsonConstructor]

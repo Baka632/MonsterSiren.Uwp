@@ -71,11 +71,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task RemovePlaylist()
     {
-        bool result = await CommonValues.RemovePlaylist(CurrentPlaylist);
-        if (result)
-        {
-            ContentFrameNavigationHelper.GoBack();
-        }
+        await CommonValues.RemovePlaylist(CurrentPlaylist);
     }
 
     [RelayCommand]

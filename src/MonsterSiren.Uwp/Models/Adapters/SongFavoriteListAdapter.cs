@@ -10,7 +10,9 @@ public sealed class SongFavoriteListAdapter(SongFavoriteList songFavorite) : ISo
 
     public async IAsyncEnumerable<string> GetSongCidsAsync(ExceptionBox box)
     {
-        foreach (SongFavoriteItem item in songFavorite)
+        SongFavoriteItem[] items = [.. songFavorite.Items];
+
+        foreach (SongFavoriteItem item in items)
         {
             yield return item.SongCid;
         }

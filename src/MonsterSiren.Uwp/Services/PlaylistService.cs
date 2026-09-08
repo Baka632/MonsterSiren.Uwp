@@ -13,6 +13,8 @@ namespace MonsterSiren.Uwp.Services;
 /// </summary>
 public static class PlaylistService
 {
+    public static event Action<Playlist> PlaylistRemoved;
+
     public const string PlaylistFileExtension = ".sora-playlist";
     private static readonly SemaphoreSlim playlistFileSemaphore = new(1);
     private static string _playlistSavePath;
@@ -140,6 +142,7 @@ public static class PlaylistService
         {
             TotalPlaylists.Remove(playlist);
             await RemovePlaylistFile(playlist, StorageDeleteOption.Default);
+            PlaylistRemoved?.Invoke(playlist);
         }
     }
 

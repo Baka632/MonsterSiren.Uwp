@@ -9,7 +9,10 @@ namespace MonsterSiren.Uwp.Models.Favorites;
 /// </summary>
 public sealed class AlbumFavoriteList : FavoriteList<AlbumFavoriteItem>, IEquatable<AlbumFavoriteList>
 {
-    public AlbumFavoriteList(){ }
+    public AlbumFavoriteList()
+    {
+        Items.CollectionChanged += OnItemCollectionChanged;
+    }
 
     [JsonConstructor]
     public AlbumFavoriteList(ObservableCollection<AlbumFavoriteItem> items)

@@ -58,6 +58,8 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
         FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
         FavoriteService.SongFavoriteList.Items.CollectionChanged += OnSongFavoriteListCollectionChanged;
+        PlaylistService.PlaylistRemoved -= OnPlaylistRemoved;
+        PlaylistService.PlaylistRemoved += OnPlaylistRemoved;
 
         this.RegisterElementForConnectedAnimation("PlaylistItemToDetailAnimationKey", SongList);
     }
@@ -68,6 +70,15 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
 
         ViewModel.CurrentPlaylist.Items.CollectionChanged -= OnTotalPlaylistsCollectionChanged;
         FavoriteService.SongFavoriteList.Items.CollectionChanged -= OnSongFavoriteListCollectionChanged;
+        PlaylistService.PlaylistRemoved -= OnPlaylistRemoved;
+    }
+
+    private void OnPlaylistRemoved(Playlist playlist)
+    {
+        if (ViewModel.CurrentPlaylist == playlist)
+        {
+            Frame.GoBack();
+        }
     }
 
     private void OnSongFavoriteListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -233,5 +244,15 @@ public sealed partial class PlaylistDetailPage : Page, INotifyPropertyChanged
     {
         bool isFavorite = FavoriteService.ContainsSong(playlistItem);
         toggleButton.IsChecked = isFavorite;
+    }
+
+    private void OnPlaylistDetailPageLoaded(object sender, RoutedEventArgs e)
+    {
+        if (!PlaylistService.TotalPlaylists.Contains(ViewModel.CurrentPlaylist))
+        {
+            // 在 PlaylistService 中找不到当前播放列表，说明已经删除。
+            Frame.GoBack();
+            return;
+        }
     }
 }

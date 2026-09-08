@@ -15,6 +15,7 @@
     xmlns:wctControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     x:Name="Self"
     d:DataContext="{d:DesignInstance Type=viewmodels:PlaylistDetailViewModel}"
+    Loaded="OnPlaylistDetailPageLoaded"
     mc:Ignorable="d">
     <Page.Resources>
         <menuFlyouts:SongMenuFlyout
@@ -246,16 +247,10 @@
                             Visibility="{x:Bind IsCorruptedItem}" />
 
                         <TextBlock
+                            FontStyle="{x:Bind app:CommonValues.GetFontStyleFromItemCorruptState(IsCorruptedItem)}"
                             Style="{StaticResource SongDefaultTextStyle}"
                             Text="{x:Bind SongTitle}"
-                            ToolTipService.ToolTip="{x:Bind SongTitle}"
-                            Visibility="{x:Bind helpers:XamlHelper.ReverseVisibility(IsCorruptedItem)}" />
-                        <TextBlock
-                            FontStyle="Italic"
-                            Style="{StaticResource SongDefaultTextStyle}"
-                            Text="{x:Bind SongTitle}"
-                            ToolTipService.ToolTip="{x:Bind SongTitle}"
-                            Visibility="{x:Bind IsCorruptedItem}" />
+                            ToolTipService.ToolTip="{x:Bind SongTitle}" />
 
                         <TextBlock
                             Grid.Column="2"
