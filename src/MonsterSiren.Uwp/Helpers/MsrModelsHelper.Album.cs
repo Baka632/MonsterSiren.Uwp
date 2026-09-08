@@ -131,7 +131,7 @@ partial class MsrModelsHelper
 
         if (albumInfo.Artistes is null || albumInfo.Artistes.Any() != true)
         {
-            albumInfo = albumInfo with { Artistes = ["MSR".GetLocalized()] };
+            albumInfo = albumInfo with { Artistes = [CommonValues.MSR] };
             isModify = true;
         }
 

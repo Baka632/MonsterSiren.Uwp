@@ -1,40 +1,40 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace MonsterSiren.Api.Models.News;
 
 /// <summary>
-/// 提供推荐新闻的结构
+/// 提供推荐新闻的结构。
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
 {
     /// <summary>
-    /// 新闻标题
+    /// 新闻标题。
     /// </summary>
     public string Title { get; set; } = string.Empty;
     /// <summary>
-    /// 新闻封面 Uri
+    /// 新闻封面 Uri。
     /// </summary>
     public string CoverUrl { get; set; } = string.Empty;
     /// <summary>
-    /// 新闻封面的相关信息
+    /// 新闻封面的相关信息。
     /// </summary>
     public RecommendedNewsCoverInfo Cover { get; set; }
     /// <summary>
-    /// 新闻描述
+    /// 新闻描述。
     /// </summary>
     public string Description { get; set; } = string.Empty;
     /// <summary>
-    /// 新闻类型
+    /// 新闻类型。
     /// </summary>
     public int Type { get; set; } = -1;
     /// <summary>
-    /// 新闻数据（CID）
+    /// 新闻数据（CID）。
     /// </summary>
     public string Data { get; set; } = string.Empty;
 
     /// <summary>
-    /// 使用指定的参数构造 <see cref="RecommendedNewsInfo"/> 的新实例
+    /// 使用指定的参数构造 <see cref="RecommendedNewsInfo"/> 的新实例。
     /// </summary>
     public RecommendedNewsInfo(string title, string coverUrl, RecommendedNewsCoverInfo cover, string description, int type, string data)
     {
@@ -77,20 +77,20 @@ public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
     }
 
     /// <summary>
-    /// 确定两个 <see cref="RecommendedNewsInfo"/> 实例是否相等
+    /// 确定两个 <see cref="RecommendedNewsInfo"/> 实例是否相等。
     /// </summary>
-    /// <param name="left">第一个 <see cref="RecommendedNewsInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="RecommendedNewsInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="RecommendedNewsInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="RecommendedNewsInfo"/> 实例。</param>
     public static bool operator ==(RecommendedNewsInfo left, RecommendedNewsInfo right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    /// 确定两个 <see cref="RecommendedNewsInfo"/> 实例是否不同
+    /// 确定两个 <see cref="RecommendedNewsInfo"/> 实例是否不同。
     /// </summary>
-    /// <param name="left">第一个 <see cref="RecommendedNewsInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="RecommendedNewsInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="RecommendedNewsInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="RecommendedNewsInfo"/> 实例。</param>
     public static bool operator !=(RecommendedNewsInfo left, RecommendedNewsInfo right)
     {
         return !(left == right);
@@ -103,13 +103,13 @@ public struct RecommendedNewsInfo : IEquatable<RecommendedNewsInfo>
 }
 
 /// <summary>
-/// 提供推荐新闻封面相关信息的结构
+/// 提供推荐新闻封面相关信息的结构。
 /// </summary>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 public struct RecommendedNewsCoverInfo : IEquatable<RecommendedNewsCoverInfo>
 {
     /// <summary>
-    /// 使用指定参数构造 <see cref="RecommendedNewsCoverInfo"/> 的新实例
+    /// 使用指定参数构造 <see cref="RecommendedNewsCoverInfo"/> 的新实例。
     /// </summary>
     public RecommendedNewsCoverInfo(bool isPrivate, string path)
     {
@@ -118,12 +118,12 @@ public struct RecommendedNewsCoverInfo : IEquatable<RecommendedNewsCoverInfo>
     }
 
     /// <summary>
-    /// 指示此封面是否为私密的值
+    /// 指示此封面是否为私密的值。
     /// </summary>
     [JsonPropertyName("private")]
     public bool IsPrivate { get; set; } = false;
     /// <summary>
-    /// 封面相对于服务器的路径
+    /// 封面相对于服务器的路径。
     /// </summary>
     public string Path { get; set; } = string.Empty;
 
@@ -150,20 +150,20 @@ public struct RecommendedNewsCoverInfo : IEquatable<RecommendedNewsCoverInfo>
     }
 
     /// <summary>
-    /// 确定两个 <see cref="RecommendedNewsCoverInfo"/> 实例是否相等
+    /// 确定两个 <see cref="RecommendedNewsCoverInfo"/> 实例是否相等。
     /// </summary>
-    /// <param name="left">第一个 <see cref="RecommendedNewsCoverInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="RecommendedNewsCoverInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="RecommendedNewsCoverInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="RecommendedNewsCoverInfo"/> 实例。</param>
     public static bool operator ==(RecommendedNewsCoverInfo left, RecommendedNewsCoverInfo right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    /// 确定两个 <see cref="RecommendedNewsCoverInfo"/> 实例是否不同
+    /// 确定两个 <see cref="RecommendedNewsCoverInfo"/> 实例是否不同。
     /// </summary>
-    /// <param name="left">第一个 <see cref="RecommendedNewsCoverInfo"/> 实例</param>
-    /// <param name="right">第二个 <see cref="RecommendedNewsCoverInfo"/> 实例</param>
+    /// <param name="left">第一个 <see cref="RecommendedNewsCoverInfo"/> 实例。</param>
+    /// <param name="right">第二个 <see cref="RecommendedNewsCoverInfo"/> 实例。</param>
     public static bool operator !=(RecommendedNewsCoverInfo left, RecommendedNewsCoverInfo right)
     {
         return !(left == right);

@@ -1,131 +1,69 @@
+using MonsterSiren.Uwp.Models.Abstracts;
+
 namespace MonsterSiren.Uwp;
 
 partial class CommonValues
 {
     /// <summary>
-    /// 根据 <see cref="AlbumInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。
+    /// 根据 <see cref="ISongCidProvider"/> 获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。
     /// </summary>
-    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列。</param>
+    /// <param name="provider"><see cref="ISongCidProvider"/> 实例。</param>
     /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
     /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。</returns>
-    /// <remarks>
-    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
-    /// </remarks>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<AlbumInfo> albumInfos, ExceptionBox box)
+    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(ISongCidProvider provider, ExceptionBox box)
     {
-        foreach (AlbumInfo albumInfo in albumInfos)
+        if (provider is null)
         {
+            throw new ArgumentNullException(nameof(provider));
+        }
+
+        if (box is null)
+        {
+            throw new ArgumentNullException(nameof(box));
+        }
+
+        ExceptionBox innerBox = new();
+        AggregateExceptionHelper aggregateHelper = new();
+        AllFailedHelper allFailedHelper = new();
+
+        await foreach (string songCid in provider.GetSongCidsAsync(innerBox))
+        {
+            allFailedHelper.Start();
+
+            SongDetail songDetail;
             AlbumDetail albumDetail;
+
             try
             {
-                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
+                songDetail = await MsrModelsHelper.GetSongDetailAsync(songCid);
+                albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(songDetail.AlbumCid);
+
+                allFailedHelper.Succeed();
             }
             catch (Exception ex)
             {
-                box.InboxException = ex;
-                yield break;
-            }
+                aggregateHelper.Record(ex);
 
-            foreach (SongInfo songInfo in albumDetail.Songs)
-            {
-                SongDetail songDetail;
-
-                try
+                if (ex is ArgumentOutOfRangeException && provider is IContentCorruptible contentCorruptible)
                 {
-                    songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-                }
-                catch (Exception ex)
-                {
-                    box.InboxException = ex;
-                    yield break;
+                    contentCorruptible.MarkItemAsCorrupted(songCid);
                 }
 
-                yield return (songDetail, albumDetail);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 根据 <see cref="AlbumDetail"/> 实例获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。
-    /// </summary>
-    /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例。</param>
-    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
-    /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。</returns>
-    /// <remarks>
-    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
-    /// </remarks>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(AlbumDetail albumDetail, ExceptionBox box)
-    {
-        foreach (SongInfo item in albumDetail.Songs)
-        {
-            SongDetail songDetail;
-
-            try
-            {
-                songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid);
-            }
-            catch (Exception ex)
-            {
-                box.InboxException = ex;
-                yield break;
+                continue;
             }
 
             yield return (songDetail, albumDetail);
         }
-    }
 
-    /// <summary>
-    /// 根据 <see cref="SongInfo"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。
-    /// </summary>
-    /// <param name="songInfos"><see cref="SongInfo"/> 数组。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/> 实例。</param>
-    /// <param name="box">存储异常的 <see cref="ExceptionBox"/>。</param>
-    /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。</returns>
-    /// <remarks>
-    /// 当出现异常时，此方法会将异常信息记录到 <see cref="ExceptionBox"/> 中，并中止序列枚举。
-    /// </remarks>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(SongInfo[] songInfos, AlbumDetail albumDetail, ExceptionBox box)
-    {
-        foreach (SongInfo item in songInfos)
+        if (innerBox.InboxException is not null)
         {
-            SongDetail songDetail;
-
-            try
-            {
-                songDetail = await MsrModelsHelper.GetSongDetailAsync(item.Cid);
-            }
-            catch (Exception ex)
-            {
-                box.InboxException = ex;
-                yield break;
-            }
-
-            yield return (songDetail, albumDetail);
+            aggregateHelper.Record(innerBox.InboxException);
         }
-    }
 
-    /// <summary>
-    /// 根据 <see cref="SongInfoAndAlbumDetailPack"/> 序列获得可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。
-    /// </summary>
-    /// <param name="packs"><see cref="SongInfoAndAlbumDetailPack"/> 序列。</param>
-    /// <returns>一个可异步枚举的 <see cref="SongDetail"/> 与 <see cref="AlbumDetail"/> 二元组序列。</returns>
-    public static async IAsyncEnumerable<ValueTuple<SongDetail, AlbumDetail>> GetSongDetailAlbumDetailPairs(IEnumerable<SongInfoAndAlbumDetailPack> packs, ExceptionBox box)
-    {
-        foreach ((SongInfo songInfo, AlbumDetail albumDetail) in packs)
+        if (aggregateHelper.HasException)
         {
-            SongDetail songDetail;
-
-            try
-            {
-                songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-            }
-            catch (Exception ex)
-            {
-                box.InboxException = ex;
-                yield break;
-            }
-
-            yield return (songDetail, albumDetail);
+            bool allFailed = allFailedHelper.IsAllFailed();
+            box.InboxException = aggregateHelper.TryGetException(AggregateExceptionHelper.GetDataForCommonUsage(allFailed, provider));
         }
     }
 }

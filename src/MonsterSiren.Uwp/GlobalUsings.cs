@@ -23,7 +23,7 @@ global using CommunityToolkit.Mvvm.Messaging.Messages;
 
 global using Baka632.Library.Uwp.CSharp.Helpers;
 
-global using MonsterSiren.Api.Service;
+global using MonsterSiren.Api.Services;
 global using MonsterSiren.Api.Models;
 global using MonsterSiren.Api.Models.News;
 global using MonsterSiren.Api.Models.Song;

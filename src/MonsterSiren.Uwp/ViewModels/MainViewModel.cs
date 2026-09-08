@@ -1,4 +1,5 @@
 using System.Net.Http;
+using MonsterSiren.Uwp.Models.Playlists;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
@@ -125,39 +126,15 @@ public partial class MainViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private static async Task PlayForPlaylist(Playlist playlist)
+    private static async Task PlaySongFavorite()
     {
-        await CommonValues.StartPlay(playlist);
+        await CommonValues.StartPlaySongFavorite();
     }
 
     [RelayCommand]
-    private static async Task AddPlaylistToNowPlaying(Playlist playlist)
+    private static async Task PlayAlbumFavorite()
     {
-        await CommonValues.AddToNowPlaying(playlist);
-    }
-
-    [RelayCommand]
-    private static async Task PlayNextForPlaylist(Playlist playlist)
-    {
-        await CommonValues.PlayNext(playlist);
-    }
-
-    [RelayCommand]
-    private async Task AddPlaylistToAnotherPlaylist(Playlist target)
-    {
-        await PlaylistService.AddItemForPlaylistAsync(target, SelectedPlaylist);
-    }
-
-    [RelayCommand]
-    private static async Task ModifyPlaylist(Playlist playlist)
-    {
-        await CommonValues.ShowModifyPlaylistDialog(playlist);
-    }
-
-    [RelayCommand]
-    private static async Task RemovePlaylist(Playlist playlist)
-    {
-        await CommonValues.RemovePlaylist(playlist);
+        await CommonValues.StartPlayAlbumFavorite();
     }
 
     public async Task UpdateAutoSuggestBoxSuggestion(string keyword)

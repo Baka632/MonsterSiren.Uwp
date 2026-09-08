@@ -11,12 +11,14 @@
     xmlns:local="using:MonsterSiren.Uwp.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:media="using:Microsoft.UI.Xaml.Media"
+    xmlns:menuFlyouts="using:MonsterSiren.Uwp.Controls.MenuFlyouts"
     xmlns:models="using:MonsterSiren.Uwp.Models"
     xmlns:msrControls="using:MonsterSiren.Uwp.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:MonsterSiren.Uwp.Services"
     xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
     x:Name="Self"
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
     Loaded="OnMainPageLoaded"
     mc:Ignorable="d">
@@ -54,30 +56,20 @@
                 </SplineDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
-        <MenuFlyout x:Name="PlaylistItemFlyout" Opening="OnPlaylistItemFlyoutOpening">
-            <MenuFlyoutItem
-                x:Uid="PlayCommandButton"
-                Command="{x:Bind ViewModel.PlayForPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Play" />
-            <MenuFlyoutItem
-                x:Uid="PlayNext"
-                Command="{x:Bind ViewModel.PlayNextForPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Forward" />
-            <MenuFlyoutSubItem Tag="Placeholder_For_AddTo" />
-            <MenuFlyoutItem
-                x:Uid="ModifyCommandButton"
-                Command="{x:Bind ViewModel.ModifyPlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Edit" />
-            <MenuFlyoutSeparator />
-            <MenuFlyoutItem
-                x:Uid="DeleteCommandButton"
-                Command="{x:Bind ViewModel.RemovePlaylistCommand}"
-                CommandParameter="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}"
-                Icon="Delete" />
-        </MenuFlyout>
+
+        <menuFlyouts:PlaylistMenuFlyout
+            x:Name="PlaylistItemFlyout"
+            MultipleSelectionVisibility="Collapsed"
+            SourceData="{x:Bind ViewModel.SelectedPlaylist, Mode=OneWay}" />
+
+        <Style x:Name="MusicThemeToggleButton" TargetType="msrControls:ThemedToggleButton">
+            <Setter Property="ThemeBackground">
+                <Setter.Value>
+                    <SolidColorBrush Color="{Binding ElementName=Self, Path=ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style BasedOn="{StaticResource MusicThemeToggleButton}" TargetType="msrControls:ThemedToggleButton" />
     </Page.Resources>
 
     <Grid>
@@ -186,6 +178,28 @@
 
                 <muxc:NavigationViewItemSeparator />
 
+                <muxc:NavigationViewItem
+                    x:Name="FavoritePageItem"
+                    x:Uid="FavoriteNavViewItem"
+                    AccessKey="A"
+                    AccessKeyInvoked="OnNavigationViewItemAccessKeyInvoked"
+                    Icon="Favorite"
+                    Tag="FavoritePage">
+                    <muxc:NavigationViewItem.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem x:Uid="FavoriteNavViewItem_PlaySongFavorite" Command="{x:Bind ViewModel.PlaySongFavoriteCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xEC4F;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem x:Uid="FavoriteNavViewItem_PlayAlbumFavorite" Command="{x:Bind ViewModel.PlayAlbumFavoriteCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE93C;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </muxc:NavigationViewItem.ContextFlyout>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem
                     x:Name="PlaylistPageItem"
                     x:Uid="PlaylistNavViewItem"
@@ -347,18 +361,13 @@
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
                     </Style>
-                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                    <Style BasedOn="{StaticResource MusicThemeToggleButton}" TargetType="msrControls:ThemedToggleButton">
                         <Setter Property="Height" Value="35" />
                         <Setter Property="Width" Value="35" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="BorderThickness" Value="0" />
                         <Setter Property="Margin" Value="5,0,5,0" />
                         <Setter Property="Padding" Value="0" />
-                        <Setter Property="ThemeBackground">
-                            <Setter.Value>
-                                <SolidColorBrush Color="{Binding ElementName=Self, Path=ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
-                            </Setter.Value>
-                        </Setter>
                     </Style>
                 </StackPanel.Resources>
 
@@ -418,12 +427,17 @@
                         <Flyout>
                             <StackPanel>
                                 <StackPanel.Resources>
-                                    <Style BasedOn="{StaticResource MediaControlToggleButton}" TargetType="msrControls:ThemedToggleButton">
+                                    <Style BasedOn="{StaticResource MusicThemeToggleButton}" TargetType="msrControls:ThemedToggleButton">
                                         <Setter Property="Background" Value="Transparent" />
                                     </Style>
                                 </StackPanel.Resources>
 
-                                <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
                                     <msrControls:ThemedToggleButton
                                         Width="35"
                                         Height="35"
@@ -432,27 +446,25 @@
                                         HorizontalAlignment="Left"
                                         AccessKey="MU"
                                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                                        IsThreeState="False"
-                                        ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
+                                        IsThreeState="False">
                                         <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                                     </msrControls:ThemedToggleButton>
                                     <Slider
-                                        Width="100"
+                                        Grid.Column="1"
                                         HorizontalAlignment="Stretch"
                                         Foreground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}"
                                         Maximum="100"
                                         PointerWheelChanged="OnVolumeSliderPointerWheelChanged"
                                         Style="{StaticResource ThemedSlider}"
                                         Value="{x:Bind ViewModel.MusicInfo.Volume, Mode=TwoWay}" />
-                                </StackPanel>
+                                </Grid>
                                 <msrControls:ThemedToggleButton
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="SF"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsShuffle, Mode=TwoWay}"
-                                    IsThreeState="False"
-                                    ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
+                                    IsThreeState="False">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon
                                             Margin="0,0,5,0"
@@ -462,13 +474,12 @@
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
                                 <msrControls:ThemedToggleButton
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="RP"
                                     BorderThickness="0"
                                     IsChecked="{x:Bind ViewModel.MusicInfo.IsRepeat, Mode=TwoWay}"
-                                    IsThreeState="True"
-                                    ThemeBackground="{x:Bind helpers:XamlHelper.ToSolidColorBrush(ViewModel.MusicInfo.MusicThemeColorLight1), Mode=OneWay}">
+                                    IsThreeState="True">
                                     <StackPanel Orientation="Horizontal">
                                         <FontIcon
                                             Margin="0,0,5,0"
@@ -478,7 +489,7 @@
                                     </StackPanel>
                                 </msrControls:ThemedToggleButton>
                                 <Button
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CP"
                                     Background="Transparent"
@@ -495,6 +506,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CA"
                                     Background="Transparent"
@@ -511,6 +523,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="DC"
                                     Background="Transparent"
@@ -527,7 +540,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
-                                    Margin="0,5,0,5"
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="GL"
                                     Background="Transparent"
@@ -543,6 +556,7 @@
                                     </StackPanel>
                                 </Button>
                                 <Button
+                                    Margin="0,5,0,0"
                                     HorizontalAlignment="Stretch"
                                     AccessKey="CL"
                                     Background="Transparent"
@@ -640,12 +654,7 @@
                         AccessKey="MU"
                         Background="Transparent"
                         IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
-                        IsThreeState="False"
-                        Style="{StaticResource MediaControlToggleButton}">
-                        <msrControls:ThemedToggleButton.ThemeBackground>
-                            <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
-                        </msrControls:ThemedToggleButton.ThemeBackground>
-
+                        IsThreeState="False">
                         <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                     </msrControls:ThemedToggleButton>
                     <Slider

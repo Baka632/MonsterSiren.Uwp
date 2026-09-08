@@ -1,251 +1,142 @@
-using System.Net.Http;
 using Windows.Media.Playback;
+using MonsterSiren.Uwp.Models.Playlists;
+using MonsterSiren.Uwp.Models.Abstracts;
+using MonsterSiren.Uwp.Models.Adapters;
 
 namespace MonsterSiren.Uwp;
 
 partial class CommonValues
 {
+    #region IPlayable
     /// <summary>
-    /// 播放 <see cref="AlbumInfo"/> 中的歌曲。
+    /// 播放 <see cref="ISongCidProvider"/> 所表示的内容。
     /// </summary>
-    /// <param name="albumInfo">一个 <see cref="AlbumInfo"/> 实例。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(AlbumInfo albumInfo)
-    {
-        try
-        {
-            ExceptionBox box = new();
-            AlbumDetail albumDetail = await MsrModelsHelper.GetAlbumDetailAsync(albumInfo.Cid);
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
-
-            await MusicService.ReplaceMusic(items);
-
-            box.Unbox();
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
+    public static async Task<bool> StartPlay(ISongCidProvider playable)
+        => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.Replace);
 
     /// <summary>
-    /// 播放 <see cref="AlbumInfo"/> 专辑序列。
+    /// 将 <see cref="ISongCidProvider"/> 所表示的内容加入到正在播放列表中。
     /// </summary>
-    /// <param name="albumInfos">一个 <see cref="AlbumInfo"/> 序列。</param>
-    /// <returns>指示操作是否成功的值</returns>
-    public static async Task<bool> StartPlay(IEnumerable<AlbumInfo> albumInfos)
-    {
-        try
-        {
-            ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. albumInfos], box);
-
-            await MusicService.ReplaceMusic(items);
-
-            box.Unbox();
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 播放 <see cref="AlbumDetail"/> 中的歌曲。
-    /// </summary>
-    /// <param name="albumDetail">一个 <see cref="AlbumDetail"/> 实例。</param>
-    /// <returns>指示操作是否成功的布尔值。</returns>
-    public static async Task<bool> StartPlay(AlbumDetail albumDetail)
-    {
-        if (albumDetail.Songs is null)
-        {
-            return false;
-        }
-
-        try
-        {
-            ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(albumDetail, box);
-
-            await MusicService.ReplaceMusic(items);
-
-            box.Unbox();
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 播放 <see cref="SongInfo"/> 所表示的歌曲。
-    /// </summary>
-    /// <param name="songInfo">一个 <see cref="SongInfo"/> 的实例。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/>。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(SongInfo songInfo, AlbumDetail albumDetail)
-    {
-        try
-        {
-            SongDetail songDetail = await MsrModelsHelper.GetSongDetailAsync(songInfo.Cid);
-            MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(songDetail, albumDetail);
-
-            MusicService.ReplaceMusic(item);
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
+    public static async Task<bool> AddToNowPlaying(ISongCidProvider playable)
+        => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.Add);
 
     /// <summary>
-    /// 播放一个 <see cref="SongInfo"/> 序列，其中的歌曲应当属于 <paramref name="albumDetail"/> 所表示的专辑。
+    /// 将 <see cref="ISongCidProvider"/> 所表示的内容设为下一项播放。
     /// </summary>
-    /// <param name="songInfos">一个歌曲序列。</param>
-    /// <param name="albumDetail">表示歌曲所属专辑信息的 <see cref="AlbumDetail"/>。</param>
-    /// <returns>指示操作是否成功的布尔值。</returns>
-    public static async Task<bool> StartPlay(IEnumerable<SongInfo> songInfos, AlbumDetail albumDetail)
-    {
-        if (songInfos.Any() != true)
-        {
-            return false;
-        }
-
-        try
-        {
-            ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. songInfos], albumDetail, box);
-            await MusicService.ReplaceMusic(items);
-            box.Unbox();
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 播放 <see cref="PlaylistItem"/> 所表示的播放列表项。
-    /// </summary>
-    /// <param name="playlistItem"><see cref="PlaylistItem"/> 所表示的播放列表项。</param>
-    /// <param name="playlist">播放列表项所属的播放列表，此参数用于在 <paramref name="playlistItem"/> 无效时对播放列表进行更新。</param>
+    /// <param name="playable">可提供歌曲 CID 对象的实例。</param>
     /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(PlaylistItem playlistItem, Playlist playlist)
-    {
-        try
-        {
-            MediaPlaybackItem item = await MsrModelsHelper.GetMediaPlaybackItemAsync(playlistItem.SongCid);
-            MusicService.ReplaceMusic(item);
+    public static async Task<bool> PlayNext(ISongCidProvider playable)
+        => await WorkOnNowPlayingAsync(playable, MusicPlayOperation.AddNext);
+    #endregion
 
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-
-            int targetIndex = playlist.Items.IndexOf(playlistItem);
-            if (targetIndex != -1)
-            {
-                playlist.Items[targetIndex] = playlistItem with { IsCorruptedItem = true };
-            }
-
-            await DisplaySongOrAlbumCidCorruptDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 播放一个 <see cref="PlaylistItem"/> 序列。
-    /// </summary>
-    /// <param name="playlistItems">一个 <see cref="PlaylistItem"/> 序列。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(IEnumerable<PlaylistItem> playlistItems)
-    {
-        if (!playlistItems.Any())
-        {
-            return false;
-        }
-
-        try
-        {
-            ExceptionBox box = new();
-            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems([.. playlistItems], box);
-            await MusicService.ReplaceMusic(items);
-            box.Unbox();
-
-            return true;
-        }
-        catch (HttpRequestException)
-        {
-            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-            await DisplayInternetErrorDialog();
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 播放 <see cref="Playlist"/> 所表示的播放列表。
-    /// </summary>
-    /// <param name="playlist">一个 <see cref="Playlist"/> 实例。</param>
-    /// <returns>指示操作是否成功的值。</returns>
-    public static async Task<bool> StartPlay(Playlist playlist)
-    {
-        if (playlist.SongCount == 0)
-        {
-            await DisplayPlaylistEmptyDialog();
-        }
-        else
-        {
-            try
-            {
-                await PlaylistService.PlayForPlaylistAsync(playlist);
-
-                return true;
-            }
-            catch (AggregateException ex)
-            {
-                MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
-                await DisplayAggregateExceptionErrorDialog(ex);
-            }
-        }
-
-        return false;
-    }
-
+    #region Playlist
     /// <summary>
     /// 播放 <see cref="Playlist"/> 序列。
     /// </summary>
     /// <param name="playlists">一个 <see cref="Playlist"/> 序列。</param>
     /// <returns>指示操作是否成功的值。</returns>
     public static async Task<bool> StartPlay(IEnumerable<Playlist> playlists)
+        => await WorkOnNowPlayingAsync(playlists, MusicPlayOperation.Replace);
+
+    /// <summary>
+    /// 将 <see cref="Playlist"/> 序列添加到正在播放。
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> AddToNowPlaying(IEnumerable<Playlist> playlists)
+        => await WorkOnNowPlayingAsync(playlists, MusicPlayOperation.Add);
+
+    /// <summary>
+    /// 将一个 <see cref="Playlist"/> 序列设为下一项播放。
+    /// </summary>
+    /// <param name="playlists">一个 <see cref="Playlist"/> 序列。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> PlayNext(IEnumerable<Playlist> playlists)
+        => await WorkOnNowPlayingAsync(playlists, MusicPlayOperation.AddNext);
+    #endregion
+
+    #region Favorites
+    /// <summary>
+    /// 播放歌曲收藏夹中的歌曲。
+    /// </summary>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlaySongFavorite()
+        => await WorkOnNowPlayingAsync(FavoriteService.SongFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
+
+    /// <summary>
+    /// 播放专辑收藏夹中的歌曲。
+    /// </summary>
+    /// <returns>指示操作是否成功的值。</returns>
+    public static async Task<bool> StartPlayAlbumFavorite()
+        => await WorkOnNowPlayingAsync(FavoriteService.AlbumFavoriteList.ToAdapter(), MusicPlayOperation.Replace);
+    #endregion
+
+    /// <summary>
+    /// 对正在播放列表进行操作。
+    /// </summary>
+    /// <param name="provider">可提供歌曲 CID 对象的实例。</param>
+    /// <param name="operation">指示要对正在播放列表进行的操作。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    private static async Task<bool> WorkOnNowPlayingAsync(ISongCidProvider provider, MusicPlayOperation operation)
+    {
+        if (provider is IContentContainer container && container.IsEmpty)
+        {
+            await DisplayPlaylistEmptyDialog();
+            return false;
+        }
+
+        try
+        {
+            ExceptionBox box = new();
+            IAsyncEnumerable<MediaPlaybackItem> items = GetMediaPlaybackItems(provider, box);
+
+            switch (operation)
+            {
+                case MusicPlayOperation.Replace:
+                    await MusicService.ReplaceMusic(items);
+                    break;
+                case MusicPlayOperation.Add:
+                    await MusicService.AddMusic(items);
+                    break;
+                case MusicPlayOperation.AddNext:
+                    await MusicService.PlayNext(items);
+                    break;
+                default:
+                    throw new NotImplementedException("尚未实现更多播放操作。");
+            }
+
+            box.Unbox();
+            return true;
+        }
+        catch (AggregateException ex)
+        {
+            MusicInfoService.Default.EnsurePlayRelatedPropertyIsCorrect();
+
+            if (ex.Flatten().InnerExceptions.Any(ex => ex is ArgumentOutOfRangeException))
+            {
+                if (provider is ICorruptible corruptible)
+                {
+                    corruptible.MarkAsCorrupted();
+                }
+            }
+
+            await DisplayAggregateExceptionErrorDialog(ex);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 对正在播放列表进行操作。
+    /// </summary>
+    /// <param name="playlists">播放列表序列。</param>
+    /// <param name="operation">指示要对正在播放列表进行的操作。</param>
+    /// <returns>指示操作是否成功的值。</returns>
+    private static async Task<bool> WorkOnNowPlayingAsync(IEnumerable<Playlist> playlists, MusicPlayOperation operation)
     {
         if (!playlists.Any())
         {
@@ -270,7 +161,20 @@ partial class CommonValues
 
         try
         {
-            await PlaylistService.PlayForPlaylistsAsync(playlists);
+            switch (operation)
+            {
+                case MusicPlayOperation.Replace:
+                    await PlaylistService.PlayForPlaylistsAsync(playlists);
+                    break;
+                case MusicPlayOperation.Add:
+                    await PlaylistService.AddPlaylistsToNowPlayingAsync(playlists);
+                    break;
+                case MusicPlayOperation.AddNext:
+                    await PlaylistService.PlayNextForPlaylistsAsync(playlists);
+                    break;
+                default:
+                    throw new NotImplementedException("尚未实现更多播放操作。");
+            }
 
             return true;
         }

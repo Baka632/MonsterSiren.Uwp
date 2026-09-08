@@ -1,0 +1,175 @@
+<UserControl
+    x:Class="MonsterSiren.Uwp.Views.SettingsPageParts.DownloadSection"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contract5Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 5)"
+    xmlns:controls="using:MonsterSiren.Uwp.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:Baka632.Library.Uwp.CSharp.Helpers"
+    xmlns:local="using:MonsterSiren.Uwp.Views.SettingsPageParts"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mediaProps="using:Windows.Media.MediaProperties"
+    xmlns:models="using:MonsterSiren.Uwp.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:services="using:MonsterSiren.Uwp.Services"
+    xmlns:viewmodels="using:MonsterSiren.Uwp.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mc:Ignorable="d">
+
+    <ScrollViewer Margin="0,5,0,0">
+        <StackPanel>
+            <controls:SettingsExpander x:Uid="SettingsPage_PathConfig">
+                <controls:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xE159;" />
+                </controls:SettingsExpander.HeaderIcon>
+                <controls:SettingsExpander.CustomHeaderElement>
+                    <StackPanel contract5Present:Spacing="5">
+                        <muxc:InfoBar
+                            x:Uid="SettingsPage_DownloadFolderRedirected"
+                            IsClosable="False"
+                            IsOpen="{x:Bind ViewModel.IsDownloadFolderRedirected, Mode=OneWay}"
+                            Severity="Warning" />
+                        <muxc:InfoBar
+                            x:Uid="SettingsPage_PlaylistFolderRedirected"
+                            IsClosable="False"
+                            IsOpen="{x:Bind ViewModel.IsPlaylistFolderRedirected, Mode=OneWay}"
+                            Severity="Warning" />
+                    </StackPanel>
+                </controls:SettingsExpander.CustomHeaderElement>
+
+                <controls:SettingsCard x:Uid="SettingsPage_DownloadPath" Description="{x:Bind ViewModel.DownloadPath, Mode=OneWay}">
+                    <controls:SettingsCard.DescriptionStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="IsTextSelectionEnabled" Value="True" />
+                        </Style>
+                    </controls:SettingsCard.DescriptionStyle>
+
+                    <Button x:Uid="SettingsPage_PickButton" Command="{x:Bind ViewModel.PickDownloadFolderCommand}" />
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsPage_PlaylistSavePath" Description="{x:Bind ViewModel.PlaylistSavePath, Mode=OneWay}">
+                    <controls:SettingsCard.DescriptionStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="IsTextSelectionEnabled" Value="True" />
+                        </Style>
+                    </controls:SettingsCard.DescriptionStyle>
+
+                    <Button x:Uid="SettingsPage_PickButton" Command="{x:Bind ViewModel.PickPlaylistFolderCommand}" />
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander x:Uid="SettingsPage_BackupConfig">
+                <controls:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xE777;" />
+                </controls:SettingsExpander.HeaderIcon>
+
+                <controls:SettingsCard x:Uid="SettingsPage_FavoriteBackup">
+                    <StackPanel Orientation="Horizontal">
+                        <Button
+                            x:Uid="BackupButton"
+                            Margin="0,0,5,0"
+                            Command="{x:Bind ViewModel.BackupFavoriteCommand}" />
+                        <Button x:Uid="RestoreButton" Command="{x:Bind ViewModel.RestoreFavoriteCommand}" />
+                    </StackPanel>
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander x:Uid="SettingsPage_DownloadConfig">
+                <controls:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xE118;" />
+                </controls:SettingsExpander.HeaderIcon>
+                <controls:SettingsExpander.CustomHeaderElement>
+                    <muxc:InfoBar
+                        x:Uid="SettingsPage_EncodeNotAvailable"
+                        IsClosable="False"
+                        IsOpen="{x:Bind helpers:XamlHelper.ReverseBoolean(services:DownloadService.IsSupportCommonTranscode)}"
+                        Severity="Warning" />
+                </controls:SettingsExpander.CustomHeaderElement>
+
+                <controls:SettingsCard x:Uid="SettingsPage_DownloadLyric">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.DownloadLyric, Mode=TwoWay}" />
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="SettingsPage_EnableTranscode">
+                    <ToggleSwitch IsEnabled="{x:Bind services:DownloadService.IsSupportCommonTranscode}" IsOn="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=TwoWay}" />
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="SettingsPage_DownloadCoverFile">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.SaveCoverFileWhenDownload, Mode=TwoWay}" />
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="SettingsPage_ReplaceInvalidCharsInDownloadedFileName">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.ReplaceInvalidCharInDownloadedFileName, Mode=TwoWay}" />
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="SettingsPage_MusicFilenameTemplateString">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Width="200" Text="{x:Bind ViewModel.MusicFileTemplateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Margin="5,0,0,0" Background="Transparent">
+                            <FontIcon Glyph="&#xE946;" />
+
+                            <Button.Flyout>
+                                <Flyout>
+                                    <TextBlock
+                                        IsTextSelectionEnabled="True"
+                                        Text="{x:Bind ViewModel.MusicFilePartsTemplateExplainText, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsPage_MusicAlbumFolderNameTemplateString">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Width="200" Text="{x:Bind ViewModel.MusicAlbumFolderNameTemplateString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Margin="5,0,0,0" Background="Transparent">
+                            <FontIcon Glyph="&#xE946;" />
+
+                            <Button.Flyout>
+                                <Flyout>
+                                    <TextBlock
+                                        IsTextSelectionEnabled="True"
+                                        Text="{x:Bind ViewModel.MusicAlbumFolderNamePartsTemplateExplainText, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </StackPanel>
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander x:Uid="SettingsPage_TranscodeConfig" Visibility="{x:Bind ViewModel.TranscodeDownloadedMusic, Mode=OneWay}">
+                <controls:SettingsExpander.HeaderIcon>
+                    <FontIcon Glyph="&#xE189;" />
+                </controls:SettingsExpander.HeaderIcon>
+
+                <controls:SettingsCard x:Uid="SettingsPage_SelectTranscoder">
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AudioFormats, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedAudioFormatIndex, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:AudioFormat">
+                                <TextBlock Text="{x:Bind Converter={StaticResource AudioFormatToStringConverter}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsPage_SelectTranscodeQuality">
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AudioEncodingQualities, Mode=OneWay}" SelectedIndex="{x:Bind ViewModel.SelectedTranscodeQualityIndex, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="mediaProps:AudioEncodingQuality">
+                                <TextBlock Text="{x:Bind Converter={StaticResource AudioEncodingQualityToStringConverter}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsPage_TranscodeKeepRawMusicFile">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.PreserveRawMusicAfterTranscode, Mode=TwoWay}" />
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Uid="SettingsPage_AllowUnnecessaryTranscode">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.AllowUnnecessaryTranscode, Mode=TwoWay}" />
+                </controls:SettingsCard>
+            </controls:SettingsExpander>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

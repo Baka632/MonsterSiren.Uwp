@@ -30,9 +30,11 @@ public class LockerHelper<T>
 
         if (!ReferenceEquals(wrapper, result))
         {
-            // TODO: 这里可能有线程安全问题
-            result.UsageCount++;
-            wrapper.Dispose();
+            lock (result.SyncRoot)
+            {
+                result.UsageCount++;
+                wrapper.Dispose();
+            }
         }
 
         return result.Semaphore;
@@ -46,18 +48,23 @@ public class LockerHelper<T>
     {
         if (objectLockerPairs.TryGetValue(obj, out SemaphoreCountWrapper wrapper))
         {
-            wrapper.UsageCount--;
-
-            if (wrapper.UsageCount == 0)
+            lock (wrapper.SyncRoot)
             {
-                objectLockerPairs.TryRemove(obj, out _);
-                wrapper.Dispose();
+                wrapper.UsageCount--;
+
+                if (wrapper.UsageCount == 0)
+                {
+                    objectLockerPairs.TryRemove(obj, out _);
+                    wrapper.Dispose();
+                }
             }
         }
     }
 
     private sealed class SemaphoreCountWrapper : IDisposable
     {
+        public readonly object SyncRoot = new();
+
         public SemaphoreSlim Semaphore { get; set; }
         public int UsageCount { get; set; }
 

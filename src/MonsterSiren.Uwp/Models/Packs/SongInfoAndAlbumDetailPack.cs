@@ -5,4 +5,5 @@ namespace MonsterSiren.Uwp.Models;
 /// </summary>
 /// <param name="SongInfo"><see cref="Api.Models.Song.SongInfo"/> 的实例。</param>
 /// <param name="AlbumDetail"><see cref="Api.Models.Album.AlbumDetail"/> 的实例。</param>
+[Obsolete("Don't use")]
 public record struct SongInfoAndAlbumDetailPack(SongInfo SongInfo, AlbumDetail AlbumDetail);

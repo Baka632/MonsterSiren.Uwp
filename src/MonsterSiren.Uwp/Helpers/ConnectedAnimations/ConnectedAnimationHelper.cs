@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Windows.Foundation.Metadata;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -94,8 +95,9 @@ internal class ConnectedAnimationHelper
                 continue;
             }
 
-            if (animation != null &&
-                e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Back)
+            if (animation != null
+                && e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Back
+                && ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7))
             {
                 UseDirectConnectedAnimationConfiguration(animation);
             }
@@ -153,7 +155,6 @@ internal class ConnectedAnimationHelper
                                 listAnimProperty.ListViewBase.ScrollIntoView(parameter);
 
                                 // give time to the UI thread to scroll the list
-                                var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
                                 var t = UIThreadHelper.RunOnUIThread(async () =>
                                 {
                                     try

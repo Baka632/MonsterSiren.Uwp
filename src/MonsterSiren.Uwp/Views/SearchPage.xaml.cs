@@ -75,16 +75,7 @@ public sealed partial class SearchPage : Page
 
     private void OnAlbumGridViewItemsDragStarting(object sender, DragItemsStartingEventArgs e)
     {
-        object dataContext = e.Items.FirstOrDefault();
-
-        if (dataContext is null)
-        {
-            e.Cancel = true;
-            return;
-        }
-
-        string json = JsonSerializer.Serialize((AlbumInfo)dataContext);
-        e.Data.SetData(CommonValues.MusicAlbumInfoFormatId, json);
+        DragHelper.WriteDataToDragItemsStartingEventArgs<AlbumInfo>(e);
     }
 
     private void OnGridViewItemGridRightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -93,21 +84,6 @@ public sealed partial class SearchPage : Page
         AlbumInfo albumInfo = (AlbumInfo)element.DataContext;
 
         ViewModel.SelectedAlbumInfo = albumInfo;
-    }
-
-    private void OnAlbumContextFlyoutOpening(object sender, object e)
-    {
-        MenuFlyout flyout = (MenuFlyout)sender;
-        MenuFlyoutItemBase target = flyout.Items.Single(static item => (string)item.Tag == "Placeholder_For_AddTo");
-
-        int targetIndex = flyout.Items.IndexOf(target);
-        flyout.Items.RemoveAt(targetIndex);
-
-        MenuFlyoutSubItem subItem = CommonValues.CreateAddToFlyoutSubItem(ViewModel.AddToNowPlayingForAlbumInfoCommand,
-                                                                          ViewModel.SelectedAlbumInfo,
-                                                                          ViewModel.AddAlbumInfoToPlaylistCommand);
-        subItem.Tag = "Placeholder_For_AddTo";
-        flyout.Items.Insert(targetIndex, subItem);
     }
 
     private void OnAlbumGridViewContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

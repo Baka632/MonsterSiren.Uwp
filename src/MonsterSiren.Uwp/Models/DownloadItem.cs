@@ -37,8 +37,12 @@ public sealed record DownloadItem : INotifyPropertyChanged
         get => _progress;
         set
         {
-            _progress = value;
-            OnPropertiesChanged();
+            if (_progress != value)
+            {
+                _progress = value;
+                OnPropertiesChanged();
+                EnsureStatus();
+            }
         }
     }
 
@@ -50,8 +54,11 @@ public sealed record DownloadItem : INotifyPropertyChanged
         get => _state;
         internal set
         {
-            _state = value;
-            OnPropertiesChanged();
+            if (_state != value)
+            {
+                _state = value;
+                OnPropertiesChanged();
+            }
         }
     }
 
@@ -63,8 +70,11 @@ public sealed record DownloadItem : INotifyPropertyChanged
         get => _errorException;
         internal set
         {
-            _errorException = value;
-            OnPropertiesChanged();
+            if (_errorException != value)
+            {
+                _errorException = value;
+                OnPropertiesChanged();
+            }
         }
     }
 
@@ -73,24 +83,28 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     /// <param name="op">表示下载操作的 <see cref="DownloadOperation"/>。</param>
     /// <param name="displayName">下载项的显示名称。</param>
-    /// <param name="cancelToken">用于取消下载操作的 <see cref="CancellationTokenSource"/>。</param>
-    public DownloadItem(DownloadOperation op, string displayName, CancellationTokenSource cancelToken)
+    public DownloadItem(DownloadOperation op, string displayName)
     {
         Operation = op;
         DisplayName = displayName;
-        CancelToken = cancelToken;
+        CancelToken = new CancellationTokenSource();
+
+        BackgroundDownloadProgress progress = op.Progress;
+        Progress = progress.TotalBytesToReceive == 0 ? 0d : (double)progress.BytesReceived / progress.TotalBytesToReceive;
+        EnsureStatus();
     }
 
     /// <summary>
     /// 构造一个占位下载项，其不进行实际的下载操作。
     /// </summary>
     /// <param name="displayName">下载项的显示名称。</param>
-    public DownloadItem(string displayName)
+    /// <param name="state">下载项的状态。</param>
+    public DownloadItem(string displayName, DownloadItemState state)
     {
         Operation = null;
         CancelToken = null;
         DisplayName = displayName;
-        State = DownloadItemState.Skipped;
+        State = state;
         Progress = 1d;
     }
 
@@ -99,7 +113,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     public void ResumeDownload()
     {
-        if (State == DownloadItemState.Skipped)
+        if (State is DownloadItemState.Skipped or DownloadItemState.Downloading)
         {
             return;
         }
@@ -107,13 +121,13 @@ public sealed record DownloadItem : INotifyPropertyChanged
         Operation.Resume();
         State = DownloadItemState.Downloading;
     }
-    
+
     /// <summary>
     /// 暂停下载。
     /// </summary>
     public void PauseDownload()
     {
-        if (State == DownloadItemState.Skipped)
+        if (State is DownloadItemState.Skipped or DownloadItemState.Paused)
         {
             return;
         }
@@ -127,7 +141,7 @@ public sealed record DownloadItem : INotifyPropertyChanged
     /// </summary>
     public void CancelDownload()
     {
-        if (State == DownloadItemState.Skipped)
+        if (State is DownloadItemState.Skipped or DownloadItemState.Cancelling)
         {
             return;
         }
@@ -146,5 +160,34 @@ public sealed record DownloadItem : INotifyPropertyChanged
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         });
+    }
+
+    private void EnsureStatus()
+    {
+        if (Operation is not null
+            && State is DownloadItemState.Canceled or DownloadItemState.Done or DownloadItemState.Error or DownloadItemState.Paused or DownloadItemState.Downloading)
+        {
+            BackgroundTransferStatus status = Operation.Progress.Status;
+            DownloadItemState dlStateFromOpState = status switch
+            {
+                // 如果下载项是恢复过来的，那么PausedNoNetwork 状态会在操作系统排队下载项时候出现，奇怪......
+                // 而且如果 BackgroundTransferStatus 是 PausedNoNetwork，调用 Resume 反而抛出异常。
+                BackgroundTransferStatus.Running or BackgroundTransferStatus.PausedNoNetwork => DownloadItemState.Downloading,
+                BackgroundTransferStatus.Idle
+                    or BackgroundTransferStatus.PausedByApplication
+                    or BackgroundTransferStatus.PausedSystemPolicy
+                    or BackgroundTransferStatus.PausedRecoverableWebErrorStatus
+                    or BackgroundTransferStatus.PausedCostedNetwork => DownloadItemState.Paused,
+                BackgroundTransferStatus.Error => DownloadItemState.Error,
+                BackgroundTransferStatus.Canceled => DownloadItemState.Canceled,
+                BackgroundTransferStatus.Completed => DownloadItemState.Done,
+#if DEBUG
+                _ => throw new NotImplementedException("未知的 BackgroundTransferStatus 值。")
+#else
+            _ => default
+#endif
+            };
+            State = dlStateFromOpState;
+        }
     }
 }

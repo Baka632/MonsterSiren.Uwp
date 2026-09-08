@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.Unicode;
 using Windows.Foundation.Metadata;
 using Windows.System.Profile;
@@ -28,6 +29,7 @@ internal static partial class CommonValues
     #endregion
 
     #region Settings Key
+    public const string MusicPlaybackUseDownloadedFileSettingsKey = "Music_PlaybackUseDownloadedFile_SettingsKey";
     public const string MusicVolumeSettingsKey = "Music_Volume_SettingsKey";
     public const string MusicMuteStateSettingsKey = "Music_MuteState_SettingsKey";
     public const string MusicShuffleStateSettingsKey = "Music_ShuffleState_SettingsKey";
@@ -44,6 +46,8 @@ internal static partial class CommonValues
     public const string MusicReplaceInvalidCharInDownloadedFileNameSettingsKey = "Download_ReplaceInvalidCharInFileName_SettingsKey";
     public const string MusicAllowUnnecessaryTranscodeSettingsKey = "Download_AllowUnnecessaryTranscode_SettingsKey";
     public const string MusicFileTemplateStringSettingsKey = "Download_MusicFileTemplateStringSettingsKey_SettingsKey";
+    public const string MusicAlbumFolderTemplateStringSettingsKey = "Download_MusicAlbumFolderTemplateStringSettingsKey_SettingsKey";
+    public const string MusicSaveCoverFileWhenDownloadSettingsKey = "Download_SaveCoverFileWhenDownload_SettingsKey";
 
     public const string PlaylistSavePathSettingsKey = "Playlist_SavePath_SettingsKey";
 
@@ -57,13 +61,6 @@ internal static partial class CommonValues
     public const string GlanceModeIsUsedOnceIndicator = "GlanceMode_IsUsedOnce_Indicator";
 
     public const string AppVersionSettingsKey = "AppVersion_SettingsKey";
-    #endregion
-
-    #region Data Package Type
-    public const string MusicAlbumInfoFormatId = "Music_AlbumInfo_DataPackage_FormatId";
-    public const string MusicSongInfoAndAlbumDetailPacksFormatId = "Music_SongInfoAndAlbumDetailPacks_DataPackage_FormatId";
-    public const string MusicPlaylistFormatId = "Music_Playlist_DataPackage_FormatId";
-    public const string MusicPlaylistItemsFormatId = "Music_PlaylistItems_DataPackage_FormatId";
     #endregion
 
     #region Other Common Things
@@ -97,12 +94,25 @@ internal static partial class CommonValues
     /// </para>
     /// </summary>
     public static string[] InvalidFileNameCharsStringArray = [.. Path.GetInvalidFileNameChars().Select(chr => chr.ToString())];
+    /// <summary>
+    /// <para>
+    /// 保存不能作为文件名的字符的数组。
+    /// </para>
+    /// <para>
+    /// 此字段是为了缓存 <see cref="Path.GetInvalidFileNameChars"/> 的结果。
+    /// </para>
+    /// </summary>
+    public static char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
 
-    public readonly static string SongCountFormat = "SongsCount".GetLocalized();
-    public readonly static JsonSerializerOptions DefaultJsonSerializerOptions = new()
+    public static readonly int TooManyItemThresholdCount = EnvironmentHelper.IsWindowsMobile ? 5 : 10;
+
+    public static readonly string MSR = string.Intern("MSR".GetLocalized());
+    public static readonly string SongCountFormat = "SongsCount".GetLocalized();
+    public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         WriteIndented = true,
-        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver()
     };
 
     /// <summary>
@@ -125,5 +135,18 @@ internal static partial class CommonValues
             "{Artist}",
             "{Artists}",
         ];
+
+    public const string DefaultMusicAlbumFolderNameTemplate = "{AlbumTitle}";
+    public static readonly string[] MusicAlbumFolderNamePartTemplates = [
+            "{AlbumTitle}",
+            "{Artist}",
+            "{Artists}",
+            "{SongIndexOneStart}",
+        ];
     #endregion
+
+    static CommonValues()
+    {
+        DefaultJsonSerializerOptions.MakeReadOnly();
+    }
 }

@@ -83,10 +83,7 @@ public sealed partial class GlanceViewPage : Page
         base.OnNavigatingFrom(e);
 
         MusicService.PlayerPlaybackStateChanged -= OnPlayerPlaybackStateChanged;
-        if (_timer is not null)
-        {
-            _timer.Tick -= OnTimerTick;
-        }
+        _timer?.Tick -= OnTimerTick;
         Window.Current.Dispatcher.AcceleratorKeyActivated -= OnDispatcherAcceleratorKeyActivated;
         Application.Current.EnteredBackground -= OnAppEnteredBackground;
         Application.Current.LeavingBackground -= OnAppLeavingBackground;

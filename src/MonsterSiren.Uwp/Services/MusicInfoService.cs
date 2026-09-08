@@ -105,12 +105,12 @@ public sealed partial class MusicInfoService : ObservableObject
     /// <summary>
     /// 获取或设置播放器的静音状态。
     /// </summary>
-    public bool? IsMute
+    public bool IsMute
     {
         get => MusicService.IsPlayerMuted;
         set
         {
-            MusicService.IsPlayerMuted = value.Value;
+            MusicService.IsPlayerMuted = value;
             OnPropertyChanged();
         }
     }

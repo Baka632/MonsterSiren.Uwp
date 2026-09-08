@@ -143,7 +143,7 @@ partial class App
 
                     try
                     {
-                        IEnumerable<AlbumInfo> albumInfos = (await CommonValues.GetOrFetchAlbums()).CollectionSource.AlbumInfos;
+                        IEnumerable<AlbumInfo> albumInfos = (await CommonValues.GetOrFetchAlbums()).CollectionSource;
                         VoiceCommandUserMessage recentAlbumsMessage = new();
                         recentAlbumsMessage.SpokenMessage = recentAlbumsMessage.DisplayMessage = "CortanaService_QueryRecentAlbums_Success".GetLocalized();
 

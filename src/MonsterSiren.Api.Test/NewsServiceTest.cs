@@ -1,4 +1,4 @@
-﻿using MonsterSiren.Api.Models.News;
+using MonsterSiren.Api.Models.News;
 
 namespace MonsterSiren.Api.Test;
 
