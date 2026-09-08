@@ -183,6 +183,12 @@ sealed partial class App : Application
                 case "playLatestAlbum":
                     await GetAlbumsAndPlay();
                     break;
+                case "playSongFavorite":
+                    await CommonValues.StartPlaySongFavorite();
+                    break;
+                case "playAlbumFavorite":
+                    await CommonValues.StartPlayAlbumFavorite();
+                    break;
                 default:
                     break;
             }

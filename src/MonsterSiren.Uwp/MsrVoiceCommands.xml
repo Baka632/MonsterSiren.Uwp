@@ -17,6 +17,20 @@
             <Feedback>正在准备最新一张专辑......</Feedback>
             <Navigate/>
         </Command>
+        <Command Name="playSongFavorite">
+            <Example>小空，播放歌曲收藏</Example>
+            <ListenFor>[播放][我的]歌曲收藏</ListenFor>
+            <ListenFor>[播放][我]喜欢的歌曲</ListenFor>
+            <Feedback>正在准备播放......</Feedback>
+            <Navigate/>
+        </Command>
+        <Command Name="playAlbumFavorite">
+            <Example>小空，播放专辑收藏</Example>
+            <ListenFor>[播放][我的]专辑收藏</ListenFor>
+            <ListenFor>[播放][我]喜欢的专辑</ListenFor>
+            <Feedback>正在准备播放......</Feedback>
+            <Navigate/>
+        </Command>
         <Command Name="queryRecentAlbums">
             <Example>小空，有哪些新专辑？</Example>
             <ListenFor>[最近]有哪些[塞壬唱片][的][新]专辑</ListenFor>
@@ -90,7 +104,21 @@
             <ListenFor>Play monster siren records' {latest} album</ListenFor>
             <ListenFor>Play monster siren's {latest} album</ListenFor>
 			<ListenFor>Play msr's {latest} album</ListenFor>
-            <Feedback>Preparing the {latest} album......</Feedback>
+            <Feedback>Preparing the latest album......</Feedback>
+            <Navigate/>
+        </Command>
+        <Command Name="playSongFavorite">
+            <Example>Sora, play my favorite songs</Example>
+            <ListenFor>[play] [my] favorite songs</ListenFor>
+            <ListenFor>[play] [my] favorite song</ListenFor>
+            <Feedback>Preparing......</Feedback>
+            <Navigate/>
+        </Command>
+        <Command Name="playAlbumFavorite">
+            <Example>Sora, play my favorite albums</Example>
+            <ListenFor>[play] [my] favorite albums</ListenFor>
+            <ListenFor>[play] [my] favorite album</ListenFor>
+            <Feedback>Preparing......</Feedback>
             <Navigate/>
         </Command>
         <Command Name="queryRecentAlbums">

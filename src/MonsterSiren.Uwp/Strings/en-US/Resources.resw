@@ -635,7 +635,7 @@ Continue?</value>
     <value>About Baka......</value>
   </data>
   <data name="CortanaService_Baka_SpokenMessage" xml:space="preserve">
-    <value>Baka632, a not-so-famous dotnet developer, a doctor of Rhodes Island, a big Eureka fan, and a member of the A N E O T editorial board. Now, he welcomes you to use this app and also hopes you know the fact that he loves Eureka.</value>
+    <value>Baka632, a not-so-famous dotnet developer, a doctor of Rhodes Island, an endministrator of Endfield, a big Eureka fan, and a member of the A N E O T editorial board. He welcomes you to use this app and also hopes you know the fact that he loves Eureka.</value>
   </data>
   <data name="CortanaService_Eureka_DisplayMessage" xml:space="preserve">
     <value>About Eureka......</value>
@@ -821,9 +821,9 @@ Continue?</value>
     <value>When this option is enabled, the player will prefer downloaded music.</value>
   </data>
   <data name="FavoriteNavViewItem_PlayAlbumFavorite.Text" xml:space="preserve">
-    <value>Play album favorite</value>
+    <value>Play album favorites</value>
   </data>
   <data name="FavoriteNavViewItem_PlaySongFavorite.Text" xml:space="preserve">
-    <value>Play song favorite</value>
+    <value>Play song favorites</value>
   </data>
 </root>
