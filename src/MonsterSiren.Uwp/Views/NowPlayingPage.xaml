@@ -289,6 +289,9 @@
                                             Background="Transparent"
                                             IsChecked="{x:Bind ViewModel.MusicInfo.IsMute, Mode=TwoWay}"
                                             IsThreeState="False">
+                                            <controls:ThemedToggleButton.ThemeBackground>
+                                                <SolidColorBrush Color="{x:Bind ViewModel.MusicInfo.MusicThemeColorLight1, Mode=OneWay}" />
+                                            </controls:ThemedToggleButton.ThemeBackground>
                                             <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.MusicInfo.VolumeIconGlyph, Mode=OneWay}" />
                                         </msrControls:ThemedToggleButton>
                                         <Slider

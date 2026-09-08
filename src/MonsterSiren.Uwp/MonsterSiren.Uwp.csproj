@@ -220,6 +220,9 @@
     <Compile Include="Models\Packs\SongInfoAndAlbumDetailPack.cs" />
     <Compile Include="Models\Playlists\Playlist.cs" />
     <Compile Include="Models\Playlists\PlaylistItem.cs" />
+    <Compile Include="ResourcesDictionaries\ResourceDictionaryCompiledBindingSupport.xaml.cs">
+      <DependentUpon>ResourceDictionaryCompiledBindingSupport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\FavoriteService.cs" />
     <Compile Include="Services\MediaCastService.cs" />
     <Compile Include="Services\DownloadService.cs" />
@@ -371,6 +374,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\SettingsExpander.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ResourcesDictionaries\ResourceDictionaryCompiledBindingSupport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
