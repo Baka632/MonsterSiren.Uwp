@@ -1,10 +1,11 @@
-# Version 1.2.5.0
+# Version 1.3.1.0
 
 Welcome to the new version of Sora Records! This update mainly brings the following changes:
 
 - Added Favorites feature – You can now add individual songs or entire albums to your favorites.
 - Download enhancements – Support for custom filename and album folder name templates, plus the option to save cover images alongside downloads.
 - Prioritize downloaded music during playback – Reduces network usage and improves offline playback experience.
+- Fixed an issue where playing a song would create a large number of empty album folders in the download directory. (Fixed in 1.3.1.0)
 
 Plus plenty of behind‑the‑scenes code refactoring!
 
@@ -46,6 +47,9 @@ This update introduces several improvements to the download functionality:
 ## Other miscellaneous updates + fixes
 
 - Updated some text descriptions and adjusted several localization resources.
+- On Windows 11 and above, interfaces using `GridView` (such as the album collection page and playlist page) and those using `ListView` (such as the album details page and song favorites page) now apply styles that align with the Windows 11 design language.
 - Extensive code refactoring and bug fixes – if you're interested, check out the details [here](https://github.com/Baka632/MonsterSiren.Uwp/pull/33).
+- Fixed an issue where playing a song would unexpectedly create a large number of empty folders in the download directory. (Fixed in 1.3.1.0)
+- Made a more accurate revision to the version numbering: the original 1.2.5.0 release has been re‑designated as 1.3.0.0. This version serves as a hotfix for 1.3.0.0, and is therefore numbered 1.3.1.0.
 
 > Last but certainly not least, thank you for using Sora Records!

@@ -77,16 +77,18 @@ public static partial class MsrModelsHelper
                     albumDetail);
 
                 StorageFolder downloadFolder = await StorageFolder.GetFolderFromPathAsync(DownloadService.DownloadPath);
-                StorageFolder albumFolder = await downloadFolder.CreateFolderAsync(albumFolderName, CreationCollisionOption.OpenIfExists);
-
-                string[] searchExtensions = [".wav", $".{DownloadService.TranscodeFormat.ToString().ToLower()}"];
-                foreach (string extension in searchExtensions)
+                IStorageItem albumFolderItem = await downloadFolder.TryGetItemAsync(albumFolderName);
+                if (albumFolderItem is StorageFolder albumFolder)
                 {
-                    IStorageItem targetItem = await albumFolder.TryGetItemAsync($"{musicFileName}{extension}");
-                    if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                    string[] searchExtensions = [".wav", $".{DownloadService.TranscodeFormat.ToString().ToLower()}"];
+                    foreach (string extension in searchExtensions)
                     {
-                        source = MediaSource.CreateFromStorageFile((StorageFile)targetItem);
-                        break;
+                        IStorageItem targetItem = await albumFolder.TryGetItemAsync($"{musicFileName}{extension}");
+                        if (targetItem is not null && targetItem.IsOfType(StorageItemTypes.File) && (await targetItem.GetBasicPropertiesAsync()).Size != 0)
+                        {
+                            source = MediaSource.CreateFromStorageFile((StorageFile)targetItem);
+                            break;
+                        }
                     }
                 }
             }
